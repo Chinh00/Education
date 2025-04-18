@@ -1,4 +1,3 @@
-import './App.css'
 import {RoutersProvider} from "./providers/RoutersProvider.tsx";
 import { Toaster } from 'react-hot-toast';
 import ReactQueryProvider from "./providers/ReactQueryProvider.tsx";

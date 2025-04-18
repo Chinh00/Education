@@ -9,7 +9,7 @@ const Home = lazy(() => import("../modules/home/pages/home.tsx"))
 const RegisterEducation = lazy(() => import("../modules/student/pages/register_education.tsx"))
 const StudentInformation = lazy(() => import("../modules/student/pages/student_information.tsx"))
 const StudentResult = lazy(() => import("../modules/student/pages/student_result.tsx"))
-const Login = lazy(() => import("../modules/student/pages/student_result.tsx"))
+const Login = lazy(() => import("../modules/auth/pages/login.tsx"))
 
 const ProtectedRoute = () => {
     const {authenticate} = useAppSelector(e => e.common)

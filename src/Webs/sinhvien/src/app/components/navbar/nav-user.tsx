@@ -9,30 +9,14 @@ import {
     Sparkles,
 } from "lucide-react"
 
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from "../../../../../../../../../dotnet/SubServices/example/test-example/src/components/ui/avatar.tsx"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "../../../../../../../../../dotnet/SubServices/example/test-example/src/components/ui/dropdown-menu.tsx"
-import {
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    useSidebar,
-} from "../../../../../../../../../dotnet/SubServices/example/test-example/src/components/ui/sidebar.tsx"
 import {useNavigate} from "react-router";
 import {useAppDispatch} from "@/app/stores/hook.ts";
 import { setAuthenticate } from "@/app/stores/common_slice.ts";
 import {RoutePaths} from "@/cores/route_paths.ts";
+import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "../ui/sidebar";
+import {DropdownMenu, DropdownMenuContent,
+    DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import {Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export function NavUser({user,}: {
     user: {

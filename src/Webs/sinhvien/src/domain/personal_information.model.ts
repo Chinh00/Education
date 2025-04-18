@@ -1,4 +1,4 @@
-type PersonalInformation = {
+interface PersonalInformation {
     firstName: string;
     lastName: string;
     fullName: string;
@@ -15,4 +15,4 @@ type PersonalInformation = {
     ethnic: string;
 }
 
-export default PersonalInformation;
+export {PersonalInformation};

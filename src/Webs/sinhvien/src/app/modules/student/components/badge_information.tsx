@@ -1,6 +1,5 @@
+import { Badge } from "@/app/components/ui/badge";
 import {Typography} from "@mui/material";
-import {GraduationCap} from "lucide-react";
-import {Badge} from "../../../components/ui/badge.tsx";
 
 export type BadgeInformationProps = {
     text?: string;

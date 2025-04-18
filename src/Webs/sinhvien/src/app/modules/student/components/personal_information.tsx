@@ -1,25 +1,19 @@
-import {Card, CardDescription, CardFooter, CardHeader, CardTitle} from "../../../components/ui/card.tsx";
-import {TabsContent} from "../../../components/ui/tabs.tsx";
+import {PersonalInformation} from "@/domain/personal_information.model"
 import {
-    BookOpen,
-    Building,
-    Calendar,
-    Edit,
-    Flag,
-    Home,
-    Mail,
-    Phone, School,
-    User,
-    UserCircle,
-    Users,
-    Verified,
-    HomeIcon
-} from "lucide-react";
-import {Button} from "../../../components/ui/button.tsx";
-import {CardContent} from "@mui/material";
-import {Avatar, AvatarFallback} from "../../../components/ui/avatar.tsx";
-import PersonalInformation from "../../../domain/personal_information.model.ts"
-import dayjs from "dayjs";
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+
+
+} from "@/app/components/ui/card"
+import {BookOpen, Building, Calendar, Edit, Flag, Home, Mail, Phone, School, User, UserCircle, Users, Verified } from "lucide-react"
+import { Button } from "@/app/components/ui/button"
+
+import dayjs from "dayjs"
+import {Avatar, AvatarFallback} from "@/app/components/ui/avatar"
 
 export interface PersonalInformationProps {
     personalInformation?: PersonalInformation

@@ -1,6 +1,6 @@
-import http from "../../../cores/http.ts";
-import {SuccessResponse} from "../../../infrastructure/utils/success_response.ts";
-import {Student} from "../../../domain/student.model.ts";
+import { Student } from "@/domain/student.model";
+import http from "@/infrastructure/http";
+import { SuccessResponse } from "@/infrastructure/utils/success_response";
 import {AxiosResponse} from "axios";
 
 const getStudentInformation = async (): Promise<AxiosResponse<SuccessResponse<Student>>> => {

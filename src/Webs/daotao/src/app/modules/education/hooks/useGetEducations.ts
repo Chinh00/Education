@@ -7,4 +7,7 @@ const useGetEducations = (query: Query) => {
         queryFn: () => getEducations(query),
     })
 }
+
+
+
 export {useGetEducations}

@@ -1,20 +1,26 @@
 import {useEffect, useMemo, useState} from "react";
 import { useGetEducations } from "../hooks/useGetEducations";
 import {MaterialReactTable, MRT_ColumnDef, MRT_PaginationState, useMaterialReactTable} from 'material-react-table'
-import {IconButton, Tooltip} from "@mui/material";
+import {Box, IconButton, Tooltip} from "@mui/material";
 import { Eye } from "lucide-react";
 import {Education} from "@/domain/education.ts";
 import {Query} from "@/infrastructure/query.ts";
 import {useGetCourses, useGetDepartments} from "@/app/modules/common/hook.ts";
+import Async, { useAsync } from 'react-select/async';
+import AsyncSelect from "react-select/async";
+import {Department} from "@/domain/department.ts";
+import SearchOptions from "@/app/modules/education/components/search_options.tsx";
+
+
 const EducationList = () => {
     const [query, setQuery] = useState<Query>({
         Page: 1,
         PageSize: 10,
     })
     const {data, isPending} = useGetEducations(query)
-    const {data: departments} = useGetDepartments({})
+
+
     const {data: courses} = useGetCourses({})
-    console.log(departments)
 
 
 
@@ -108,7 +114,18 @@ const EducationList = () => {
         }
     });
 
-    return <MaterialReactTable table={table}  />;
+
+
+
+
+    return (
+        <>
+            <Box className={"p-5"}>
+                <SearchOptions />
+            </Box>
+            {/*<MaterialReactTable table={table}  />*/}
+        </>
+    )
 
 }
 

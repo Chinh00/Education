@@ -2,17 +2,18 @@ import { useGetSemesters } from "../hooks/useGetSemesters";
 import {useEffect, useMemo, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {MaterialReactTable, MRT_ColumnDef, MRT_PaginationState, useMaterialReactTable} from "material-react-table";
-import {Box, Button, IconButton, Tooltip} from "@mui/material";
-import {Download, Eye, Plus} from "lucide-react";
+import {Box, IconButton, Tooltip} from "@mui/material";
+import {Eye} from "lucide-react";
 import {Semester} from "@/domain/semester.ts";
 import SemesterModal from "@/app/modules/semester/components/semester_modal.tsx";
+import dayjs from "dayjs";
 
 const SemesterList = () => {
     const [query, setQuery] = useState<Query>({
         Page: 1,
         PageSize: 10,
     })
-    const {data, isPending} = useGetSemesters(query);
+    const {data, isPending, refetch} = useGetSemesters(query);
 
     const columns = useMemo<MRT_ColumnDef<Semester>[]>(
         () => [
@@ -20,21 +21,52 @@ const SemesterList = () => {
                 accessorKey: 'semesterCode',
                 header: 'Mã kì học',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
             {
                 accessorKey: 'semesterName',
                 header: 'Tên kì học',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
             {
                 accessorKey: 'startDate',
                 header: 'Thời gian bắt đầu',
                 size: 150,
+                Cell: ({cell}) => {
+                    return dayjs(cell.getValue()?.toString()).format('DD-MM-YYYY');
+                },
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
+
             },
             {
                 accessorKey: 'endDate',
                 header: 'Thời gian kết thúc',
                 size: 150,
+                Cell: ({cell}) => {
+                    return dayjs(cell.getValue()?.toString()).format('DD-MM-YYYY');
+                },
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
 
         ],
@@ -85,7 +117,7 @@ const SemesterList = () => {
                 }}
 
             >
-                <SemesterModal />
+                <SemesterModal refetch={refetch} />
 
             </Box>
         ),

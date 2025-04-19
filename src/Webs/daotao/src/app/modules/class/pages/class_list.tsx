@@ -22,16 +22,34 @@ const ClassList = () => {
                 accessorKey: 'classCode',
                 header: 'Mã lớp',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
             {
                 accessorKey: 'className',
                 header: 'Tên lớp',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
             {
                 accessorKey: 'educationCode',
                 header: 'Mã chương trình đào tạo',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
         ],
         [],

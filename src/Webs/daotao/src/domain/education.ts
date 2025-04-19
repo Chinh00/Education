@@ -8,6 +8,7 @@ export interface Education {
     knowledgeBlockDescriptions: string | null;
     educationSubjects: EducationSubject[];
     id: string;
+    courseId: string;
     createdAt: string;
     updatedAt: string | null;
     specialityPath: string;

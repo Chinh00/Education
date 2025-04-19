@@ -5,14 +5,16 @@ import {IconButton, Tooltip} from "@mui/material";
 import { Eye } from "lucide-react";
 import {Education} from "@/domain/education.ts";
 import {Query} from "@/infrastructure/query.ts";
+import {useGetCourses, useGetDepartments} from "@/app/modules/common/hook.ts";
 const EducationList = () => {
     const [query, setQuery] = useState<Query>({
         Page: 1,
         PageSize: 10,
     })
     const {data, isPending} = useGetEducations(query)
-
-
+    const {data: departments} = useGetDepartments({})
+    const {data: courses} = useGetCourses({})
+    console.log(departments)
 
 
 
@@ -23,16 +25,34 @@ const EducationList = () => {
                 accessorKey: 'name', 
                 header: 'Tên chương trình đào tạo',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
             {
                 accessorKey: 'code', 
                 header: 'Mã chương trình',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
             {
                 accessorKey: 'trainingTime', 
                 header: 'Thời gian đào tạo',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
         ],
         [],

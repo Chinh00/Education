@@ -11,6 +11,7 @@ const Home = lazy(() => import("../modules/home/pages/home.tsx"));
 const Education = lazy(() => import("../modules/education/pages/education_list.tsx"));
 const CLASS = lazy(() => import("../modules/class/pages/class_list.tsx"));
 const WISH_CONFIG = lazy(() => import("../modules/register/pages/wish_config.tsx"));
+const SEMESTER = lazy(() => import("../modules/semester/pages/semester_list.tsx"));
 
 
 
@@ -27,6 +28,7 @@ export const RoutersProvider = () => {
                         <Route path={RoutePaths.EDUCATION_LIST} element={<Education />} />
                         <Route path={RoutePaths.CLASS_LIST} element={<CLASS />} />
                         <Route path={RoutePaths.WISH_CONFIG} element={<WISH_CONFIG />} />
+                        <Route path={RoutePaths.SEMESTER_LIST} element={<SEMESTER />} />
                     </Route>
                     <Route path="/login" element={<Login />} />
                 </Route>

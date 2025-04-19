@@ -1,4 +1,4 @@
-import {useGetCourses, useGetDepartments} from "@/app/modules/common/hook.ts";
+import {useGetCourses, useGetDepartments, useGetSpecialityDepartments} from "@/app/modules/common/hook.ts";
 import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {Popover, PopoverContent, PopoverTrigger} from "@/app/components/ui/popover.tsx";
@@ -28,6 +28,7 @@ const SpecialitySearch = (props: SpecialitySearchProps) => {
 
     })
     useEffect(() => {
+        if (state?.query?.Filters?.filter(c => c.field === "SpecialityPath")[0]?.value)
         setDepartmentQuery(prevState => ({
             ...prevState,
             Filters: [
@@ -43,7 +44,7 @@ const SpecialitySearch = (props: SpecialitySearchProps) => {
     }, [state.query]);
 
     const [open, setOpen] = useState(false)
-    const {data: departments, isPending, isSuccess} = useGetDepartments(departmentQuery, open)
+    const {data: departments, isPending, isSuccess} = useGetSpecialityDepartments(departmentQuery, open)
 
     const [value, setValue] = useState("")
     return (

@@ -18,8 +18,17 @@ const useGetDepartments = (query: Query, enable: boolean = true) => {
     })
 }
 
+const useGetSpecialityDepartments = (query: Query, enable: boolean = true) => {
+    return useQuery({
+        queryKey: ["specialityDepartments", query],
+        queryFn: () => getDepartments(query),
+        enabled: enable,
+    })
+}
+
 
 export {
     useGetCourses,
-    useGetDepartments
+    useGetDepartments,
+    useGetSpecialityDepartments
 };

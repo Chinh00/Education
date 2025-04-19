@@ -2,6 +2,7 @@ import {Outlet} from "react-router";
 import {SidebarInset, SidebarProvider, SidebarTrigger,} from "@/app/components/ui/sidebar"
 import {Separator} from "@/app/components/ui/separator.tsx";
 import {AppSidebar} from "@/app/components/navbar/app-sidebar.tsx";
+import {Suspense} from "react";
 const MainLayout = () => {
     return <>
         <SidebarProvider>

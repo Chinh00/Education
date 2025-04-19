@@ -1,27 +1,53 @@
 import {useGetCourses, useGetDepartments} from "@/app/modules/common/hook.ts";
-import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
-import { Popover, PopoverContent, PopoverTrigger } from "@/app/components/ui/popover";
-import { Button } from "@/app/components/ui/button";
+import {Popover, PopoverContent, PopoverTrigger} from "@/app/components/ui/popover.tsx";
+import {Button} from "@/app/components/ui/button.tsx";
 import {Check, ChevronsUpDown, Loader} from "lucide-react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/app/components/ui/command";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList
+} from "@/app/components/ui/command.tsx";
 import {cn} from "@/app/lib/utils.ts";
+import {getDepartments} from "@/app/modules/common/service.ts";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {EducationState, setQuery} from "@/app/modules/education/stores/education_slice.ts";
 
-export type SearchOptionsProps = {
+export type SpecialitySearchProps = {
 }
 
-const SearchOptions = (props: SearchOptionsProps) => {
+const SpecialitySearch = (props: SpecialitySearchProps) => {
     const state = useAppSelector<EducationState>(c => c.education)
     const dispatch = useAppDispatch();
 
-    const [departmentQuery, setDepartmentQuery] = useState<Query>({})
+    const [departmentQuery, setDepartmentQuery] = useState<Query>({
+
+    })
+    useEffect(() => {
+        setDepartmentQuery(prevState => ({
+            ...prevState,
+            Filters: [
+                ...prevState?.Filters?.filter(c => c.field !== "Id") ?? [],
+                {
+                    field: "Id",
+                    operator: "Contains",
+                    value: state?.query?.Filters?.filter(c => c.field === "SpecialityPath")[0]?.value ?? "",
+                }
+            ],
+            Includes: ["Specialities"]
+        }))
+    }, [state.query]);
+
     const [open, setOpen] = useState(false)
     const {data: departments, isPending, isSuccess} = useGetDepartments(departmentQuery, open)
+
     const [value, setValue] = useState("")
     return (
-        < >
+        <>
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button
@@ -31,44 +57,44 @@ const SearchOptions = (props: SearchOptionsProps) => {
                         className="w-[300px] justify-between"
                     >
                         {value
-                            ? departments?.data?.data?.items?.find((item) => item.departmentCode === value)?.departmentName
-                            : "Chọn khoa"}
+                            ? departments?.data?.data?.items?.find((item) => item.departmentCode === value)?.departmentCode
+                            : "Chọn ngành học"}
                         <ChevronsUpDown className="opacity-50" />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
                     <Command>
-                        <CommandInput placeholder="Chọn khoa" className="h-9" />
+                        <CommandInput placeholder="Chọn ngành học" className="h-9" />
                         <CommandList>
                             {isSuccess && <CommandEmpty>Không có dữ liệu</CommandEmpty>}
                             <CommandGroup>
                                 {
-                                    !!departments && departments?.data?.data?.items?.map((item) => {
+                                    !!departments && departments?.data?.data?.items[0]?.specialities?.map((item, index) => {
                                         return (
                                             <CommandItem
-                                                key={item.id}
-                                                value={item.departmentCode}
+                                                key={`${item.specialityCode}-${index}`}
+                                                value={item.specialityCode}
                                                 onSelect={(currentValue) => {
                                                     setValue(currentValue === value ? "" : currentValue)
                                                     dispatch(setQuery({
-                                                        ...state?.query,
+                                                        ...state.query,
                                                         Filters: [
                                                             ...state.query?.Filters?.filter(c => c.field !== "SpecialityPath") ?? [],
                                                             {
                                                                 field: "SpecialityPath",
-                                                                value: item.id,
+                                                                value: `${state?.query?.Filters?.filter(c => c.field === "SpecialityPath")[0]?.value}.${index}`,
                                                                 operator: "Contains"
                                                             }
-                                                        ],
+                                                        ]
                                                     }))
                                                     setOpen(false)
                                                 }}
                                             >
-                                                {item.departmentName}
+                                                {item.specialityName }
                                                 <Check
                                                     className={cn(
                                                         "ml-auto",
-                                                        value === item.departmentCode ? "opacity-100" : "opacity-0"
+                                                        value === item.specialityCode ? "opacity-100" : "opacity-0"
                                                     )}
                                                 />
                                             </CommandItem>
@@ -81,8 +107,9 @@ const SearchOptions = (props: SearchOptionsProps) => {
                     {isPending && <Loader size={"30"} className={"mx-auto my-10 animate-spin"} />}
                 </PopoverContent>
             </Popover>
+
         </>
     )
 }
 
-export default SearchOptions;
+export default SpecialitySearch

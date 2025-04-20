@@ -4,18 +4,16 @@ using TrainingService.Domain;
 
 namespace TrainingService.AppCore.Usecases.Specs;
 
-public class GetSemestersSpec : ListSpecification<Semester>
+public class GetDepartmentsSpec : ListSpecification<Department>
 {
-    public GetSemestersSpec(IListQuery<ListResultModel<Semester>> query)
+    public GetDepartmentsSpec(IListQuery<ListResultModel<Department>> query)
     {
         ApplyFilters(query.Filters);
         ApplyPaging(query.Page, query.PageSize);
         ApplyIncludes(query.Includes);
         ApplySorts(query.Sorts);
-        ApplyInclude(c => c.SemesterCode);
-        ApplyInclude(c => c.SemesterName);
-        ApplyInclude(c => c.StartDate);
-        ApplyInclude(c => c.EndDate);
+        ApplyInclude(c => c.DepartmentCode);
+        ApplyInclude(c => c.DepartmentName);
         ApplyInclude(c => c.Id);
     }
 }

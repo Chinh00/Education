@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Education.Core.Domain;
+using MongoDB.Bson;
 
 namespace Education.Core.Specification;
 
@@ -130,6 +131,7 @@ public static class Extensions
                 var valueType = Nullable.GetUnderlyingType(left.Type) ?? left.Type;
                 typedValue = valueType.IsEnum ? Enum.Parse(valueType, value) :
                     valueType == typeof(Guid) ? Guid.Parse(value) :
+                    valueType == typeof(ObjectId) ? ObjectId.Parse(value) :
                     Convert.ChangeType(value, valueType);
             }
         }

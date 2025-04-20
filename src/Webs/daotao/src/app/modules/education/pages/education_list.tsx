@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from "react";
 import { useGetEducations } from "../hooks/useGetEducations";
 import {MaterialReactTable, MRT_ColumnDef, MRT_PaginationState, useMaterialReactTable} from 'material-react-table'
 import {Box, IconButton, Tooltip} from "@mui/material";
-import { Eye } from "lucide-react";
+import { Eye, Settings } from "lucide-react";
 import {Education} from "@/domain/education.ts";
 import {Query} from "@/infrastructure/query.ts";
 import SearchOptions from "@/app/modules/education/components/search_options.tsx";
@@ -10,6 +10,8 @@ import CourseSearch from "@/app/modules/education/components/course_search.tsx";
 import SpecialitySearch from "@/app/modules/education/components/speciality_search.tsx";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {EducationState, setQuery} from "@/app/modules/education/stores/education_slice.ts";
+import {useNavigate} from "react-router";
+import {RoutePaths} from "@/core/route_paths.ts";
 
 
 const EducationList = () => {
@@ -59,7 +61,7 @@ const EducationList = () => {
         pageIndex: 0,
         pageSize: 10,
     })
-
+    const nav = useNavigate()
     useEffect(() => {
         // setQuery(prevState => ({
         //     ...prevState,
@@ -107,6 +109,17 @@ const EducationList = () => {
                         <Eye />
                     </IconButton>
                 </Tooltip>
+                <Tooltip title={"Cấu hình đăng ký học"} >
+                    <IconButton
+                        color="primary"
+                        onClick={() => {
+                            nav(`/register-config/${row.original.code}`)
+                        }}
+                    >
+                        <Settings />
+                    </IconButton>
+                </Tooltip>
+
             </>
         }
     });

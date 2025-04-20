@@ -1,21 +1,21 @@
 import {useEffect, useMemo, useState} from "react";
 import { useGetEducations } from "../hooks/useGetEducations";
 import {MaterialReactTable, MRT_ColumnDef, MRT_PaginationState, useMaterialReactTable} from 'material-react-table'
-import {IconButton, Tooltip} from "@mui/material";
+import {Box, IconButton, Tooltip} from "@mui/material";
 import { Eye } from "lucide-react";
 import {Education} from "@/domain/education.ts";
 import {Query} from "@/infrastructure/query.ts";
+import SearchOptions from "@/app/modules/education/components/search_options.tsx";
+import CourseSearch from "@/app/modules/education/components/course_search.tsx";
+import SpecialitySearch from "@/app/modules/education/components/speciality_search.tsx";
+import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
+import {EducationState, setQuery} from "@/app/modules/education/stores/education_slice.ts";
+
+
 const EducationList = () => {
-    const [query, setQuery] = useState<Query>({
-        Page: 1,
-        PageSize: 10,
-    })
-    const {data, isPending} = useGetEducations(query)
-
-
-
-
-
+    const state = useAppSelector<EducationState>(c => c.education)
+    const dispatch = useAppDispatch()
+    const {data, isPending} = useGetEducations(state.query)
 
     const columns = useMemo<MRT_ColumnDef<Education>[]>(
         () => [
@@ -23,16 +23,34 @@ const EducationList = () => {
                 accessorKey: 'name', 
                 header: 'Tên chương trình đào tạo',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
             {
                 accessorKey: 'code', 
                 header: 'Mã chương trình',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
             {
                 accessorKey: 'trainingTime', 
                 header: 'Thời gian đào tạo',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
         ],
         [],
@@ -43,8 +61,13 @@ const EducationList = () => {
     })
 
     useEffect(() => {
-        setQuery(prevState => ({
-            ...prevState,
+        // setQuery(prevState => ({
+        //     ...prevState,
+        //     Page: pagination.pageIndex + 1,
+        //     PageSize: pagination.pageSize,
+        // }))
+        dispatch(setQuery({
+            ...state.query,
             Page: pagination.pageIndex + 1,
             PageSize: pagination.pageSize,
         }))
@@ -88,7 +111,20 @@ const EducationList = () => {
         }
     });
 
-    return <MaterialReactTable table={table}  />;
+
+
+
+
+    return (
+        <>
+            <Box className={"p-5 flex gap-5"}>
+                <CourseSearch  />
+                <SearchOptions />
+                <SpecialitySearch />
+            </Box>
+            <MaterialReactTable table={table}  />
+        </>
+    )
 
 }
 

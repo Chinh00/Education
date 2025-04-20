@@ -13,4 +13,5 @@ export interface CreateSemesterModel {
 }
 
 const getSemesters = (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Semester>>>> => http.get(`/trainingservice/api/Semester?${GetQuery(query)}`) 
-export {getSemesters}
+const createSemester = (model: CreateSemesterModel): Promise<AxiosResponse<SuccessResponse<Semester>>> => http.post(`/trainingservice/api/Semester`, model)
+export {getSemesters, createSemester}

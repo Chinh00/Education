@@ -2,8 +2,7 @@ import axios, {AxiosInstance} from "axios";
 import Auth, {Authenticate} from "../infrastructure/utils/auth.ts";
 
 
-function sleep(ms = 500): Promise<void> {
-    console.log('Kindly remember to remove `sleep`');
+export function sleep(ms = 500): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -41,7 +40,7 @@ class Http {
         })
 
         this.instance.interceptors.response.use( async res => {
-
+            // await sleep(2000)
             const {url} = res.config
             if (url === "/identityservice/connect/token") {
                 const authenticate = res.data as Authenticate

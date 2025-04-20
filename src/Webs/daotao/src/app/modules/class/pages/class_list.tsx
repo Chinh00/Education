@@ -5,6 +5,7 @@ import {IconButton, Tooltip} from "@mui/material";
 import {Eye} from "lucide-react";
 import {Query} from "@/infrastructure/query.ts";
 import { ClassManager } from "@/domain/class_manager";
+import {useNavigate} from "react-router";
 
 const ClassList = () => {
     const [query, setQuery] = useState<Query>({
@@ -22,16 +23,34 @@ const ClassList = () => {
                 accessorKey: 'classCode',
                 header: 'Mã lớp',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
             {
                 accessorKey: 'className',
                 header: 'Tên lớp',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
             {
                 accessorKey: 'educationCode',
                 header: 'Mã chương trình đào tạo',
                 size: 150,
+                muiTableHeadCellProps: {
+                    align: 'center',
+                },
+                muiTableBodyCellProps: {
+                    align: 'center',
+                },
             },
         ],
         [],
@@ -48,7 +67,7 @@ const ClassList = () => {
             PageSize: pagination.pageSize,
         }))
     }, [pagination]);
-
+    const nav = useNavigate()
     const table = useMaterialReactTable({
         columns,
         data: data?.data?.data?.items ?? [],
@@ -77,7 +96,7 @@ const ClassList = () => {
                     <IconButton
                         color="primary"
                         onClick={() => {
-
+                            nav(`/classes/${row?.original?.classCode}/semesters`)
                         }}
                     >
                         <Eye />

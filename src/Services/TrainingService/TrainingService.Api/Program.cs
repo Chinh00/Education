@@ -1,3 +1,5 @@
+using TrainingService.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuth(builder.Configuration)
     .AddLoggingService()
@@ -7,7 +9,7 @@ builder.Services.AddAuth(builder.Configuration)
     .AddMediatorService([typeof(Anchor)])
     .AddAutoMapperService(typeof(MapperConfigs))
     .AddMongodbService(builder.Configuration, typeof(MongoRepository<>))
-    
+    .AddMasstransitService(builder.Configuration)
     ;
 
 var app = builder.Build();

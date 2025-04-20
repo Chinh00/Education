@@ -41,11 +41,12 @@ public record ConfigSemesterForClassCommand(string SemesterCode, List<string> Cl
             }
             foreach (var classManager in listClass)
             {
-                classManager.SemesterClasses.Add(new SemesterClass()
-                {
-                    SemesterId = semester.Id,
-                    SemesterCode = semester.SemesterCode,
-                });
+                if (classManager.SemesterClasses.All(c => c.SemesterCode != semester.SemesterCode))
+                    classManager.SemesterClasses.Add(new SemesterClass()
+                    {
+                        SemesterId = semester.Id,
+                        SemesterCode = semester.SemesterCode,
+                    });
             }
             foreach (var classManager in listClass)
             {

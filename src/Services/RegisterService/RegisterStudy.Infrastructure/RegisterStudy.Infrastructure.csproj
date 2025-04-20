@@ -18,6 +18,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\BuildingBlock\Education.Contract\Education.Contract.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlock\Education.Infrastructure\Education.Infrastructure.csproj" />
+      <ProjectReference Include="..\RegisterStudy.AppCore\RegisterStudy.AppCore.csproj" />
     </ItemGroup>
 
 </Project>

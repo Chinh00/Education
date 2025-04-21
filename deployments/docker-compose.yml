@@ -1,0 +1,7 @@
+services:
+  daotao:
+    build:
+      context: ../
+      dockerfile: src/Webs/daotao/Dockerfile
+    ports:
+      - "3000:80"

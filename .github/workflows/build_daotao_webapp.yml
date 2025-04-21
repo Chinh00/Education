@@ -1,4 +1,4 @@
-name: 🚀 Build and Push Docker Image
+name: 🚀 Build gateway service
 
 on:
   workflow_dispatch:
@@ -25,10 +25,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: 🏗️ Build and push Docker image Identity Service
+      - name: 🏗️ Build and push Docker image gateway service
         uses: docker/build-push-action@v5
         with:
           context: .
           file: src/Services/Gateways/Gateway/Dockerfile
-          push: false
+          push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_GATEWAY_SERVICE}}:latest

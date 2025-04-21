@@ -15,4 +15,4 @@ interface PersonalInformation {
     ethnic: string;
 }
 
-export {PersonalInformation};
+export default PersonalInformation;

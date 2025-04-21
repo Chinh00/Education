@@ -1,4 +1,4 @@
-import {PersonalInformation} from "@/domain/personal_information.model"
+import PersonalInformation from "@/domain/personal_information.model"
 import {
     Card,
     CardContent,

@@ -1,13 +1,7 @@
 
 export const RoutePaths = {
-    LOGIN: {
-        PATH: '/login',
-        DESCRIPTION: '',
-    },
-    STUDENT_INFORMATION: {
-        PATH: '/student/information',
-        DESCRIPTION: 'Thông tin sinh viên',
-    },
+    LOGIN: "/login",
+    STUDENT_INFORMATION: "/student/information",
     STUDENT_REGISTER: {
         PATH: '/student/register',
         DESCRIPTION: 'Đăng ký học',
@@ -16,12 +10,6 @@ export const RoutePaths = {
         PATH: '/student/education',
         DESCRIPTION: 'Chương trình đào tạo',
     },
-    STUDENT_RESULT: {
-        PATH: '/student/result',
-        DESCRIPTION: 'Kết quả học tập',
-    },
-    HOME: {
-        PATH: "/",
-        DESCRIPTION: ""
-    },
+    STUDENT_RESULT: "/student/result",
+    HOME: "/"
 }

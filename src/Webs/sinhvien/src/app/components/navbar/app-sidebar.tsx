@@ -37,7 +37,7 @@ export function AppSidebar() {
                             <SidebarMenuItem>
                                 <SidebarMenuButton className="text-sidebar-foreground/70" >
                                     <CakeSlice />
-                                    <Link to={RoutePaths.STUDENT_RESULT.PATH}>Kết quả học tập</Link>
+                                    <Link to={"/student/result"}>Kết quả học tập</Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>

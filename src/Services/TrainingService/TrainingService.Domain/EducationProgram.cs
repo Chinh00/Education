@@ -15,8 +15,6 @@ public class EducationProgram : BaseEntity
     public int Type { get; set; }
     public string CourseCode { get; set; }
     public string BrandCode { get; set; }
-    [JsonConverter(typeof(ObjectIdJsonConverter))]
-    public ObjectId CourseId { get; set; }
     public float TrainingTime { get; set; }
     public ICollection<KnowledgeBlockDescription> KnowledgeBlockDescriptions { get; set; }
     public ICollection<EducationSubject> EducationSubjects { get; set; }

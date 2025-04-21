@@ -1,4 +1,4 @@
-import {BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router"
+import {BrowserRouter, createBrowserRouter, Navigate, Outlet, Route, RouterProvider, Routes} from "react-router"
 import {useAppSelector } from "../stores/hook"
 import { RoutePaths } from "@/cores/route_paths"
 import {lazy, Suspense} from "react"
@@ -18,28 +18,40 @@ const ProtectedRoute = () => {
 
 const AuthRoute = () => {
     const {authenticate} = useAppSelector(e => e.common)
-    return !authenticate ? <Outlet/> : <Navigate to={RoutePaths.HOME.PATH}/>
+    return !authenticate ? <Outlet/> : <Navigate to={RoutePaths.HOME}/>
 }
+
+const router = createBrowserRouter([
+    {
+        path: "",
+        element: <Suspense fallback={<LoadingScreen />}  key={"MainLayout"} ><MainLayout /></Suspense>,
+        children: [
+            {
+                path: RoutePaths.HOME,
+                element: <Suspense fallback={<LoadingScreen  />} key={"Home"}><Home /></Suspense>,
+            },
+            {
+                path: RoutePaths.STUDENT_INFORMATION,
+                element: <Suspense fallback={<LoadingScreen  />} key={"StudentInformation"}><StudentInformation /></Suspense>,
+            },
+            {
+                path: RoutePaths.STUDENT_RESULT,
+                element: <Suspense fallback={<LoadingScreen  />} key={"StudentResult"}><StudentResult /></Suspense>,
+            },
+
+
+        ],
+    },
+    {
+        path: RoutePaths.LOGIN,
+        element: <Suspense fallback={<LoadingScreen  />} key={"StudentResult"}><Login /></Suspense>,
+    },
+]);
+
+
+
 export const RoutersProvider = () => {
-    return <BrowserRouter>
-        <Suspense fallback={<LoadingScreen />}>
-            <Routes>
-                <Route element={<IndexLayout />}>
-                    <Route element={<ProtectedRoute />}>
-                        <Route path={"/"} element={<MainLayout />}>
-                            <Route path="" element={<Home />} />
-                            <Route path={"/student"} >
-                                <Route path="register" element={<RegisterEducation />} />
-                                <Route path="information" element={<StudentInformation />} />
-                                <Route path="result" element={<StudentResult />} />
-                            </Route>
-                        </Route>
-                    </Route>
-                    <Route element={<AuthRoute />}>
-                        <Route path="/login" element={<Login />} />
-                    </Route>
-                </Route>
-            </Routes>
-        </Suspense>
-    </BrowserRouter>
+    return <>
+        <RouterProvider router={router} />
+    </>
 }

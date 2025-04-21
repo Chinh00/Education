@@ -3,6 +3,7 @@ import { Calendar } from "lucide-react";
 import useGetStudentInformation from "../hooks/useGetStudentInformation";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/app/components/ui/accordion";
 import {HistorySemester} from "@/domain/history_semester.model.ts";
+import dayjs from "dayjs";
 
 
 const StudentResult = () => {
@@ -29,7 +30,7 @@ const StudentResult = () => {
                                                 <div>
                                                     <h3 className="font-medium text-lg">{c?.semesterName}</h3>
                                                     <p className="text-sm text-muted-foreground">
-                                                        {c?.startDate} - {c?.endDate}
+                                                        {dayjs(c?.startDate).format("DD-MM-YYYY")} - {c?.endDate}
                                                     </p>
                                                 </div>
                                             </div>

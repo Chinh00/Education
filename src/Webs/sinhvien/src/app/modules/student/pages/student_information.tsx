@@ -7,7 +7,8 @@ import {CircleUserRound, Clock, Edit, GraduationCap, School, Share } from "lucid
 import BadgeInformation from "../components/badge_information";
 import { Typography } from "@mui/material";
 import PersonalInformation from "../components/personal_information";
-
+import Background from "@/assets/images/background.jpg"
+import DefaultAvatar from "@/assets/images/avatar.png"
 
 const StudentInformation = () => {
     const {data} = useGetStudentInformation()
@@ -15,7 +16,11 @@ const StudentInformation = () => {
         <>
             <Card className={"relative overflow-hidden w-full h-full p-0"} style={{
             }}>
-                <div className={'absolute bg-[url(/images/background.jpg)] bg-cover right-0 w-full h-[300px] col-span-2 bg-no-repeat '}>
+                <div className={'absolute bg-cover right-0 w-full h-[300px] col-span-2 bg-no-repeat '}
+                    style={{
+                        backgroundImage: `url(${Background})`
+                    }}
+                >
                     <div className={"inset-0 md:bg-[linear-gradient(35deg,_white_0%,_white_45%,_transparent_100%)] bg-[linear-gradient(to_top,_white_0%,_white_45%,_transparent_100%)] pointer-events-none w-full h-full backdrop-blur-[1px]"}>
 
                     </div>
@@ -23,7 +28,7 @@ const StudentInformation = () => {
                 <div className={"relative flex flex-col overflow-hidden w-full h-full z-50 py-10 md:flex-row gap-10"} >
                     <div className={"flex justify-center content-center flex-col gap-3 md:pl-20 mx-auto "}>
                         <Avatar className={"w-[200px] h-[200px] bg-white/80 md:bg-transparent shadow-xl ring-4 ring-blue-500/30 border-4"} >
-                            <AvatarImage src={"/images/avatar.png"} />
+                            <AvatarImage src={DefaultAvatar} />
                             <AvatarFallback>A</AvatarFallback>
                         </Avatar>
                         <Button variant={"outline"}>

@@ -31,4 +31,4 @@ jobs:
           context: .
           file: src/Services/TrainingService/TrainingService.Api/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_TRAINING_WEBAPP}}:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_TRAINING_SERVICE }}:latest

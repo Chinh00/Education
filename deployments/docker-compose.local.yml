@@ -1,0 +1,179 @@
+services:
+  broker1:
+    image: confluentinc/cp-kafka
+    hostname: broker1
+    container_name: broker1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:29092,PLAINTEXT_HOST://broker1:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+  broker2:
+    image: confluentinc/cp-kafka
+    hostname: broker2
+    container_name: broker2
+    depends_on:
+      - zookeeper
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:29093,PLAINTEXT_HOST://broker2:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+  broker3:
+    image: confluentinc/cp-kafka
+    hostname: broker3
+    container_name: broker3
+    depends_on:
+      - zookeeper
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:29094,PLAINTEXT_HOST://broker3:9094
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker1:29092,broker2:29093,broker3:29094
+    depends_on:
+      - broker1
+      - broker2
+      - broker3
+  
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    entrypoint: []
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: Pass1234
+    volumes:
+      - ./restore:/docker-entrypoint-initdb.d
+  
+  postgres:
+    image: postgres
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 123123
+      POSTGRES_DB: identity
+      
+      
+  #####################################
+  #           Gateway service         #
+  #####################################
+  gatewayservice:
+    restart: always
+    image: chinhval/educationgatewayservice
+    ports:
+      - "9999:80"
+    environment:
+      ReverseProxy__Routes__identityservice__ClusterId: identityservice
+      ReverseProxy__Routes__identityservice__Match__Path: /identityservice/{**catch-all}
+      ReverseProxy__Routes__identityservice__Transforms_0__PathRemovePrefix: /identityservice
+      ReverseProxy__Routes__identityservice__Transforms_1__PathPrefix: /
+      
+      ReverseProxy__Routes__trainingservice__ClusterId: trainingservice
+      ReverseProxy__Routes__trainingservice__Match__Path: /trainingservice/{**catch-all}
+      ReverseProxy__Routes__trainingservice__Transforms_0__PathRemovePrefix: /trainingservice
+      ReverseProxy__Routes__trainingservice__Transforms_1__PathPrefix: /
+      
+      ReverseProxy__Routes__studentservice__ClusterId: studentservice
+      ReverseProxy__Routes__studentservice__Match__Path: /studentservice/{**catch-all}
+      ReverseProxy__Routes__studentservice__Transforms_0__PathRemovePrefix: /studentservice
+      ReverseProxy__Routes__studentservice__Transforms_1__PathPrefix: /
+      
+      
+      
+      ReverseProxy__Clusters__basketservice__ClusterId: identityservice
+      ReverseProxy__Clusters__basketservice__Destinations__destination1__Address: http://identityservice
+      
+      ReverseProxy__Clusters__trainingservice__ClusterId: trainingservice
+      ReverseProxy__Clusters__trainingservice__Destinations__destination1__Address: http://trainingservice
+      
+      ReverseProxy__Clusters__studentservice__ClusterId: studentservice
+      ReverseProxy__Clusters__studentservice__Destinations__destination1__Address: http://studentservice
+         
+      
+      
+      
+    depends_on:
+      - identityservice
+      - trainingservice
+      - studentservice
+  
+  identityservice:
+    container_name: identityservice
+    image: chinhval/educationidentityservice
+    restart: always
+    ports:
+      - "4000:80"
+    environment:
+      ConnectionStrings__postgres: "Server=postgres; Port=5432; UserId=postgres; Password=123123; Database=identity"
+      Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
+      
+      
+  trainingservice:
+    container_name: trainingservice
+    image: chinhval/educationtrainingservice
+    ports:
+      - "4001:80"
+    environment:
+      Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
+      MongoOptions__Username: root
+      MongoOptions__Password: Pass1234
+      MongoOptions__DatabaseName: trainingdb
+      MongoOptions__Host: mongodb
+  studentservice:
+    container_name: studentservice
+    image: chinhval/educationstudentservice
+    ports:
+      - "4002:80"
+    environment:
+      Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
+      MongoOptions__Username: root
+      MongoOptions__Password: Pass1234
+      MongoOptions__DatabaseName: trainingdb
+      MongoOptions__Host: mongodb
+      IdentityServer__Url: http://identityservice
+  
+  daotao:
+    build:
+      context: ../
+      dockerfile: src/Webs/daotao/Dockerfile
+    ports:
+      - "3000:80"
+  sinhvien:
+    build:
+      context: ../
+      dockerfile: src/Webs/sinhvien/Dockerfile
+    ports:
+      - "3001:80"
+  

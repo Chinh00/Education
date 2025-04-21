@@ -9,7 +9,7 @@ import {UserLoginModel} from "../interface.ts";
 import {useAppDispatch} from "../../../stores/hook.ts";
 import {setAuthenticate} from "../../../stores/common_slice.ts";
 import LayoutFadeIn from "@/app/components/layouts/layout_fadein.tsx";
-
+import Background from "@/assets/images/image-476.jpeg"
 const Login = () => {
   const navigate = useNavigate();
   const {mutate, isPending} = useLogin();
@@ -50,7 +50,8 @@ const Login = () => {
   
   return <>
     <LayoutFadeIn>
-      <div className={" bg-[url(images/image-476.jpeg)] bg-cover bg-center w-full h-screen z-10"}>
+      <div className={` bg-cover bg-center w-full h-screen z-10`} style={{ backgroundImage: `url(${Background})` }}
+      >
         
         <div className={"z-50 absolute md:top-1/5 md:left-3/5 top-1/2 left-1/2 w-11/12 -translate-1/2 md:-translate-0  md:w-[400px] md:h-[450px] bg-white/60 backdrop-blur-sm rounded-xl p-10 "}>
           <div className={"w-full h-full flex justify-start content-center flex-col gap-10"}>

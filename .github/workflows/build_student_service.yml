@@ -1,4 +1,4 @@
-name: 🚀 Build gateway service
+name: 🚀 Build student service
 
 on:
   workflow_dispatch:

@@ -1,7 +1,12 @@
 services:
   daotao:
-    build:
-      context: ../
-      dockerfile: src/Webs/daotao/Dockerfile
+    image: chinhval/educationdaotaowebapp
     ports:
       - "3000:80"
+  sinvien:
+    build:
+      context: ../
+      dockerfile: src/Webs/sinhvien/Dockerfile
+    ports:
+      - "3001:80"
+      

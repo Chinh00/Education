@@ -1,4 +1,4 @@
-name: 🚀 Build gateway service
+name: 🚀 Build training service
 
 on:
   workflow_dispatch:
@@ -29,6 +29,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: src/Webs/daotao/Dockerfile
+          file: src/Services/TrainingService/TrainingService.Api/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_DAOTAO_WEBAPP}}:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_TRAINING_WEBAPP}}:latest

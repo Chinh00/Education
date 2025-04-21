@@ -1,4 +1,4 @@
-name: 🚀 Build daotao client app
+name: 🚀 Build sinhvien client
 
 on:
   workflow_dispatch:
@@ -29,6 +29,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: src/Webs/daotao/Dockerfile
+          file: src/Webs/sinhvien/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_DAOTAO_WEBAPP}}:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_SINHVIEN_WEBAPP}}:latest

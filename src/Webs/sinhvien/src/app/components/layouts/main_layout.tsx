@@ -3,17 +3,12 @@ import { Outlet } from "react-router";
 import {Separator} from "@/app/components/ui/separator.tsx";
 import {AppSidebar} from "@/app/components/navbar/app-sidebar.tsx";
 import { GraduationCap } from "lucide-react";
+import {NavUser} from "@/app/components/navbar/nav-user.tsx";
 const MainLayout = () => {
     return <>
         <header className="relative z-20 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
             <div className="mx-auto py-3 px-4">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => {}}
-                        className="md:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    >
-
-                    </button>
+                <div className="flex items-center gap-4 justify-between">
 
                     <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10">
@@ -29,28 +24,30 @@ const MainLayout = () => {
                             <p className="text-xs text-gray-500 dark:text-gray-400">Trường đại học Thuỷ lợi</p>
                         </div>
                     </div>
-
+                    <NavUser user={{
+                        name: "Ching",
+                        email: "2151062726@e.tlu.edu.vn",
+                        avatar: "/avatars/shadcn.jpg",
+                    }} />
 
                 </div>
             </div>
         </header>
-        <SidebarProvider>
+        <SidebarProvider className={"relative"}>
             <AppSidebar />
             <main className={"w-full"}>
-
                 <SidebarInset>
-                    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-                        <div className="flex items-center gap-2 px-4">
-                            <SidebarTrigger className="-ml-1" />
-                            <Separator orientation="vertical" className="mr-2 h-4" />
+                    {/*<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">*/}
+                    {/*    <div className="flex items-center gap-2 px-4">*/}
+                    {/*        /!*<SidebarTrigger className="-ml-1" />*!/*/}
+                    {/*        /!*<Separator orientation="vertical" className="mr-2 h-4" />*!/*/}
 
-                        </div>
-                    </header>
+                    {/*    </div>*/}
+                    {/*</header>*/}
                     <div className={"p-5"}>
                         <Outlet />
                     </div>
                 </SidebarInset>
-
             </main>
         </SidebarProvider>
     </>

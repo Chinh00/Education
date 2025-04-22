@@ -2,13 +2,9 @@ import {BrowserRouter, createBrowserRouter, Navigate, Outlet, Route, RouterProvi
 import {useAppSelector } from "../stores/hook"
 import { RoutePaths } from "@/cores/route_paths"
 import {lazy, Suspense} from "react"
-import LoadingScreen from "../components/screens/loading_screen"
-import IndexLayout from "../components/layouts/index_layout"
 import MainLayout from "../components/layouts/main_layout"
 import ProgressScreen from "@/app/components/screens/progress_screen.tsx";
-import {CommonState} from "@/app/stores/common_slice.ts";
 const Home = lazy(() => import("../modules/home/pages/home.tsx"))
-const RegisterEducation = lazy(() => import("../modules/student/pages/register_education.tsx"))
 const StudentInformation = lazy(() => import("../modules/student/pages/student_information.tsx"))
 const StudentResult = lazy(() => import("../modules/student/pages/student_result.tsx"))
 const StudentEducation = lazy(() => import("../modules/student/pages/student_education.tsx"))

@@ -1,13 +1,25 @@
 import {Sidebar, SidebarContent,
     SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
     SidebarRail} from "@/app/components/ui/sidebar"
-import { RoutePaths } from "@/cores/route_paths"
-import { BadgePlus, CakeSlice, ListTree, User } from "lucide-react"
-import { Link } from "react-router"
+import {BadgePlus, CakeSlice, GraduationCap, ListTree, User} from "lucide-react"
+import {Link, useNavigate} from "react-router"
 import {NavUser} from "@/app/components/navbar/nav-user.tsx";
+import {useAppSelector} from "@/app/stores/hook.ts";
+import {CommonState} from "@/app/stores/common_slice.ts";
+import {useEffect} from "react";
+import toast from "react-hot-toast";
 export function AppSidebar() {
+    const { authenticate } = useAppSelector<CommonState>(c => c.common)
+    const nav = useNavigate()
+    useEffect(() => {
+        if (!authenticate) {
+            toast.error("Hết thời gian đăng nhập.")
+            nav("/login")
+        }
+    }, [authenticate]);
+
     return (
-        <Sidebar className={"relative"}>
+        <Sidebar className={"relative h-full"}>
             <SidebarContent>
                 <SidebarGroup>
                     {/*<SidebarGroupLabel>Quản lý sinh viên</SidebarGroupLabel>*/}
@@ -19,6 +31,7 @@ export function AppSidebar() {
                                     <Link to={"/student/information"}>Thông tin sinh viên</Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
+
                             <SidebarMenuItem>
                                 <SidebarMenuButton className="text-sidebar-foreground/70">
                                     <BadgePlus />
@@ -48,11 +61,7 @@ export function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={{
-                    name: "Ching",
-                    email: "2151062726@e.tlu.edu.vn",
-                    avatar: "/avatars/shadcn.jpg",
-                }} />
+
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>

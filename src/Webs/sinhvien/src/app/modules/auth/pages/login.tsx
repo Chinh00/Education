@@ -10,7 +10,6 @@ import {useAppDispatch} from "../../../stores/hook.ts";
 import {setAuthenticate} from "../../../stores/common_slice.ts";
 import LayoutFadeIn from "@/app/components/layouts/layout_fadein.tsx";
 import Background from "@/assets/images/image-476.jpeg"
-import MicrosoftIcon from "@/assets/icons/icons8-microsoft.svg"
 import TluIcon from "@/assets/icons/tlu_icon.png"
 const Login = () => {
   const navigate = useNavigate();

@@ -2,15 +2,10 @@ import {useEffect, useState} from "react";
 import {Progress} from "@/app/components/screens/progress.tsx";
 import {GraduationCap} from "lucide-react";
 import TluIcon from "@/assets/icons/tlu_icon.png";
-import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import {CommonState, setPageLoaded} from "@/app/stores/common_slice.ts";
 
 const ProgressScreen = () => {
     const [progress, setProgress] = useState(0)
-    const {pageLoaded} = useAppSelector<CommonState>(c => c.common)
-    const dispatch = useAppDispatch();
     useEffect(() => {
-        dispatch(setPageLoaded(true))
         const interval = setInterval(() => {
             setProgress((prevProgress) => {
                 const newProgress = prevProgress + 3
@@ -22,12 +17,6 @@ const ProgressScreen = () => {
         }, 100)
 
     }, []);
-    useEffect(() => {
-        if (!pageLoaded) {
-            setProgress(100)
-        }
-    }, [pageLoaded]);
-
 
     return (
         <>

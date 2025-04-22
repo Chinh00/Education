@@ -4,9 +4,7 @@ services:
     ports:
       - "3000:80"
   sinvien:
-    build:
-      context: ../
-      dockerfile: src/Webs/sinhvien/Dockerfile
+    image: chinhval/educationsinhvienwebapp
     ports:
       - "3001:80"
       

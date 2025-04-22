@@ -9,11 +9,12 @@ const Home = lazy(() => import("../modules/home/pages/home.tsx"))
 const RegisterEducation = lazy(() => import("../modules/student/pages/register_education.tsx"))
 const StudentInformation = lazy(() => import("../modules/student/pages/student_information.tsx"))
 const StudentResult = lazy(() => import("../modules/student/pages/student_result.tsx"))
+const StudentEducation = lazy(() => import("../modules/student/pages/student_education.tsx"))
 const Login = lazy(() => import("../modules/auth/pages/login.tsx"))
 
 const ProtectedRoute = () => {
     const {authenticate} = useAppSelector(e => e.common)
-    return authenticate ? <Outlet/> : <Navigate to={RoutePaths.LOGIN.PATH}/>
+    return authenticate ? <Outlet/> : <Navigate to={RoutePaths.LOGIN}/>
 }
 
 const AuthRoute = () => {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
             {
                 path: RoutePaths.STUDENT_RESULT,
                 element: <Suspense fallback={<LoadingScreen  />} key={"StudentResult"}><StudentResult /></Suspense>,
+            },
+            {
+                path: RoutePaths.STUDENT_EDUCATION,
+                element: <Suspense fallback={<LoadingScreen  />} key={"StudentEducation"}><StudentEducation /></Suspense>,
             },
 
 

@@ -43,7 +43,7 @@ export function AppSidebar() {
                             <SidebarMenuItem>
                                 <SidebarMenuButton className="text-sidebar-foreground/70" >
                                     <ListTree />
-                                    <Link to={"/student/register"}>Chương trình đào tạo</Link>
+                                    <Link to={"/student/education"}>Chương trình đào tạo</Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>

@@ -9,11 +9,17 @@ import { Typography } from "@mui/material";
 import PersonalInformation from "../components/personal_information";
 import Background from "@/assets/images/background.jpg"
 import DefaultAvatar from "@/assets/images/avatar.png"
-
+import IconLoading from '@/assets/icons/Animation - 1745287432957.json';
+import Lottie from 'lottie-react';
+import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 const StudentInformation = () => {
-    const {data} = useGetStudentInformation()
+    const {data, isPending, isSuccess} = useGetStudentInformation()
+
+
+
     return <LayoutFadeIn >
-        <>
+        <PredataScreen isLoading={isPending} isSuccess={isSuccess}>
+
             <Card className={"relative overflow-hidden w-full h-full p-0"} style={{
             }}>
                 <div className={'absolute bg-cover right-0 w-full h-[300px] col-span-2 bg-no-repeat '}
@@ -65,7 +71,7 @@ const StudentInformation = () => {
             {/*</Tabs>*/}
             <PersonalInformation personalInformation={data?.data?.data?.personalInformation}/>
 
-        </>
+        </PredataScreen>
     </LayoutFadeIn>
 }
 export default StudentInformation;

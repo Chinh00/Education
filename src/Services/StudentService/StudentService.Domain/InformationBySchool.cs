@@ -18,5 +18,5 @@ public class InformationBySchool
     [Description("Ngành")]
     public string Branch { get; set; }
     [Description("Mã chương trình đào tạo")]
-    public List<ObjectId> EducationCodes { get; set; }
+    public List<string> EducationCodes { get; set; }
 }

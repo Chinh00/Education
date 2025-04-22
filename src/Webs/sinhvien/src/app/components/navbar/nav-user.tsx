@@ -36,7 +36,7 @@ export function NavUser({user,}: {
         // }).then(r => {
         // });
         dispatch(setAuthenticate(false))
-        navigate(RoutePaths.LOGIN.PATH)
+        navigate(RoutePaths.LOGIN)
     };
     
     

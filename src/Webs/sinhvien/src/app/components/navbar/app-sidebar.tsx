@@ -7,13 +7,10 @@ import { Link } from "react-router"
 import {NavUser} from "@/app/components/navbar/nav-user.tsx";
 export function AppSidebar() {
     return (
-        <Sidebar>
-            <SidebarHeader>
-                <Link to={"/"} className={"text-3xl font-bold text-center"} >myTlu</Link>
-            </SidebarHeader>
+        <Sidebar className={"relative"}>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Quản lý sinh viên</SidebarGroupLabel>
+                    {/*<SidebarGroupLabel>Quản lý sinh viên</SidebarGroupLabel>*/}
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
@@ -25,7 +22,7 @@ export function AppSidebar() {
                             <SidebarMenuItem>
                                 <SidebarMenuButton className="text-sidebar-foreground/70">
                                     <BadgePlus />
-                                    <Link to={"/student/register"}>Đăng ký học</Link>
+                                    <Link to={"/student/register"}>Đăng môn học</Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>

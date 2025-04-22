@@ -1,0 +1,14 @@
+import {AxiosResponse} from "axios";
+import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/success_response.ts";
+import {Course} from "@/domain/course.ts";
+import {GetQuery, Query} from "@/infrastructure/query.ts";
+import http from "@/infrastructure/http.ts";
+import {Department} from "@/domain/department.ts";
+import { Education } from "@/domain/education";
+
+const getCourses= async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Course>>>> => await http.get(`/trainingservice/api/Course?${GetQuery(query)}`)
+const getDepartments = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Department>>>> => await http.get(`/trainingservice/api/Department?${GetQuery(query)}`)
+
+const getEducations = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Education>>>> => await http.get(`/trainingservice/api/Education?${GetQuery(query)}`)
+
+export {getCourses, getDepartments, getEducations};

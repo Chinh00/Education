@@ -9,9 +9,8 @@ import { Typography } from "@mui/material";
 import PersonalInformation from "../components/personal_information";
 import Background from "@/assets/images/background.jpg"
 import DefaultAvatar from "@/assets/images/avatar.png"
-import IconLoading from '@/assets/icons/Animation - 1745287432957.json';
-import Lottie from 'lottie-react';
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
+import InformationBySchool from "@/app/modules/student/components/information_by_school.tsx";
 const StudentInformation = () => {
     const {data, isPending, isSuccess} = useGetStudentInformation()
 
@@ -43,10 +42,10 @@ const StudentInformation = () => {
                         </Button>
                     </div>
                     <div className={"flex flex-col w-full justify-center content-center h-full gap-2"}>
-                        <Typography className={"text-center md:text-left"} fontSize={"large"} fontWeight={"bold"}>Nguyễn Văn An</Typography>
+                        <Typography className={"text-center md:text-left"} fontSize={"large"} fontWeight={"bold"}>{data?.data?.data?.personalInformation?.fullName}</Typography>
                         <BadgeInformation text={"Mã sinh viên: 2151062726"} icon={<CircleUserRound color={"gray"} size={20} className={"border-none border-0"}/>} />
                         <BadgeInformation text={"Đang học"} icon={<Clock color={"gray"} size={20} />} className={" bg-green-200 border-none"}/>
-                        <BadgeInformation text={"63CNTT.NB"} icon={<School color={"gray"} size={20} />} />
+                        <BadgeInformation text={data?.data?.data?.informationBySchool?.studentClassName} icon={<School color={"gray"} size={20} />} />
                         <BadgeInformation text={"Công nghệ thông tin"} icon={<GraduationCap color={"gray"} size={20} />}/>
 
                     </div>
@@ -69,7 +68,12 @@ const StudentInformation = () => {
             {/*    <TabsContent value={"personal"} >*/}
             {/*    </TabsContent>*/}
             {/*</Tabs>*/}
-            <PersonalInformation personalInformation={data?.data?.data?.personalInformation}/>
+            <div className={"grid md:grid-cols-5 gap-5 grid-cols-1 w-full mt-10"}>
+                <PersonalInformation personalInformation={data?.data?.data?.personalInformation} />
+                <InformationBySchool informationBySchool={data?.data?.data?.informationBySchool} />
+            </div>
+
+
 
         </PredataScreen>
     </LayoutFadeIn>

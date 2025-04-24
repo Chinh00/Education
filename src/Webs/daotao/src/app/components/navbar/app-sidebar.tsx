@@ -1,5 +1,5 @@
 
-import {Link} from "react-router";
+import {Link, useNavigate} from "react-router";
 import { NavUser } from "./nav-user";
 import {
     Sidebar,
@@ -14,68 +14,39 @@ import {
     SidebarMenuItem,
     SidebarRail
 } from "@/app/components/ui/sidebar"
-import { BadgePlus, CakeSlice, ListTree } from "lucide-react";
+import { BadgePlus, Users, GraduationCap, Home } from "lucide-react";
 import { RoutePaths } from "@/core/route_paths";
+import {Box, Typography} from "@mui/material";
 
 export function AppSidebar() {
+    const nav = useNavigate()
     return (
-        <Sidebar>
-            <SidebarHeader>
-                <Link to={"/"} className={"text-3xl font-bold text-center"} >myTlu</Link>
-            </SidebarHeader>
-            <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupLabel>Đăng ký học</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton className="text-sidebar-foreground/70">
-                                    <BadgePlus />
-                                    <Link to={RoutePaths.REGISTER_CONFIG_PATH}>Cấu hình đăng ký học</Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton className="text-sidebar-foreground/70" >
-                                    <CakeSlice />
-                                    <Link to={RoutePaths.REGISTER_TIMELINE_PATH}>Cấu hình thời gian đăng ký</Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton className="text-sidebar-foreground/70" >
-                                    <ListTree />
-                                    <Link to={RoutePaths.WISH_CONFIG}>Cấu hình nguyện vọng học</Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton className="text-sidebar-foreground/70" >
-                                    <ListTree />
-                                    <Link to={RoutePaths.SEMESTER_LIST}>Cấu hình kì học</Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton className="text-sidebar-foreground/70" >
-                                    <ListTree />
-                                    <Link to={RoutePaths.EDUCATION_LIST}>Chương trình đào tạo</Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton className="text-sidebar-foreground/70" >
-                                    <ListTree />
-                                    <Link to={RoutePaths.CLASS_LIST}>Danh sách lớp học</Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
+        <Sidebar className={"w-max h-screen bg-blue-300"} collapsible={"none"} >
+            <SidebarContent className={""}>
+                <SidebarGroup className={"w-full"}>
+                    <SidebarMenu className={"flex flex-col justify-center items-center w-full"}>
+                        <SidebarMenuItem className={"cursor-pointer w-full"}>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.HOME_PATH)} className="w-full text-sidebar-foreground/70 flex flex-col h-max cursor-pointer">
+                                <Box><Home size={25} /></Box>
+                                <Typography fontSize={14} fontWeight={"bold"} whiteSpace={"nowrap"}>Trang chủ</Typography>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem className={"cursor-pointer w-full"}>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_TRAINING)} className="w-full text-sidebar-foreground/70 flex flex-col h-max cursor-pointer">
+                                <Box><GraduationCap size={25} /></Box>
+                                <Typography fontSize={14} fontWeight={"bold"} whiteSpace={"nowrap"}>Đào tạo</Typography>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem className={"cursor-pointer w-full"}>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.SEMESTER_LIST)} className="w-full text-sidebar-foreground/70 flex flex-col h-max cursor-pointer">
+                                <Box><Users size={25} /></Box>
+                                <Typography fontSize={14} fontWeight={"bold"} whiteSpace={"nowrap"}>Sinh viên</Typography>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter>
-                <NavUser user={{
-                    name: "Ching",
-                    email: "2151062726@e.tlu.edu.vn",
-                    avatar: "/avatars/shadcn.jpg",
-                }} />
-            </SidebarFooter>
-            <SidebarRail />
         </Sidebar>
     )
 }

@@ -8,6 +8,15 @@ import {Box, IconButton, Tooltip} from "@mui/material";
 import SemesterModal from "@/app/modules/semester/components/semester_modal.tsx";
 import {Eye} from "lucide-react";
 import {Query} from "@/infrastructure/query.ts";
+import loadable from "@loadable/component";
+import PredataScreen from "@/app/components/screens/predata_screen.tsx";
+import Header from "@/app/components/header/header.tsx";
+import { useAppDispatch } from "@/app/stores/hook.ts";
+import {setGroupFuncName} from "@/app/stores/common_slice.ts";
+
+const RegisterSidebar = loadable(() => import('../components/register_sidebar.tsx'), {
+    fallback: <div>Loading...</div>,
+})
 
 const RegisterConfig = () => {
     const {id} = useParams();
@@ -15,7 +24,7 @@ const RegisterConfig = () => {
         Page: 1,
         PageSize: 10,
     })
-    const {data, isPending} = useGetEducations({
+    const {data, isPending, isSuccess} = useGetEducations({
         Filters: [
             {
                 field: "Code",
@@ -125,13 +134,24 @@ const RegisterConfig = () => {
             </>
         }
     });
-  return (
-      <>
-          <Box>
 
-          </Box>
-        <MaterialReactTable table={table}  />
-      </>
+    const dispatch = useAppDispatch();
+    useEffect(() => {
+        dispatch(setGroupFuncName({groupName: ""}));
+    }, []);
+  return (
+
+
+      <PredataScreen isLoading={isPending} isSuccess={isSuccess}>
+          <div className={"grid grid-cols-12 "} style={{flexWrap: "nowrap"}}>
+              <div className={"col-span-12"}><Header /></div>
+              <div className={"col-span-2"}><RegisterSidebar /></div>
+              <div className={"col-span-10 h-screen p-4 border-t-2"}>
+
+                  Đăng ký học
+              </div>
+          </div>
+      </PredataScreen>
   )
 }
 

@@ -9,7 +9,7 @@ const rootReducer = combineReducers({
     common: persistReducer({
         key: "common",
         storage: storage,
-        blacklist: []
+        blacklist: ["groupFuncName"]
     }, CommonReducer),
     education: EducationReducer
 

@@ -3,6 +3,9 @@ export const RoutePaths = {
     REGISTER_CONFIG_PATH: '/register-config/:id',
     REGISTER_TIMELINE_PATH: '/timeline-config',
 
+    STUDENT: "/students",
+    STUDENT_LIST: "/students/list",
+
     EDUCATION: '/educations',
     EDUCATION_TRAINING: '/educations/training',
     EDUCATION_REGISTER: '/educations/register',

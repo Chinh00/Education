@@ -40,7 +40,7 @@ class Http {
         })
 
         this.instance.interceptors.response.use( async res => {
-            await sleep(2000)
+            await sleep(1000)
             const {url} = res.config
             if (url === "/identityservice/connect/token") {
                 const authenticate = res.data as Authenticate

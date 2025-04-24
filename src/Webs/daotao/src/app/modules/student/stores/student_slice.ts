@@ -1,17 +1,19 @@
-import { Query } from "@/infrastructure/query";
+import {Query} from "@/infrastructure/query.ts";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-export type EducationState = {
+
+export type StudentState = {
     query: Query
 }
 
-const educationState: EducationState = {
+const educationState: StudentState = {
     query: {
+        Includes: ["InformationBySchool"]
     } as Query,
 }
 
 
-const EducationSlice = createSlice({
-    name: "education",
+const StudentSlice = createSlice({
+    name: "student",
     initialState: educationState,
     reducers: {
         // setAuthenticate: (state, action: PayloadAction<boolean>) => {
@@ -23,5 +25,5 @@ const EducationSlice = createSlice({
     }
 })
 
-export default EducationSlice.reducer
-export const {setQuery} = EducationSlice.actions
+export default StudentSlice.reducer
+export const {setQuery} = StudentSlice.actions

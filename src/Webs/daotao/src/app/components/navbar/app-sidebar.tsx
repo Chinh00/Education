@@ -38,7 +38,7 @@ export function AppSidebar() {
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem className={"cursor-pointer w-full"}>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.SEMESTER_LIST)} className="w-full text-sidebar-foreground/70 flex flex-col h-max cursor-pointer">
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.STUDENT_LIST)} className="w-full text-sidebar-foreground/70 flex flex-col h-max cursor-pointer">
                                 <Box><Users size={25} /></Box>
                                 <Typography fontSize={14} fontWeight={"bold"} whiteSpace={"nowrap"}>Sinh viên</Typography>
                             </SidebarMenuButton>

@@ -17,6 +17,8 @@ const SEMESTER = lazy(() => import("../modules/semester/pages/semester_list.tsx"
 const MainLayout = lazy(() => import("../components/layouts/main_layout.tsx"));
 const NOTFOUND = lazy(() => import("../modules/system/pages/notfound_page.tsx"));
 const EducationLayout = lazy(() => import("../modules/education/layouts/education_layout.tsx"));
+const StudentLayout = lazy(() => import("../modules/student/layouts/student_layout.tsx"));
+const StudentList = lazy(() => import("../modules/student/pages/student_list.tsx"));
 
 const router = createBrowserRouter([
     {
@@ -39,6 +41,17 @@ const router = createBrowserRouter([
                     {
                         path: RoutePaths.EDUCATION_REGISTER,
                         element: <Suspense fallback={<TabLoading />} key={"RegisterEducation"} ><RegisterEducation /></Suspense>,
+                    },
+                ],
+            },
+
+            {
+                path: "",
+                element: <Suspense fallback={<ProgressScreen />} key={"StudentLayout"} ><StudentLayout /></Suspense>,
+                children: [
+                    {
+                        path: RoutePaths.STUDENT_LIST,
+                        element: <Suspense fallback={<TabLoading />} key={"StudentList"} ><StudentList /></Suspense>,
                     },
                 ],
             },

@@ -121,3 +121,10 @@
         @apply bg-background text-foreground;
     }
 }
+
+
+
+/*custom ant table title*/
+.ant-table-title {
+    padding: 0 !important;
+}

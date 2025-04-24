@@ -5,6 +5,8 @@ import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 import {persistor} from "@/app/stores/stores.ts";
 import ReduxProvider from './providers/ReduxProvider.tsx';
 import { PersistGate } from 'redux-persist/integration/react';
+import '@ant-design/v5-patch-for-react-19';
+
 function App() {
   return (
     // <MicrosoftAuthProvider>

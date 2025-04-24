@@ -98,9 +98,28 @@ public static class Extensions
             "Contains" or "StartsWith" or "EndsWith" => Expression.Call(MakeString(left), comparison,
                 Type.EmptyTypes, Expression.Constant(value, typeof(string))),
             "In" => MakeList(left, value.Split(',')),
+            "ArrayContains" => MakeArrayContains(left, value.Split(',')),
             _ => throw new NotSupportedException($"Invalid comparison operator '{comparison}'."),
         };
     }
+    private static Expression MakeArrayContains(Expression left, IEnumerable<string> filter)
+    {
+        // filter is a constant list of strings
+        var constantList = Expression.Constant(filter.ToList(), typeof(List<string>));
+    
+        // parameter inside .Any(tag => filter.Contains(tag))
+        var param = Expression.Parameter(typeof(string), "tag");
+
+        // filter.Contains(tag)
+        var containsCall = Expression.Call(constantList, typeof(List<string>).GetMethod("Contains", new[] { typeof(string) }), param);
+
+        // tag => filter.Contains(tag)
+        var lambda = Expression.Lambda(containsCall, param);
+
+        // x.Tags.Any(tag => filter.Contains(tag))
+        return Expression.Call(typeof(Enumerable), "Any", new[] { typeof(string) }, left, lambda);
+    }
+
     private static Expression MakeList(Expression left, IEnumerable<string> codes)
     {
         var stringValues = codes.ToList();

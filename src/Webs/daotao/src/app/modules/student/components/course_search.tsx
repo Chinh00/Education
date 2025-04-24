@@ -46,7 +46,19 @@ const CourseSearch = (props: CourseSearchProps) => {
                 value: value
             }
         ]
-    },  !!value)
+    },  !!value, (data) => {
+        dispatch(setQuery({
+            ...query,
+            Filters: [
+                ...query?.Filters?.filter(c => c.field != "EducationCodes") ?? [],
+                {
+                    field: 'InformationBySchool.EducationCodes',
+                    operator: "In",
+                    value: data?.data?.data?.items?.map(c => c.code).join(",")!
+                }
+            ]
+        }))
+    })
     return (
         <>
             <Popover open={open} onOpenChange={setOpen}>
@@ -77,18 +89,6 @@ const CourseSearch = (props: CourseSearchProps) => {
                                                 value={item.courseCode}
                                                 onSelect={(currentValue) => {
                                                     setValue(item.courseCode)
-                                                    educationSuccess && dispatch(setQuery({
-                                                        ...query,
-                                                        Filters: [
-                                                            ...query?.Filters?.filter(c => c.field != "Code") ?? [],
-                                                            {
-                                                                field: 'Code',
-                                                                operator: "In",
-                                                                value: "K63_106"
-                                                            }
-                                                        ]
-                                                    }))
-
                                                     setOpen(false)
                                                 }}
                                             >

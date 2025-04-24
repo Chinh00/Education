@@ -103,10 +103,10 @@ public static class Extensions
     }
     private static Expression MakeList(Expression left, IEnumerable<string> codes)
     {
-        var objValues = codes.Cast<object>().ToList();
-        var type = typeof(List<object>);
-        var methodInfo = type.GetMethod("Contains", new[] { typeof(object) });
-        var list = Expression.Constant(objValues);
+        var stringValues = codes.ToList();
+        var type = typeof(List<string>);
+        var methodInfo = type.GetMethod("Contains", new[] { typeof(string) });
+        var list = Expression.Constant(stringValues, typeof(List<string>));
         var body = Expression.Call(list, methodInfo, left);
         return body;
     }

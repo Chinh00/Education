@@ -7,6 +7,7 @@ import { Box } from "@mui/material";
 import {RegisterState} from "@/domain/register_state.ts";
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 import {Table, Typography, type GetProp, type RadioChangeEvent, type TableProps } from 'antd';
+import CreateRegister from "@/app/modules/education/components/create_register.tsx";
 const columns: ColumnsType<RegisterState> = [
     {
         title: 'Mã đăng ký học',
@@ -52,7 +53,7 @@ const RegisterEducation = () => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Danh sách đăng ký học"}));
     }, []);
     const tableColumns = columns.map((item) => ({ ...item }));
-    const {data, isLoading, isSuccess} = useGetRegisterSates({})
+    const {data, isLoading, isSuccess, refetch} = useGetRegisterSates({})
 
 
     return (
@@ -64,10 +65,9 @@ const RegisterEducation = () => {
                     style={{
                         height: "500px",
                     }}
-                    virtual
                     showHeader={true}
-                    title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white bg-green-600"}>
-                        <Typography >Đăng ký học </Typography>
+                    title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
+                        <CreateRegister refetch={refetch} />
                     </Box>}
                     size={"small"}
                     // rowSelection={{

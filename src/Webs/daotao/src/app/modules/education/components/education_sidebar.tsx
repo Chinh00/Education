@@ -8,7 +8,7 @@ import {
     SidebarMenu,
     SidebarMenuButton, SidebarMenuItem
 } from "@/app/components/ui/sidebar.tsx";
-import {List} from "lucide-react"
+import {List, LayoutDashboard} from "lucide-react"
 import {useNavigate} from "react-router";
 import { RoutePaths } from "@/core/route_paths";
 const EducationSidebar = () => {
@@ -41,6 +41,12 @@ const EducationSidebar = () => {
                             <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER)}>
                                 <List />
                                 Danh sách đăng ký học
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER_DASHBOARD)}>
+                                <LayoutDashboard />
+                                Thống kê đăng ký học
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>

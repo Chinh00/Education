@@ -41,6 +41,7 @@ public static class Extensions
             c.UsingInMemory();
             c.AddRider(e =>
             {
+                e.AddProducer<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent));
                 e.AddConsumer<EventDispatcher>();
                 e.UsingKafka((context, configurator) =>
                 {
@@ -52,6 +53,21 @@ public static class Extensions
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
                         });
+                    configurator.TopicEndpoint<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent), "register-training",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
+                    configurator.TopicEndpoint<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent), "register-training",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
+                    
                 });
             });
         });

@@ -3,6 +3,5 @@ namespace RegisterStudy.Domain;
 public class StudentRegister
 {
     public string StudentCode { get; set; }
-    public ICollection<SubjectRegister> Subjects { get; set; }
-    public DateTime RegisterDate { get; set; }
+    public ICollection<SubjectRegister> SubjectRegisters { get; set; } = [];
 }

@@ -23,8 +23,7 @@ public class RegisterSemesterCreatedIntegrationEventConsumer(IRegisterRepository
             SemesterName = notification.SemesterName,
             Subjects = notification.Subjects.Select(c => new SubjectRegister()
             {
-                SubjectCode = c.SubjectCode,
-                SubjectName = c.SubjectName,
+                
             }).ToList()
         }));
         

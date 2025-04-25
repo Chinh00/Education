@@ -8,6 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Grpc.Tools" Version="2.71.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3"/>
     </ItemGroup>
 
@@ -18,7 +22,10 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\BuildingBlock\Education.Contract\Education.Contract.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlock\Education.Infrastructure\Education.Infrastructure.csproj" />
-      <ProjectReference Include="..\RegisterStudy.AppCore\RegisterStudy.AppCore.csproj" />
+      <ProjectReference Include="..\RegisterStudy.Domain\RegisterStudy.Domain.csproj" />
     </ItemGroup>
-
+    <ItemGroup>
+        <Protobuf Include="..\..\..\BuildingBlock\Education.Contract\Protos\subject.proto" GrpcServices="Client" >
+        </Protobuf>
+    </ItemGroup>
 </Project>

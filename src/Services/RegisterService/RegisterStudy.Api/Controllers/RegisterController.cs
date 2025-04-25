@@ -1,4 +1,5 @@
 using Education.Infrastructure.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RegisterStudy.AppCore.Usecases.Commands;
 
@@ -14,6 +15,7 @@ public class RegisterController : BaseController
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost]
+    [Authorize]
     public async Task<object> HandleCreateWishRegisterAsync(CreateWishSubjectsCommand command, CancellationToken cancellationToken)
     {
         return await Mediator.Send(command, cancellationToken);

@@ -21,7 +21,10 @@ public class ProfileService : IProfileService
             new("studentCode", "2151062726"),
         };
         context.IssuedClaims.AddRange(claims);
-
+        foreach (var claim in context.IssuedClaims)
+        {
+            Console.WriteLine($"{claim.Type} = {claim.Value}");
+        }
     }
 
     public Task IsActiveAsync(IsActiveContext context)

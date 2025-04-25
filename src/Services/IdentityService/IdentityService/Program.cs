@@ -57,8 +57,8 @@ builder.Services.AddIdentityServer(options =>
     .AddInMemoryApiScopes(Config.ApiScopes)
     .AddInMemoryClients(Config.Clients)
     .AddExtensionGrantValidator<MicrosoftGrantValidator>()
-    .AddProfileService<ProfileService>()
     .AddAspNetIdentity<ApplicationUser>()
+    .AddProfileService<ProfileService>()
     .AddDeveloperSigningCredential();
     ;
 builder.Services.AddHttpClient();

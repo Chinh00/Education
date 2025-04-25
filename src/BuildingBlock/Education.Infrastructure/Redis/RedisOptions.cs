@@ -1,13 +1,13 @@
 namespace Education.Infrastructure.Redis;
 
-public class RedisOptions
+public record RedisOptions
 {
-    public static string SectionName = "Redis";
-    public string Url { get; set; } = "localhost:6379";
-    public string Password { get; set; } = "";
+    public const string Name = "Redis";
+    public int Port { get; set; } = 6379;
+    public string Server { get; set; } = "localhost";
 
     public string GetConnectionString()
     {
-        return string.IsNullOrEmpty(Password) ? Url : $"{Url},password={Password},abortConnect=False";
+        return $"{Server}:{Port},abortConnect=false";
     }
 }

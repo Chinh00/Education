@@ -8,6 +8,11 @@ public interface IHandler<TRequest, TResponse> : IRequestHandler<TRequest, Resul
     
 }
 public interface IQuery<TResponse> : IRequest<ResultModel<TResponse>> {}
+
+public interface IItemQuery<TId, TResponse> : IRequest<ResultModel<TResponse>>
+{
+    TId Id { get; set; }
+}
 public interface ICommand<TResponse> : IRequest<TResponse> {}
 
 

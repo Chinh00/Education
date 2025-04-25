@@ -2,18 +2,15 @@ syntax = "proto3";
 
 option csharp_namespace="GrpcServices";
 
-service Catalog {
-  rpc getProductById (GetCatalogByIdRequest) returns (GetCatalogByIdResponse) {};
+service Training {
+  rpc getSubjectByCode (GetSubjectByCodeRequest) returns (GetSubjectCodeResponse) {};
 }
 
-message GetCatalogByIdRequest {
-  string id = 1;
+message GetSubjectByCodeRequest {
+  string subjectCode = 1;
 }
 
-message GetCatalogByIdResponse {
-  string productId = 1;
-  string productName = 2;
-  double currentCost = 3;
-
-
+message GetSubjectCodeResponse {
+  string subjectCode = 1;
+  string subjectName = 2;
 }

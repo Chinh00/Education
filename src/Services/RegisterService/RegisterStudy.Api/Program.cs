@@ -6,7 +6,7 @@ using Education.Infrastructure.Mediator;
 using Education.Infrastructure.Redis;
 using Education.Infrastructure.Swagger;
 using RegisterStudy.AppCore;
-using RegisterStudy.AppCore.Repository;
+using RegisterStudy.Domain.Repository;
 using RegisterStudy.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +19,8 @@ builder.Services.AddAuth(builder.Configuration)
     .AddMediatorService([typeof(Anchor)])
     .AddMasstransitService(builder.Configuration)
     .AddRedis(builder.Configuration)
-    .AddScoped(typeof(IRegisterRepository<>), typeof(RedisRegisterRepository<>));
+    .AddScoped(typeof(IRegisterRepository<>), typeof(RedisRegisterRepository<>))
+    .AddTrainingGrpcClient(builder.Configuration);
 
 var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();

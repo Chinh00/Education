@@ -1,7 +1,7 @@
 using Education.Infrastructure.Redis;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using RegisterStudy.AppCore.Repository;
+using RegisterStudy.Domain.Repository;
 using StackExchange.Redis;
 
 namespace RegisterStudy.Infrastructure;
@@ -9,7 +9,7 @@ namespace RegisterStudy.Infrastructure;
 public class RedisRegisterRepository<TEntity>(IOptions<RedisOptions> redisOptions) : IRegisterRepository<TEntity>
 {
     private readonly Lazy<ConnectionMultiplexer> _redis = new(
-        ConnectionMultiplexer.Connect(redisOptions.Value.ToString() ?? string.Empty));
+        ConnectionMultiplexer.Connect(redisOptions.Value.GetConnectionString() ?? string.Empty));
 
     private ConnectionMultiplexer Redis => _redis.Value;
     private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
@@ -46,6 +46,14 @@ public class RedisRegisterRepository<TEntity>(IOptions<RedisOptions> redisOption
     public async Task<TEntity> GetAsync(string key)
     {
         var value = await Database.StringGetAsync(key);
+        return value.IsNullOrEmpty ? default : JsonConvert.DeserializeObject<TEntity>(value);
+    }
+
+    public async Task<TEntity> RemoveAsync(string key)
+    {
+        var value = await Database.StringGetAsync(key);
+        if (value.IsNullOrEmpty) return default;
+        await Database.KeyDeleteAsync(key);
         return JsonConvert.DeserializeObject<TEntity>(value);
     }
 

@@ -10,6 +10,9 @@ public static class Config
     [
         new IdentityResources.OpenId(),
         new IdentityResources.Profile()
+        {
+            UserClaims = { "studentCode" }
+        }
     ];
 
     public static IEnumerable<ApiScope> ApiScopes =>

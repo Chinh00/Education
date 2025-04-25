@@ -34,4 +34,10 @@ public class ClaimContextAccessor : IClaimContextAccessor
         if (_httpContextAccessor.HttpContext != null) return _httpContextAccessor.HttpContext.User.FindFirst("username")?.Value;
         throw new UnauthorizedAccessException();
     }
+
+    public string GetName()
+    {
+        if (_httpContextAccessor.HttpContext != null) return _httpContextAccessor.HttpContext.User.FindFirst("studentCode")?.Value;
+        throw new UnauthorizedAccessException();
+    }
 }

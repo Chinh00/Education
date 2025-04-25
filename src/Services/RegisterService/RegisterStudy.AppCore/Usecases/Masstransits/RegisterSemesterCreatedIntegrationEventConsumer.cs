@@ -1,7 +1,7 @@
 using Education.Contract.IntegrationEvents;
 using MediatR;
-using RegisterStudy.AppCore.Repository;
 using RegisterStudy.Domain;
+using RegisterStudy.Domain.Repository;
 
 namespace RegisterStudy.AppCore.Usecases.Masstransits;
 

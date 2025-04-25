@@ -7,4 +7,5 @@ public interface IClaimContextAccessor
     Guid GetUserMail();
     string GetAvatar();
     string GetUsername();
+    string GetName();
 }

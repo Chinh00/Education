@@ -20,6 +20,7 @@
       <ProjectReference Include="..\..\..\BuildingBlock\Education.Core\Education.Core.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlock\Education.Infrastructure\Education.Infrastructure.csproj" />
       <ProjectReference Include="..\RegisterStudy.Domain\RegisterStudy.Domain.csproj" />
+      <ProjectReference Include="..\RegisterStudy.Infrastructure\RegisterStudy.Infrastructure.csproj" />
     </ItemGroup>
-
+    
 </Project>

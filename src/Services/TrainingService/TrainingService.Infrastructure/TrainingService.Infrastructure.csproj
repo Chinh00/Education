@@ -8,6 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Google.Protobuf" Version="3.30.2" />
+        <PackageReference Include="Grpc.Tools" Version="2.71.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3"/>
     </ItemGroup>
 
@@ -19,7 +24,15 @@
       <ProjectReference Include="..\..\..\BuildingBlock\Education.Contract\Education.Contract.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlock\Education.Core\Education.Core.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlock\Education.Infrastructure\Education.Infrastructure.csproj" />
+      <ProjectReference Include="..\TrainingService.AppCore\TrainingService.AppCore.csproj" />
       <ProjectReference Include="..\TrainingService.Domain\TrainingService.Domain.csproj" />
+    </ItemGroup>
+
+    
+    <ItemGroup>
+        <Protobuf Include="..\..\..\BuildingBlock\Education.Contract\Protos\subject.proto" GrpcServices="Server" >
+            <Generator>MSBuild:Compile</Generator>
+        </Protobuf>
     </ItemGroup>
 
 </Project>

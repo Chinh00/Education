@@ -3,10 +3,13 @@ import {GetQuery, Query} from "@/infrastructure/query.ts";
 import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/success_response.ts";
 import { Education } from "@/domain/education.ts";
 import http from "@/infrastructure/http.ts";
+import {RegisterState} from "@/domain/register_state.ts";
 
 
 const getEducations = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Education>>>> => await http.get(`/trainingservice/api/Education?${GetQuery(query)}`)
+const getRegisterStates = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<RegisterState>>>> => await http.get(`/trainingservice/api/Register?${GetQuery(query)}`)
 
 export {
     getEducations,
+    getRegisterStates
 }

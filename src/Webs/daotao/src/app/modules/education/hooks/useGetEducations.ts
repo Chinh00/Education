@@ -18,4 +18,6 @@ const useGetEducations = (query: Query, enable: boolean = true, onSuccess?: (dat
 
 
 
+
+
 export {useGetEducations}

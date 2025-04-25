@@ -1,9 +1,11 @@
 using MassTransit;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace TrainingService.AppCore.StateMachine;
 
 public class RegisterState : SagaStateMachineInstance, ISagaVersion
 {
+    [BsonId]
     public Guid CorrelationId { get; set; }
     public int Version { get; set; }
     public string CurrentState { get; set; } = null!;

@@ -3,6 +3,9 @@ using Education.Contract;
 using Education.Contract.IntegrationEvents;
 using Education.Infrastructure.Mongodb;
 using MassTransit;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using TrainingService.AppCore.StateMachine;
 
 namespace TrainingService.Infrastructure;
@@ -12,6 +15,7 @@ public static class Extensions
     public static IServiceCollection AddMasstransitService(this IServiceCollection services, IConfiguration configuration,
         Action<IServiceCollection> action = null)
     {
+        BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         services.AddMassTransit(c =>
         {
             var mOption = new MongoOptions();

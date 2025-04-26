@@ -8,4 +8,5 @@ public interface IRegisterRepository<TEntity>
     Task<TEntity> HashSaveAsync(string key, Func<Task<TEntity>> func, DateTime staDate = default, DateTime endDate = default);
     
     Task<IEnumerable<string>> GetKeysAsync(string regex);
+    Task<TEntity> GetOneAsync(string regex);
 }

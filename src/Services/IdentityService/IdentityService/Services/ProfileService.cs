@@ -7,24 +7,22 @@ using Microsoft.AspNetCore.Identity;
 
 namespace IdentityService.Services;
 
-public class ProfileService : IProfileService
+public class ProfileService(UserManager userManager) : IProfileService
 {
-
-    public ProfileService()
-    {
-    }
-
     public async Task GetProfileDataAsync(ProfileDataRequestContext context)
     {
-        var claims = new List<Claim>
+        var userId = context.Subject.GetSubjectId();
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is not null)
         {
-            new("studentCode", "2151062726"),
-        };
-        context.IssuedClaims.AddRange(claims);
-        foreach (var claim in context.IssuedClaims)
-        {
-            Console.WriteLine($"{claim.Type} = {claim.Value}");
+            var claims = new List<Claim>
+            {
+                new("studentCode", user.UserName ?? ""),
+            };
+            context.IssuedClaims.AddRange(claims);
         }
+        
+        
     }
 
     public Task IsActiveAsync(IsActiveContext context)

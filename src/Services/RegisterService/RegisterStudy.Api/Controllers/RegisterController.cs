@@ -32,4 +32,16 @@ public class RegisterController : BaseController
     {
         return Ok(await Mediator.Send(new GetRegisterCourseCurrentQuery(), cancellationToken));
     }
+        
+    /// <summary>
+    /// Thông tin đã đăng ký
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<IActionResult> HandleGetStudentRegisterAsync(CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new GetRegisterCourseStateQuery(), cancellationToken));
+    }
+
 }

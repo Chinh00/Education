@@ -73,4 +73,13 @@ public class RedisRegisterRepository<TEntity>(IOptions<RedisOptions> redisOption
             .Select(x => x.ToString())
             .ToArray();
     }
+
+    public async Task<TEntity> GetOneAsync(string regex)
+    {
+        var result = await Database.ScriptEvaluateAsync(
+            GetKeysLuaScript,
+            values: [regex]); 
+        var value = await Database.StringGetAsync(((RedisResult[])result)?.FirstOrDefault()?.ToString());
+        return value.IsNullOrEmpty ? default : JsonConvert.DeserializeObject<TEntity>(value);
+    }
 }

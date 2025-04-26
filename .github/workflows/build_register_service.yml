@@ -29,6 +29,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: src/Services/RegisterService/RegisterService.Api/Dockerfile
+          file: src/Services/RegisterService/RegisterStudy.Api/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_REGISTER_SERVICE }}:latest

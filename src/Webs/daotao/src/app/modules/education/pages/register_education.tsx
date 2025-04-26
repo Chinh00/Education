@@ -7,7 +7,9 @@ import { Box } from "@mui/material";
 import {RegisterState} from "@/domain/register_state.ts";
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 import {Table, Typography, type GetProp, type RadioChangeEvent, type TableProps } from 'antd';
-import CreateRegister from "@/app/modules/education/components/create_register.tsx";
+import {Button} from "@/app/components/ui/button.tsx";
+import { useNavigate } from "react-router";
+import {RoutePaths} from "@/core/route_paths.ts";
 const columns: ColumnsType<RegisterState> = [
     {
         title: 'Mã đăng ký học',
@@ -55,7 +57,7 @@ const RegisterEducation = () => {
     const tableColumns = columns.map((item) => ({ ...item }));
     const {data, isLoading, isSuccess, refetch} = useGetRegisterSates({})
 
-
+    const nav = useNavigate();
     return (
         <PredataScreen isLoading={isLoading} isSuccess={isSuccess}>
             <Box>
@@ -67,7 +69,7 @@ const RegisterEducation = () => {
                     }}
                     showHeader={true}
                     title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
-                        <CreateRegister refetch={refetch} />
+                        <Button onClick={() => {nav(RoutePaths.EDUCATION_REGISTER_CONFIG)}} className={"bg-green-600 cursor-pointer"}>Tạo mới</Button>
                     </Box>}
                     size={"small"}
                     // rowSelection={{

@@ -10,6 +10,7 @@ export const RoutePaths = {
     EDUCATION_TRAINING: '/educations/training',
     EDUCATION_REGISTER: '/educations/register',
     EDUCATION_REGISTER_DASHBOARD: '/educations/register-dashboard',
+    EDUCATION_REGISTER_CONFIG: '/educations/register-config',
 
 
     WISH_CONFIG: '/wish-config',

@@ -10,9 +10,10 @@ using TrainingService.Domain;
 namespace TrainingService.AppCore.Usecases.Commands;
 
 public record CreateWishRegisterCommand(
-    string WishRegisterName,
-    string WishRegisterCode,
+    int MinCredit,
+    int MaxCredit,
     string SemesterCode,
+    string SemesterName,
     DateTime StartDate,
     DateTime EndDate) : ICommand<IResult>
 {
@@ -31,10 +32,12 @@ public record CreateWishRegisterCommand(
             await topicProducer.Produce(new
             {
                 CorrelationId = Guid.NewGuid(),
-                request.WishRegisterName,
-                request.WishRegisterCode,
+                request.MinCredit,
+                request.MaxCredit,
                 request.StartDate,
                 request.EndDate,
+                request.SemesterCode,
+                request.SemesterName,
             }, cancellationToken);
             return Results.Created();
         }

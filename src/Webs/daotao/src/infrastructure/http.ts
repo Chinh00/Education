@@ -18,7 +18,7 @@ class Http {
 
         this.instance = axios.create({
             baseURL: import.meta.env.VITE_URL,
-            timeout: 10000,
+            timeout: 50000,
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${access_token}`

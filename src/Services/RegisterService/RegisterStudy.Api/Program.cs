@@ -25,7 +25,7 @@ builder.Services.AddAuth(builder.Configuration)
     .AddTrainingGrpcClient(builder.Configuration)
     .AddHangfire(config =>
     {
-        config.UseRedisStorage("localhost:6379");
+        config.UseRedisStorage($"{builder.Configuration.GetValue<string>("Redis:Server")}:{builder.Configuration.GetValue<string>("Redis:Port")},abortConnect=false");
     }); 
 builder.Services.AddHangfireServer();
 var app = builder.Build();

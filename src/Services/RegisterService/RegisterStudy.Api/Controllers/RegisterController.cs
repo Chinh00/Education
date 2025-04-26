@@ -2,6 +2,7 @@ using Education.Infrastructure.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RegisterStudy.AppCore.Usecases.Commands;
+using RegisterStudy.AppCore.Usecases.Queries;
 
 namespace RegisterStudy.Api.Controllers;
 
@@ -19,5 +20,16 @@ public class RegisterController : BaseController
     public async Task<object> HandleCreateWishRegisterAsync(CreateWishSubjectsCommand command, CancellationToken cancellationToken)
     {
         return await Mediator.Send(command, cancellationToken);
+    }
+
+    /// <summary>
+    /// Thông tin đợt đăng ký nguyện vọng
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("current")]
+    public async Task<IActionResult> HandleGetRegisterCourseCurrentAsync(CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new GetRegisterCourseCurrentQuery(), cancellationToken));
     }
 }

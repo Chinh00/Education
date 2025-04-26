@@ -26,7 +26,8 @@ public static class Extensions
             {
                 e.AddProducer<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent));
                 e.AddProducer<WishListCreated>(nameof(WishListCreated));
-                
+
+                e.AddConsumer<EventDispatcher>();
                 e.AddSagaStateMachine<RegisterStateMachine, RegisterState, RegisterStateMachineDefinition>()
                     .MongoDbRepository(e =>
                     {
@@ -58,6 +59,13 @@ public static class Extensions
                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureSaga<RegisterState>(context);
+                        });
+                     configurator.TopicEndpoint<RegisterLockedIntegrationEvent>(nameof(RegisterLockedIntegrationEvent), "training-register",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
                         });
                                             
                 });

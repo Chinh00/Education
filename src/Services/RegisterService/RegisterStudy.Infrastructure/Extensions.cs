@@ -42,6 +42,8 @@ public static class Extensions
             c.AddRider(e =>
             {
                 e.AddProducer<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent));
+                e.AddProducer<RegisterLockedIntegrationEvent>(nameof(RegisterLockedIntegrationEvent));
+                
                 e.AddConsumer<EventDispatcher>();
                 e.UsingKafka((context, configurator) =>
                 {
@@ -61,6 +63,13 @@ public static class Extensions
                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
                         });
                     configurator.TopicEndpoint<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent), "register-training",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
+                    configurator.TopicEndpoint<RegisterLockedIntegrationEvent>(nameof(RegisterLockedIntegrationEvent), "register-training",
                         endpointConfigurator =>
                         {
                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;

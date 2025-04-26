@@ -13,7 +13,7 @@ public class RedisRegisterRepository<TEntity>(IOptions<RedisOptions> redisOption
 
     private ConnectionMultiplexer Redis => _redis.Value;
     private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
-
+    private const string GetKeysLuaScript = "return redis.call('keys', ARGV[1])";
     private IDatabase Database
     {
         get
@@ -60,5 +60,17 @@ public class RedisRegisterRepository<TEntity>(IOptions<RedisOptions> redisOption
     public Task<TEntity> HashSaveAsync(string key, Func<Task<TEntity>> func, DateTime staDate = default, DateTime endDate = default)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<IEnumerable<string>> GetKeysAsync(string pattern)
+    {
+        var result = await Database.ScriptEvaluateAsync(
+            GetKeysLuaScript,
+            values: new RedisValue[] { pattern });
+
+        return ((RedisResult[])result)
+            // .Where(x => x.ToString()!.StartsWith(_redisCacheOptions.Prefix))
+            .Select(x => x.ToString())
+            .ToArray();
     }
 }

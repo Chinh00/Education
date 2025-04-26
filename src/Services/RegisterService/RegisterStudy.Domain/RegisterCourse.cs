@@ -2,11 +2,12 @@ namespace RegisterStudy.Domain;
 
 public class RegisterCourse
 {
-    public string CourseName { get; set; }
-    public string CourseCode { get; set; }
-    public string EducationCode { get; set; }
-    public string EducationName { get; set; }
+    public string RegisterCode { get; set; }
     public string SemesterCode { get; set; }
     public string SemesterName { get; set; }
-    public ICollection<SubjectRegister> Subjects { get; set; }
+    
+    public DateTime StaDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public int MinCredit { get; set; }
+    public int MaxCredit { get; set; }
 }

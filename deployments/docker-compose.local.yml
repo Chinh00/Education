@@ -11,7 +11,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:29092,PLAINTEXT_HOST://broker1:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
   broker2:
     image: confluentinc/cp-kafka
@@ -25,7 +25,7 @@ services:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:29093,PLAINTEXT_HOST://localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:29093,PLAINTEXT_HOST://broker2:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
   broker3:
     image: confluentinc/cp-kafka
@@ -39,7 +39,7 @@ services:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:29094,PLAINTEXT_HOST://localhost:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:29094,PLAINTEXT_HOST://broker3:9094
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
   zookeeper:
     image: confluentinc/cp-zookeeper
@@ -68,12 +68,9 @@ services:
     container_name: mongodb
     ports:
       - "27017:27017"
-    entrypoint: []
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: Pass1234
-    volumes:
-      - ./restore:/docker-entrypoint-initdb.d
   
   postgres:
     image: postgres
@@ -84,12 +81,15 @@ services:
     environment:
       POSTGRES_PASSWORD: 123123
       POSTGRES_DB: identity
-      
-      
+  
+  
   #####################################
   #           Gateway service         #
   #####################################
   gatewayservice:
+    container_name: gatewayservice
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     restart: always
     image: chinhval/educationgatewayservice
     ports:
@@ -112,18 +112,18 @@ services:
       
       
       
-      ReverseProxy__Clusters__basketservice__ClusterId: identityservice
-      ReverseProxy__Clusters__basketservice__Destinations__destination1__Address: http://identityservice
+      ReverseProxy__Clusters__identityservice__ClusterId: identityservice
+      ReverseProxy__Clusters__identityservice__Destinations__destination1__Address: http://identityservice
       
       ReverseProxy__Clusters__trainingservice__ClusterId: trainingservice
       ReverseProxy__Clusters__trainingservice__Destinations__destination1__Address: http://trainingservice
       
       ReverseProxy__Clusters__studentservice__ClusterId: studentservice
       ReverseProxy__Clusters__studentservice__Destinations__destination1__Address: http://studentservice
-         
-      
-      
-      
+    
+    
+    
+    
     depends_on:
       - identityservice
       - trainingservice
@@ -135,13 +135,17 @@ services:
     restart: always
     ports:
       - "4000:80"
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     environment:
       ConnectionStrings__postgres: "Server=postgres; Port=5432; UserId=postgres; Password=123123; Database=identity"
       Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
-      
-      
+  
+  
   trainingservice:
     container_name: trainingservice
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     image: chinhval/educationtrainingservice
     ports:
       - "4001:80"
@@ -149,9 +153,11 @@ services:
       Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
       MongoOptions__Username: root
       MongoOptions__Password: Pass1234
-      MongoOptions__DatabaseName: trainingdb
+      MongoOptions__Database: trainingdb
       MongoOptions__Host: mongodb
   studentservice:
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     container_name: studentservice
     image: chinhval/educationstudentservice
     ports:
@@ -160,20 +166,22 @@ services:
       Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
       MongoOptions__Username: root
       MongoOptions__Password: Pass1234
-      MongoOptions__DatabaseName: trainingdb
+      MongoOptions__Database: trainingdb
       MongoOptions__Host: mongodb
       IdentityServer__Url: http://identityservice
   
   daotao:
-    build:
-      context: ../
-      dockerfile: src/Webs/daotao/Dockerfile
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: daotaoclient
+    image: chinhval/educationdaotaowebapp
     ports:
       - "3000:80"
   sinhvien:
-    build:
-      context: ../
-      dockerfile: src/Webs/sinhvien/Dockerfile
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: sinhvienclient
+    image: chinhval/educationsinhvienwebapp
     ports:
       - "3001:80"
   

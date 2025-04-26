@@ -7,14 +7,15 @@ import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import useGetStudentInformation from "@/app/modules/student/hooks/useGetStudentInformation.ts";
 import {useGetEducations} from "@/app/modules/common/hook.ts";
 import { EducationSubject } from '@/domain/education_subject';
-
-type SizeType = TableProps['size'];
+import {useGetRegisterStateCurrent} from "@/app/modules/student/hooks/useGetRegisterStateCurrent.ts";
+import dayjs from "dayjs";
+import {isNowBetweenServerTime} from "@/infrastructure/datetime_format.ts";
+import {Button} from "antd";
+import {RefreshCcw} from "lucide-react"
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 type TablePagination<T extends object> = NonNullable<Exclude<TableProps<T>['pagination'], boolean>>;
-type TablePaginationPosition = NonNullable<TablePagination<any>['position']>[number];
-type ExpandableConfig<T extends object> = TableProps<T>['expandable'];
-type TableRowSelection<T extends object> = TableProps<T>['rowSelection'];
-
+import {useCreateRegisterWish} from "../hooks/useCreateRegisterWish.ts"
+import toast from "react-hot-toast";
 
 const columns: ColumnsType<EducationSubject> = [
     {
@@ -62,20 +63,16 @@ const RegisterEducation: React.FC = () => {
         ],
         Includes: ["EducationSubjects"]
     }, isSuccess)
-
-    const [rowSelection, setRowSelection] = useState<TableRowSelection<EducationSubject> | undefined>({});
-    const [hasData, setHasData] = useState(true);
-    const [top, setTop] = useState<TablePaginationPosition>('none');
-    const [bottom, setBottom] = useState<TablePaginationPosition>('bottomRight');
-
     const [dataAdd, setDataAdd] = useState<EducationSubject[]>([])
 
     const tableColumns = columns.map((item) => ({ ...item }));
-    useEffect(() => {
-        console.log(rowSelection)
-    }, [rowSelection]);
+    const {data: registerCurrentState, isPending: registerCurrentStateLoading, isSuccess: registerCurrentStateSuccess, refetch} = useGetRegisterStateCurrent()
+    const { mutate, isPending: mutateLoading} = useCreateRegisterWish()
+
+
+
     return (
-        <PredataScreen isLoading={isPending} isSuccess={isSuccess}>
+        <PredataScreen isLoading={isPending && registerCurrentStateLoading} isSuccess={isSuccess && registerCurrentStateSuccess}>
 
             <div className={"flex flex-col gap-10"}>
                 <Select
@@ -87,27 +84,37 @@ const RegisterEducation: React.FC = () => {
                     loading={isLoading}
                     options={educations?.data?.data?.items.map((e) => ({ label: e?.name, value: e?.code }))}
                 />
-                <button onClick={() => {
-                    console.log(rowSelection)
-                }}>asdas</button>
+                <Box>
+                    <div>
+                        <Typography>Thời gian bắt đầu đăng ký: {dayjs(registerCurrentState?.data?.data?.staDate).format("HH:mm:ss DD-MM-YYYY")}</Typography>
+                        <Typography>Thời gian kết thúc đăng ký: {dayjs(registerCurrentState?.data?.data?.endDate).format("HH:mm:ss DD-MM-YYYY")}</Typography>
+                    </div>
+                    <div>
+                        <Button className={"px-10"} onClick={() => refetch()}><RefreshCcw /></Button>
+                    </div>
+                </Box>
                 <div>
                     <Table<EducationSubject>
                         rowKey={(c) => c.subject.subjectCode}
                         loading={isLoading}
                         style={{
                             height: "200px",
+                            position: "relative"
                         }}
                         virtual
                         showHeader={true}
                         title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white bg-green-600"}>
-                            <Typography variant="h6" gutterBottom>Đăng ký học </Typography>
-                            <Typography className={"font-bold text-red-800"}>Bạn được đăng ký tín chỉ trong khoảng [10:30]</Typography>
+                            <Typography variant="h6" gutterBottom>Đăng ký học: {registerCurrentState?.data?.data?.semesterCode}</Typography>
+                            <Typography className={"font-bold text-red-800"}>Bạn được đăng ký tín chỉ trong khoảng [{registerCurrentState?.data?.data?.minCredit}:{registerCurrentState?.data?.data?.maxCredit}]</Typography>
                         </Box>}
                         size={"small"}
                         rowSelection={{
                             onChange: (selectedRowKeys, selectedRows) => {
                                 setDataAdd(prevState => [...selectedRows])
                             },
+                            getCheckboxProps: (record) => ({
+                                disabled: !isNowBetweenServerTime(registerCurrentState?.data?.data?.staDate, registerCurrentState?.data?.data?.endDate)
+                            }),
                         }}
                         bordered={true}
                         pagination={false}
@@ -123,7 +130,9 @@ const RegisterEducation: React.FC = () => {
                         rowKey={(c) => c.subject.subjectCode}
                         style={{
                             height: "200px",
-                            marginTop: "100px"
+                            marginTop: "50px",
+                            position: "relative"
+
                         }}
                         showHeader={true}
                         title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white bg-blue-400"}>
@@ -139,6 +148,19 @@ const RegisterEducation: React.FC = () => {
                         }}
                     />
                 </div>
+                <Box className={" mt-[100px] w-full flex justify-end gap-5"}>
+                    <Button type={"default"}>Huỷ thay đổi</Button>
+                    <Button loading={mutateLoading} type={"primary"} onClick={() => [
+                        mutate({
+                            educationCode: studentInformation?.data?.data?.informationBySchool?.educationCodes[0]!,
+                            subjectCodes: dataAdd.map(c => c.subject.subjectCode)
+                        }, {
+                            onSuccess: res => {
+                                toast.success("Lưu thành công")
+                            }
+                        })
+                    ]}>Lưu thay đổi</Button>
+                </Box>
             </div>
         </PredataScreen>
     );

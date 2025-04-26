@@ -46,6 +46,7 @@ const MainLayout = () => {
                     {/*</header>*/}
                     <div className={"p-5"}>
                         <Outlet />
+                        <div className={"mt-20"}></div>
                     </div>
                 </SidebarInset>
             </main>

@@ -7,4 +7,6 @@ const getStudentInformation = async (): Promise<AxiosResponse<SuccessResponse<St
     return await http.get<SuccessResponse<Student>>("/studentservice/api/Student")
 }
 
+
+
 export default getStudentInformation

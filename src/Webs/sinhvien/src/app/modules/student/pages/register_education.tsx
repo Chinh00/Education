@@ -72,7 +72,7 @@ const RegisterEducation: React.FC = () => {
 
 
     return (
-        <PredataScreen isLoading={isPending && registerCurrentStateLoading} isSuccess={isSuccess && registerCurrentStateSuccess}>
+        <PredataScreen isLoading={isPending || registerCurrentStateLoading} isSuccess={isSuccess && registerCurrentStateSuccess}>
 
             <div className={"flex flex-col gap-10"}>
                 <Select

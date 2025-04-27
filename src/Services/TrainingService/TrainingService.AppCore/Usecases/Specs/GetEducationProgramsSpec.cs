@@ -16,7 +16,7 @@ public class GetEducationProgramsSpec : ListSpecification<EducationProgram>
         ApplyInclude(c => c.Code);
         ApplyInclude(c => c.Type);
         ApplyInclude(c => c.TrainingTime);
-        ApplyInclude(c => c.SpecialityPath);
+        ApplyInclude(c => c.SpecialityCode);
         ApplyInclude(c => c.CourseCode);
     }
 }

@@ -13,31 +13,32 @@ import {
 } from "@/app/components/ui/command.tsx";
 import {cn} from "@/app/lib/utils.ts";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import {setEducationQuery, setQuery} from "@/app/modules/student/stores/student_slice.ts";
+import {setFilters} from "@/app/modules/student/stores/student_slice.ts";
 import {useEffect, useState} from "react";
 import { StudentState } from "../stores/student_slice";
-import {useGetEducations} from "@/app/modules/education/hooks/useGetEducations.ts";
 
 export type CourseSearchProps = {
 }
 
 const CourseSearch = (props: CourseSearchProps) => {
-    const {educationQuery, query} = useAppSelector<StudentState>(c => c.student)
+    const {filters} = useAppSelector<StudentState>(c => c.student)
     const dispatch = useAppDispatch();
 
     const [open, setOpen] = useState(false)
 
-    const [courseQuery, setCourseQuery] = useState<Query>({
 
-    })
-
-
-
-
-
-    const {data: courses, isPending, isSuccess} = useGetCourses(courseQuery, open)
+    const {data: courses, isPending, isSuccess} = useGetCourses({}, open)
 
     const [value, setValue] = useState("")
+
+    useEffect(() => {
+        if (value !== "") {
+            dispatch(setFilters({
+                ...filters,
+                courseCode: value
+            }))
+        }
+    }, [value]);
 
 
     return (
@@ -70,17 +71,7 @@ const CourseSearch = (props: CourseSearchProps) => {
                                                 value={item.courseCode}
                                                 onSelect={(currentValue) => {
                                                     setValue(item.courseCode)
-                                                    dispatch(setEducationQuery({
-                                                        ...educationQuery,
-                                                        Filters: [
-                                                            ...educationQuery?.Filters?.filter(c => c.field !== "CourseCode") ?? [],
-                                                            {
-                                                                field: "CourseCode",
-                                                                value: item.courseCode,
-                                                                operator: "=="
-                                                            }
-                                                        ]
-                                                    }))
+
                                                     setOpen(false)
                                                 }}
                                             >

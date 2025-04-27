@@ -2,17 +2,23 @@ import {Query} from "@/infrastructure/query.ts";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export type StudentState = {
-    query: Query,
-    educationQuery: Query
+    filters: {
+        courseCode?: string
+        departmentCode?: string
+        specialityCode?: string,
+        classCode?: string
+        educationCode?: string
+    },
+    classQuery: Query
 }
 
 const educationState: StudentState = {
-    query: {
-        Includes: ["InformationBySchool", "PersonalInformation"]
-    } as Query,
-    educationQuery: {
+    filters: {
 
-    } as Query
+    },
+    classQuery: {
+
+    }
 
 }
 
@@ -24,15 +30,23 @@ const StudentSlice = createSlice({
         // setAuthenticate: (state, action: PayloadAction<boolean>) => {
         //     state.authenticate = action.payload
         // }
-        setQuery: (state, action: PayloadAction<Query>) => {
-            state.query = action.payload;
+        setFilters: (state, action: PayloadAction<{
+            courseCode?: string
+            departmentCode?: string
+            specialityCode?: string,
+            classCode?: string
+            educationCode?: string
+
+        }>) => {
+            state.filters = action.payload;
         },
-        setEducationQuery: (state, action: PayloadAction<Query>) => {
-            state.educationQuery = action.payload;
-        },
+        setClassQuery(state, action: PayloadAction<Query>) {
+            state.classQuery = action.payload;
+        }
+
 
     }
 })
 
 export default StudentSlice.reducer
-export const {setQuery, setEducationQuery} = StudentSlice.actions
+export const {setFilters, setClassQuery} = StudentSlice.actions

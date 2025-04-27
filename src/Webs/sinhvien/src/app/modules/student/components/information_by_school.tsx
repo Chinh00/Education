@@ -3,7 +3,12 @@ import {BookOpen, Building, Edit, School, Users} from "lucide-react";
 import {Button} from "@/app/components/ui/button.tsx";
 import {Avatar, AvatarFallback} from "@/app/components/ui/avatar.tsx";
 import {InformationBySchool as InfoSchool} from "@/domain/information_by_school.model"
-import {useGetCourses, useGetDepartments, useGetEducations} from "@/app/modules/common/hook.ts";
+import {
+    useGetCourses,
+    useGetDepartments,
+    useGetEducations,
+    useGetSpecialityDepartments
+} from "@/app/modules/common/hook.ts";
 import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/app/components/ui/select";
 import {useEffect, useState} from "react";
 import {Education} from "@/domain/education.ts";
@@ -16,8 +21,6 @@ export type InformationBySchoolProps = {
 const InformationBySchool = (props: InformationBySchoolProps) => {
     const [selectedEducation, setSelectedEducation] = useState<Education>(props.educations[0])
 
-
-    console.log()
     const {data: courses} = useGetCourses({
         Filters: [
             {
@@ -27,16 +30,25 @@ const InformationBySchool = (props: InformationBySchoolProps) => {
             }
         ]
     })
+
+    const {data: specialityDepartment} = useGetSpecialityDepartments({
+        Filters: [
+            {
+                field: "SpecialityCode",
+                operator: "==",
+                value: props?.educations[0]?.specialityCode
+            },
+        ],
+    }, !!props.educations[0])
     const {data: departments} = useGetDepartments({
         Filters: [
             {
-                field: "Id",
-                operator: "Contains",
-                value: selectedEducation?.specialityPath.split(".")[0]!
+                field: "DepartmentCode",
+                operator: "==",
+                value: specialityDepartment?.data?.data?.items[0]?.departmentCode!
             },
         ],
-        Includes: ["Specialities"]
-    }, !!props.educations[0])
+    }, specialityDepartment?.data?.data?.items[0] !== undefined)
 
 
     return (
@@ -86,7 +98,7 @@ const InformationBySchool = (props: InformationBySchoolProps) => {
                                 </div>
                                 <h3 className="font-medium">Chuyên ngành</h3>
                             </div>
-                            {/*<p className="text-lg font-semibold">{props?.departments.specialities[Number(data?.data?.data?.items[0]?.specialityPath.split(".")[1]!)]?.specialityName}</p>*/}
+                            <p className="text-lg font-semibold">{specialityDepartment?.data?.data?.items[0]?.specialityName}</p>
                         </div>
 
                         <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200 hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]">

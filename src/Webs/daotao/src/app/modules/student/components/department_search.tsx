@@ -1,8 +1,8 @@
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import {StudentState, setQuery, setEducationQuery} from "@/app/modules/student/stores/student_slice.ts";
-import {useState} from "react";
+import {StudentState, setFilters} from "@/app/modules/student/stores/student_slice.ts";
+import {useEffect, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
-import {useGetDepartments} from "@/app/modules/common/hook.ts";
+import {useGetDepartments, useGetSpecialityDepartments} from "@/app/modules/common/hook.ts";
 import {Popover, PopoverContent, PopoverTrigger} from "@/app/components/ui/popover.tsx";
 import {Button} from "@/app/components/ui/button.tsx";
 import {Check, ChevronsUpDown, Loader} from "lucide-react";
@@ -17,13 +17,24 @@ import {
 import {cn} from "@/app/lib/utils.ts";
 
 const DepartmentSearch = () => {
-    const {educationQuery} = useAppSelector<StudentState>(c => c.student)
+    const {filters} = useAppSelector<StudentState>(c => c.student)
     const dispatch = useAppDispatch();
 
     const [departmentQuery, setDepartmentQuery] = useState<Query>({})
     const [open, setOpen] = useState(false)
-    const {data: departments, isPending, isSuccess} = useGetDepartments(departmentQuery, open)
     const [value, setValue] = useState("")
+    const {data: departments, isPending, isSuccess} = useGetDepartments({
+
+    }, open)
+
+    useEffect(() => {
+        if (value !== "") {
+            dispatch(setFilters({
+                    ...filters,
+                    departmentCode: value
+            }))
+        }
+    }, [value]);
 
 
     return (
@@ -52,21 +63,22 @@ const DepartmentSearch = () => {
                                     !!departments && departments?.data?.data?.items?.map((item) => {
                                         return (
                                             <CommandItem
-                                                key={item.id}
+                                                key={item.departmentCode}
                                                 value={item.departmentCode}
                                                 onSelect={(currentValue) => {
-                                                    setValue(item.id)
-                                                    dispatch(setEducationQuery({
-                                                        ...educationQuery,
-                                                        Filters: [
-                                                            ...educationQuery?.Filters?.filter(c => c.field !== "SpecialityPath") ?? [],
-                                                            {
-                                                                field: "SpecialityPath",
-                                                                value: item.id,
-                                                                operator: "Contains"
-                                                            }
-                                                        ],
-                                                    }))
+                                                    setValue(item.departmentCode)
+                                                    // dispatch(setEducationQuery({
+                                                    //     ...educationQuery,
+                                                    //     Filters: [
+                                                    //
+                                                    //         ...educationQuery?.Filters?.filter(c => c.field !== "SpecialityCode") ?? [],
+                                                    //         {
+                                                    //             field: "SpecialityCode",
+                                                    //             value: specialities,
+                                                    //             operator: "In"
+                                                    //         }
+                                                    //     ],
+                                                    // }))
                                                     setOpen(false)
                                                 }}
                                             >

@@ -1,7 +1,6 @@
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {setFilters, StudentState} from "@/app/modules/student/stores/student_slice.ts";
 import {useEffect, useState} from "react";
-import {Query} from "@/infrastructure/query.ts";
 import {useGetSpecialityDepartments} from "@/app/modules/common/hook.ts";
 import {Popover, PopoverContent, PopoverTrigger} from "@/app/components/ui/popover.tsx";
 import {Button} from "@/app/components/ui/button.tsx";
@@ -15,25 +14,32 @@ import {
     CommandList
 } from "@/app/components/ui/command.tsx";
 import {cn} from "@/app/lib/utils.ts";
+import {useGetEducations} from "@/app/modules/education/hooks/useGetEducations.ts";
 
-const BranchSearch = () => {
+const EducationSearch = () => {
     const {filters} = useAppSelector<StudentState>(c => c.student)
     const dispatch = useAppDispatch();
     const [open, setOpen] = useState(false)
     const [value, setValue] = useState("")
 
 
-    const { data, isPending, isSuccess} = useGetSpecialityDepartments({
+
+    const { data, isPending, isSuccess} = useGetEducations({
         Filters: [
             {
-                field: "DepartmentCode",
-                operator: "==",
-                value: filters?.departmentCode!,
+                field: "SpecialityCode",
+                operator: "In",
+                value: filters?.specialityCode ?? "",
             },
+            {
+                field: "CourseCode",
+                operator: filters?.courseCode ? "==" : "!=",
+                value: filters?.courseCode ?? "",
+            }
         ],
         Page: 1,
         PageSize: 100
-    }, filters?.departmentCode !== undefined)
+    }, filters?.specialityCode !== undefined)
 
 
 
@@ -41,24 +47,25 @@ const BranchSearch = () => {
         if (value !== "") {
             dispatch(setFilters({
                 ...filters,
-                specialityCode: value
+                educationCode: value
             }))
         }
     }, [value]);
 
     useEffect(() => {
-        if (filters?.departmentCode) {
+        if (data) {
             dispatch(setFilters({
                 ...filters,
-                specialityCode: data?.data?.data?.items?.map(c => c.specialityCode)?.join(",")
+                educationCode: data?.data?.data?.items?.map(c => c.code)?.join(",")
             }))
         }
     }, [data]);
 
 
+
     return (
         <>
-            <Popover open={open} onOpenChange={setOpen} >
+            <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button
                         variant="outline"
@@ -67,8 +74,8 @@ const BranchSearch = () => {
                         className="w-[300px] justify-between"
                     >
                         {value
-                            ? data?.data?.data?.items.find((item) => item.specialityCode === value)?.specialityName
-                            : "Chọn nghành học"}
+                            ? data?.data?.data?.items.find((item) => item.code === value)?.name
+                            : "Chọn chương trình học"}
                         <ChevronsUpDown className="opacity-50" />
                     </Button>
                 </PopoverTrigger>
@@ -79,18 +86,18 @@ const BranchSearch = () => {
                             {isSuccess && <CommandEmpty>Không có dữ liệu</CommandEmpty>}
                             <CommandGroup>
                                 {
-                                    !!data && data?.data?.data?.items?.filter(c => c.specialityParentCode === null)?.map((item) => {
+                                    !!data && data?.data?.data?.items?.map((item) => {
                                         return (
                                             <CommandItem
-                                                key={item.specialityCode}
-                                                value={item.specialityCode}
+                                                key={item.code}
+                                                value={item.code}
                                                 onSelect={(currentValue) => {
-                                                    setValue(item.specialityCode)
+                                                    setValue(item.code)
 
                                                     setOpen(false)
                                                 }}
                                             >
-                                                {item.specialityName}
+                                                {item.name}
                                                 <Check
                                                     className={cn(
                                                         "ml-auto",
@@ -112,4 +119,4 @@ const BranchSearch = () => {
     )
 }
 
-export default BranchSearch;
+export default EducationSearch

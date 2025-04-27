@@ -11,5 +11,5 @@ export interface Education {
     courseCode: string;
     createdAt: string;
     updatedAt: string | null;
-    specialityPath: string;
+    specialityCode: string;
 }

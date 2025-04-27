@@ -1,6 +1,9 @@
 import {Query} from "@/infrastructure/query.ts";
 import {useQuery} from "@tanstack/react-query";
-import {getCourses, getDepartments} from "./service";
+import {getCourses, getDepartments, getSpecialities} from "./service";
+import {AxiosResponse} from "axios";
+import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/success_response.ts";
+import {Speciality} from "@/domain/speciality.ts";
 
 const useGetCourses = (query: Query, enable: boolean = true) => {
     return useQuery({
@@ -21,8 +24,9 @@ const useGetDepartments = (query: Query, enable: boolean = true) => {
 const useGetSpecialityDepartments = (query: Query, enable: boolean = true) => {
     return useQuery({
         queryKey: ["specialityDepartments", query],
-        queryFn: () => getDepartments(query),
+        queryFn: () => getSpecialities(query),
         enabled: enable,
+
     })
 }
 

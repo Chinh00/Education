@@ -6,12 +6,15 @@ import {useEffect, useMemo, useState} from "react";
 import useGetStudents from "@/app/modules/student/hooks/useGetStudents.ts";
 import {Student} from "@/domain/student.ts";
 import loadable from "@loadable/component";
-import {setQuery, StudentState} from "@/app/modules/student/stores/student_slice.ts";
-import {GetProp, Table, TableProps} from "antd";
+import {setFilters, StudentState} from "@/app/modules/student/stores/student_slice.ts";
+import {Badge, GetProp, Table, TableProps} from "antd";
 import DepartmentSearch from "@/app/modules/student/components/department_search.tsx";
 import {useGetEducations} from "@/app/modules/education/hooks/useGetEducations.ts";
 import {Query} from "@/infrastructure/query.ts";
 import BranchSearch from "@/app/modules/student/components/branch_search.tsx";
+import {useGetClasses} from "@/app/modules/class/hooks/useGetClasses.ts";
+import ClassSearch from "@/app/modules/student/components/class_search.tsx";
+import EducationSearch from "@/app/modules/student/components/education_search.tsx";
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 const CourseSearch = loadable(() => import('../components/course_search.tsx'), {
     fallback: <div>Loading...</div>,
@@ -32,6 +35,13 @@ const columns: ColumnsType<Student> = [
     {
         title: 'Chương trình đào tạo',
         dataIndex: ["personalInformation", "educationCodes"],
+        render: (_, record) => (
+            <>
+                {record?.informationBySchool?.educationCodes?.map((c, index) => {
+                    return <Badge key={index}>{c}</Badge>
+                })}
+            </>
+        ),
     },
 
 ];
@@ -45,37 +55,51 @@ const StudentList = () => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Danh sách sinh viên"}));
     }, []);
 
-    const {query, educationQuery} = useAppSelector<StudentState>(c => c.student)
+    const {filters} = useAppSelector<StudentState>(c => c.student)
+
+
+    const tableColumns = columns.map((item) => ({ ...item }));
+
+
+    const [query, setQuery] = useState<Query>({
+        Includes: ["InformationBySchool", "PersonalInformation"]
+    })
+
+
+    useEffect(() => {
+        if (filters?.classCode !== undefined)
+        setQuery(prevState => ({
+            ...prevState,
+            Filters: [
+                ...prevState?.Filters?.filter(c => c.field !== "InformationBySchool.StudentClassCode") ?? [],
+                {
+                    field: "InformationBySchool.StudentClassCode",
+                    operator: "Contains",
+                    value: filters?.classCode!
+                }
+            ]
+        }))
+    }, [filters?.classCode]);
+
+    useEffect(() => {
+        if (filters?.courseCode) {}
+    }, [filters?.courseCode]);
 
     const {data, isSuccess, isPending} = useGetStudents(query)
 
 
 
-    const tableColumns = columns.map((item) => ({ ...item }));
-    const {data: educations} = useGetEducations(educationQuery, educationQuery?.Filters?.filter(c => c.field !== "CourseCode") !== undefined)
-    useEffect(() => {
-        if (!!educations?.data?.data?.items) {
-            dispatch(setQuery({
-                ...query,
-                Filters: [
-                    ...query?.Filters?.filter(c => c.field != "InformationBySchool.EducationCodes") ?? [],
-                    {
-                        field: 'InformationBySchool.EducationCodes',
-                        operator: "ArrayContains",
-                        value: educations?.data?.data?.items?.map(c => c.code).join(",")!
-                    }
-                ]
-            }))
-        }
-    }, [educations]);
-
 
 
     return (
         <>
-            <CourseSearch />
-            <DepartmentSearch />
-            <BranchSearch />
+            <Box className={"flex gap-5 flex-wrap py-10"}>
+                <CourseSearch />
+                <DepartmentSearch />
+                <BranchSearch />
+                <EducationSearch />
+                <ClassSearch />
+            </Box>
             <PredataScreen isLoading={isPending} isSuccess={isSuccess} >
                 <Box >
                     <Table<Student>

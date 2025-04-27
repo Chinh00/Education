@@ -1,5 +1,8 @@
-import {useGetCourses} from "@/app/modules/common/hook.ts";
+import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
+import {setEducationQuery, StudentState} from "@/app/modules/student/stores/student_slice.ts";
+import {useEffect, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
+import {useGetSpecialityDepartments} from "@/app/modules/common/hook.ts";
 import {Popover, PopoverContent, PopoverTrigger} from "@/app/components/ui/popover.tsx";
 import {Button} from "@/app/components/ui/button.tsx";
 import {Check, ChevronsUpDown, Loader} from "lucide-react";
@@ -12,33 +15,32 @@ import {
     CommandList
 } from "@/app/components/ui/command.tsx";
 import {cn} from "@/app/lib/utils.ts";
-import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import {setEducationQuery, setQuery} from "@/app/modules/student/stores/student_slice.ts";
-import {useEffect, useState} from "react";
-import { StudentState } from "../stores/student_slice";
-import {useGetEducations} from "@/app/modules/education/hooks/useGetEducations.ts";
 
-export type CourseSearchProps = {
-}
-
-const CourseSearch = (props: CourseSearchProps) => {
-    const {educationQuery, query} = useAppSelector<StudentState>(c => c.student)
+const BranchSearch = () => {
+    const {educationQuery} = useAppSelector<StudentState>(c => c.student)
     const dispatch = useAppDispatch();
-
     const [open, setOpen] = useState(false)
-
-    const [courseQuery, setCourseQuery] = useState<Query>({
-
-    })
-
-
-
-
-
-    const {data: courses, isPending, isSuccess} = useGetCourses(courseQuery, open)
-
     const [value, setValue] = useState("")
+    const [specialQuery, setSpecialQuery] = useState<Query>({
+        Includes: ["Specialities"]
+    })
+    const { data: departmentBranch, isPending, isSuccess } = useGetSpecialityDepartments(specialQuery, educationQuery?.Filters?.filter(c => c.field === "SpecialityPath") !== undefined)
 
+    useEffect(() => {
+        if (!departmentBranch?.data?.data?.items) {
+            setSpecialQuery(prevState => ({
+                ...prevState,
+                Filters: [
+                    ...prevState?.Filters?.filter(c => c.field !== "DepartmentCode") ?? [],
+                    {
+                        field: "DepartmentCode",
+                        operator: "==",
+                        value: educationQuery?.Filters?.
+                    }
+                ]
+            }))
+        }
+    }, [departmentBranch]);
 
     return (
         <>
@@ -51,8 +53,8 @@ const CourseSearch = (props: CourseSearchProps) => {
                         className="w-[300px] justify-between"
                     >
                         {value
-                            ? courses?.data?.data?.items?.find((item) => item.courseCode === value)?.courseCode
-                            : "Chọn khoá học"}
+                            ? departmentBranch?.data?.data?.items[0]?.specialities.find((item) => item.specialityCode === value)?.specialityName
+                            : "Chọn nghành học"}
                         <ChevronsUpDown className="opacity-50" />
                     </Button>
                 </PopoverTrigger>
@@ -63,32 +65,22 @@ const CourseSearch = (props: CourseSearchProps) => {
                             {isSuccess && <CommandEmpty>Không có dữ liệu</CommandEmpty>}
                             <CommandGroup>
                                 {
-                                    !!courses && courses?.data?.data?.items?.map((item) => {
+                                    !!departmentBranch?.data?.data?.items[0]?.specialities && departmentBranch?.data?.data?.items[0]?.specialities?.map((item) => {
                                         return (
                                             <CommandItem
-                                                key={item.id}
-                                                value={item.courseCode}
+                                                key={item.specialityCode}
+                                                value={item.specialityCode}
                                                 onSelect={(currentValue) => {
-                                                    setValue(item.courseCode)
-                                                    dispatch(setEducationQuery({
-                                                        ...educationQuery,
-                                                        Filters: [
-                                                            ...educationQuery?.Filters?.filter(c => c.field !== "CourseCode") ?? [],
-                                                            {
-                                                                field: "CourseCode",
-                                                                value: item.courseCode,
-                                                                operator: "=="
-                                                            }
-                                                        ]
-                                                    }))
+                                                    setValue(item.specialityCode)
+
                                                     setOpen(false)
                                                 }}
                                             >
-                                                {item.courseName}
+                                                {item.specialityName}
                                                 <Check
                                                     className={cn(
                                                         "ml-auto",
-                                                        value === item.courseCode ? "opacity-100" : "opacity-0"
+                                                        value === item.specialityCode ? "opacity-100" : "opacity-0"
                                                     )}
                                                 />
                                             </CommandItem>
@@ -106,4 +98,4 @@ const CourseSearch = (props: CourseSearchProps) => {
     )
 }
 
-export default CourseSearch
+export default BranchSearch;

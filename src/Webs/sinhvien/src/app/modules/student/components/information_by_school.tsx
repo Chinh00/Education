@@ -5,42 +5,38 @@ import {Avatar, AvatarFallback} from "@/app/components/ui/avatar.tsx";
 import {InformationBySchool as InfoSchool} from "@/domain/information_by_school.model"
 import {useGetCourses, useGetDepartments, useGetEducations} from "@/app/modules/common/hook.ts";
 import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/app/components/ui/select";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {Education} from "@/domain/education.ts";
+import {Department} from "@/domain/department.ts";
 export type InformationBySchoolProps = {
-    informationBySchool?: InfoSchool;
+    educations: Education[],
+    studentClassName: string
 }
 
 const InformationBySchool = (props: InformationBySchoolProps) => {
-    const {data, isSuccess} = useGetEducations({
-        Filters: [
-            {
-                field: "Code",
-                operator: "==",
-                value: props?.informationBySchool?.educationCodes[0]!
-            }
-        ]
-    });
-    const [educationSelected, setEducationSelected] = useState(data && data?.data?.data?.items[0]?.code)
+    const [selectedEducation, setSelectedEducation] = useState<Education>(props.educations[0])
 
+
+    console.log()
     const {data: courses} = useGetCourses({
         Filters: [
             {
                 field: "CourseCode",
                 operator: "==",
-                value: data?.data?.data?.items[0]?.courseCode!
+                value: props?.educations[0]?.courseCode
             }
         ]
-    }, isSuccess)
+    })
     const {data: departments} = useGetDepartments({
         Filters: [
             {
                 field: "Id",
                 operator: "Contains",
-                value: data?.data?.data?.items[0]?.specialityPath.split(".")[0]!
+                value: selectedEducation?.specialityPath.split(".")[0]!
             },
         ],
         Includes: ["Specialities"]
-    }, isSuccess)
+    }, !!props.educations[0])
 
 
     return (
@@ -59,13 +55,16 @@ const InformationBySchool = (props: InformationBySchoolProps) => {
                     <CardDescription>Thông tin liên quan đến trường học</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Select>
-                        <SelectTrigger className={"w-full mb-5"} defaultValue={educationSelected}>
+                    <Select value={selectedEducation?.code} onValueChange={(value) => {
+                        const edu = props?.educations?.find(e => e.code === value);
+                        if (edu) setSelectedEducation(edu);
+                    }}>
+                        <SelectTrigger className={"w-full mb-5"} >
                             <SelectValue placeholder="Chương trình đào tạo" />
                         </SelectTrigger>
                         <SelectContent>
-                            {!!data && data?.data?.data?.items?.map((item, index) => (
-                                <SelectItem value={item.code} key={item.code}>{item?.name}</SelectItem>
+                            {!!props?.educations && props?.educations?.map((item, index) => (
+                                <SelectItem value={item?.code} key={item?.code}>{item?.name}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
@@ -87,7 +86,7 @@ const InformationBySchool = (props: InformationBySchoolProps) => {
                                 </div>
                                 <h3 className="font-medium">Chuyên ngành</h3>
                             </div>
-                            <p className="text-lg font-semibold">{departments?.data?.data?.items[0]?.specialities[Number(data?.data?.data?.items[0]?.specialityPath.split(".")[1]!)]?.specialityName}</p>
+                            {/*<p className="text-lg font-semibold">{props?.departments.specialities[Number(data?.data?.data?.items[0]?.specialityPath.split(".")[1]!)]?.specialityName}</p>*/}
                         </div>
 
                         <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200 hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]">
@@ -97,7 +96,7 @@ const InformationBySchool = (props: InformationBySchoolProps) => {
                                 </div>
                                 <h3 className="font-medium">Lớp</h3>
                             </div>
-                            <p className="text-lg font-semibold">{props?.informationBySchool?.studentClassName}</p>
+                            <p className="text-lg font-semibold">{props?.studentClassName}</p>
                         </div>
                     </div>
 

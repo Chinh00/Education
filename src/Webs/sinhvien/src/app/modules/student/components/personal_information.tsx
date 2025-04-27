@@ -13,8 +13,6 @@ import {BookOpen, Building, Calendar, Edit, Flag, Home, Mail, Phone, School, Use
 import { Button } from "@/app/components/ui/button"
 
 import dayjs from "dayjs"
-import {Avatar, AvatarFallback} from "@/app/components/ui/avatar"
-import InformationBySchool from "@/app/modules/student/components/information_by_school.tsx";
 
 export interface PersonalInformationProps {
     personalInformation?: PersonalInformation

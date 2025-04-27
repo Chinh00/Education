@@ -1,5 +1,8 @@
-import {useGetCourses} from "@/app/modules/common/hook.ts";
+import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
+import {StudentState, setQuery, setEducationQuery} from "@/app/modules/student/stores/student_slice.ts";
+import {useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
+import {useGetDepartments} from "@/app/modules/common/hook.ts";
 import {Popover, PopoverContent, PopoverTrigger} from "@/app/components/ui/popover.tsx";
 import {Button} from "@/app/components/ui/button.tsx";
 import {Check, ChevronsUpDown, Loader} from "lucide-react";
@@ -12,36 +15,19 @@ import {
     CommandList
 } from "@/app/components/ui/command.tsx";
 import {cn} from "@/app/lib/utils.ts";
-import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import {setEducationQuery, setQuery} from "@/app/modules/student/stores/student_slice.ts";
-import {useEffect, useState} from "react";
-import { StudentState } from "../stores/student_slice";
-import {useGetEducations} from "@/app/modules/education/hooks/useGetEducations.ts";
 
-export type CourseSearchProps = {
-}
-
-const CourseSearch = (props: CourseSearchProps) => {
-    const {educationQuery, query} = useAppSelector<StudentState>(c => c.student)
+const DepartmentSearch = () => {
+    const {educationQuery} = useAppSelector<StudentState>(c => c.student)
     const dispatch = useAppDispatch();
 
+    const [departmentQuery, setDepartmentQuery] = useState<Query>({})
     const [open, setOpen] = useState(false)
-
-    const [courseQuery, setCourseQuery] = useState<Query>({
-
-    })
-
-
-
-
-
-    const {data: courses, isPending, isSuccess} = useGetCourses(courseQuery, open)
-
+    const {data: departments, isPending, isSuccess} = useGetDepartments(departmentQuery, open)
     const [value, setValue] = useState("")
 
 
     return (
-        <>
+        < >
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button
@@ -51,44 +37,44 @@ const CourseSearch = (props: CourseSearchProps) => {
                         className="w-[300px] justify-between"
                     >
                         {value
-                            ? courses?.data?.data?.items?.find((item) => item.courseCode === value)?.courseCode
-                            : "Chọn khoá học"}
+                            ? departments?.data?.data?.items?.find((item) => item.departmentCode === value)?.departmentName
+                            : "Chọn khoa"}
                         <ChevronsUpDown className="opacity-50" />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
                     <Command>
-                        <CommandInput placeholder="Chọn khoá học" className="h-9" />
+                        <CommandInput placeholder="Chọn khoa" className="h-9" />
                         <CommandList>
                             {isSuccess && <CommandEmpty>Không có dữ liệu</CommandEmpty>}
                             <CommandGroup>
                                 {
-                                    !!courses && courses?.data?.data?.items?.map((item) => {
+                                    !!departments && departments?.data?.data?.items?.map((item) => {
                                         return (
                                             <CommandItem
                                                 key={item.id}
-                                                value={item.courseCode}
+                                                value={item.departmentCode}
                                                 onSelect={(currentValue) => {
-                                                    setValue(item.courseCode)
+                                                    setValue(item.id)
                                                     dispatch(setEducationQuery({
                                                         ...educationQuery,
                                                         Filters: [
-                                                            ...educationQuery?.Filters?.filter(c => c.field !== "CourseCode") ?? [],
+                                                            ...educationQuery?.Filters?.filter(c => c.field !== "SpecialityPath") ?? [],
                                                             {
-                                                                field: "CourseCode",
-                                                                value: item.courseCode,
-                                                                operator: "=="
+                                                                field: "SpecialityPath",
+                                                                value: item.id,
+                                                                operator: "Contains"
                                                             }
-                                                        ]
+                                                        ],
                                                     }))
                                                     setOpen(false)
                                                 }}
                                             >
-                                                {item.courseName}
+                                                {item.departmentName}
                                                 <Check
                                                     className={cn(
                                                         "ml-auto",
-                                                        value === item.courseCode ? "opacity-100" : "opacity-0"
+                                                        value === item.departmentCode ? "opacity-100" : "opacity-0"
                                                     )}
                                                 />
                                             </CommandItem>
@@ -101,9 +87,8 @@ const CourseSearch = (props: CourseSearchProps) => {
                     {isPending && <Loader size={"30"} className={"mx-auto my-10 animate-spin"} />}
                 </PopoverContent>
             </Popover>
-
         </>
     )
 }
 
-export default CourseSearch
+export default DepartmentSearch

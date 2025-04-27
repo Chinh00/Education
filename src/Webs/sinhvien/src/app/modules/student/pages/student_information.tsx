@@ -11,14 +11,24 @@ import Background from "@/assets/images/background.jpg"
 import DefaultAvatar from "@/assets/images/avatar.png"
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import InformationBySchool from "@/app/modules/student/components/information_by_school.tsx";
+import {useGetCourses, useGetDepartments, useGetEducations} from "../../common/hook";
 const StudentInformation = () => {
     const {data, isPending, isSuccess} = useGetStudentInformation()
+    const {data: educations, isSuccess: educationIsSuccess} = useGetEducations({
+        Filters: [
+            {
+                field: "Code",
+                operator: "In",
+                value: data?.data?.data?.informationBySchool?.educationCodes.join(",") ?? ""
+            }
+        ]
+    }, isSuccess);
+
 
 
 
     return <LayoutFadeIn >
         <PredataScreen isLoading={isPending} isSuccess={isSuccess}>
-
             <Card className={"relative overflow-hidden w-full h-full p-0"} style={{
             }}>
                 <div className={'absolute bg-cover right-0 w-full h-[300px] col-span-2 bg-no-repeat '}
@@ -70,7 +80,7 @@ const StudentInformation = () => {
             {/*</Tabs>*/}
             <div className={"grid md:grid-cols-5 gap-5 grid-cols-1 w-full mt-10"}>
                 <PersonalInformation personalInformation={data?.data?.data?.personalInformation} />
-                <InformationBySchool informationBySchool={data?.data?.data?.informationBySchool} />
+                <InformationBySchool educations={educations?.data?.data?.items ?? []} studentClassName={data?.data?.data?.informationBySchool?.studentClassName ?? ""}   />
             </div>
 
 

@@ -5,13 +5,36 @@ import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect, useMemo, useState} from "react";
 import useGetStudents from "@/app/modules/student/hooks/useGetStudents.ts";
 import {Student} from "@/domain/student.ts";
-import {MaterialReactTable, MRT_ColumnDef, MRT_PaginationState, useMaterialReactTable } from "material-react-table";
-import { useNavigate } from "react-router";
 import loadable from "@loadable/component";
-import {StudentState} from "@/app/modules/student/stores/student_slice.ts";
+import {setQuery, StudentState} from "@/app/modules/student/stores/student_slice.ts";
+import {GetProp, Table, TableProps} from "antd";
+import DepartmentSearch from "@/app/modules/student/components/department_search.tsx";
+import {useGetEducations} from "@/app/modules/education/hooks/useGetEducations.ts";
+import {Query} from "@/infrastructure/query.ts";
+import BranchSearch from "@/app/modules/student/components/branch_search.tsx";
+type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 const CourseSearch = loadable(() => import('../components/course_search.tsx'), {
     fallback: <div>Loading...</div>,
 })
+const columns: ColumnsType<Student> = [
+    {
+        title: 'Tên sinh viên',
+        dataIndex: ["personalInformation", "fullName"],
+    },
+    {
+        title: 'Mã sinh viên',
+        dataIndex: ["informationBySchool", "studentCode"],
+    },
+    {
+        title: 'Số điện thoại',
+        dataIndex: ["personalInformation", "phoneNumber"],
+    },
+    {
+        title: 'Chương trình đào tạo',
+        dataIndex: ["personalInformation", "educationCodes"],
+    },
+
+];
 
 
 
@@ -22,86 +45,60 @@ const StudentList = () => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Danh sách sinh viên"}));
     }, []);
 
-    const {query} = useAppSelector<StudentState>(c => c.student)
+    const {query, educationQuery} = useAppSelector<StudentState>(c => c.student)
 
     const {data, isSuccess, isPending} = useGetStudents(query)
 
-    const columns = useMemo<MRT_ColumnDef<Student>[]>(
-        () => [
-            {
-                accessorKey: 'id',
-                header: 'Mã',
-                size: 150,
-                muiTableHeadCellProps: {
-                    align: 'center',
-                },
-                muiTableBodyCellProps: {
-                    align: 'center',
-                },
-            }
-        ],
-        [],
-    );
-    const [pagination, setPagination] = useState<MRT_PaginationState>({
-        pageIndex: 0,
-        pageSize: 10,
-    })
-    const nav = useNavigate()
-    const table = useMaterialReactTable({
-        columns,
-        data: data?.data?.data?.items ?? [],
-        state: {
-            isLoading: isPending,
-            pagination: pagination,
-        },
-        initialState: {
-            density: 'compact',
-            showGlobalFilter: true
-        },
-        muiTableProps: {
-            padding: "normal"
-        },
-        enablePagination: true,
-        onPaginationChange: setPagination,
-        manualPagination: true,
-        rowCount: data?.data?.data?.totalItems ?? 0,
-        enableDensityToggle: false,
-        enableGlobalFilter: true,
-        enableRowActions: true,
-        positionActionsColumn: "last",
-        // renderRowActions: ({row, table}) => {
-        //     return <>
-        //         <Tooltip title={"Xem chi tiết"} >
-        //             <IconButton
-        //                 color="primary"
-        //                 onClick={() => {
-        //
-        //                 }}
-        //             >
-        //                 <Eye />
-        //             </IconButton>
-        //         </Tooltip>
-        //         <Tooltip title={"Cấu hình đăng ký học"} >
-        //             <IconButton
-        //                 color="primary"
-        //                 onClick={() => {
-        //                     nav(`/register-config/${row.original.code}`)
-        //                 }}
-        //             >
-        //                 <Settings />
-        //             </IconButton>
-        //         </Tooltip>
-        //
-        //     </>
-        // }
-    });
+
+
+    const tableColumns = columns.map((item) => ({ ...item }));
+    const {data: educations} = useGetEducations(educationQuery, educationQuery?.Filters?.filter(c => c.field !== "CourseCode") !== undefined)
+    useEffect(() => {
+        if (!!educations?.data?.data?.items) {
+            dispatch(setQuery({
+                ...query,
+                Filters: [
+                    ...query?.Filters?.filter(c => c.field != "InformationBySchool.EducationCodes") ?? [],
+                    {
+                        field: 'InformationBySchool.EducationCodes',
+                        operator: "ArrayContains",
+                        value: educations?.data?.data?.items?.map(c => c.code).join(",")!
+                    }
+                ]
+            }))
+        }
+    }, [educations]);
+
+
 
     return (
         <>
+            <CourseSearch />
+            <DepartmentSearch />
+            <BranchSearch />
             <PredataScreen isLoading={isPending} isSuccess={isSuccess} >
                 <Box >
-                    <CourseSearch />
-                    <MaterialReactTable table={table}  />
+                    <Table<Student>
+                        rowKey={(c) => c.id}
+                        loading={isPending}
+                        style={{
+                            height: "500px",
+                        }}
+                        showHeader={true}
+                        title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
+
+                        </Box>}
+                        size={"small"}
+                        // rowSelection={{
+                        //     // onChange: (selectedRowKeys, selectedRows) => {
+                        //     //     setDataAdd(prevState => [...selectedRows])
+                        //     // },
+                        // }}
+                        bordered={true}
+                        // pagination={true}
+                        columns={tableColumns}
+                        dataSource={data?.data?.data?.items ?? []}
+                    />
                 </Box>
             </PredataScreen>
         </>

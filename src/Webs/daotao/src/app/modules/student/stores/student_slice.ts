@@ -2,13 +2,18 @@ import {Query} from "@/infrastructure/query.ts";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export type StudentState = {
-    query: Query
+    query: Query,
+    educationQuery: Query
 }
 
 const educationState: StudentState = {
     query: {
-        Includes: ["InformationBySchool"]
+        Includes: ["InformationBySchool", "PersonalInformation"]
     } as Query,
+    educationQuery: {
+
+    } as Query
+
 }
 
 
@@ -21,9 +26,13 @@ const StudentSlice = createSlice({
         // }
         setQuery: (state, action: PayloadAction<Query>) => {
             state.query = action.payload;
-        }
+        },
+        setEducationQuery: (state, action: PayloadAction<Query>) => {
+            state.educationQuery = action.payload;
+        },
+
     }
 })
 
 export default StudentSlice.reducer
-export const {setQuery} = StudentSlice.actions
+export const {setQuery, setEducationQuery} = StudentSlice.actions

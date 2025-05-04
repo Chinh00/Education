@@ -15,5 +15,8 @@ public class GetStudentRegistersSpec : ListSpecification<StudentRegister>
         ApplyInclude(c => c.Id);
         ApplyInclude(c => c.StudentCode);
         ApplyInclude(c => c.CorrelationId);
+        ApplyInclude(c => c.EducationCode);
+        ApplyInclude(c => c.SubjectCodes);
+        ApplyInclude(c => c.RegisterDate);
     }
 }

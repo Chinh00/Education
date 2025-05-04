@@ -83,105 +83,105 @@ services:
       POSTGRES_DB: identity
   
   
-  #####################################
-  #           Gateway service         #
-  #####################################
-  gatewayservice:
-    container_name: gatewayservice
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    restart: always
-    image: chinhval/educationgatewayservice
-    ports:
-      - "9999:80"
-    environment:
-      ReverseProxy__Routes__identityservice__ClusterId: identityservice
-      ReverseProxy__Routes__identityservice__Match__Path: /identityservice/{**catch-all}
-      ReverseProxy__Routes__identityservice__Transforms_0__PathRemovePrefix: /identityservice
-      ReverseProxy__Routes__identityservice__Transforms_1__PathPrefix: /
-      
-      ReverseProxy__Routes__trainingservice__ClusterId: trainingservice
-      ReverseProxy__Routes__trainingservice__Match__Path: /trainingservice/{**catch-all}
-      ReverseProxy__Routes__trainingservice__Transforms_0__PathRemovePrefix: /trainingservice
-      ReverseProxy__Routes__trainingservice__Transforms_1__PathPrefix: /
-      
-      ReverseProxy__Routes__studentservice__ClusterId: studentservice
-      ReverseProxy__Routes__studentservice__Match__Path: /studentservice/{**catch-all}
-      ReverseProxy__Routes__studentservice__Transforms_0__PathRemovePrefix: /studentservice
-      ReverseProxy__Routes__studentservice__Transforms_1__PathPrefix: /
-      
-      
-      
-      ReverseProxy__Clusters__identityservice__ClusterId: identityservice
-      ReverseProxy__Clusters__identityservice__Destinations__destination1__Address: http://identityservice
-      
-      ReverseProxy__Clusters__trainingservice__ClusterId: trainingservice
-      ReverseProxy__Clusters__trainingservice__Destinations__destination1__Address: http://trainingservice
-      
-      ReverseProxy__Clusters__studentservice__ClusterId: studentservice
-      ReverseProxy__Clusters__studentservice__Destinations__destination1__Address: http://studentservice
-    
-    
-    
-    
-    depends_on:
-      - identityservice
-      - trainingservice
-      - studentservice
-  
-  identityservice:
-    container_name: identityservice
-    image: chinhval/educationidentityservice
-    restart: always
-    ports:
-      - "4000:80"
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    environment:
-      ConnectionStrings__postgres: "Server=postgres; Port=5432; UserId=postgres; Password=123123; Database=identity"
-      Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
-  
-  
-  trainingservice:
-    container_name: trainingservice
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    image: chinhval/educationtrainingservice
-    ports:
-      - "4001:80"
-    environment:
-      Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
-      MongoOptions__Username: root
-      MongoOptions__Password: Pass1234
-      MongoOptions__Database: trainingdb
-      MongoOptions__Host: mongodb
-  studentservice:
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    container_name: studentservice
-    image: chinhval/educationstudentservice
-    ports:
-      - "4002:80"
-    environment:
-      Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
-      MongoOptions__Username: root
-      MongoOptions__Password: Pass1234
-      MongoOptions__Database: trainingdb
-      MongoOptions__Host: mongodb
-      IdentityServer__Url: http://identityservice
-  
-  daotao:
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    container_name: daotaoclient
-    image: chinhval/educationdaotaowebapp
-    ports:
-      - "3000:80"
-  sinhvien:
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    container_name: sinhvienclient
-    image: chinhval/educationsinhvienwebapp
-    ports:
-      - "3001:80"
+#  #####################################
+#  #           Gateway service         #
+#  #####################################
+#  gatewayservice:
+#    container_name: gatewayservice
+#    labels:
+#      - com.centurylinklabs.watchtower.enable=true
+#    restart: always
+#    image: chinhval/educationgatewayservice
+#    ports:
+#      - "9999:80"
+#    environment:
+#      ReverseProxy__Routes__identityservice__ClusterId: identityservice
+#      ReverseProxy__Routes__identityservice__Match__Path: /identityservice/{**catch-all}
+#      ReverseProxy__Routes__identityservice__Transforms_0__PathRemovePrefix: /identityservice
+#      ReverseProxy__Routes__identityservice__Transforms_1__PathPrefix: /
+#      
+#      ReverseProxy__Routes__trainingservice__ClusterId: trainingservice
+#      ReverseProxy__Routes__trainingservice__Match__Path: /trainingservice/{**catch-all}
+#      ReverseProxy__Routes__trainingservice__Transforms_0__PathRemovePrefix: /trainingservice
+#      ReverseProxy__Routes__trainingservice__Transforms_1__PathPrefix: /
+#      
+#      ReverseProxy__Routes__studentservice__ClusterId: studentservice
+#      ReverseProxy__Routes__studentservice__Match__Path: /studentservice/{**catch-all}
+#      ReverseProxy__Routes__studentservice__Transforms_0__PathRemovePrefix: /studentservice
+#      ReverseProxy__Routes__studentservice__Transforms_1__PathPrefix: /
+#      
+#      
+#      
+#      ReverseProxy__Clusters__identityservice__ClusterId: identityservice
+#      ReverseProxy__Clusters__identityservice__Destinations__destination1__Address: http://identityservice
+#      
+#      ReverseProxy__Clusters__trainingservice__ClusterId: trainingservice
+#      ReverseProxy__Clusters__trainingservice__Destinations__destination1__Address: http://trainingservice
+#      
+#      ReverseProxy__Clusters__studentservice__ClusterId: studentservice
+#      ReverseProxy__Clusters__studentservice__Destinations__destination1__Address: http://studentservice
+#    
+#    
+#    
+#    
+#    depends_on:
+#      - identityservice
+#      - trainingservice
+#      - studentservice
+#  
+#  identityservice:
+#    container_name: identityservice
+#    image: chinhval/educationidentityservice
+#    restart: always
+#    ports:
+#      - "4000:80"
+#    labels:
+#      - com.centurylinklabs.watchtower.enable=true
+#    environment:
+#      ConnectionStrings__postgres: "Server=postgres; Port=5432; UserId=postgres; Password=123123; Database=identity"
+#      Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
+#  
+#  
+#  trainingservice:
+#    container_name: trainingservice
+#    labels:
+#      - com.centurylinklabs.watchtower.enable=true
+#    image: chinhval/educationtrainingservice
+#    ports:
+#      - "4001:80"
+#    environment:
+#      Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
+#      MongoOptions__Username: root
+#      MongoOptions__Password: Pass1234
+#      MongoOptions__Database: trainingdb
+#      MongoOptions__Host: mongodb
+#  studentservice:
+#    labels:
+#      - com.centurylinklabs.watchtower.enable=true
+#    container_name: studentservice
+#    image: chinhval/educationstudentservice
+#    ports:
+#      - "4002:80"
+#    environment:
+#      Kafka__BootstrapServers: "broker1:9092,broker2:9093,broker3:9094"
+#      MongoOptions__Username: root
+#      MongoOptions__Password: Pass1234
+#      MongoOptions__Database: trainingdb
+#      MongoOptions__Host: mongodb
+#      IdentityServer__Url: http://identityservice
+#  
+#  daotao:
+#    labels:
+#      - com.centurylinklabs.watchtower.enable=true
+#    container_name: daotaoclient
+#    image: chinhval/educationdaotaowebapp
+#    ports:
+#      - "3000:80"
+#  sinhvien:
+#    labels:
+#      - com.centurylinklabs.watchtower.enable=true
+#    container_name: sinhvienclient
+#    image: chinhval/educationsinhvienwebapp
+#    ports:
+#      - "3001:80"
   

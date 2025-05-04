@@ -1,6 +1,7 @@
 using Education.Core.Domain;
 using Education.Core.Repository;
 using MediatR;
+using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;
 
 namespace TrainingService.AppCore.Usecases.Queries;
@@ -18,10 +19,14 @@ public record GetStudentRegisterQuery : IListQuery<ListResultModel<StudentRegist
         : IRequestHandler<GetStudentRegisterQuery, ResultModel<ListResultModel<StudentRegister>>>
     {
 
-        public async Task<ResultModel<ListResultModel<StudentRegister>>> Handle(GetStudentRegisterQuery request, CancellationToken cancellationToken)
+        public async Task<ResultModel<ListResultModel<StudentRegister>>> Handle(GetStudentRegisterQuery request,
+            CancellationToken cancellationToken)
         {
-            
-            throw new NotImplementedException();
+            var spec = new GetStudentRegistersSpec(request);
+            var items = await repository.FindAsync(spec, cancellationToken);
+            var totalItems = await repository.CountAsync(spec, cancellationToken);
+            return ResultModel<ListResultModel<StudentRegister>>.Create(
+                ListResultModel<StudentRegister>.Create(items, totalItems, request.Page, request.PageSize));
         }
     }
 

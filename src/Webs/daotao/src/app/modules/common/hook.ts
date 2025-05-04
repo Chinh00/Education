@@ -4,6 +4,7 @@ import {getCourses, getDepartments, getSpecialities} from "./service";
 import {AxiosResponse} from "axios";
 import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/success_response.ts";
 import {Speciality} from "@/domain/speciality.ts";
+import {GetProp, TableProps } from "antd";
 
 const useGetCourses = (query: Query, enable: boolean = true) => {
     return useQuery({
@@ -36,3 +37,6 @@ export {
     useGetDepartments,
     useGetSpecialityDepartments
 };
+
+
+export type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;

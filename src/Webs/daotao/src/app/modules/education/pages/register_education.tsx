@@ -10,6 +10,7 @@ import {Table, Typography, type GetProp, type RadioChangeEvent, type TableProps 
 import {Button} from "@/app/components/ui/button.tsx";
 import { useNavigate } from "react-router";
 import {RoutePaths} from "@/core/route_paths.ts";
+import dayjs from "dayjs";
 const columns: ColumnsType<RegisterState> = [
     {
         title: 'Mã đăng ký học',
@@ -18,10 +19,16 @@ const columns: ColumnsType<RegisterState> = [
     {
         title: 'Thời gian bắt đầu',
         dataIndex: "startDate",
+        render: (text, record) => (
+            <div>{dayjs(record?.startDate).format("HH:mm:ss DD-MM-YYYY")}</div>
+        )
     },
     {
         title: 'Thời gian kết thúc',
         dataIndex: "endDate",
+        render: (text, record) => (
+            <div>{dayjs(record?.endDate).format("HH:mm:ss DD-MM-YYYY")}</div>
+        )
     },
     {
         title: 'Trạng thái',

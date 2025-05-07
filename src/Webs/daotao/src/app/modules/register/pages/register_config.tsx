@@ -5,7 +5,7 @@ import {MaterialReactTable, MRT_ColumnDef, MRT_PaginationState, useMaterialReact
 import {Semester} from "@/domain/semester.ts";
 import {EducationSubject} from "@/domain/education_subject.ts";
 import {Box, IconButton, Tooltip} from "@mui/material";
-import SemesterModal from "@/app/modules/semester/components/semester_modal.tsx";
+import SemesterModal from "@/app/modules/education/components/semester_modal.tsx";
 import {Eye} from "lucide-react";
 import {Query} from "@/infrastructure/query.ts";
 import loadable from "@loadable/component";

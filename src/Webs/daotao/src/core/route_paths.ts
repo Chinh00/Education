@@ -8,11 +8,16 @@ export const RoutePaths = {
 
     EDUCATION: '/educations',
     EDUCATION_TRAINING: '/educations/training',
+
     EDUCATION_REGISTER: '/educations/register',
     EDUCATION_REGISTER_DETAIL: '/educations/register/:id',
     EDUCATION_REGISTER_TIMELINE: '/educations/register/timeline',
     EDUCATION_REGISTER_DASHBOARD: '/educations/register-dashboard',
     EDUCATION_REGISTER_CONFIG: '/educations/register-config',
+
+    EDUCATION_SEMESTER_LIST: '/educations/semesters',
+
+
 
 
     WISH_CONFIG: '/wish-config',
@@ -21,5 +26,4 @@ export const RoutePaths = {
     CLASS_SEMESTER_LIST: '/classes/:id/semesters',
 
 
-    SEMESTER_LIST: '/semesters',
 }

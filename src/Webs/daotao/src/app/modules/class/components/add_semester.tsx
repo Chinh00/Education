@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Button} from "@/app/components/ui/button.tsx";
 import {Box, Modal } from "@mui/material";
-import {useGetSemesters} from "@/app/modules/semester/hooks/useGetSemesters.ts";
+import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 
 export type AddSemesterProps = {
 

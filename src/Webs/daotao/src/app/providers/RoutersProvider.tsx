@@ -14,10 +14,15 @@ const DashboardRegister = lazy(() => import("../modules/education/pages/dashboar
 const CreateRegister = lazy(() => import("../modules/education/pages/create_register.tsx"));
 const RegisterDetail = lazy(() => import("../modules/education/pages/register_detail.tsx"));
 const TimelineSettings = lazy(() => import("../modules/education/pages/timeline_settings.tsx"));
+
+const SemesterList = lazy(() => import("../modules/education/pages/semester_list.tsx"));
+
+
+
+
 const CLASS = lazy(() => import("../modules/class/pages/class_list.tsx"));
 const SEMESTER_CLASS = lazy(() => import("../modules/class/pages/semester_class.tsx"));
 const WISH_CONFIG = lazy(() => import("../modules/register/pages/wish_config.tsx"));
-const SEMESTER = lazy(() => import("../modules/semester/pages/semester_list.tsx"));
 const MainLayout = lazy(() => import("../components/layouts/main_layout.tsx"));
 const NOTFOUND = lazy(() => import("../modules/system/pages/notfound_page.tsx"));
 const EducationLayout = lazy(() => import("../modules/education/layouts/education_layout.tsx"));
@@ -62,6 +67,11 @@ const router = createBrowserRouter([
                         path: RoutePaths.EDUCATION_REGISTER_TIMELINE,
                         element: <Suspense fallback={<TabLoading />} key={"TimelineSettings"}><TimelineSettings /></Suspense>,
                     },
+                    {
+                        path: RoutePaths.EDUCATION_SEMESTER_LIST,
+                        element: <Suspense fallback={<TabLoading />} key={"SemesterList"}><SemesterList /></Suspense>,
+                    },
+
 
                 ],
             },
@@ -102,10 +112,6 @@ const router = createBrowserRouter([
             {
                 path: RoutePaths.REGISTER_CONFIG_PATH,
                 element: <Suspense fallback={<ProgressScreen />}  key={"RegisterConfig"}  ><RegisterConfig /></Suspense>,
-            },
-            {
-                path: RoutePaths.SEMESTER_LIST,
-                element: <Suspense fallback={<ProgressScreen/>}   key={"SEMESTER"} ><SEMESTER /></Suspense>,
             },
             {
                 path: "*",

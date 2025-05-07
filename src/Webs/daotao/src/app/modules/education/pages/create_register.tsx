@@ -7,8 +7,8 @@ import {Label} from "@/app/components/ui/label.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/app/components/ui/select.tsx";
 import {Input} from "@/app/components/ui/input.tsx";
 import {Switch} from "@/app/components/ui/switch.tsx";
-import {useGetSemesters} from "@/app/modules/semester/hooks/useGetSemesters.ts";
-import FormInputDateTime from "@/app/components/inputs/FormInputDateTime.tsx";
+import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
+import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
 import { CreateRegisterStateModel } from "../services/education.service";
 import { useForm } from "react-hook-form";
 import {Button} from "antd"
@@ -96,12 +96,12 @@ const CreateRegister = () => {
 
                                 <div className="space-y-2">
                                     <Label>Thời gian bắt đầu</Label>
-                                    <FormInputDateTime type={"datetime-local"} control={control} name={"startDate"} />
+                                    <FormInputAntd type={"datetime-local"} control={control} name={"startDate"} />
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label>Thời gian kết thúc</Label>
-                                    <FormInputDateTime type={"datetime-local"} control={control} name={"endDate"} />
+                                    <FormInputAntd type={"datetime-local"} control={control} name={"endDate"} />
                                 </div>
                             </div>
                         </CardContent>
@@ -122,7 +122,7 @@ const CreateRegister = () => {
                                         Số tín chỉ tối đa sinh viên được phép đăng ký
                                     </div>
                                 </div>
-                                <FormInputDateTime className={"w-[100px]"} control={control} name={"minCredit"} type={"number"} />
+                                <FormInputAntd className={"w-[100px]"} control={control} name={"minCredit"} type={"number"} />
                             </div>
 
                             <div className="flex items-center justify-between">
@@ -132,7 +132,7 @@ const CreateRegister = () => {
                                         Số tín chỉ tối thiểu sinh viên phải đăng ký
                                     </div>
                                 </div>
-                                <FormInputDateTime className={"w-[100px]"}  control={control} name={"maxCredit"} type={"number"} />
+                                <FormInputAntd className={"w-[100px]"} control={control} name={"maxCredit"} type={"number"} />
                             </div>
                         </CardContent>
                     </Card>

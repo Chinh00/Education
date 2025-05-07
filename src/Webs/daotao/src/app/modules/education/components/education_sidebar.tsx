@@ -33,6 +33,21 @@ const EducationSidebar = () => {
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
+
+            <SidebarGroup>
+                <SidebarGroupLabel>Học kì</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_SEMESTER_LIST)}>
+                                <List />
+                                Danh sách kì học
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+
             <SidebarGroup>
                 <SidebarGroupLabel>Đăng ký học</SidebarGroupLabel>
                 <SidebarGroupContent>

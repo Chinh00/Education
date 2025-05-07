@@ -16,7 +16,7 @@ import { Label } from "@/app/components/ui/label";
 import {useForm} from "react-hook-form";
 import {Student} from "@/domain/student.ts";
 import FormInputText from "@/app/components/inputs/FormInputText.tsx";
-import FormInputDateTime from "@/app/components/inputs/FormInputDateTime.tsx";
+import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
 const RegisterDetail = () => {
     const dispatch = useAppDispatch()
 
@@ -127,30 +127,30 @@ const RegisterDetail = () => {
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-2">
                                         <Mail className="text-gray-400 h-4 w-4 flex-shrink-0" />
-                                        <FormInputDateTime name={"personalInformation.email"} control={control}
-                                                           type={"input"} disabled />
+                                        <FormInputAntd name={"personalInformation.email"} control={control}
+                                                       type={"input"} disabled />
                                     </div>
 
                                     <div className="flex items-center gap-2">
                                         <Phone className="text-gray-400 h-4 w-4 flex-shrink-0" />
-                                        <FormInputDateTime name={"personalInformation.phoneNumber"} control={control}
-                                                           type={"input"} disabled />
+                                        <FormInputAntd name={"personalInformation.phoneNumber"} control={control}
+                                                       type={"input"} disabled />
                                     </div>
 
                                     <div className="pt-4 border-t">
                                         <Label className="text-sm font-medium text-gray-500 mb-2 block">Địa chỉ</Label>
-                                        <FormInputDateTime name={"personalInformation.contactAddress"} control={control}
-                                                           type={"textarea"} disabled />
+                                        <FormInputAntd name={"personalInformation.contactAddress"} control={control}
+                                                       type={"textarea"} disabled />
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <Label className="text-sm font-medium text-gray-500 mb-2 block">Ngày sinh</Label>
-                                            <FormInputDateTime type={"date"} control={control} name={"personalInformation.birthDate"} />
+                                            <FormInputAntd type={"date"} control={control} name={"personalInformation.birthDate"} />
                                         </div>
                                         <div>
                                             <Label className="text-sm font-medium text-gray-500 mb-2 block">Giới tính</Label>
-                                            <FormInputDateTime type={"input"} disabled control={control} name={"personalInformation.gender"} />
+                                            <FormInputAntd type={"input"} disabled control={control} name={"personalInformation.gender"} />
                                         </div>
                                     </div>
                                 </div>

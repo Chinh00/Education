@@ -7,6 +7,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using TrainingService.AppCore.StateMachine;
+using TrainingService.AppCore.SubjectSaga;
 
 namespace TrainingService.Infrastructure;
 
@@ -34,6 +35,13 @@ public static class Extensions
                         e.Connection = mOption.ToString();
                         e.DatabaseName = mOption.Database;
                         e.CollectionName = "RegisterSaga";
+                    });
+                e.AddSagaStateMachine<SubjectStateMachine, SubjectState, SubjectStateMachineDefinition>()
+                    .MongoDbRepository(e =>
+                    {
+                        e.Connection = mOption.ToString();
+                        e.DatabaseName = mOption.Database;
+                        e.CollectionName = "SubjectSaga";
                     });
                 
                 e.UsingKafka((context, configurator) =>

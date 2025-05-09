@@ -1,5 +1,4 @@
 import {useGetCourses} from "@/app/modules/common/hook.ts";
-import {Query} from "@/infrastructure/query.ts";
 import {Popover, PopoverContent, PopoverTrigger} from "@/app/components/ui/popover.tsx";
 import {Button} from "@/app/components/ui/button.tsx";
 import {Check, ChevronsUpDown, Loader} from "lucide-react";
@@ -13,7 +12,7 @@ import {
 } from "@/app/components/ui/command.tsx";
 import {cn} from "@/app/lib/utils.ts";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import {setFilters} from "@/app/modules/student/stores/student_slice.ts";
+import {setStudentListSearch} from "@/app/modules/student/stores/student_slice.ts";
 import {useEffect, useState} from "react";
 import { StudentState } from "../stores/student_slice";
 
@@ -21,7 +20,7 @@ export type CourseSearchProps = {
 }
 
 const CourseSearch = (props: CourseSearchProps) => {
-    const {filters} = useAppSelector<StudentState>(c => c.student)
+    const {studentListSelected} = useAppSelector<StudentState>(c => c.student)
     const dispatch = useAppDispatch();
 
     const [open, setOpen] = useState(false)
@@ -33,10 +32,7 @@ const CourseSearch = (props: CourseSearchProps) => {
 
     useEffect(() => {
         if (value !== "") {
-            dispatch(setFilters({
-                ...filters,
-                courseCode: value
-            }))
+            dispatch(setStudentListSearch({...studentListSelected, courseCode: value}))
         }
     }, [value]);
 

@@ -7,6 +7,6 @@ namespace TrainingService.AppCore.Usecases.Specs;
 public class GetStudentRegisterByStudentCodeAndEducationCodeSpec(string educationCode, string studentCode)
     : SpecificationBase<StudentRegister>
 {
-    public override Expression<Func<StudentRegister, bool>> Filter =>
+    public override Expression<Func<StudentRegister, bool>> Predicate =>
         c => c.StudentCode == studentCode && c.EducationCode == educationCode;
 }

@@ -7,20 +7,19 @@ export type FormInputDateTimeProps = {
     control: Control<any, any>,
     name: string,
     type?: HTMLInputTypeAttribute,
-} & ComponentProps<"input"> & FormItemProps
+} & FormItemProps
 
 const FormInputAntd = (props: FormInputDateTimeProps) => {
     return <Controller
         name={props.name}
         control={props.control}
         render={({ field }) => (
-            <Form.Item {...props} initialValue={""}>
+            <Form.Item {...props}>
                 <Input
-                    {...props}
                     type={props?.type ?? "input"}
                     {...field}
                     value={field.value ?? ""}
-                    onChange={e => field.onChange(e)}
+                    onChange={e => field.onChange(e.target.value)}
                     style={{
                         width: "100%"
                     }}

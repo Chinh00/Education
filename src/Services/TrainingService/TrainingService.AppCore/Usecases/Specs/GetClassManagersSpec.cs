@@ -4,7 +4,7 @@ using TrainingService.Domain;
 
 namespace TrainingService.AppCore.Usecases.Specs;
 
-public class GetClassManagersSpec : ListSpecification<ClassManager>
+public class GetClassManagersSpec : ListSpecificationBase<ClassManager>
 {
     public GetClassManagersSpec(IListQuery<ListResultModel<ClassManager>> query)
     {

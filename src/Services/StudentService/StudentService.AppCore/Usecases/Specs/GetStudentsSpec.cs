@@ -4,7 +4,7 @@ using StudentService.Domain;
 
 namespace StudentService.AppCore.Usecases.Specs;
 
-public class GetStudentsSpec : ListSpecification<Student>
+public class GetStudentsSpec : ListSpecificationBase<Student>
 {
     public GetStudentsSpec(IListQuery<ListResultModel<Student>> query)
     {

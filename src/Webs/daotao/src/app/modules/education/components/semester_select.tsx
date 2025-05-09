@@ -19,10 +19,12 @@ const SemesterSelect = (props: SemesterSelectProps) => {
                 style={{
                     minWidth: 200
                 }}
-                onChange={() => {
-                    setOpen(false)
+                onChange={(value, option) => {
+                    console.log(value)
                 }}
-                onClick={() => setOpen(true)}
+                onClick={() => {
+                    setOpen(prevState => !prevState)
+                }}
                 placeholder={"Chọn kì học"}
             >
                 {!!data && data?.data?.data?.items?.map(c => {

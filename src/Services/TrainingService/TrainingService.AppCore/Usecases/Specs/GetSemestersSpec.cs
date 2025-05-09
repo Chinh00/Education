@@ -4,7 +4,7 @@ using TrainingService.Domain;
 
 namespace TrainingService.AppCore.Usecases.Specs;
 
-public class GetSemestersSpec : ListSpecification<Semester>
+public class GetSemestersSpec : ListSpecificationBase<Semester>
 {
     public GetSemestersSpec(IListQuery<ListResultModel<Semester>> query)
     {

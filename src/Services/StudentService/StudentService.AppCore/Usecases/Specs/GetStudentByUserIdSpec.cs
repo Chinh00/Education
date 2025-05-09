@@ -14,5 +14,5 @@ public class GetStudentByUserIdSpec : SpecificationBase<Student>
         _studentId = studentId;
     }
 
-    public override Expression<Func<Student, bool>> Filter => x => x.Id == _studentId; 
+    public override Expression<Func<Student, bool>> Predicate => x => x.Id == _studentId; 
 }

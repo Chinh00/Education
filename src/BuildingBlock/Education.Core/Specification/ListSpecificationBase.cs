@@ -3,7 +3,7 @@ using Education.Core.Domain;
 
 namespace Education.Core.Specification;
 
-public class ListSpecification<TEntity> : IListSpecification<TEntity> where TEntity : BaseEntity
+public class ListSpecificationBase<TEntity> : IListSpecification<TEntity> where TEntity : BaseEntity
 {
     public List<Expression<Func<TEntity, bool>>> Filters { get; } = [];
     public List<Expression<Func<TEntity, object>>> Includes { get; } = [];
@@ -26,7 +26,8 @@ public class ListSpecification<TEntity> : IListSpecification<TEntity> where TEnt
 
     public void ApplySorting(string sortBy) =>
         this.ApplySorting<TEntity>(sortBy, nameof(ApplySortAsc), nameof(ApplySortDesc));
-    
+    public void ApplySorting(List<string> sortBys) => sortBys?.ForEach(ApplySorting);
+
     public void ApplySorts(List<string> sorts) => sorts.ForEach(ApplySorting);
     
     

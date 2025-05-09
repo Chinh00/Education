@@ -119,7 +119,7 @@ const RegisterEducation: React.FC = () => {
                         bordered={true}
                         pagination={false}
                         columns={tableColumns}
-                        dataSource={educations?.data?.data?.items[0]?.educationSubjects ?? []}
+                        dataSource={educations?.data?.data?.items[0]?.educationSubjects?.filter(c => c?.subject?.isCalculateMark === true) ?? []}
                         scroll={{
                             y: 300,
                         }}

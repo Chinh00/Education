@@ -12,8 +12,10 @@ public class WishListCreatedIntegrationEventConsumer(IBackgroundJobClient jobCli
 {
     public async Task Handle(WishListCreatedIntegrationEvent notification, CancellationToken cancellationToken)
     {
-        var delay = notification.EndDate - DateTimeUtils.GetUtcTime();
-        Console.WriteLine(notification.EndDate);
+        var delay = TimeZoneInfo
+            .ConvertTimeFromUtc(notification.EndDate, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")) - DateTimeUtils.GetUtcTime();
+        Console.WriteLine(TimeZoneInfo
+            .ConvertTimeFromUtc(notification.EndDate, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")));
         Console.WriteLine(DateTimeUtils.GetUtcTime());
         if (delay <= TimeSpan.Zero) await Task.CompletedTask;
         await registerRepository.SaveAsync(nameof(RegisterCourse), () => Task.FromResult(new RegisterCourse()
@@ -24,7 +26,7 @@ public class WishListCreatedIntegrationEventConsumer(IBackgroundJobClient jobCli
             EndDate = notification.EndDate,
             MinCredit = notification.MinCredit,
             MaxCredit = notification.MaxCredit,
-            RegisterCode = notification.CorrelationId.ToString()
+            RegisterCode = notification.CorrelationId.ToString(),
         }));
         jobClient.Schedule<WishLockHandler>(
             (x) => x.Handle(notification.CorrelationId, cancellationToken),

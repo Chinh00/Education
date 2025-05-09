@@ -1,5 +1,5 @@
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import { setFilters, StudentState} from "@/app/modules/student/stores/student_slice.ts";
+import { setStudentListSearch, StudentState} from "@/app/modules/student/stores/student_slice.ts";
 import {useEffect, useState} from "react";
 import {useGetSpecialityDepartments} from "@/app/modules/common/hook.ts";
 import {Popover, PopoverContent, PopoverTrigger} from "@/app/components/ui/popover.tsx";
@@ -15,42 +15,74 @@ import {
 } from "@/app/components/ui/command.tsx";
 import {cn} from "@/app/lib/utils.ts";
 import {useGetClasses} from "@/app/modules/class/hooks/useGetClasses.ts";
+import {useGetEducations} from "@/app/modules/education/hooks/useGetEducations.ts";
+import {Query} from "@/infrastructure/query.ts";
 
 const ClassSearch = () => {
-    const {filters} = useAppSelector<StudentState>(c => c.student)
+    const {studentListSelected} = useAppSelector<StudentState>(c => c.student)
     const dispatch = useAppDispatch();
     const [open, setOpen] = useState(false)
     const [value, setValue] = useState("")
-
-
-    const { data, isPending, isSuccess} = useGetClasses({
-        Filters: [
-            {
-                field: "EducationCode",
-                operator: "In",
-                value: filters?.educationCode!,
-            }
-        ]
-    }, filters?.educationCode !== undefined)
-
+    const [educationQuery, setEducationQuery] = useState<Query>({})
+    const {data: educationData, isSuccess: educationSuccess} = useGetEducations(educationQuery)
     useEffect(() => {
-        if (data?.data) {
-            dispatch(setFilters({
-                ...filters,
-                classCode: data?.data?.data?.items?.map(c => c.classCode).join(",")
+        if (studentListSelected?.specialityCode) {
+            setEducationQuery(prevState => ({
+                ...prevState,
+                Filters: [
+                    {
+                        field: "SpecialityCode",
+                        operator: "==",
+                        value: studentListSelected?.specialityCode!
+                    }
+                ]
             }))
         }
-    }, [data]);
+    }, [studentListSelected?.specialityCode]);
+
+    useEffect(() => {
+        if (educationData?.data?.data?.items?.length ?? 0 > 0) {
+            setClassQuery(prevState => ({...prevState,
+                Filters: [
+                    {
+                        field: "EducationCode",
+                        operator: "In",
+                        value: educationData?.data?.data?.items?.map(c => c?.code).join(",")!,
+                    },
+                ]
+            }))
+        }
+    }, [educationData]);
+    useEffect(() => {
+        if (studentListSelected?.courseCode) {
+            setEducationQuery(prevState => ({...prevState,
+                Filters: [
+                    {
+                        field: "CourseCode",
+                        operator: "==",
+                        value: studentListSelected?.courseCode!,
+                    },
+                ]
+            }))
+        }
+    }, [studentListSelected?.courseCode]);
+
+    const [classQuery, setClassQuery] = useState<Query>({
+        Page: 1,
+        PageSize: 10000
+    })
+
+    const { data, isPending, isSuccess} = useGetClasses(classQuery, educationSuccess)
 
 
     useEffect(() => {
-        if (value !== "") {
-            dispatch(setFilters({
-                ...filters,
-                classCode: value
-            }))
+        if (value) {
+            dispatch(setStudentListSearch({...studentListSelected, classCode: value}))
         }
     }, [value]);
+
+
+
 
 
     return (

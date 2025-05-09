@@ -8,7 +8,7 @@ public interface IRootSpecification<TEntity> {}
 public interface ISpecification<TEntity> : IRootSpecification<TEntity>
     where TEntity : BaseEntity
 {
-    public Expression<Func<TEntity, bool>> Filter { get;  }
+    public Expression<Func<TEntity, bool>> Predicate { get;  }
     public List<Expression<Func<TEntity, object>>> Includes { get; }
     public List<string> IncludeStrings { get; }
 

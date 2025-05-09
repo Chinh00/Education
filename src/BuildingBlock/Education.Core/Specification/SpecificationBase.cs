@@ -5,7 +5,7 @@ namespace Education.Core.Specification;
 
 public abstract class SpecificationBase<TEntity> : ISpecification<TEntity> where TEntity : BaseEntity
 {
-    public abstract Expression<Func<TEntity, bool>> Filter { get; }
+    public abstract Expression<Func<TEntity, bool>> Predicate { get; }
     public List<Expression<Func<TEntity, object>>> Includes { get; } = [];
     public List<string> IncludeStrings { get; } = [];
     public List<Expression<Func<TEntity, object>>> Sorts { get; } = [];

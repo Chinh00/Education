@@ -4,19 +4,20 @@ import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import { Box } from "@mui/material";
 import {ColumnsType, useGetSubjects} from "@/app/modules/common/hook.ts";
 import {Subject} from "@/domain/subject.ts";
-import {Input, Table, Typography} from "antd";
+import {Form, Input, Table, Typography} from "antd";
 import useGetStudents from "@/app/modules/student/hooks/useGetStudents.ts";
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/app/components/ui/card.tsx";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect} from "react";
 import {Button} from "@/app/components/ui/button.tsx"
-import { ArrowLeft, Mail, Phone, User } from "lucide-react";
+import { ArrowLeft, Cake, Mail, MapPinHouse, Phone, Transgender, User } from "lucide-react";
 import { Label } from "@/app/components/ui/label";
-import {useForm} from "react-hook-form";
+import {Controller, useForm} from "react-hook-form";
 import {Student} from "@/domain/student.ts";
 import FormInputText from "@/app/components/inputs/FormInputText.tsx";
 import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
+import dayjs from "dayjs";
 const RegisterDetail = () => {
     const dispatch = useAppDispatch()
 
@@ -37,7 +38,7 @@ const RegisterDetail = () => {
     const {setValue, control, reset} = useForm<Student>({
         defaultValues: {
             personalInformation: {
-                officeEmail: ""
+                officeEmail: "",
             }
         }
     })
@@ -56,9 +57,16 @@ const RegisterDetail = () => {
     useEffect(() => {
         if (studentsSuccess && students?.data?.data?.items?.length) {
             const student = students.data.data.items[0];
-            reset(student);
+            reset({
+                ...student,
+                personalInformation: {
+                    ...student?.personalInformation,
+                    birthDate: dayjs(student?.personalInformation?.birthDate).format("DD-MM-YYYY"),
+                }
+            });
         }
     }, [studentsSuccess, students, reset]);
+    console.log(students)
     const {data: subjects, isPending: subjectPending, isSuccess: subjectSuccess} = useGetSubjects({
         Filters: [
             {
@@ -124,36 +132,60 @@ const RegisterDetail = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                        <Mail className="text-gray-400 h-4 w-4 flex-shrink-0" />
-                                        <FormInputAntd name={"personalInformation.email"} control={control}
-                                                       type={"input"} disabled />
-                                    </div>
+                                <Form className="space-y-4">
+                                    <Controller
+                                        name="personalInformation.email"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Form.Item label={<Mail className="text-gray-400 h-4 w-4 flex-shrink-0" />}>
+                                                <Input {...field} disabled={true} />
+                                            </Form.Item>
+                                        )}
+                                    />
+                                    <Controller
+                                        name="personalInformation.phoneNumber"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Form.Item label={<Phone className="text-gray-400 h-4 w-4 flex-shrink-0" />}>
+                                                <Input {...field} disabled={true}   />
+                                            </Form.Item>
+                                        )}
+                                    />
 
-                                    <div className="flex items-center gap-2">
-                                        <Phone className="text-gray-400 h-4 w-4 flex-shrink-0" />
-                                        <FormInputAntd name={"personalInformation.phoneNumber"} control={control}
-                                                       type={"input"} disabled />
-                                    </div>
 
                                     <div className="pt-4 border-t">
-                                        <Label className="text-sm font-medium text-gray-500 mb-2 block">Địa chỉ</Label>
-                                        <FormInputAntd name={"personalInformation.contactAddress"} control={control}
-                                                       type={"textarea"} disabled />
+                                        <Controller
+                                            name="personalInformation.contactAddress"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Form.Item label={<MapPinHouse className="text-gray-400 h-4 w-4 flex-shrink-0" />}>
+                                                    <Input {...field} disabled={true}   />
+                                                </Form.Item>
+                                            )}
+                                        />
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <Label className="text-sm font-medium text-gray-500 mb-2 block">Ngày sinh</Label>
-                                            <FormInputAntd type={"date"} control={control} name={"personalInformation.birthDate"} />
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-medium text-gray-500 mb-2 block">Giới tính</Label>
-                                            <FormInputAntd type={"input"} disabled control={control} name={"personalInformation.gender"} />
-                                        </div>
+                                        <Controller
+                                            name="personalInformation.birthDate"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Form.Item  label={<Cake  className="text-gray-400 h-4 w-4 flex-shrink-0" />}>
+                                                    <Input {...field}  disabled={true}  />
+                                                </Form.Item>
+                                            )}
+                                        />
+                                        <Controller
+                                            name="personalInformation.gender"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Form.Item  label={<Transgender  className="text-gray-400 h-4 w-4 flex-shrink-0" />}>
+                                                    <Input {...field}  disabled={true}  />
+                                                </Form.Item>
+                                            )}
+                                        />
                                     </div>
-                                </div>
+                                </Form>
                             </CardContent>
                         </Card>
 

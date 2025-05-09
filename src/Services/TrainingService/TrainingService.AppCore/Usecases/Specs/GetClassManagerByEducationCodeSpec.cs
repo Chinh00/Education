@@ -13,5 +13,5 @@ public class GetClassManagerByEducationCodeSpec : SpecificationBase<ClassManager
         _educationCode = educationCode;
     }
 
-    public override Expression<Func<ClassManager, bool>> Filter => c => c.EducationCode == _educationCode;
+    public override Expression<Func<ClassManager, bool>> Predicate => c => c.EducationCode == _educationCode;
 }

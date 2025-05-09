@@ -1,5 +1,5 @@
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import {setFilters, StudentState} from "@/app/modules/student/stores/student_slice.ts";
+import {setStudentListSearch, StudentState} from "@/app/modules/student/stores/student_slice.ts";
 import {useEffect, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {useGetSpecialityDepartments} from "@/app/modules/common/hook.ts";
@@ -17,44 +17,38 @@ import {
 import {cn} from "@/app/lib/utils.ts";
 
 const BranchSearch = () => {
-    const {filters} = useAppSelector<StudentState>(c => c.student)
+    const {studentListSelected} = useAppSelector<StudentState>(c => c.student)
     const dispatch = useAppDispatch();
     const [open, setOpen] = useState(false)
     const [value, setValue] = useState("")
 
 
-    const { data, isPending, isSuccess} = useGetSpecialityDepartments({
-        Filters: [
-            {
-                field: "DepartmentCode",
-                operator: "==",
-                value: filters?.departmentCode!,
-            },
-        ],
+    const [query, setQuery] = useState<Query>({
+
         Page: 1,
-        PageSize: 100
-    }, filters?.departmentCode !== undefined)
+        PageSize: 1000
+    })
+
+    const { data, isPending, isSuccess} = useGetSpecialityDepartments(query)
 
 
+    useEffect(() => {
+        studentListSelected?.departmentCode && setQuery(prevState => ({...prevState,
+            Filters: [
+                {
+                    field: "DepartmentCode",
+                    operator: "==",
+                    value: studentListSelected?.departmentCode!,
+                },
+            ],
+        }))
+    }, [studentListSelected?.departmentCode]);
 
     useEffect(() => {
         if (value !== "") {
-            dispatch(setFilters({
-                ...filters,
-                specialityCode: value
-            }))
+            dispatch(setStudentListSearch({...studentListSelected, specialityCode: value}))
         }
     }, [value]);
-
-    useEffect(() => {
-        if (filters?.departmentCode) {
-            dispatch(setFilters({
-                ...filters,
-                specialityCode: data?.data?.data?.items?.map(c => c.specialityCode)?.join(",")
-            }))
-        }
-    }, [data]);
-
 
     return (
         <>

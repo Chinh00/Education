@@ -1,5 +1,5 @@
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import {StudentState, setFilters} from "@/app/modules/student/stores/student_slice.ts";
+import {setStudentListSearch, StudentState} from "@/app/modules/student/stores/student_slice.ts";
 import {useEffect, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {useGetDepartments, useGetSpecialityDepartments} from "@/app/modules/common/hook.ts";
@@ -17,7 +17,7 @@ import {
 import {cn} from "@/app/lib/utils.ts";
 
 const DepartmentSearch = () => {
-    const {filters} = useAppSelector<StudentState>(c => c.student)
+    const {studentListSelected} = useAppSelector<StudentState>(c => c.student)
     const dispatch = useAppDispatch();
 
     const [departmentQuery, setDepartmentQuery] = useState<Query>({})
@@ -26,15 +26,12 @@ const DepartmentSearch = () => {
     const {data: departments, isPending, isSuccess} = useGetDepartments({
 
     }, open)
-
     useEffect(() => {
         if (value !== "") {
-            dispatch(setFilters({
-                    ...filters,
-                    departmentCode: value
-            }))
+            dispatch(setStudentListSearch({...studentListSelected, departmentCode: value}))
         }
     }, [value]);
+
 
 
     return (

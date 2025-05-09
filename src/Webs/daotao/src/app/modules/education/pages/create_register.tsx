@@ -11,11 +11,13 @@ import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts"
 import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
 import { CreateRegisterStateModel } from "../services/education.service";
 import { useForm } from "react-hook-form";
-import {Button} from "antd"
+import {Button, Form} from "antd"
 import {useCreateRegisterState} from "@/app/modules/education/hooks/useCreateRegisterState.ts";
 import toast from "react-hot-toast";
 import {sleep} from "@/infrastructure/http.ts";
 import {useNavigate} from "react-router";
+import FormDatePickerAntd from "@/app/components/inputs/FormDatePickerAntd.tsx";
+import dayjs from "dayjs";
 const CreateRegister = () => {
     const dispatch = useAppDispatch()
 
@@ -26,7 +28,7 @@ const CreateRegister = () => {
     const {data: semester, isPending, isSuccess} = useGetSemesters({})
     const {mutate, isPending: mutateLoading, reset} = useCreateRegisterState()
 
-    const {control, handleSubmit, setValue} = useForm<CreateRegisterStateModel>({
+    const {control, handleSubmit, setValue, getValues} = useForm<CreateRegisterStateModel>({
         defaultValues: {
             startDate: new Date().toISOString().slice(0, 16),
             endDate: new Date().toISOString().slice(0, 16),
@@ -39,8 +41,11 @@ const CreateRegister = () => {
     const nav = useNavigate()
     return (
         <PredataScreen isLoading={isPending} isSuccess={isSuccess}>
-            <form onSubmit={handleSubmit(data => {
-                mutate({...data}, {
+            <Form onFinish={() => {
+                mutate({...getValues(),
+                    startDate: dayjs(getValues("startDate")).toISOString(),
+                    endDate: dayjs(getValues("endDate")).toISOString()
+                }, {
                     onSuccess: async (data) => {
                         toast.success("Tạo mới thành công")
                         await sleep(1000)
@@ -48,7 +53,7 @@ const CreateRegister = () => {
                         nav(-1)
                     }
                 })
-            })} className="space-y-6">
+            }} className="space-y-6">
                 <div className="grid gap-6">
                     <Card>
                         <CardHeader>
@@ -59,13 +64,14 @@ const CreateRegister = () => {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Học kỳ</Label>
+                                <div className="space-y-2 flex justify-center items-center gap-3">
+                                    <Label className={"whitespace-nowrap"}>Học kỳ</Label>
                                     <Select onValueChange={(e) => {
                                         setValue("semesterCode", e)
                                         setValue("semesterName", e)
-                                    }}>
-                                        <SelectTrigger>
+                                    }}
+                                    >
+                                        <SelectTrigger className={"w-full"}>
                                             <SelectValue placeholder="Chọn học kỳ" />
                                         </SelectTrigger>
                                         <SelectContent className={""}>
@@ -80,10 +86,10 @@ const CreateRegister = () => {
                                     </Select>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label>Trạng thái đăng ký</Label>
+                                <div className="space-y-2 flex justify-center items-center gap-3">
+                                    <Label className={"whitespace-nowrap"}>Trạng thái đăng ký</Label>
                                     <Select defaultValue="active">
-                                        <SelectTrigger>
+                                        <SelectTrigger className={"w-full"}>
                                             <SelectValue placeholder="Chọn trạng thái" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -94,15 +100,12 @@ const CreateRegister = () => {
                                     </Select>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label>Thời gian bắt đầu</Label>
-                                    <FormInputAntd type={"datetime-local"} control={control} name={"startDate"} />
-                                </div>
 
-                                <div className="space-y-2">
-                                    <Label>Thời gian kết thúc</Label>
-                                    <FormInputAntd type={"datetime-local"} control={control} name={"endDate"} />
-                                </div>
+                                <FormDatePickerAntd  control={control} name={"startDate"} label={"Thời gian bắt đầu"} />
+
+
+                                <FormDatePickerAntd  control={control} name={"endDate"} label={"Thời gian kết thúc"}  />
+
                             </div>
                         </CardContent>
                     </Card>
@@ -122,7 +125,7 @@ const CreateRegister = () => {
                                         Số tín chỉ tối đa sinh viên được phép đăng ký
                                     </div>
                                 </div>
-                                <FormInputAntd className={"w-[100px]"} control={control} name={"minCredit"} type={"number"} />
+                                <FormInputAntd initialValue={10} className={"w-[100px]"} control={control} name={"minCredit"} type={"number"} />
                             </div>
 
                             <div className="flex items-center justify-between">
@@ -132,7 +135,7 @@ const CreateRegister = () => {
                                         Số tín chỉ tối thiểu sinh viên phải đăng ký
                                     </div>
                                 </div>
-                                <FormInputAntd className={"w-[100px]"} control={control} name={"maxCredit"} type={"number"} />
+                                <FormInputAntd className={"w-[100px]"} initialValue={30} control={control} name={"maxCredit"} type={"number"} />
                             </div>
                         </CardContent>
                     </Card>
@@ -144,7 +147,7 @@ const CreateRegister = () => {
                         </Button>
                     </div>
                 </div>
-            </form>
+            </Form>
         </PredataScreen>
     )
 }

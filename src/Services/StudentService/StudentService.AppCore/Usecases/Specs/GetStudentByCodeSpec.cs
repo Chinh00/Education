@@ -13,5 +13,5 @@ public class GetStudentByCodeSpec : SpecificationBase<Student>
         _studentCode = studentCode;
     }
 
-    public override Expression<Func<Student, bool>> Filter => c => c.InformationBySchool.StudentCode == _studentCode;
+    public override Expression<Func<Student, bool>> Predicate => c => c.InformationBySchool.StudentCode == _studentCode;
 }

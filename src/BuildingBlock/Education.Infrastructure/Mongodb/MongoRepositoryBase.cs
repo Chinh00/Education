@@ -45,9 +45,9 @@ public class MongoRepositoryBase<TEntity> : IMongoRepository<TEntity>
     }
     IQueryable<TEntity> GetQuery(IQueryable<TEntity> source, ISpecification<TEntity> specification)
     {
-        if (specification.Filter is not null)
+        if (specification.Predicate is not null)
         {
-            source = source.Where(specification.Filter);
+            source = source.Where(specification.Predicate);
         }
         specification.Sorts?.ForEach(e => source = source.OrderBy(e));
         specification.SortsDesc?.ForEach(e => source = source.OrderByDescending(e));
@@ -108,7 +108,7 @@ public class MongoRepositoryBase<TEntity> : IMongoRepository<TEntity>
 
     public async ValueTask<TEntity> UpsertOneAsync(ISpecification<TEntity> specification, TEntity entity, CancellationToken cancellationToken = default)
     {
-        await _mongoCollection.FindOneAndReplaceAsync(specification.Filter, entity, new FindOneAndReplaceOptions<TEntity>()
+        await _mongoCollection.FindOneAndReplaceAsync(specification.Predicate, entity, new FindOneAndReplaceOptions<TEntity>()
         {
             IsUpsert = true
         }, cancellationToken);

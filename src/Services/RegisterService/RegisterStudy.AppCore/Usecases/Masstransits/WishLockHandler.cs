@@ -24,7 +24,8 @@ public class WishLockHandler(
                 CorrelationId = correlationId,
                 EducationCode = split[2],
                 StudentCode = split[1],
-                SubjectCodes = register.SubjectRegisters?.Select(c => c.SubjectCodes).FirstOrDefault() ?? []
+                SubjectCodes = register.SubjectCodes,
+                RegisterDate = register?.RegisterDate
             }, cancellationToken);
         }
     }

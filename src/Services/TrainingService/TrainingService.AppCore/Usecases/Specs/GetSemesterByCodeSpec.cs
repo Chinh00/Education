@@ -13,5 +13,5 @@ public class GetSemesterByCodeSpec : SpecificationBase<Semester>
         _code = code;
     }
 
-    public override Expression<Func<Semester, bool>> Filter => semester => semester.SemesterCode == _code;
+    public override Expression<Func<Semester, bool>> Predicate => semester => semester.SemesterCode == _code;
 }

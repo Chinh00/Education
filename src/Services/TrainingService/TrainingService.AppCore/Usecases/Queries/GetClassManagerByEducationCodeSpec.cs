@@ -8,5 +8,5 @@ public class GetClassManagerByEducationCodeSpec(string educationCode)
     : SpecificationBase<ClassManager>
 {
 
-    public override Expression<Func<ClassManager, bool>> Filter => manager => manager.EducationCode == educationCode;
+    public override Expression<Func<ClassManager, bool>> Predicate => manager => manager.EducationCode == educationCode;
 }

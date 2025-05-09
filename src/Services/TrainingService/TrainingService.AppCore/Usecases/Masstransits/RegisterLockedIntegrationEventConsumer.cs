@@ -17,9 +17,6 @@ public class RegisterLockedIntegrationEventConsumer : INotificationHandler<Regis
 
     public async Task Handle(RegisterLockedIntegrationEvent notification, CancellationToken cancellationToken)
     {
-        
-        
-        
         var studentRegister =
             await _studentRegisterRepository.FindOneAsync(
                 new GetStudentRegisterByStudentCodeAndEducationCodeSpec(notification.StudentCode,
@@ -32,6 +29,9 @@ public class RegisterLockedIntegrationEventConsumer : INotificationHandler<Regis
             RegisterDate = notification.RegisterDate,
             SubjectCodes = notification.SubjectCodes,
         };
+        
+        
+        
         await _studentRegisterRepository.UpsertOneAsync(
             new GetStudentRegisterByStudentCodeAndEducationCodeSpec(studentRegister.StudentCode,
                 studentRegister.EducationCode), studentRegister,

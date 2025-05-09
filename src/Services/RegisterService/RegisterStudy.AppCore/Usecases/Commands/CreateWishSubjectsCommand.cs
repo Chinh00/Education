@@ -24,27 +24,11 @@ public record CreateWishSubjectsCommand(string EducationCode, List<string> Subje
             var register = await registerRepository.GetAsync(key) ?? new StudentRegister()
             {
                 StudentCode = studentCode,
+                EducationCode = request.EducationCode,
+                RegisterDate = DateTimeUtils.GetUtcTime(),
+                SubjectCodes = request.SubjectCodes,
             };
-            var firstOrDefault = register.SubjectRegisters?.FirstOrDefault(c => c.EducationCode == request.EducationCode);
-            if (firstOrDefault is null)
-            {
-                register.SubjectRegisters?.Add(new SubjectRegister() { EducationCode = request.EducationCode, RegisterDate = DateTimeUtils.GetUtcTime()});
-            }
-            // foreach (var subjectCode in request.SubjectCodes)
-            // {
-            //     var subject = await trainingClient.getSubjectByCodeAsync(new GetSubjectByCodeRequest() { SubjectCode = subjectCode },
-            //         cancellationToken: cancellationToken);
-            //     if (subject is null)
-            //     {
-            //         return Results.NotFound($"Không tìm thấy môn học {subjectCode}.");
-            //     }
-            //
-            //     register.SubjectRegisters?.FirstOrDefault(c => c.EducationCode == request.EducationCode)?.SubjectCodes.Add(subjectCode);
-            // }
-            register.SubjectRegisters?.FirstOrDefault(c => c.EducationCode == request.EducationCode)?.SubjectCodes
-                .AddRange(request.SubjectCodes);
             await registerRepository.SaveAsync(key, () => Task.FromResult(register));
-            
             return Results.Ok(ResultModel<StudentRegister>.Create(register));
         }
     }

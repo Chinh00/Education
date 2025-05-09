@@ -7,5 +7,5 @@ namespace TrainingService.AppCore.Usecases.Specs;
 public class GetSubjectBySubjectCodeSpec(string subjectCode) : SpecificationBase<Subject>
 {
 
-    public override Expression<Func<Subject, bool>> Filter => c => c.SubjectCode == subjectCode;
+    public override Expression<Func<Subject, bool>> Predicate => c => c.SubjectCode == subjectCode;
 }

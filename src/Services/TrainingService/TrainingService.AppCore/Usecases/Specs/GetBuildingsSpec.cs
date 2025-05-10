@@ -13,5 +13,8 @@ public class GetBuildingsSpec : ListSpecificationBase<Building>
         ApplySorting(query.Sorts);
         ApplyPaging(query.Page, query.PageSize);
         ApplyInclude(c => c.Id);
+        ApplyInclude(c => c.BuildingCode);
+        ApplyInclude(c => c.Location);
+        ApplyInclude(c => c.Name);
     }
 }

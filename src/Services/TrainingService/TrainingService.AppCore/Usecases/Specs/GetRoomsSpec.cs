@@ -13,5 +13,10 @@ public class GetRoomsSpec : ListSpecificationBase<Room>
         ApplySorting(query.Sorts);
         ApplyPaging(query.Page, query.PageSize);
         ApplyInclude(c => c.Id);
+        ApplyInclude(c => c.BuildingCode);
+        ApplyInclude(c => c.Code);
+        ApplyInclude(c => c.Name);
+        ApplyInclude(c => c.Capacity);
+        ApplyInclude(c => c.ExamCapacity);
     }
 }

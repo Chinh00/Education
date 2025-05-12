@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sinhvien-ingress
+  namespace: education
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: sinhvienk8s.tlu.my
+      http:
+        paths:
+          - backend:
+              service:
+                name: sinhvien-client
+                port:
+                  number: 80
+            pathType: ImplementationSpecific

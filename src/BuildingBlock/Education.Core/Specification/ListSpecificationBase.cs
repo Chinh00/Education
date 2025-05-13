@@ -3,7 +3,7 @@ using Education.Core.Domain;
 
 namespace Education.Core.Specification;
 
-public class ListSpecificationBase<TEntity> : IListSpecification<TEntity> where TEntity : BaseEntity
+public class ListSpecificationBase<TEntity> : IListSpecification<TEntity>
 {
     public List<Expression<Func<TEntity, bool>>> Filters { get; } = [];
     public List<Expression<Func<TEntity, object>>> Includes { get; } = [];

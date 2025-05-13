@@ -1,3 +1,4 @@
+using Education.Core.Domain;
 using MassTransit;
 using MongoDB.Bson.Serialization.Attributes;
 

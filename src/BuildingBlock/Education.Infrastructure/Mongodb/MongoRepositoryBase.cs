@@ -8,7 +8,6 @@ using MongoDB.Driver.Linq;
 namespace Education.Infrastructure.Mongodb;
 
 public class MongoRepositoryBase<TEntity> : IMongoRepository<TEntity>
-    where TEntity : BaseEntity
 {
     private readonly IMongoCollection<TEntity> _mongoCollection;
 
@@ -16,6 +15,11 @@ public class MongoRepositoryBase<TEntity> : IMongoRepository<TEntity>
     {
         _mongoCollection = new MongoClient(options.Value.ToString()).GetDatabase(options.Value.Database)
             .GetCollection<TEntity>(typeof(TEntity).Name);
+    }
+
+    public MongoRepositoryBase(IMongoCollection<TEntity> mongoCollection)
+    {
+        _mongoCollection = mongoCollection;
     }
 
 

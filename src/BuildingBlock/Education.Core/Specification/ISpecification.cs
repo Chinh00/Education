@@ -6,7 +6,6 @@ namespace Education.Core.Specification;
 public interface IRootSpecification<TEntity> {}
 
 public interface ISpecification<TEntity> : IRootSpecification<TEntity>
-    where TEntity : BaseEntity
 {
     public Expression<Func<TEntity, bool>> Predicate { get;  }
     public List<Expression<Func<TEntity, object>>> Includes { get; }
@@ -20,7 +19,6 @@ public interface ISpecification<TEntity> : IRootSpecification<TEntity>
 }
 
 public interface IListSpecification<TEntity> : IRootSpecification<TEntity>
-    where TEntity : BaseEntity
 {
     public List<Expression<Func<TEntity, bool>>> Filters { get; }
     public List<Expression<Func<TEntity, object>>> Includes { get; }

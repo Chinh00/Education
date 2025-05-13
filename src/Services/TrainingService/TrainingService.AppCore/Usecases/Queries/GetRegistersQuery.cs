@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using TrainingService.AppCore.StateMachine;
+using TrainingService.AppCore.Usecases.Specs;
 
 namespace TrainingService.AppCore.Usecases.Queries;
 
@@ -18,19 +19,23 @@ public record GetRegistersQuery : IListQuery<ListResultModel<RegisterState>>
     
     internal class Handler : IRequestHandler<GetRegistersQuery, ResultModel<ListResultModel<RegisterState>>>
     {
-        private readonly IMongoCollection<RegisterState> _registers;
+        private readonly IMongoRepository<RegisterState> _repository;
 
         public Handler(IOptions<MongoOptions> mnOptions)
         {
-            _registers = new MongoClient(mnOptions.Value.ToString()).GetDatabase(mnOptions.Value.Database)
-                .GetCollection<RegisterState>("RegisterSaga");;
+            _repository = new MongoRepositoryBase<RegisterState>(new MongoClient(mnOptions.Value.ToString())
+                .GetDatabase(mnOptions.Value.Database)
+                .GetCollection<RegisterState>("RegisterSaga"));
+
         }
 
         public async Task<ResultModel<ListResultModel<RegisterState>>> Handle(GetRegistersQuery request, CancellationToken cancellationToken)
         {
-            var registerStates = await _registers.Aggregate().ToListAsync(cancellationToken);;
+            var spec = new GetRegisterStatesSpec(request);
+            var items = await _repository.FindAsync(spec, cancellationToken);
+            var totalItems = await _repository.CountAsync(spec, cancellationToken);
             return ResultModel<ListResultModel<RegisterState>>.Create(
-                ListResultModel<RegisterState>.Create(registerStates, 100, request.Page, request.PageSize));
+                ListResultModel<RegisterState>.Create(items, totalItems, request.Page, request.PageSize));
         }
     }
 }

@@ -8,7 +8,7 @@ public interface IRootRepository
     
 }
 
-public interface IMongoRepository<TEntity> : IRootRepository where TEntity : BaseEntity
+public interface IMongoRepository<TEntity> : IRootRepository 
 {
     ValueTask<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken);
     ValueTask<List<TEntity>> FindAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default);

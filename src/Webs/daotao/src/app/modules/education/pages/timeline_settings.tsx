@@ -3,7 +3,6 @@ import { Box } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect} from "react";
-import SemesterSelect from "@/app/modules/education/components/semester_select.tsx";
 
 const TimelineSettings = () => {
     const dispatch = useAppDispatch()
@@ -19,7 +18,6 @@ const TimelineSettings = () => {
     return (
         <PredataScreen isLoading={false} isSuccess={true} >
             <Box>
-                <SemesterSelect />
             </Box>
         </PredataScreen>
     )

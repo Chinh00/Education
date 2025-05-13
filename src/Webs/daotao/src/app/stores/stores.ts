@@ -2,6 +2,7 @@ import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import CommonReducer from "./common_slice.ts"
 import EducationReducer from "@/app/modules/education/stores/education_slice.ts"
 import StudentReducer from "@/app/modules/student/stores/student_slice.ts"
+import Dashboard_register_slice from "@/app/modules/education/stores/dashboard_register_slice.ts"
 
 import storage from 'redux-persist/lib/storage'
 import {persistReducer, persistStore} from "redux-persist"
@@ -13,13 +14,14 @@ const rootReducer = combineReducers({
         blacklist: ["groupFuncName"]
     }, CommonReducer),
     education: EducationReducer,
-    student: StudentReducer
+    student: StudentReducer,
+    dashboardRegister: Dashboard_register_slice
 
 })
 const rootConfig = {
     key: 'root',
     storage,
-    blacklist: ["education", "student"]
+    blacklist: ["education", "student", "dashboardRegister"]
 }
 const store = configureStore({
     reducer: persistReducer(rootConfig, rootReducer),

@@ -61,7 +61,7 @@ const EducationSidebar = () => {
                         <SidebarMenuItem>
                             <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER_DASHBOARD)}>
                                 <LayoutDashboard />
-                                Thống kê đăng ký học
+                                Báo cáo đăng ký nguyện vọng học
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>

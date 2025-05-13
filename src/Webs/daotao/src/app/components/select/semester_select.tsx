@@ -1,15 +1,18 @@
 import {Select} from "antd"
 import {useState} from "react";
-import { useGetSemesters } from "../hooks/useGetSemesters.ts";
+import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 
 
 export type SemesterSelectProps = {
-
+    valueSelected: string,
+    onChange: (selected: string) => void,
 }
 
 const SemesterSelect = (props: SemesterSelectProps) => {
     const [open, setOpen] = useState(false)
-    const {data, isLoading, isSuccess} = useGetSemesters({}, open)
+    const {data, isLoading, isSuccess} = useGetSemesters({
+        Sorts: ["IdDesc"]
+    }, open)
 
     return (
         <>
@@ -20,7 +23,7 @@ const SemesterSelect = (props: SemesterSelectProps) => {
                     minWidth: 200
                 }}
                 onChange={(value, option) => {
-                    console.log(value)
+                    props?.onChange?.(value)
                 }}
                 onClick={() => {
                     setOpen(prevState => !prevState)

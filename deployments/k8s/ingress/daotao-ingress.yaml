@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: daotao-ingress
+  namespace: education
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: daotaok8s.tlu.my
+      http:
+        paths:
+          - backend:
+              service:
+                name: daotao-client
+                port:
+                  number: 80
+            pathType: ImplementationSpecific

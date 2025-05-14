@@ -8,7 +8,7 @@ import {
     SidebarMenu,
     SidebarMenuButton, SidebarMenuItem
 } from "@/app/components/ui/sidebar.tsx";
-import {List, LayoutDashboard, ChartGantt} from "lucide-react"
+import {List, LayoutDashboard, ChartGantt, Settings} from "lucide-react"
 import {useNavigate} from "react-router";
 import { RoutePaths } from "@/core/route_paths";
 const EducationSidebar = () => {
@@ -83,6 +83,11 @@ const EducationSidebar = () => {
                                 <List />
                                 Danh sách môn học
                             </SidebarMenuButton>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_SUBJECT_TIMELINE)}>
+                                <Settings />
+                                Cấu hình thời gian biểu
+                            </SidebarMenuButton>
+
                         </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarGroupContent>

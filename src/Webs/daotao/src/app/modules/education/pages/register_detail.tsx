@@ -66,7 +66,6 @@ const RegisterDetail = () => {
             });
         }
     }, [studentsSuccess, students, reset]);
-    console.log(students)
     const {data: subjects, isPending: subjectPending, isSuccess: subjectSuccess} = useGetSubjects({
         Filters: [
             {

@@ -39,7 +39,7 @@ public class SubjectController : BaseController
     /// <param name="model"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("timeline-config")]
+    [HttpPut("timeline-config")]
     public async Task<object> HandleCreateSubjectTimelineConfigAsync(SubjectTimelineConfigCreateCommand.SubjectTimelineConfigCreateModel model,
         CancellationToken cancellationToken)
     {

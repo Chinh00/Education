@@ -18,6 +18,8 @@ const TimelineSettings = lazy(() => import("../modules/education/pages/timeline_
 const SemesterList = lazy(() => import("../modules/education/pages/semester_list.tsx"));
 
 const SubjectList = lazy(() => import("../modules/education/pages/subject_list.tsx"));
+const SubjectTimelineDetail = lazy(() => import("../modules/education/pages/subject_timeline_detail.tsx"));
+const SubjectTimelineCreate = lazy(() => import("../modules/education/pages/subject_timeline_create.tsx"));
 
 
 
@@ -77,6 +79,15 @@ const router = createBrowserRouter([
                         path: RoutePaths.EDUCATION_SUBJECT_LIST,
                         element: <Suspense fallback={<TabLoading />} key={"SubjectList"}><SubjectList /></Suspense>,
                     },
+                    {
+                        path: RoutePaths.EDUCATION_SUBJECT_TIMELINE,
+                        element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineDetail"}><SubjectTimelineDetail /></Suspense>,
+                    },
+                    {
+                        path: RoutePaths.EDUCATION_SUBJECT_TIMELINE_CREATE,
+                        element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineCreate"}><SubjectTimelineCreate /></Suspense>,
+                    },
+
 
 
 

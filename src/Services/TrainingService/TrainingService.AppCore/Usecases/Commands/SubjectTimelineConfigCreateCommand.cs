@@ -1,6 +1,7 @@
 using Education.Core.Domain;
 using Education.Core.Repository;
 using MediatR;
+using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;
 
 namespace TrainingService.AppCore.Usecases.Commands;
@@ -28,21 +29,28 @@ public record SubjectTimelineConfigCreateCommand(SubjectTimelineConfigCreateComm
         {
             var (subjectCode, periodTotal, lectureTotal, lectureLesson, lecturePeriod, labTotal, labLesson, labPeriod,
                 minDaySpaceLecture, minDaySpaceLab, lectureMinStudent, labMinStudent) = request.Model;
-            var result = await repository.AddAsync(new SubjectTimelineConfig()
+
+            var spec = new GetSubjectTimelineBySubjectCodeSpec(subjectCode);
+            var subjectTimelineConfig = await repository.FindOneAsync(spec, cancellationToken) ?? new SubjectTimelineConfig()
             {
-                SubjectCode = subjectCode,
-                PeriodTotal = periodTotal,
-                LectureTotal = lectureTotal,
-                LectureLesson = lectureLesson,
-                LecturePeriod = lecturePeriod,
-                LabTotal = labTotal,
-                LabLesson = labLesson,
-                LabPeriod = labPeriod,
-                MinDaySpaceLecture = minDaySpaceLecture,
-                MinDaySpaceLab = minDaySpaceLab,
-                LectureMinStudent = lectureMinStudent,
-                LabMinStudent = labMinStudent,
-            }, cancellationToken);
+                
+            };
+
+
+            subjectTimelineConfig.SubjectCode = subjectCode;
+            subjectTimelineConfig.PeriodTotal = periodTotal;
+            subjectTimelineConfig.LectureTotal = lectureTotal;
+            subjectTimelineConfig.LectureLesson = lectureLesson;
+            subjectTimelineConfig.LecturePeriod = lecturePeriod;
+            subjectTimelineConfig.LabTotal = labTotal;
+            subjectTimelineConfig.LabLesson = labLesson;
+            subjectTimelineConfig.LabPeriod = labPeriod;
+            subjectTimelineConfig.MinDaySpaceLecture = minDaySpaceLecture;
+            subjectTimelineConfig.MinDaySpaceLab = minDaySpaceLab;
+            subjectTimelineConfig.LectureMinStudent = lectureMinStudent;
+            subjectTimelineConfig.LabMinStudent = labMinStudent;
+            
+            var result = await repository.UpsertOneAsync(spec, subjectTimelineConfig, cancellationToken);
             return Results.Ok(ResultModel<SubjectTimelineConfig>.Create(result));
         }
     }

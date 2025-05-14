@@ -41,6 +41,11 @@ const SubjectTimelineDetail = () => {
         }
     }, [isLoading, data, subjectReset]);
     const {mutate, isPending} = useUpdateSubjectTimelineConfig()
+    useEffect(() => {
+        if (data?.data?.data === null) {
+            toast.error("Môn học chưa được cấu hình")
+        }
+    }, [data, isLoading, isSuccess]);
 
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
@@ -167,7 +172,6 @@ const SubjectTimelineDetail = () => {
                             )}
                         />
                         <Button loading={isPending} type={"primary"} onClick={() => {
-                            console.log(getValues())
                             mutate({
                                 ...getValues()
                             }, {

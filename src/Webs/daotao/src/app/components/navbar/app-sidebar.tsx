@@ -5,49 +5,91 @@ import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarRail
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
+    SidebarRail,
+    SidebarTrigger
 } from "@/app/components/ui/sidebar"
-import { BadgePlus, Users, GraduationCap, Home } from "lucide-react";
-import { RoutePaths } from "@/core/route_paths";
-import {Box, Typography} from "@mui/material";
+
+import {useGetUserInfo} from "@/app/modules/auth/hooks/useGetUserInfo.ts";
+import {useAppDispatch} from "@/app/stores/hook.ts";
+import {useEffect} from "react";
+import {setRoleName} from "@/app/stores/common_slice.ts";
+
+
+import {
+    GraduationCap,
+    Settings,
+    Users,
+    Home,
+} from "lucide-react"
+import {RoutePaths} from "@/core/route_paths.ts";
+import { Avatar } from "antd";
 
 export function AppSidebar() {
     const nav = useNavigate()
     const location = useLocation()
-    return (
-        <Sidebar className={"w-max h-screen bg-emerald-500 "} collapsible={"none"} >
-            <SidebarContent className={""}>
-                <SidebarGroup className={"w-full"}>
-                    <SidebarMenu className={"flex flex-col justify-center items-center w-full"}>
-                        <SidebarMenuItem className={"cursor-pointer w-full "}>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.HOME_PATH)} className="w-full text-sidebar-foreground/70 flex flex-col h-max cursor-pointer">
-                                <Box><Home size={25}  /></Box>
-                                <Typography fontSize={14} fontWeight={"bold"} whiteSpace={"nowrap"}>Trang chủ</Typography>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem className={`cursor-pointer w-full ${location.pathname.startsWith("/education") && "bg-white rounded-md"} `}>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_TRAINING)} className="w-full text-sidebar-foreground/70 flex flex-col h-max cursor-pointer">
-                                <Box><GraduationCap size={25} /></Box>
-                                <Typography fontSize={14} fontWeight={"bold"} whiteSpace={"nowrap"}>Đào tạo</Typography>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem className={`cursor-pointer w-full ${location.pathname.startsWith("/student") && "bg-white rounded-md"}`}>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.STUDENT_LIST)} className="w-full text-sidebar-foreground/70 flex flex-col h-max cursor-pointer">
-                                <Box><Users size={25} /></Box>
-                                <Typography fontSize={14} fontWeight={"bold"} whiteSpace={"nowrap"}>Sinh viên</Typography>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
+    const dispatch = useAppDispatch()
 
-                </SidebarGroup>
+    const {data, isLoading, isPending} = useGetUserInfo()
+
+    useEffect(() => {
+        if (data) {
+            dispatch(setRoleName(data?.data?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]))
+        }
+    }, [data, isLoading, isPending]);
+
+
+
+    return (
+        <Sidebar variant={"inset"} collapsible="icon"  style={{backgroundColor: "#0c458d", width: "75px"}} >
+            <SidebarContent className={"bg-[#0c458d] pt-4"}>
+                <SidebarMenu className={"flex flex-col gap-2 bg-[#0c458d]"}>
+                    <SidebarMenuItem  className={""}>
+
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.HOME_PATH)} tooltip="Trang chủ"  className={"inset-0 cursor-pointer mx-auto "} >
+                            <Avatar  />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem  className={""}>
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.HOME_PATH)} tooltip="Trang chủ"  className={"inset-0 cursor-pointer mx-auto "} >
+                            <Home  className="scale-150 mx-auto hover:text-black text-white transition-all" />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem  className={""}>
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.EDUCATION_TRAINING)} tooltip="Đào tạo"  className={"inset-0 cursor-pointer mx-auto "} >
+                            <GraduationCap  className="scale-150 mx-auto hover:text-black text-white transition-all" />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem  className={""}>
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.STUDENT_LIST)} tooltip="Sinh viên"  className={"inset-0 cursor-pointer mx-auto "} >
+                            <Users  className="scale-150 mx-auto hover:text-black text-white transition-all" />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+
+
+
+
+
+
+
+                </SidebarMenu>
             </SidebarContent>
+            <SidebarFooter className={"bg-[#124485]"}>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton tooltip="Cài đặt">
+                            <Settings className="h-5 w-5" />
+                            <span>Cài đặt</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
         </Sidebar>
     )
 }

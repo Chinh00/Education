@@ -10,7 +10,7 @@ const Header = () => {
         <div
             className={"grid grid-cols-12"}
         >
-            <div className={"col-span-2 w-full h-full border-r-2 p-4 flex justify-between items-center"}>
+            <div className={"col-span-2 w-full h-full  p-4 flex justify-between items-center bg-[#0c458d] font-bold text-white text-2xl"}>
                 {groupFuncName?.groupName} <Pin size={20} />
             </div>
             <div className={"col-span-10 p-4 relative w-full"}>

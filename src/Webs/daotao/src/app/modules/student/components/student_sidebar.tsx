@@ -20,9 +20,9 @@ const StudentSidebar = () => {
     }, []);
     const nav = useNavigate()
     return (
-        <div className={"pl-2 border-t-2 border-r-2 h-screen"}>
+        <div className={"pl-2  h-screen bg-[#0c458d] text-white"}>
             <SidebarGroup>
-                <SidebarGroupLabel>Sinh viên</SidebarGroupLabel>
+                <SidebarGroupLabel className={"text-white"}>Sinh viên</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem>

@@ -4,10 +4,11 @@ using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using IdentityService.Models;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 
 namespace IdentityService.Services;
 
-public class ProfileService(UserManager userManager) : IProfileService
+public class ProfileService(UserManager userManager, RoleManager<IdentityRole> roleManager) : IProfileService
 {
     public async Task GetProfileDataAsync(ProfileDataRequestContext context)
     {
@@ -15,13 +16,17 @@ public class ProfileService(UserManager userManager) : IProfileService
         var user = await userManager.FindByIdAsync(userId);
         if (user is not null)
         {
+            var roles = await userManager.GetRolesAsync(user);
             var claims = new List<Claim>
             {
                 new("studentCode", user.UserName ?? ""),
+                new(ClaimTypes.Role, roles?.First()),
             };
+            
+            
             context.IssuedClaims.AddRange(claims);
         }
-        
+
         
     }
 

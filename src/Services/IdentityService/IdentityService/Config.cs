@@ -11,8 +11,8 @@ public static class Config
         new IdentityResources.OpenId(),
         new IdentityResources.Profile()
         {
-            UserClaims = { "studentCode" }
-        }
+            UserClaims = { "studentCode", "role" },
+        },
     ];
 
     public static IEnumerable<ApiScope> ApiScopes =>
@@ -36,7 +36,7 @@ public static class Config
                 ClientId = "daotao",
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                 ClientSecrets = { new Secret("secret".Sha256()) },
-                AllowedScopes =  { "openid", "profile", "api.admin" },
+                AllowedScopes =  { "openid", "profile", "api.admin", "role" },
                 AlwaysIncludeUserClaimsInIdToken = true, 
             },
             new Client
@@ -44,28 +44,8 @@ public static class Config
                 ClientId = "sinhvientest",
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                 ClientSecrets = { new Secret("secret".Sha256()) },
-                AllowedScopes =  { "openid", "profile", "api.student" },
+                AllowedScopes =  { "openid", "profile", "api.student", "role" },
                 AlwaysIncludeUserClaimsInIdToken = true, 
             },
         ];
-
-    public static List<TestUser> TestUsers =>
-    [
-        new()
-        {
-           SubjectId = "1", 
-           Username = "admin",
-           Password = "Pass1234$",
-        },
-        new()
-        {
-            SubjectId = "2151062726", 
-            Username = "2151062726",
-            Password = "2151062726",
-            Claims = new List<Claim>()
-            {
-                new Claim("studentCode", "2151062726")
-            }
-        }
-    ];
 }

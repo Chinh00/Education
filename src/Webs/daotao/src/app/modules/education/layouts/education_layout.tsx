@@ -6,11 +6,10 @@ const EducationSidebar = loadable(() => import('../components/education_sidebar.
 })
 const EducationLayout = () => {
     return <>
-        <div className={"grid grid-cols-12 "} style={{flexWrap: "nowrap"}}>
-            <div className={"col-span-12"}><Header /></div>
+        <div className={"grid grid-cols-12 w-full"} style={{flexWrap: "nowrap"}}>
+            <div className={"col-span-12 "}><Header /></div>
             <div className={"col-span-2"}><EducationSidebar /></div>
-            <div className={"col-span-10 h-screen p-4 border-t-2 relative"}>
-
+            <div className={"col-span-10 h-screen p-4 border-t-2 relative w-full"}>
                 <Outlet />
             </div>
         </div>

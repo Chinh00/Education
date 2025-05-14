@@ -6,6 +6,8 @@ export type GroupFuncName = {
 export type CommonState = {
     authenticate: boolean,
     groupFuncName?: GroupFuncName
+    roleName?: string
+
 }
 
 const commonState: CommonState = {
@@ -28,10 +30,13 @@ const CommonSlice = createSlice({
                 ...state,
                 groupFuncName: action.payload,
             };
+        },
+        setRoleName: (state, action: PayloadAction<string>) => {
+            state.roleName = action.payload;
         }
 
     }
 })
 
 export default CommonSlice.reducer
-export const {setAuthenticate, setGroupFuncName} = CommonSlice.actions
+export const {setAuthenticate, setGroupFuncName, setRoleName} = CommonSlice.actions

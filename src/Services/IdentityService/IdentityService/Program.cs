@@ -29,7 +29,7 @@ builder.Services.AddHostedService<MigrationHostedService>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {
         options.Password.RequireDigit = false; // Không yêu cầu số
-        options.Password.RequiredLength = 6;   // Độ dài tối thiểu là 6 ký tự
+        options.Password.RequiredLength = 1;   // Độ dài tối thiểu là 6 ký tự
         options.Password.RequireNonAlphanumeric = false; // Không yêu cầu ký tự đặc biệt
         options.Password.RequireUppercase = false; // Không yêu cầu chữ in hoa
         options.Password.RequireLowercase = false; // Không yêu cầu chữ thường
@@ -93,6 +93,7 @@ builder.Services.AddMassTransit(c =>
         });
     });
 });
+builder.Services.AddHostedService<SeedDataHostedService>();
 
 
 

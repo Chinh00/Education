@@ -18,18 +18,9 @@ const TrainingEducations = () => {
 
 
     return (
-        <>
-            <PredataScreen isLoading={false} isSuccess={true}>
-                <div>Đăng ký học</div>
-            </PredataScreen>
-
-            {/*<Box className={"p-5 flex gap-5"}>*/}
-            {/*    <CourseSearch  />*/}
-            {/*    <SearchOptions />*/}
-            {/*    <SpecialitySearch />*/}
-            {/*</Box>*/}
-            {/*<MaterialReactTable table={table}  />*/}
-        </>
+        <PredataScreen isLoading={false} isSuccess={true}>
+            <div className={'w-full'}>Đăng ký học</div>
+        </PredataScreen>
     )
 
 }

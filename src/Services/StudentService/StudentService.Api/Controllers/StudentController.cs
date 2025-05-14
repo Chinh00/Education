@@ -16,24 +16,20 @@ public class StudentController : BaseController
     /// <returns></returns>
     [HttpGet("detail")]
     public async Task<IActionResult> HandleGetStudentDetailAsync([FromQuery] string studentCode,
-        CancellationToken cancellationToken)
-    {
-        return Ok(await Mediator.Send(new GetStudentDetailQuery(studentCode), cancellationToken));
-    }
-    
+        CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(new GetStudentDetailQuery(studentCode), cancellationToken));
+
     /// <summary>
     /// Thông tin sinh viên chi tiết
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [Authorize]
+    [Authorize(Roles = "student, admin")]
     [HttpGet]
-    public async Task<IActionResult> HandleGetStudentInformationAsync(CancellationToken cancellationToken)
-    {
-        return Ok(await Mediator.Send(new GetStudentInformationQuery(), cancellationToken));
-    }
-    
-    
+    public async Task<IActionResult> HandleGetStudentInformationAsync(CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(new GetStudentInformationQuery(), cancellationToken));
+
+
     /// <summary>
     /// Danh sách sinh viên
     /// </summary>
@@ -42,9 +38,6 @@ public class StudentController : BaseController
     /// <returns></returns>
     [HttpGet("all")]
     public async Task<IActionResult> HandleGetStudentsAsync([FromQuery] GetStudentsQuery query,
-        CancellationToken cancellationToken)
-    {
-        return Ok(await Mediator.Send(query, cancellationToken));
-    }
+        CancellationToken cancellationToken) => Ok(await Mediator.Send(query, cancellationToken));
 
 }

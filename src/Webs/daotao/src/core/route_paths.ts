@@ -27,6 +27,7 @@ export const RoutePaths = {
 
     CLASS_LIST: '/classes',
     CLASS_SEMESTER_LIST: '/classes/:id/semesters',
+    LOGIN_PAGE: '/login',
 
 
 }

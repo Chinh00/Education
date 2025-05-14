@@ -32,6 +32,7 @@ const NOTFOUND = lazy(() => import("../modules/system/pages/notfound_page.tsx"))
 const EducationLayout = lazy(() => import("../modules/education/layouts/education_layout.tsx"));
 const StudentLayout = lazy(() => import("../modules/student/layouts/student_layout.tsx"));
 const StudentList = lazy(() => import("../modules/student/pages/student_list.tsx"));
+const LoginPage = lazy(() => import("../modules/auth/pages/login.tsx"));
 
 const router = createBrowserRouter([
     {
@@ -131,12 +132,18 @@ const router = createBrowserRouter([
                 path: RoutePaths.REGISTER_CONFIG_PATH,
                 element: <Suspense fallback={<ProgressScreen />}  key={"RegisterConfig"}  ><RegisterConfig /></Suspense>,
             },
+
+
             {
                 path: "*",
                 element: <Suspense fallback={<ProgressScreen/>}   key={"NOTFOUND"} ><NOTFOUND /></Suspense>,
             },
 
         ],
+    },
+    {
+        path: RoutePaths.LOGIN_PAGE,
+        element: <Suspense fallback={<ProgressScreen />}  key={"LoginPage"}  ><LoginPage /></Suspense>,
     },
 ]);
 

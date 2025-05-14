@@ -1,123 +1,171 @@
 using Education.Core.Domain;
 using Education.Core.Repository;
+using Education.Core.Specification;
 using Google.OrTools.Sat;
 using MediatR;
+using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;
 using TrainingService.Domain.Enums;
 
 namespace TrainingService.AppCore.Usecases.Commands;
 
-public record ScheduleCreateCommand : ICommand<IResult>
+public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
 {
-    internal class Handler : IRequestHandler<ScheduleCreateCommand, IResult>
+    internal class Handler(
+        IMongoRepository<Room> roomRepository,
+        IMongoRepository<StudentRegister> studentRegisterRepository,
+        IMongoRepository<SubjectTimelineConfig> subjectTimelineConfigRepository)
+        : IRequestHandler<ScheduleCreateCommand, IResult>
     {
-        private readonly IMongoRepository<Room> _roomRepository;
-        private readonly IMongoRepository<StudentRegister> _studentRegisterRepository;
-
-        public Handler(IMongoRepository<Room> roomRepository, IMongoRepository<StudentRegister> studentRegisterRepository)
-        {
-            _roomRepository = roomRepository;
-            _studentRegisterRepository = studentRegisterRepository;
-        }
-
         public async Task<IResult> Handle(ScheduleCreateCommand request, CancellationToken cancellationToken)
         {
             var model = new CpModel();
             var solver = new CpSolver();
+            var studentRegisters =
+                await studentRegisterRepository.FindAsync(
+                    new GetStudentRegisterByCorrelationIdSpec(Guid.Parse(request.CorrelationId)), cancellationToken);
+            var rooms = await roomRepository.FindAsync(new TrueSpecificationBase<Room>(), cancellationToken);
             
-            var subjectTimelineConfigs = new List<SubjectTimelineConfig>
+            var list = studentRegisters.Select(c => c.SubjectCodes).ToList();
+
+            var listSubjectCode = new List<string>();
+            if (listSubjectCode == null) throw new ArgumentNullException(nameof(listSubjectCode));
+            list.ForEach(c => listSubjectCode.AddRange(c));;
+
+
+            var subjectTimelineConfigs =
+                await subjectTimelineConfigRepository.FindAsync(
+                    new GetSubjectTimelineBySubjectCodesSpec(listSubjectCode), cancellationToken);
+            
+            
+            
+            // // Xây dựng lịch cho mỗi lớp học với phòng
+            // Dictionary<string, List<IntVar>> roomSchedule = new();
+            // foreach (var room in rooms)
+            // {
+            //     var roomSlots = new List<IntVar>();
+            //     for (int t = 0; t < 12; t++)
+            //     {
+            //         roomSlots.Add(model.NewBoolVar($"room_{room.Id}_slot_{t}"));
+            //     }
+            //     roomSchedule[room.Id.ToString()] = roomSlots;
+            // }
+
+            var assignmentVars = new Dictionary<(string classId, string roomId, int slot), BoolVar>();
+
+
+            var allClasses = GenerateCourseClasses(studentRegisters,
+                subjectTimelineConfigs.Where(c => listSubjectCode.Contains(c.SubjectCode)).ToList());
+            // Tạo biến cho mỗi class x room x slot
+            foreach (var c in allClasses)
             {
-                new SubjectTimelineConfig
+                foreach (var r in rooms)
                 {
-                    SubjectCode = "CS101",
-                    LectureLesson = 2,
-                    LabLesson = 1,
-                    LecturePeriod = 2,
-                    LabPeriod = 2,
-                    LectureMinStudent = 20,
-                    LabMinStudent = 15
-                },
-                new SubjectTimelineConfig
-                {
-                    SubjectCode = "CS102",
-                    LectureLesson = 3,
-                    LabLesson = 2,
-                    LecturePeriod = 3,
-                    LabPeriod = 2,
-                    LectureMinStudent = 25,
-                    LabMinStudent = 15
-                },
-                new SubjectTimelineConfig
-                {
-                    SubjectCode = "MATH101",
-                    LectureLesson = 2,
-                    LabLesson = 1,
-                    LecturePeriod = 3,
-                    LabPeriod = 2,
-                    LectureMinStudent = 30,
-                    LabMinStudent = 20
+                    for (int slot = 0; slot < 12; slot++)
+                    {
+                        var varName = $"class_{c.Id}_room_{r.Id}_slot_{slot}";
+                        var boolVar = model.NewBoolVar(varName);
+                        assignmentVars[(c.Id.ToString(), r.Id.ToString(), slot)] = boolVar;
+                    }
                 }
-            };
-
-            // Cấu hình lớp học
-            var courseClasses = new List<CourseClass>
-            {
-                new CourseClass { ClassIndex = 0, SubjectCode = "CS101", CourseClassType = CourseClassType.Lecture },
-                new CourseClass { ClassIndex = 1, SubjectCode = "CS101", CourseClassType = CourseClassType.Lab },
-                new CourseClass { ClassIndex = 2, SubjectCode = "CS102", CourseClassType = CourseClassType.Lecture },
-                new CourseClass { ClassIndex = 3, SubjectCode = "CS102", CourseClassType = CourseClassType.Lecture },
-                new CourseClass { ClassIndex = 4, SubjectCode = "CS102", CourseClassType = CourseClassType.Lab },
-                new CourseClass { ClassIndex = 5, SubjectCode = "MATH101", CourseClassType = CourseClassType.Lecture },
-                new CourseClass { ClassIndex = 6, SubjectCode = "MATH101", CourseClassType = CourseClassType.Lab }
-            };
-
-            if (subjectTimelineConfigs == null) throw new ArgumentNullException(nameof(subjectTimelineConfigs));
-            int totalDays = 6;
-            int periodsPerDay = 15;
-
-
-            foreach (var courseClass in courseClasses)
-            {
-                var config = subjectTimelineConfigs.First(c => c.SubjectCode == courseClass.SubjectCode);
-
-                // Số buổi học mỗi tuần
-                int sessionsPerWeek = courseClass.CourseClassType == CourseClassType.Lecture
-                    ? config.LectureLesson
-                    : config.LabLesson;
-
-                // Số tiết mỗi buổi học
-                int periodPerSession = courseClass.CourseClassType == CourseClassType.Lecture
-                    ? config.LecturePeriod
-                    : config.LabPeriod;
-
-                // Khoảng cách tối thiểu giữa các buổi học
-                int minDaySpacing = courseClass.CourseClassType == CourseClassType.Lecture
-                    ? config.MinDaySpaceLecture
-                    : config.MinDaySpaceLab;
-
-                
-
-                
             }
 
+            // Ràng buộc: mỗi lớp phải được gán đúng 1 room-slot
+            foreach (var c in allClasses)
+            {
+                var vars = new List<BoolVar>();
+                foreach (var r in rooms)
+                {
+                    for (int slot = 0; slot < 12; slot++)
+                    {
+                        vars.Add(assignmentVars[(c.Id.ToString(), r.Id.ToString(), slot)]);
+                    }
+                }
+                model.Add(LinearExpr.Sum(vars) == 1);
+            }
+
+            // Ràng buộc: mỗi room-slot chỉ có tối đa 1 lớp
+            foreach (var r in rooms)
+            {
+                for (int slot = 0; slot < 12; slot++)
+                {
+                    var vars = new List<BoolVar>();
+                    foreach (var c in allClasses)
+                    {
+                        vars.Add(assignmentVars[(c.Id.ToString(), r.Id.ToString(), slot)]);
+                    }
+                    model.Add(LinearExpr.Sum(vars) <= 1);
+                }
+            }
+            
+            // foreach (var room in rooms)
+            // {
+            //     for (int slot = 0; slot < 12; slot++)
+            //     {
+            //         var roomSlotAssignments = new List<IntVar>();
+            //
+            //         foreach (var c in allClasses)
+            //         {
+            //             var key = (c.ClassIndex, room.Id, slot);
+            //             if (classAssignments.ContainsKey(key.to))
+            //             {
+            //                 roomSlotAssignments.Add(classAssignments[key]);
+            //             }
+            //         }
+            //
+            //         // Mỗi phòng tại 1 slot chỉ có tối đa 1 lớp
+            //         model.Add(LinearExpr.Sum(roomSlotAssignments) <= 1);
+            //     }
+            // }
             
             
-            throw new NotImplementedException();
+            var status = solver.Solve(model);
+            if (status == CpSolverStatus.Optimal || status == CpSolverStatus.Feasible)
+            {
+                foreach (var c in allClasses)
+                {
+                    foreach (var r in rooms)
+                    {
+                        for (int slot = 0; slot < 12; slot++)
+                        {
+                            var variable = assignmentVars[(c.Id.ToString(), r.Id.ToString(), slot)];
+                            if (solver.Value(variable) == 1)
+                            {
+                                Console.WriteLine($"Lớp {c.ClassIndex} → Phòng {r.Name} → Khung giờ {slot}");
+                            }
+                        }
+                    }
+                }
+
+                return Results.Ok(status);
+            }
+
+            return Results.BadRequest("Không thể xếp lịch học");
         }
         // Tạo lớp dựa trên số sinh viên đã đăng ký nguyện vọng 
         List<CourseClass> GenerateCourseClasses(List<StudentRegister> studentRegisters,
             List<SubjectTimelineConfig> subjectTimelineConfigs)
         {
+            Console.WriteLine(subjectTimelineConfigs.Count);
             var courseClasses = new List<CourseClass>();
             if (courseClasses == null) throw new ArgumentNullException(nameof(courseClasses));
             foreach (var subjectRegister in subjectTimelineConfigs)
             {
+                
                 var totalStudents = studentRegisters
                     .Count(c => c.SubjectCodes.Contains(subjectRegister.SubjectCode));
                 var totalLecture = (int)Math.Ceiling(
-                    totalStudents / (double)subjectRegister.LectureMinStudent);
+                    totalStudents / (double)(subjectRegister.LectureMinStudent == 0
+                        ? 1
+                        : subjectRegister.LectureMinStudent));
+                
+                
                 var totalLab = (int)Math.Ceiling(
-                    totalStudents / (double)subjectRegister.LabMinStudent);
+                    totalStudents / (double)(subjectRegister.LabMinStudent == 0 ? 1 : subjectRegister.LabMinStudent));
+                if (subjectRegister.LabTotal == 0) totalLab = 0;
+                
+                Console.WriteLine($"{subjectRegister.SubjectCode} - {totalLecture} - {totalLab} - {totalStudents}" );
+                
                 for (var i = 0; i < totalLecture; i++)
                 {
                     var lectureClass = new CourseClass
@@ -125,7 +173,6 @@ public record ScheduleCreateCommand : ICommand<IResult>
                         ClassIndex = i,
                         CourseClassType = CourseClassType.Lecture,
                         StudentIds = new List<string>(), 
-                        SubjectCode = subjectRegister.SubjectCode,
                     };
                     courseClasses.Add(lectureClass);
                 }
@@ -139,6 +186,8 @@ public record ScheduleCreateCommand : ICommand<IResult>
                     };
                     courseClasses.Add(labClass);
                 }
+                
+                
             }
             return courseClasses;
         }

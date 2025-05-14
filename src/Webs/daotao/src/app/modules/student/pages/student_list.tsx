@@ -7,13 +7,15 @@ import useGetStudents from "@/app/modules/student/hooks/useGetStudents.ts";
 import {Student} from "@/domain/student.ts";
 import loadable from "@loadable/component";
 import {StudentState} from "@/app/modules/student/stores/student_slice.ts";
-import {Badge, GetProp, Table, TableProps} from "antd";
+import {Badge, Button, Form, GetProp, Table, TableProps} from "antd";
 import DepartmentSearch from "@/app/modules/student/components/department_search.tsx";
 import {useGetEducations} from "@/app/modules/education/hooks/useGetEducations.ts";
 import {Query} from "@/infrastructure/query.ts";
 import BranchSearch from "@/app/modules/student/components/branch_search.tsx";
 import {useGetClasses} from "@/app/modules/class/hooks/useGetClasses.ts";
 import ClassSearch from "@/app/modules/student/components/class_search.tsx";
+import {useForm} from "react-hook-form";
+import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 const CourseSearch = loadable(() => import('../components/course_search.tsx'), {
     fallback: <div>Loading...</div>,
@@ -67,7 +69,7 @@ const StudentList = () => {
 
 
     useEffect(() => {
-        if (studentListSelected?.classCode) {
+        if (studentListSelected?.classCode !== undefined) {
             setQuery(prevState => ({
                 ...prevState,
                 Filters: [
@@ -84,12 +86,39 @@ const StudentList = () => {
     const {data, isSuccess, isPending} = useGetStudents(query)
 
 
+    const {control, reset, getValues} = useForm<{input: string}>({
+        defaultValues: {
+            input: ""
+        }
+    })
 
+
+    useEffect(() => {
+        return () => {
+            reset()
+        }
+    }, []);
 
     return (
         <>
 
             <PredataScreen isLoading={false} isSuccess={true} >
+                <Form className={"flex gap-2"} >
+                    <FormInputAntd className={"w-full"} control={control} name={"input"} placeholder={"Nhập mã sinh viên"} initialValue={""} />
+                    <Button type={"primary"} onClick={ () => {
+                        setQuery(prevState => ({
+                            ...prevState,
+                            Filters: [
+                                {
+                                    field: "InformationBySchool.StudentCode",
+                                    operator: "==",
+                                    value: getValues("input")
+                                }
+                            ],
+                            Page: 1
+                        }))
+                    }}>Tìm kiếm</Button>
+                </Form>
                 <Box className={"flex gap-5 flex-wrap py-10"}>
                     <CourseSearch />
                     <DepartmentSearch />
@@ -107,11 +136,7 @@ const StudentList = () => {
                         title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
                         </Box>}
                         size={"small"}
-                        // rowSelection={{
-                        //     // onChange: (selectedRowKeys, selectedRows) => {
-                        //     //     setDataAdd(prevState => [...selectedRows])
-                        //     // },
-                        // }}
+
 
                         bordered={true}
                         pagination={{

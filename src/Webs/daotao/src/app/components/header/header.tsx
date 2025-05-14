@@ -1,7 +1,7 @@
 import {useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState} from "@/app/stores/common_slice.ts";
 import { Pin, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router";
+import {useLocation, useNavigate} from "react-router";
 import {IconButton, Typography} from "@mui/material";
 const Header = () => {
     const {groupFuncName} = useAppSelector<CommonState>(c => c.common)

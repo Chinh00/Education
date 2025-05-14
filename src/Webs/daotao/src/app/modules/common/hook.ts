@@ -1,6 +1,6 @@
 import {Query} from "@/infrastructure/query.ts";
 import {useQuery} from "@tanstack/react-query";
-import {getCourses, getDepartments, getSpecialities, getSubjects} from "./service";
+import {getBuildings, getCourses, getDepartments, getRooms, getSpecialities, getSubjects} from "./service";
 import {AxiosResponse} from "axios";
 import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/success_response.ts";
 import {Speciality} from "@/domain/speciality.ts";
@@ -41,11 +41,32 @@ const useGetSubjects = (query: Query, enable: boolean = true) => {
 }
 
 
+const useGetBuildings = (query: Query, enable: boolean = true) => {
+    return useQuery({
+        queryKey: ["buildings", query],
+        queryFn: () => getBuildings(query),
+        enabled: enable,
+
+    })
+}
+
+const useGetRooms = (query: Query, enable: boolean = true) => {
+    return useQuery({
+        queryKey: ["rooms", query],
+        queryFn: () => getRooms(query),
+        enabled: enable,
+
+    })
+}
+
+
 export {
     useGetCourses,
     useGetDepartments,
     useGetSpecialityDepartments,
-    useGetSubjects
+    useGetSubjects,
+    useGetBuildings,
+    useGetRooms
 };
 
 

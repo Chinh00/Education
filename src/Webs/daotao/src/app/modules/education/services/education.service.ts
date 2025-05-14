@@ -5,6 +5,7 @@ import { Education } from "@/domain/education.ts";
 import http from "@/infrastructure/http.ts";
 import {RegisterState} from "@/domain/register_state.ts";
 import {StudentRegister} from "@/domain/student_register.ts";
+import {Subject} from "@/domain/subject.ts";
 
 export type CreateRegisterStateModel = {
     semesterCode: string;

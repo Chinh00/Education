@@ -16,6 +16,7 @@ import {useGetClasses} from "@/app/modules/class/hooks/useGetClasses.ts";
 import ClassSearch from "@/app/modules/student/components/class_search.tsx";
 import {useForm} from "react-hook-form";
 import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
+import {RotateCcw} from "lucide-react";
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 const CourseSearch = loadable(() => import('../components/course_search.tsx'), {
     fallback: <div>Loading...</div>,
@@ -133,7 +134,8 @@ const StudentList = () => {
                             height: "500px",
                         }}
                         showHeader={true}
-                        title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
+                        title={() => <Box className={"flex flex-row justify-end items-center p-[16px] text-white "}>
+                            <Button onClick={() => setQuery({Includes: ["InformationBySchool", "PersonalInformation"]})}><RotateCcw /></Button>
                         </Box>}
                         size={"small"}
 
@@ -145,7 +147,6 @@ const StudentList = () => {
                             total: data?.data?.data?.totalItems ?? 0
                         }}
                         onChange={(e) => {
-                            console.log(e)
                             setQuery(prevState => ({
                                 ...prevState,
                                 Page: e?.current ?? 1 - 1,

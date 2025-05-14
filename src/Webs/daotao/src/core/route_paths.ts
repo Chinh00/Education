@@ -16,6 +16,7 @@ export const RoutePaths = {
     EDUCATION_REGISTER_CONFIG: '/educations/register-config',
 
     EDUCATION_SEMESTER_LIST: '/educations/semesters',
+    EDUCATION_SUBJECT_LIST: '/educations/subjects',
 
 
 

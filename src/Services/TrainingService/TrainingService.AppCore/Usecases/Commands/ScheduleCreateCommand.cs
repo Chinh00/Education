@@ -111,9 +111,70 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                     }
                 }
             }
-
-
             
+            foreach (var c in allClasses)
+            {
+                for (int day = 0; day < 6; day++)
+                {
+                    var dayVars = new List<BoolVar>();
+
+                    foreach (var room in rooms)
+                    {
+                        for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
+                        {
+                            var key = (c.Id.ToString(), room.Id.ToString(), day, slot);
+                            if (assignmentVars.TryGetValue(key, out var v))
+                            {
+                                dayVars.Add(v);
+                            }
+                        }
+                    }
+
+                    // Không được học nhiều hơn 1 buổi trong cùng một ngày
+                    model.Add(LinearExpr.Sum(dayVars) <= 1);
+                }
+            }
+            foreach (var c in allClasses)
+            {
+                var classDayVars = new List<BoolVar>();
+
+                for (int day = 0; day < 6; day++)
+                {
+                    var varsInDay = new List<BoolVar>();
+
+                    foreach (var r in rooms)
+                    {
+                        for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
+                        {
+                            var key = (c.Id.ToString(), r.Id.ToString(), day, slot);
+                            if (assignmentVars.TryGetValue(key, out var v))
+                            {
+                                varsInDay.Add(v);
+                            }
+                        }
+                    }
+
+                    var dayVar = model.NewBoolVar($"class_{c.Id}_active_day_{day}");
+                    model.Add(LinearExpr.Sum(varsInDay) >= 1).OnlyEnforceIf(dayVar);
+                    model.Add(LinearExpr.Sum(varsInDay) == 0).OnlyEnforceIf(dayVar.Not());
+                    classDayVars.Add(dayVar);
+                }
+
+                // Ràng buộc khoảng cách tối thiểu
+                int minDistance = 2; // Tối thiểu cách nhau 2 ngày
+                for (int d1 = 0; d1 < 6; d1++)
+                {
+                    for (int d2 = d1 + 1; d2 < 6; d2++)
+                    {
+                        if (Math.Abs(d2 - d1) < minDistance)
+                        {
+                            model.Add(classDayVars[d1] + classDayVars[d2] <= 1);
+                        }
+                    }
+                }
+            }
+
+
             
             var status = solver.Solve(model);
             if (status == CpSolverStatus.Optimal || status == CpSolverStatus.Feasible)

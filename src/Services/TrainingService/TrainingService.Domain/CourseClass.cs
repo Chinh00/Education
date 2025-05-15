@@ -9,4 +9,5 @@ public class CourseClass : BaseEntity
     public List<string> StudentIds { get; set; }
     public CourseClassType CourseClassType { get; set; }
     public string SubjectCode { get; set; }
+    public int SessionLength { get; set; }
 }

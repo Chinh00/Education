@@ -76,7 +76,7 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                 var vars = new List<BoolVar>();
                 foreach (var r in rooms)
                 {
-                    for (int slot = 0; slot < 12; slot++)
+                    for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
                     {
                         vars.Add(assignmentVars[(c.Id.ToString(), r.Id.ToString(), slot)]);
                     }
@@ -87,16 +87,28 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
             // Ràng buộc: mỗi room-slot chỉ có tối đa 1 lớp
             foreach (var r in rooms)
             {
-                for (int slot = 0; slot < 12; slot++)
+                for (int t = 0; t < 12; t++)
                 {
-                    var vars = new List<BoolVar>();
+                    var occupyingClasses = new List<BoolVar>();
+
                     foreach (var c in allClasses)
                     {
-                        vars.Add(assignmentVars[(c.Id.ToString(), r.Id.ToString(), slot)]);
+                        for (int start = 0; start <= 12 - c.SessionLength; start++)
+                        {
+                            // Nếu lớp này chiếm từ slot start đến start + SessionLength - 1
+                            if (t >= start && t < start + c.SessionLength)
+                            {
+                                var key = (c.Id.ToString(), r.Id.ToString(), start);
+                                if (assignmentVars.ContainsKey(key))
+                                    occupyingClasses.Add(assignmentVars[key]);
+                            }
+                        }
                     }
-                    model.Add(LinearExpr.Sum(vars) <= 1);
+
+                    model.Add(LinearExpr.Sum(occupyingClasses) <= 1);
                 }
             }
+
             
             // foreach (var room in rooms)
             // {
@@ -126,12 +138,13 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                 {
                     foreach (var r in rooms)
                     {
-                        for (int slot = 0; slot < 12; slot++)
+                        for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
                         {
-                            var variable = assignmentVars[(c.Id.ToString(), r.Id.ToString(), slot)];
-                            if (solver.Value(variable) == 1)
+                            var key = (c.Id.ToString(), r.Id.ToString(), slot);
+                            if (assignmentVars.TryGetValue(key, out var variable) && solver.Value(variable) == 1)
                             {
-                                Console.WriteLine($"Lớp {c.ClassIndex} → Phòng {r.Name} → Khung giờ {slot}");
+                                var slots = Enumerable.Range(slot, c.SessionLength).ToList();
+                                Console.WriteLine($"✅ Lớp {c.ClassIndex} ({c.CourseClassType}) học ở phòng {r.Name} slot {string.Join(",", slots)}");
                             }
                         }
                     }
@@ -173,6 +186,7 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                         ClassIndex = i,
                         CourseClassType = CourseClassType.Lecture,
                         StudentIds = new List<string>(), 
+                        SessionLength = 2
                     };
                     courseClasses.Add(lectureClass);
                 }
@@ -183,6 +197,7 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                         ClassIndex = i,
                         CourseClassType = CourseClassType.Lab,
                         StudentIds = new List<string>(),
+                        SessionLength = 3
                     };
                     courseClasses.Add(labClass);
                 }

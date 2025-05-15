@@ -6,7 +6,6 @@ using RegisterStudy.Domain.Repository;
 namespace RegisterStudy.AppCore.Usecases.Masstransits;
 
 public class WishLockHandler(
-    ITopicProducer<WishListLockedIntegrationEvent> producer,
     ITopicProducer<RegisterLockedIntegrationEvent> topicProducer,
     ILogger<WishLockHandler> logger,
     IRegisterRepository<StudentRegister> registerRepository)
@@ -14,19 +13,26 @@ public class WishLockHandler(
     public async Task Handle(Guid correlationId, CancellationToken cancellationToken)
     {
         var keys = await registerRepository.GetKeysAsync("subjects:*");
-        await producer.Produce(new {CorrelationId = correlationId}, cancellationToken);
+        
+        
+        var registerLockedIntegrationEvent = new RegisterLockedIntegrationEvent
+        {
+            CorrelationId = correlationId,
+            Students = new List<StudentRegisterConfirm>()
+        };
         foreach (var key in keys)
         {
             var split = key.Split(":");
             var register = await registerRepository.GetAsync(key);
-            await topicProducer.Produce(new
+            registerLockedIntegrationEvent.Students.Add(new StudentRegisterConfirm()
             {
-                CorrelationId = correlationId,
-                EducationCode = split[2],
-                StudentCode = split[1],
+                StudentCode = split[2],
+                EducationCode = split[1],
+                RegisterDate = register.RegisterDate,
                 SubjectCodes = register.SubjectCodes,
-                RegisterDate = register?.RegisterDate
-            }, cancellationToken);
+                
+            });
         }
+        await topicProducer.Produce(registerLockedIntegrationEvent, cancellationToken);
     }
 }

@@ -17,6 +17,7 @@ public class EventDispatcher : IConsumer<IIntegrationEvent>
 
     public async Task Consume(ConsumeContext<IIntegrationEvent> context)
     {
+        _logger.LogInformation("Dispatching event: {IntegrationEvent}", context.Message.GetType().Name);
         var mediator = _serviceProvider.GetService<IMediator>();
         await mediator.Publish(context.Message);
     }

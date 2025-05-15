@@ -27,6 +27,10 @@ public static class Extensions
             {
                 e.AddProducer<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent));
                 e.AddProducer<WishListCreated>(nameof(WishListCreated));
+                e.AddProducer<GenerateScheduleCreated>(nameof(GenerateScheduleCreated));
+                e.AddProducer<GenerateScheduleSuccess>(nameof(GenerateScheduleSuccess));
+                e.AddProducer<GenerateScheduleFail>(nameof(GenerateScheduleFail));
+                e.AddProducer<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent));
 
                 e.AddConsumer<EventDispatcher>();
                 e.AddSagaStateMachine<RegisterStateMachine, RegisterState, RegisterStateMachineDefinition>()
@@ -68,6 +72,8 @@ public static class Extensions
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureSaga<RegisterState>(context);
                         });
+                     
+                     
                      configurator.TopicEndpoint<RegisterLockedIntegrationEvent>(nameof(RegisterLockedIntegrationEvent), "training-register",
                         endpointConfigurator =>
                         {
@@ -75,6 +81,17 @@ public static class Extensions
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
                         });
+                     configurator.TopicEndpoint<GenerateScheduleCreated>(nameof(GenerateScheduleCreated), "generate-register",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
+                     
+                     
+                     
+                     
                                             
                 });
             });

@@ -10,4 +10,11 @@ public class CourseClass : BaseEntity
     public CourseClassType CourseClassType { get; set; }
     public string SubjectCode { get; set; }
     public int SessionLength { get; set; }
+    public Guid CorrectionId { get; set; }
+    public List<string> Slots { get; set; }
+    public string RoomCode { get; set; }
+    public string BuildingCode { get; set; }
+    public int Session { get; set; }
+    public int DurationInWeeks { get; set; }
+    
 }

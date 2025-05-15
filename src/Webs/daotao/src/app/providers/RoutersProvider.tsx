@@ -1,9 +1,11 @@
-import {createBrowserRouter, RouterProvider} from "react-router";
+import {createBrowserRouter, Navigate, Outlet, RouterProvider} from "react-router";
 import {lazy, Suspense} from "react";
 import { RoutePaths } from "@/core/route_paths.ts";
 import LoadingScreen from "../components/screens/loading_screen.tsx";
 import ProgressScreen from "../components/screens/progress_screen.tsx";
 import TabLoading from "@/app/components/screens/tab_loading.tsx";
+import { useAppSelector } from "../stores/hook.ts";
+import {CommonState} from "@/app/stores/common_slice.ts";
 const RegisterConfig = lazy(() => import("../modules/register/pages/register_config.tsx"));
 const TimelineConfig = lazy(() => import("../modules/register/pages/timeline_config.tsx"));
 const Login = lazy(() => import("../modules/auth/pages/login.tsx"));
@@ -34,116 +36,109 @@ const StudentLayout = lazy(() => import("../modules/student/layouts/student_layo
 const StudentList = lazy(() => import("../modules/student/pages/student_list.tsx"));
 const LoginPage = lazy(() => import("../modules/auth/pages/login.tsx"));
 
+
+const ProtectedRoute = () => {
+    const {authenticate} = useAppSelector<CommonState>(e => e.common)
+    return authenticate ? <Outlet/> : <Navigate to={RoutePaths.LOGIN_PAGE}/>
+}
+
+const AuthRoute = () => {
+    const {authenticate} = useAppSelector(e => e.common)
+    return !authenticate ? <Outlet/> : <Navigate to={RoutePaths.HOME_PATH}/>
+}
+
+
 const router = createBrowserRouter([
     {
-        path: RoutePaths.HOME_PATH,
-        element: <Suspense fallback={<ProgressScreen />}  key={"index"} ><MainLayout /></Suspense>,
+        path: "",
+        element: <ProtectedRoute />,
         children: [
             {
-                path: "",
-                element: <Suspense  fallback={<ProgressScreen  />} key={"Home"}><Home /></Suspense>,
-            },
-
-            {
-                path: "",
-                element: <Suspense fallback={<ProgressScreen />} key={"EducationLayout"} ><EducationLayout /></Suspense>,
+                path: RoutePaths.HOME_PATH,
+                element: <Suspense fallback={<ProgressScreen />}  key={"index"} ><MainLayout /></Suspense>,
                 children: [
                     {
-                        path: RoutePaths.EDUCATION_TRAINING,
-                        element: <Suspense fallback={<TabLoading />} key={"TrainingEducations"} ><TrainingEducations /></Suspense>,
+                        path: "",
+                        element: <Suspense  fallback={<ProgressScreen  />} key={"Home"}><Home /></Suspense>,
                     },
                     {
-                        path: RoutePaths.EDUCATION_REGISTER,
-                        element: <Suspense fallback={<TabLoading />} key={"RegisterEducation"} ><RegisterEducation /></Suspense>,
-                    },
-                    {
-                        path: RoutePaths.EDUCATION_REGISTER_DASHBOARD,
-                        element: <Suspense fallback={<TabLoading />} key={"DashboardRegister"} ><DashboardRegister /></Suspense>,
-                    },
-                    {
-                        path: RoutePaths.EDUCATION_REGISTER_CONFIG,
-                        element: <Suspense fallback={<TabLoading />} key={"CreateRegister"} ><CreateRegister /></Suspense>,
-                    },
-                    {
-                        path: RoutePaths.EDUCATION_REGISTER_DETAIL,
-                        element: <Suspense fallback={<TabLoading />} key={"RegisterDetail"} ><RegisterDetail /></Suspense>,
-                    },
-                    {
-                        path: RoutePaths.EDUCATION_REGISTER_TIMELINE,
-                        element: <Suspense fallback={<TabLoading />} key={"TimelineSettings"}><TimelineSettings /></Suspense>,
-                    },
-                    {
-                        path: RoutePaths.EDUCATION_SEMESTER_LIST,
-                        element: <Suspense fallback={<TabLoading />} key={"SemesterList"}><SemesterList /></Suspense>,
-                    },
-                    {
-                        path: RoutePaths.EDUCATION_SUBJECT_LIST,
-                        element: <Suspense fallback={<TabLoading />} key={"SubjectList"}><SubjectList /></Suspense>,
-                    },
-                    {
-                        path: RoutePaths.EDUCATION_SUBJECT_TIMELINE,
-                        element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineDetail"}><SubjectTimelineDetail /></Suspense>,
-                    },
-                    {
-                        path: RoutePaths.EDUCATION_SUBJECT_TIMELINE_CREATE,
-                        element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineCreate"}><SubjectTimelineCreate /></Suspense>,
-                    },
+                        path: "",
+                        element: <Suspense fallback={<ProgressScreen />} key={"EducationLayout"} ><EducationLayout /></Suspense>,
+                        children: [
+                            {
+                                path: RoutePaths.EDUCATION_TRAINING,
+                                element: <Suspense fallback={<TabLoading />} key={"TrainingEducations"} ><TrainingEducations /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_REGISTER,
+                                element: <Suspense fallback={<TabLoading />} key={"RegisterEducation"} ><RegisterEducation /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_REGISTER_DASHBOARD,
+                                element: <Suspense fallback={<TabLoading />} key={"DashboardRegister"} ><DashboardRegister /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_REGISTER_CONFIG,
+                                element: <Suspense fallback={<TabLoading />} key={"CreateRegister"} ><CreateRegister /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_REGISTER_DETAIL,
+                                element: <Suspense fallback={<TabLoading />} key={"RegisterDetail"} ><RegisterDetail /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_REGISTER_TIMELINE,
+                                element: <Suspense fallback={<TabLoading />} key={"TimelineSettings"}><TimelineSettings /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_SEMESTER_LIST,
+                                element: <Suspense fallback={<TabLoading />} key={"SemesterList"}><SemesterList /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_SUBJECT_LIST,
+                                element: <Suspense fallback={<TabLoading />} key={"SubjectList"}><SubjectList /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_SUBJECT_TIMELINE,
+                                element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineDetail"}><SubjectTimelineDetail /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_SUBJECT_TIMELINE_CREATE,
+                                element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineCreate"}><SubjectTimelineCreate /></Suspense>,
+                            },
 
 
 
 
+                        ],
+                    },
+
+                    {
+                        path: "",
+                        element: <Suspense fallback={<ProgressScreen />} key={"StudentLayout"} ><StudentLayout /></Suspense>,
+                        children: [
+                            {
+                                path: RoutePaths.STUDENT_LIST,
+                                element: <Suspense fallback={<TabLoading />} key={"StudentList"} ><StudentList /></Suspense>,
+                            },
+                        ],
+                    },
                 ],
-            },
-
-            {
-                path: "",
-                element: <Suspense fallback={<ProgressScreen />} key={"StudentLayout"} ><StudentLayout /></Suspense>,
-                children: [
-                    {
-                        path: RoutePaths.STUDENT_LIST,
-                        element: <Suspense fallback={<TabLoading />} key={"StudentList"} ><StudentList /></Suspense>,
-                    },
-                ],
-            },
-
-
-
-
-
-
-
-            {
-                path: RoutePaths.REGISTER_TIMELINE_PATH,
-                element: <Suspense  fallback={<ProgressScreen  />} key={"TimelineConfig"} ><TimelineConfig /></Suspense>,
-            },
-            {
-                path: RoutePaths.CLASS_LIST,
-                element: <Suspense  fallback={<ProgressScreen />}  key={"CLASS"} ><CLASS /></Suspense>,
-            },
-            {
-                path: RoutePaths.CLASS_SEMESTER_LIST,
-                element: <Suspense  fallback={<ProgressScreen  />} key={"SEMESTER_CLASS"}><SEMESTER_CLASS /></Suspense>,
-            },
-            {
-                path: RoutePaths.WISH_CONFIG,
-                element: <Suspense  fallback={<ProgressScreen />}  key={"WISH_CONFIG"}><WISH_CONFIG /></Suspense>,
-            },
-            {
-                path: RoutePaths.REGISTER_CONFIG_PATH,
-                element: <Suspense fallback={<ProgressScreen />}  key={"RegisterConfig"}  ><RegisterConfig /></Suspense>,
-            },
-
-
-            {
-                path: "*",
-                element: <Suspense fallback={<ProgressScreen/>}   key={"NOTFOUND"} ><NOTFOUND /></Suspense>,
-            },
-
-        ],
+            }
+        ]
     },
     {
-        path: RoutePaths.LOGIN_PAGE,
-        element: <Suspense fallback={<ProgressScreen />}  key={"LoginPage"}  ><LoginPage /></Suspense>,
+        path: "",
+        element: <AuthRoute />,
+        children: [
+            {
+                path: RoutePaths.LOGIN_PAGE,
+                element: <Suspense fallback={<ProgressScreen />}  key={"LoginPage"}  ><LoginPage /></Suspense>,
+            },
+        ]
+    },
+    {
+        path: "*",
+        element: <Suspense fallback={<ProgressScreen/>}   key={"NOTFOUND"} ><NOTFOUND /></Suspense>,
     },
 ]);
 

@@ -29,7 +29,8 @@ class Http {
 
 
         this.instance.interceptors.request.use(options => {
-
+            const {access_token} = Auth.GetToken()
+            options.headers.Authorization = `Bearer ${access_token}`
 
             return options
         }, error => {

@@ -26,7 +26,6 @@ export const RoutePaths = {
     WISH_CONFIG: '/wish-config',
 
     CLASS_LIST: '/classes',
-    CLASS_SEMESTER_LIST: '/classes/:id/semesters',
     LOGIN_PAGE: '/login',
 
 

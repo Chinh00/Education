@@ -19,7 +19,7 @@ import {
 import {useGetUserInfo} from "@/app/modules/auth/hooks/useGetUserInfo.ts";
 import {useAppDispatch} from "@/app/stores/hook.ts";
 import {useEffect} from "react";
-import {setRoleName} from "@/app/stores/common_slice.ts";
+import {setAuthenticate, setRoleName} from "@/app/stores/common_slice.ts";
 
 
 import {
@@ -27,9 +27,11 @@ import {
     Settings,
     Users,
     Home,
+    LogOut,
 } from "lucide-react"
 import {RoutePaths} from "@/core/route_paths.ts";
 import { Avatar } from "antd";
+import Auth from "@/infrastructure/utils/auth.ts";
 
 export function AppSidebar() {
     const nav = useNavigate()
@@ -57,7 +59,7 @@ export function AppSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem  className={""}>
-                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.HOME_PATH)} tooltip="Trang chủ"  className={"inset-0 cursor-pointer mx-auto "} >
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.HOME_PATH)} tooltip="Trang chủ"  className={"cursor-pointer mx-auto "} >
                             <Home  className="scale-150 mx-auto hover:text-black text-white transition-all" />
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -83,8 +85,12 @@ export function AppSidebar() {
             <SidebarFooter className={"bg-[#124485]"}>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton tooltip="Cài đặt">
-                            <Settings className="h-5 w-5" />
+                        <SidebarMenuButton onClick={() => {
+                            dispatch(setAuthenticate(false))
+                            Auth.ClearCookie()
+                        }} tooltip="Đăng xuất" className={"mx-auto cursor-pointer"}>
+                            {/*<Settings className="h-5 w-5" />*/}
+                            <LogOut className={"scale-150"} />
                             <span>Cài đặt</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

@@ -8,6 +8,8 @@ import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
 import { useLogin } from "../hooks/useLogin";
 import toast from "react-hot-toast";
 import {useNavigate} from "react-router";
+import {useAppDispatch} from "@/app/stores/hook.ts";
+import {setAuthenticate} from "@/app/stores/common_slice.ts";
 
 const Login = () => {
   const {control, reset, getValues} = useForm<AuthLoginModel>({
@@ -19,7 +21,7 @@ const Login = () => {
   const {mutate, isPending} = useLogin()
 
   const nav = useNavigate()
-
+  const dispatch = useAppDispatch()
   useEffect(() => {
     return () => reset()
   }, []);
@@ -33,6 +35,7 @@ const Login = () => {
                   userLoginModel: getValues()
                 }, {
                   onSuccess: () => {
+                    dispatch(setAuthenticate(true))
                     toast.success("Đăng nhập thành công")
                     nav("/")
                   }

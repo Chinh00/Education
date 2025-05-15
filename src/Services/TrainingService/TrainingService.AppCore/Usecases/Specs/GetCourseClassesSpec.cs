@@ -13,7 +13,7 @@ public class GetCourseClassesSpec : ListSpecificationBase<CourseClass>
         ApplyIncludes(query.Includes);
         ApplySorts(query.Sorts);
         ApplyInclude(c => c.Id);
-        ApplyInclude(c => c.Slots);
+        ApplyInclude(c => c.SlotTimelines);
         ApplyInclude(c => c.CourseClassType);
         ApplyInclude(c => c.ClassIndex);
         ApplyInclude(c => c.CorrectionId);

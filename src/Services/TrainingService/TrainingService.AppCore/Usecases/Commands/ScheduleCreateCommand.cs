@@ -14,7 +14,9 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
     internal class Handler(
         IMongoRepository<Room> roomRepository,
         IMongoRepository<StudentRegister> studentRegisterRepository,
-        IMongoRepository<SubjectTimelineConfig> subjectTimelineConfigRepository)
+        IMongoRepository<SubjectTimelineConfig> subjectTimelineConfigRepository,
+        IMongoRepository<CourseClass> courseClassRepository,
+        IMongoRepository<SlotTimeline> scheduleRepository)
         : IRequestHandler<ScheduleCreateCommand, IResult>
     {
         public async Task<IResult> Handle(ScheduleCreateCommand request, CancellationToken cancellationToken)
@@ -80,7 +82,7 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                         }
                     }
                 }
-                model.Add(LinearExpr.Sum(vars) == c.Session);
+                model.Add(LinearExpr.Sum(vars) == c.SessionLength);
             }
             // Không trùng giờ giữa các phòng
             for (int day = 0; day < 6; day++)
@@ -90,7 +92,7 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                     foreach (var room in rooms)
                     {
                         var occupiedVars = new List<BoolVar>();
-
+            
                         foreach (var c in allClasses)
                         {
                             for (int s = Math.Max(0, slot - c.SessionLength + 1); s <= Math.Min(slot, 12 - c.SessionLength + 1); s++)
@@ -106,7 +108,7 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                                 }
                             }
                         }
-
+            
                         model.Add(LinearExpr.Sum(occupiedVars) <= 1);
                     }
                 }
@@ -117,7 +119,7 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                 for (int day = 0; day < 6; day++)
                 {
                     var dayVars = new List<BoolVar>();
-
+            
                     foreach (var room in rooms)
                     {
                         for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
@@ -129,7 +131,7 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                             }
                         }
                     }
-
+            
                     // Không được học nhiều hơn 1 buổi trong cùng một ngày
                     model.Add(LinearExpr.Sum(dayVars) <= 1);
                 }
@@ -137,11 +139,11 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
             foreach (var c in allClasses)
             {
                 var classDayVars = new List<BoolVar>();
-
+            
                 for (int day = 0; day < 6; day++)
                 {
                     var varsInDay = new List<BoolVar>();
-
+            
                     foreach (var r in rooms)
                     {
                         for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
@@ -153,13 +155,13 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                             }
                         }
                     }
-
+            
                     var dayVar = model.NewBoolVar($"class_{c.Id}_active_day_{day}");
                     model.Add(LinearExpr.Sum(varsInDay) >= 1).OnlyEnforceIf(dayVar);
                     model.Add(LinearExpr.Sum(varsInDay) == 0).OnlyEnforceIf(dayVar.Not());
                     classDayVars.Add(dayVar);
                 }
-
+            
                 // Ràng buộc khoảng cách tối thiểu
                 int minDistance = 2; // Tối thiểu cách nhau 2 ngày
                 for (int d1 = 0; d1 < 6; d1++)
@@ -179,8 +181,20 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
             var status = solver.Solve(model);
             if (status == CpSolverStatus.Optimal || status == CpSolverStatus.Feasible)
             {
+                // var listClass = new List<CourseClass>();
                 foreach (var c in allClasses)
                 {
+                    var courseClassCode = $"{c.SubjectCode}_{c.CourseClassType}_{c.ClassIndex}";
+                    var courseClass = new CourseClass()
+                    {
+                        CorrectionId = Guid.Parse(request.CorrelationId),
+                        ClassIndex = c.ClassIndex,
+                        CourseClassType = c.CourseClassType,
+                        SubjectCode = c.SubjectCode,
+                        DurationInWeeks = c.DurationInWeeks,
+                        SessionLength = c.SessionLength,
+                        CourseClassCode = courseClassCode
+                    };
                     foreach (var r in rooms)
                     {
                         for (int day = 0; day < 6; day++)
@@ -191,23 +205,23 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                                 if (assignmentVars.TryGetValue(key, out var variable) && solver.Value(variable) == 1)
                                 {
                                     var slots = Enumerable.Range(slot, c.SessionLength).ToList();
-                                    Console.WriteLine($"✅ Môn {c.SubjectCode} Lớp {c.ClassIndex} ({c.CourseClassType}) học ở phòng {r.Name} ngày {day} slot {string.Join(",", slots)}");
-
-                                    // await courseClassRepository.AddAsync(new CourseClass()
-                                    // {
-                                    //     CorrectionId = notification.CorrelationId,
-                                    //     ClassIndex = c.ClassIndex,
-                                    //     CourseClassType = c.CourseClassType,
-                                    //     SubjectCode = c.SubjectCode,
-                                    //     Week = week,
-                                    //     Slots = slots.Select(s => s.ToString()).ToList(),
-                                    //     RoomCode = r.Code,
-                                    //     BuildingCode = r.BuildingCode
-                                    // }, cancellationToken);
+                                    Console.WriteLine(
+                                        $"✅ Môn {c.SubjectCode} Lớp {c.ClassIndex} ({c.CourseClassType}) học ở phòng {r.Name} ngày {day} slot {string.Join(",", slots)}");
+                                    await scheduleRepository.AddAsync(new SlotTimeline()
+                                    {
+                                        CourseClassCode = courseClassCode,
+                                        RoomCode = r.Code,
+                                        BuildingCode = r.BuildingCode,
+                                        DayOfWeek = day,
+                                        Slots = slots.Select(e => e.ToString()).ToList()
+                                    }, cancellationToken);
                                 }
                             }
                         }
                     }
+
+                    await courseClassRepository.AddAsync(courseClass, cancellationToken);
+
                 }
 
             }
@@ -218,7 +232,6 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
         List<CourseClass> GenerateCourseClasses(List<StudentRegister> studentRegisters,
             List<SubjectTimelineConfig> subjectTimelineConfigs)
         {
-            Console.WriteLine(subjectTimelineConfigs.Count);
             var courseClasses = new List<CourseClass>();
             if (courseClasses == null) throw new ArgumentNullException(nameof(courseClasses));
             foreach (var subjectRegister in subjectTimelineConfigs)
@@ -245,10 +258,10 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                         ClassIndex = i,
                         CourseClassType = CourseClassType.Lecture,
                         StudentIds = new List<string>(), 
-                        SessionLength = 2,
+                        SessionLength = subjectRegister.LectureLesson,
                         SubjectCode = subjectRegister.SubjectCode,
-                        Session = 2,
-                        DurationInWeeks = 8
+                        DurationInWeeks = subjectRegister.DurationInWeeks,
+                        MinDaySpaceLesson = subjectRegister.MinDaySpaceLecture
                     };
                     courseClasses.Add(lectureClass);
                 }
@@ -259,10 +272,10 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                         ClassIndex = i,
                         CourseClassType = CourseClassType.Lab,
                         StudentIds = new List<string>(),
-                        SessionLength = 3,
+                        SessionLength = subjectRegister.LabLesson,
                         SubjectCode = subjectRegister.SubjectCode,
-                        Session = 1,
-                        DurationInWeeks = 8
+                        DurationInWeeks = subjectRegister.DurationInWeeks,
+                        MinDaySpaceLesson = subjectRegister.MinDaySpaceLab
                     };
                     courseClasses.Add(labClass);
                 }

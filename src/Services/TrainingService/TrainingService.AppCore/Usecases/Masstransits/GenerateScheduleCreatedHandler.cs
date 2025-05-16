@@ -83,7 +83,7 @@ public class GenerateScheduleCreatedHandler(
                         }
                     }
                 }
-                model.Add(LinearExpr.Sum(vars) == c.Session);
+                model.Add(LinearExpr.Sum(vars) == c.SessionLength);
             }
             // Không trùng giờ giữa các phòng
             for (int day = 0; day < 6; day++)
@@ -164,7 +164,7 @@ public class GenerateScheduleCreatedHandler(
                 }
 
                 // Ràng buộc khoảng cách tối thiểu
-                int minDistance = 2; // Tối thiểu cách nhau 2 ngày
+                int minDistance = c.MinDaySpaceLesson; 
                 for (int d1 = 0; d1 < 6; d1++)
                 {
                     for (int d2 = d1 + 1; d2 < 6; d2++)
@@ -192,7 +192,6 @@ public class GenerateScheduleCreatedHandler(
                         ClassIndex = c.ClassIndex,
                         CourseClassType = c.CourseClassType,
                         SubjectCode = c.SubjectCode,
-                        Session = c.Session,
                         DurationInWeeks = c.DurationInWeeks,
                         SessionLength = c.SessionLength,
                         CourseClassCode = courseClassCode
@@ -261,11 +260,10 @@ public class GenerateScheduleCreatedHandler(
                         ClassIndex = i,
                         CourseClassType = CourseClassType.Lecture,
                         StudentIds = new List<string>(), 
-                        Lec = 2,
+                        SessionLength = subjectRegister.LectureLesson,
                         SubjectCode = subjectRegister.SubjectCode,
-                        Session = 2,
-                        DurationInWeeks = 8
-                        
+                        DurationInWeeks = subjectRegister.DurationInWeeks,
+                        MinDaySpaceLesson = subjectRegister.MinDaySpaceLecture
                     };
                     courseClasses.Add(lectureClass);
                 }
@@ -276,11 +274,10 @@ public class GenerateScheduleCreatedHandler(
                         ClassIndex = i,
                         CourseClassType = CourseClassType.Lab,
                         StudentIds = new List<string>(),
-                        SessionLength = 3,
+                        SessionLength = subjectRegister.LabLesson,
                         SubjectCode = subjectRegister.SubjectCode,
-                        Session = 1,
-                        DurationInWeeks = 8
-                        
+                        DurationInWeeks = subjectRegister.DurationInWeeks,
+                        MinDaySpaceLesson = subjectRegister.MinDaySpaceLab
                     };
                     courseClasses.Add(labClass);
                 }

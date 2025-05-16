@@ -2,6 +2,7 @@ import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {useEffect} from "react";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {
+    Sidebar, SidebarContent,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
@@ -19,7 +20,7 @@ const EducationSidebar = () => {
     }, []);
     const nav = useNavigate()
     return (
-        <div className={" h-full bg-[#0c458d] text-white pl-3"}>
+        <div className={"h-[250vh] bg-[#0c458d] text-white pl-3"}>
             <SidebarGroup >
                 <SidebarGroupLabel className={"text-white"}>Chương trình đào tạo</SidebarGroupLabel>
                 <SidebarGroupContent>

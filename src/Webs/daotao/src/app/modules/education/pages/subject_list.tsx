@@ -1,6 +1,6 @@
 import {ColumnsType, useGetSubjects} from "@/app/modules/common/hook.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
-import {Box} from "@mui/material";
+import {Box, IconButton} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect, useState} from "react";
@@ -8,11 +8,12 @@ import {Semester} from "@/domain/semester.ts";
 import {DateTimeFormat} from "@/infrastructure/date.ts";
 import {Subject} from "@/domain/subject.ts";
 import SemesterModal from "@/app/modules/education/components/semester_modal.tsx";
-import {Button, Form, Table} from "antd";
+import {Button, Form, Table, Space, Tooltip } from "antd";
 import {Query} from "@/infrastructure/query.ts";
 import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
 import {useForm} from "react-hook-form";
-import { RefreshCw, RotateCcw } from "lucide-react";
+import { RefreshCw, RotateCcw, Eye } from "lucide-react";
+import {useNavigate} from "react-router";
 
 const SubjectList = () => {
     const dispatch = useAppDispatch()
@@ -21,6 +22,7 @@ const SubjectList = () => {
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Danh sách môn học"}));
     }, []);
+    const nav = useNavigate();
     const columns: ColumnsType<Subject> = [
         {
             title: 'Tên môn học',
@@ -50,7 +52,15 @@ const SubjectList = () => {
             title: 'Trạng thái',
             dataIndex: "status",
         },
-
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Tooltip title="Chi tiết">
+                    <IconButton onClick={() => nav(`/educations/subjects/${record?.subjectCode}/timeline`)}><Eye /></IconButton>
+                </Tooltip>
+            ),
+        },
 
     ];
     const tableColumns = columns.map((item) => ({ ...item }));
@@ -64,10 +74,11 @@ const SubjectList = () => {
         }
     })
     const {data, isLoading, isSuccess} = useGetSubjects(query)
+
     return (
-        <PredataScreen isLoading={isLoading} isSuccess={isSuccess} >
+        <PredataScreen isLoading={false} isSuccess={true} >
             <Form className={"flex gap-2"} >
-                <FormInputAntd className={"w-full"} control={control} name={"input"} placeholder={"Tìm kiếm theo tên môn học"} initialValue={""} />
+                <FormInputAntd className={"w-full"} control={control} name={"input"} placeholder={"Nhập tên môn học"} initialValue={""} />
                 <Button type={"primary"} onClick={ () => {
                     setQuery(prevState => ({
                         ...prevState,
@@ -94,11 +105,6 @@ const SubjectList = () => {
                         <Button onClick={() => setQuery({Includes: ["DepartmentCode", "NumberOfCredits"]})}><RotateCcw /></Button>
                     </Box>}
                     size={"small"}
-                    // rowSelection={{
-                    //     // onChange: (selectedRowKeys, selectedRows) => {
-                    //     //     setDataAdd(prevState => [...selectedRows])
-                    //     // },
-                    // }}
                     bordered={true}
                     pagination={{
                         current: query?.Page ?? 1,

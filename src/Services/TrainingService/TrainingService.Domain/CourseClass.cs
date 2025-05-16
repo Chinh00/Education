@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Education.Core.Domain;
 using TrainingService.Domain.Enums;
 
@@ -6,20 +7,58 @@ namespace TrainingService.Domain;
 public class CourseClass : BaseEntity
 {
     public int ClassIndex { get; set; } 
+    public string CourseClassCode { get; set; } 
     public List<string> StudentIds { get; set; }
     public CourseClassType CourseClassType { get; set; }
     public string SubjectCode { get; set; }
-    public int SessionLength { get; set; }
     public Guid CorrectionId { get; set; }
-    public List<SlotTimeline> SlotTimelines { get; set; } = [];
-    public string RoomCode { get; set; }
-    public string BuildingCode { get; set; }
     public int Session { get; set; }
-    public int DurationInWeeks { get; set; }
+    [Description("Tổng số tiết học")]
+    public int PeriodTotal { get; set; }
+    
+    
+    [Description("Số tiết lý thuyết")]
+    public int LectureTotal { get; set; }
+    [Description("Số buổi lý thuyết trong 1 tuần")]
+    public int LectureLesson { get; set; }
+    [Description("Số tiết lý thuyết trong 1 buổi")]
+    public int LecturePeriod { get; set; }
+    
+    [Description("Số tiết thực hành")]
+    public int LabTotal { get; set; }
+    [Description("Số buổi thực hành trong 1 tuần")]
+    public int LabLesson { get; set; }
+    [Description("Số tiết thực hành trong 1 buổi")]
+    public int LabPeriod { get; set; }
+
+    [Description("Khoảng cách giữa các buổi học lý thuyết trong 1 tuần")]
+    public int MinDaySpaceLecture { get; set; } = 1;
+    [Description("Khoảng cách giữa các buổi học thực hành trong 1 tuần")]
+    public int MinDaySpaceLab { get; set; } = 1;
+    
+    [Description("Số sinh viên tối thiểu trong lớp lý thuyết")]
+    public int LectureMinStudent { get; set; }
+    [Description("Số sinh viên tối thiểu trong lớp thực hành")]
+    public int LabMinStudent { get; set; }
+
+    [Description("Tuần bắt đầu học lý thuyết (1, 2, 3, ...)")]
+    public int LectureStartWeek { get; set; } = 0;
+
+    [Description("Tuần bắt đầu học thực hành (1, 2, 3, ...)")]
+    public int LabStartWeek { get; set; } = 1;
+
+    [Description("Giai đoạn học")] public SubjectTimelineStage Stage { get; set; } = SubjectTimelineStage.Stage1;
+    
+    [Description("Số tuần học")]
+    public int DurationInWeeks { get; set; } = 8;
 }
 
-public class SlotTimeline
+public class SlotTimeline : BaseEntity
 {
+    public string CourseClassCode { get; set; }
+    public string BuildingCode { get; set; }
+    
+    public string RoomCode { get; set; }
     public int DayOfWeek { get; set; }
     public List<string> Slots { get; set; }
 }

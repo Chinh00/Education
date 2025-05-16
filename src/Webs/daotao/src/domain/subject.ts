@@ -2,7 +2,7 @@ export interface Subject {
     subjectName: string;
     subjectNameEng: string;
     subjectCode: string;
-    subjectDescription: string | null;
+    subjectDescription: string;
     numberOfCredits: number;
     departmentCode: string;
     defineCode: string | null;

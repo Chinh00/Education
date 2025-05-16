@@ -6,6 +6,7 @@ using MassTransit;
 using MediatR;
 using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;
+using TrainingService.Domain.Enums;
 
 namespace TrainingService.AppCore.Usecases.Commands;
 
@@ -24,11 +25,18 @@ public record CreateWishRegisterCommand(
     internal class Handler(
         IMongoRepository<ClassManager> mongoRepository,
         IMongoRepository<EducationProgram> educationProgramRepository,
-        ITopicProducer<WishListCreated> topicProducer)
+        ITopicProducer<WishListCreated> topicProducer,
+        IMongoRepository<Semester> semesterRepository)
         : IRequestHandler<CreateWishRegisterCommand, IResult>
     {
         public async Task<IResult> Handle(CreateWishRegisterCommand request, CancellationToken cancellationToken)
         {
+            var semester =
+                await semesterRepository.FindOneAsync(new GetSemesterByCodeSpec(request.SemesterCode),
+                    cancellationToken);
+            semester.SemesterStatus = SemesterStatus.Register;
+            await semesterRepository.UpsertOneAsync(new GetSemesterByCodeSpec(request.SemesterCode), semester,
+                cancellationToken);
             await topicProducer.Produce(new
             {
                 CorrelationId = Guid.NewGuid(),

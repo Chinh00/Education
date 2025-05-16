@@ -3,6 +3,7 @@ using Education.Core.Repository;
 using MediatR;
 using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;
+using TrainingService.Domain.Enums;
 
 namespace TrainingService.AppCore.Usecases.Commands;
 
@@ -20,7 +21,12 @@ public record SubjectTimelineConfigCreateCommand(SubjectTimelineConfigCreateComm
         int MinDaySpaceLecture,
         int MinDaySpaceLab,
         int LectureMinStudent,
-        int LabMinStudent);
+        int LabMinStudent,
+        int LectureStartWeek,
+        int LabStartWeek,
+        int Stage,
+        int DurationInWeeks
+        );
     
     internal class Handler(IMongoRepository<SubjectTimelineConfig> repository)
         : IRequestHandler<SubjectTimelineConfigCreateCommand, IResult>
@@ -28,13 +34,10 @@ public record SubjectTimelineConfigCreateCommand(SubjectTimelineConfigCreateComm
         public async Task<IResult> Handle(SubjectTimelineConfigCreateCommand request, CancellationToken cancellationToken)
         {
             var (subjectCode, periodTotal, lectureTotal, lectureLesson, lecturePeriod, labTotal, labLesson, labPeriod,
-                minDaySpaceLecture, minDaySpaceLab, lectureMinStudent, labMinStudent) = request.Model;
+                minDaySpaceLecture, minDaySpaceLab, lectureMinStudent, labMinStudent, lectureStartWeek, labStartWeek, stage, durationInWeeks) = request.Model;
 
             var spec = new GetSubjectTimelineBySubjectCodeSpec(subjectCode);
-            var subjectTimelineConfig = await repository.FindOneAsync(spec, cancellationToken) ?? new SubjectTimelineConfig()
-            {
-                
-            };
+            var subjectTimelineConfig = await repository.FindOneAsync(spec, cancellationToken) ?? new SubjectTimelineConfig();
 
 
             subjectTimelineConfig.SubjectCode = subjectCode;
@@ -49,6 +52,10 @@ public record SubjectTimelineConfigCreateCommand(SubjectTimelineConfigCreateComm
             subjectTimelineConfig.MinDaySpaceLab = minDaySpaceLab;
             subjectTimelineConfig.LectureMinStudent = lectureMinStudent;
             subjectTimelineConfig.LabMinStudent = labMinStudent;
+            subjectTimelineConfig.LectureStartWeek = labMinStudent;
+            subjectTimelineConfig.LabStartWeek = labMinStudent;
+            subjectTimelineConfig.Stage = (SubjectTimelineStage)stage;
+            subjectTimelineConfig.DurationInWeeks = durationInWeeks;
             
             var result = await repository.UpsertOneAsync(spec, subjectTimelineConfig, cancellationToken);
             return Results.Ok(ResultModel<SubjectTimelineConfig>.Create(result));

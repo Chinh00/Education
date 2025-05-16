@@ -16,7 +16,8 @@ public class GenerateScheduleCreatedHandler(
     IMongoRepository<Room> roomRepository,
     IMongoRepository<StudentRegister> studentRegisterRepository,
     IMongoRepository<SubjectTimelineConfig> subjectTimelineConfigRepository,
-    IMongoRepository<CourseClass> courseClassRepository)
+    IMongoRepository<CourseClass> courseClassRepository,
+    IMongoRepository<SlotTimeline> scheduleRepository)
     : INotificationHandler<GenerateScheduleCreated>
 {
     public async Task Handle(GenerateScheduleCreated notification, CancellationToken cancellationToken)
@@ -181,8 +182,21 @@ public class GenerateScheduleCreatedHandler(
             var status = solver.Solve(model);
             if (status == CpSolverStatus.Optimal || status == CpSolverStatus.Feasible)
             {
+                // var listClass = new List<CourseClass>();
                 foreach (var c in allClasses)
                 {
+                    var courseClassCode = $"{c.SubjectCode}_{c.CourseClassType}_{c.ClassIndex}";
+                    var courseClass = new CourseClass()
+                    {
+                        CorrectionId = notification.CorrelationId,
+                        ClassIndex = c.ClassIndex,
+                        CourseClassType = c.CourseClassType,
+                        SubjectCode = c.SubjectCode,
+                        Session = c.Session,
+                        DurationInWeeks = c.DurationInWeeks,
+                        SessionLength = c.SessionLength,
+                        CourseClassCode = courseClassCode
+                    };
                     foreach (var r in rooms)
                     {
                         for (int day = 0; day < 6; day++)
@@ -190,36 +204,29 @@ public class GenerateScheduleCreatedHandler(
                             for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
                             {
                                 var key = (c.Id.ToString(), r.Id.ToString(), day, slot);
-                                var spec = new GetCourseClassByCorrelationAndSubjectCodeAndClassIndexAndClassTypeIdSpec(
-                                    notification.CorrelationId, c.SubjectCode, c.ClassIndex, c.CourseClassType);
-                                var courseClass = await courseClassRepository.FindOneAsync(spec, cancellationToken) ?? new CourseClass()
-                                {
-                                    CorrectionId = notification.CorrelationId,
-                                    ClassIndex = c.ClassIndex,
-                                    CourseClassType = c.CourseClassType,
-                                    SubjectCode = c.SubjectCode,
-                                    SlotTimelines = [],
-                                    RoomCode = r.Code,
-                                    BuildingCode = r.BuildingCode
-                                };
                                 if (assignmentVars.TryGetValue(key, out var variable) && solver.Value(variable) == 1)
                                 {
                                     var slots = Enumerable.Range(slot, c.SessionLength).ToList();
                                     Console.WriteLine(
                                         $"✅ Môn {c.SubjectCode} Lớp {c.ClassIndex} ({c.CourseClassType}) học ở phòng {r.Name} ngày {day} slot {string.Join(",", slots)}");
-                                    courseClass.SlotTimelines.Add(new SlotTimeline()
+                                    await scheduleRepository.AddAsync(new SlotTimeline()
                                     {
+                                        CourseClassCode = courseClassCode,
+                                        RoomCode = r.Code,
+                                        BuildingCode = r.BuildingCode,
                                         DayOfWeek = day,
                                         Slots = slots.Select(e => e.ToString()).ToList()
-                                    });
+                                    }, cancellationToken);
                                 }
-                                await courseClassRepository.UpsertOneAsync(spec, courseClass, cancellationToken);
                             }
                         }
                     }
+
+                    await courseClassRepository.AddAsync(courseClass, cancellationToken);
+
                 }
-                await successProducer.Produce(new { notification.CorrelationId }, cancellationToken);
-                
+                await successProducer.Produce(new {notification.CorrelationId}, cancellationToken);
+
             }
 
     }
@@ -254,7 +261,7 @@ public class GenerateScheduleCreatedHandler(
                         ClassIndex = i,
                         CourseClassType = CourseClassType.Lecture,
                         StudentIds = new List<string>(), 
-                        SessionLength = 2,
+                        Lec = 2,
                         SubjectCode = subjectRegister.SubjectCode,
                         Session = 2,
                         DurationInWeeks = 8

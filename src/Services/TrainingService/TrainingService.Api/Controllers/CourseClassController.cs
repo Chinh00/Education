@@ -7,7 +7,7 @@ namespace TrainingService.Api.Controllers;
 public class CourseClassController : BaseController
 {
     /// <summary>
-    /// Lấy danh sách lớp đã tạo thời khóa biểu
+    /// Lấy danh sách lớp học
     /// </summary>
     /// <param name="query"></param>
     /// <param name="cancellationToken"></param>
@@ -18,4 +18,17 @@ public class CourseClassController : BaseController
     {
         return Ok(await Mediator.Send(query, cancellationToken));
     }
+    /// <summary>
+    /// Lấy thấy khóa biểu
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("Schedule")]
+    public async Task<IActionResult> HandleGetScheduleAsync([FromQuery] GetSlotTimelinesQuery query,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(query, cancellationToken));
+    }
+    
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using Education.Core.Domain;
+using TrainingService.Domain.Enums;
 
 namespace TrainingService.Domain;
 
@@ -33,4 +34,17 @@ public class SubjectTimelineConfig : BaseEntity
     public int LectureMinStudent { get; set; }
     [Description("Số sinh viên tối thiểu trong lớp thực hành")]
     public int LabMinStudent { get; set; }
+
+    [Description("Tuần bắt đầu học lý thuyết (1, 2, 3, ...)")]
+    public int LectureStartWeek { get; set; } = 0;
+
+    [Description("Tuần bắt đầu học thực hành (1, 2, 3, ...)")]
+    public int LabStartWeek { get; set; } = 1;
+
+    [Description("Giai đoạn học")] public SubjectTimelineStage Stage { get; set; } = SubjectTimelineStage.Stage1;
+    
+    [Description("Số tuần học")]
+    public int DurationInWeeks { get; set; } = 8;
+
+    
 }

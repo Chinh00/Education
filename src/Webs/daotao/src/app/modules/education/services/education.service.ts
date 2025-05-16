@@ -29,6 +29,10 @@ export interface SubjectTimelineConfigModel {
     minDaySpaceLab: number;
     lectureMinStudent: number;
     labMinStudent: number;
+    lectureStartWeek: number;
+    labStartWeek: number;
+    stage: number;
+    durationInWeeks: number;
 }
 
 

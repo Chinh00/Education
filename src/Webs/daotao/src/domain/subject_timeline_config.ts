@@ -11,6 +11,10 @@ export interface SubjectTimelineConfig {
     minDaySpaceLab: number;
     lectureMinStudent: number;
     labMinStudent: number;
+    lectureStartWeek: number,
+    labStartWeek: number,
+    stage: number,
+    durationInWeeks: number
     id: string;
     createdAt: string;
     updatedAt: string | null;

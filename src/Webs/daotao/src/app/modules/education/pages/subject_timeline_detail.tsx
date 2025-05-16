@@ -3,8 +3,8 @@ import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Box} from "@mui/material";
-import {Button, Card, Form, Input, Typography} from "antd";
-import {data, useNavigate} from "react-router";
+import {Button, Card, Checkbox, Form, Input, Radio, Typography} from "antd";
+import {data, useNavigate, useParams} from "react-router";
 import {RoutePaths} from "@/core/route_paths.ts";
 import {Controller, useForm} from "react-hook-form";
 import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
@@ -15,32 +15,62 @@ import {SubjectTimelineConfig} from "@/domain/subject_timeline_config.ts";
 import {Divider} from "@mui/material"
 import {useUpdateSubjectTimelineConfig} from "@/app/modules/education/hooks/useUpdateSubjectTimelineConfig.ts";
 import toast from "react-hot-toast";
+import {useGetSubjects} from "@/app/modules/common/hook.ts";
+import {Subject} from "@/domain/subject.ts";
 const SubjectTimelineDetail = () => {
     const dispatch = useAppDispatch()
-
+    const {id} = useParams()
     const {groupFuncName} = useAppSelector<CommonState>(c => c.common)
     useEffect(() => {
-        dispatch(setGroupFuncName({...groupFuncName, itemName: "Thời khóa biểu môn học cấu hình"}));
+        dispatch(setGroupFuncName({...groupFuncName, itemName: `Thời khóa biểu môn học cấu hình: ${id}`}));
     }, []);
     const nav = useNavigate()
-    const [subjectCode, setSubjectCode] = useState("")
-    const {data, isLoading, isSuccess} = useGetSubjectTimelineConfig(subjectCode, subjectCode !== "")
+    const {data, isLoading, isSuccess} = useGetSubjectTimelineConfig(id!, id !== undefined)
+    const {data: subjects, isLoading: subjectLoading, isSuccess: subjectsSuccess} = useGetSubjects({
+        Filters: [
+            {
+                field: "SubjectCode",
+                operator: "==",
+                value: id!
+            }
+        ],
+        Includes: ["DepartmentCode", "IsCalculateMark"]
+    }, id !== undefined)
 
-   const {control: subjectControl, reset: subjectReset, getValues} = useForm<SubjectTimelineConfig>({
+
+
+
+
+    const {control: subjectControl, reset: subjectReset, getValues} = useForm<SubjectTimelineConfig>({
        defaultValues: {
 
        }
-   })
+    })
+    const form = useForm<Subject>()
+
+
+    useEffect(() => {
+        if (subjects) {
+            form.reset({
+                ...subjects?.data?.data?.items[0]
+            })
+        }
+    }, [subjects, subjectLoading, subjectsSuccess]);
+
 
     useEffect(() => {
         if (data) {
             subjectReset({
                 ...data?.data?.data,
-                subjectCode: data?.data?.data?.subjectCode ?? subjectCode
+                subjectCode: data?.data?.data?.subjectCode ?? id
             })
         }
     }, [isLoading, data, subjectReset]);
+
+
+
     const {mutate, isPending} = useUpdateSubjectTimelineConfig()
+
     useEffect(() => {
         if (data?.data?.data === null) {
             toast.error("Môn học chưa được cấu hình")
@@ -48,32 +78,92 @@ const SubjectTimelineDetail = () => {
     }, [data, isLoading, isSuccess]);
 
     return (
-        <PredataScreen isLoading={false} isSuccess={true}>
-            <Box>
-                <Input.Search className={"mb-5"} loading={isLoading} size={"large"} placeholder={"Tìm theo mã môn học"} onSearch={(data) => {
-                    setSubjectCode(data)
-                }} />
+        <PredataScreen isLoading={subjectLoading} isSuccess={subjectsSuccess}>
+            <Box className={"flex flex-col gap-5"}>
                 <Card className={""}>
+                    <Form layout={"vertical"}>
+                        <Typography.Title level={4} className={"col-span-6"}>Thông tin môn học</Typography.Title>
+                        <Controller
+                                name="subjectName"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <Form.Item label={<Typography>Tên môn học</Typography>}  className={"col-span-3"}>
+                                        <Input disabled {...field}   />
+                                    </Form.Item>
+                                )}
+                            />
+                        <Controller
+                                name="subjectNameEng"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <Form.Item label={<Typography>Tên tiếng anh</Typography>}  className={"col-span-3"}>
+                                        <Input disabled {...field}   />
+                                    </Form.Item>
+                                )}
+                            />
+                        <Controller
+                                name="subjectCode"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <Form.Item label={<Typography>Mã môn học</Typography>}  className={"col-span-3"}>
+                                        <Input disabled {...field}   />
+                                    </Form.Item>
+                                )}
+                            />
+                        <Controller
+                                name="subjectCode"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <Form.Item label={<Typography>Mã môn học</Typography>}  className={"col-span-3"}>
+                                        <Input disabled {...field}   />
+                                    </Form.Item>
+                                )}
+                            />
+                        <Controller
+                                name="subjectDescription"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <Form.Item label={<Typography>Mô tả</Typography>}  className={"col-span-3"}>
+                                        <Input disabled {...field}   />
+                                    </Form.Item>
+                                )}
+                            />
+                        <Controller
+                                name="departmentCode"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <Form.Item label={<Typography>Mã quản lý</Typography>}  className={"col-span-3"}>
+                                        <Input disabled {...field}   />
+                                    </Form.Item>
+                                )}
+                            />
+                        <Controller
+                                name="isCalculateMark"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <Form.Item label={<Typography>Là môn tính điểm</Typography>}  className={"col-span-3"}>
+                                        <Checkbox value={true} checked={field.value}>Đúng</Checkbox>
+                                        <Checkbox value={false} checked={!field.value} >Sai</Checkbox>
+                                    </Form.Item>
+                                )}
+                            />
+
+
+
+                    </Form>
+                </Card>
+                <Card>
                     <Form
                         layout={"vertical"}
                         className={"grid grid-cols-6 gap-5 "}
                     >
-                        <Typography.Title level={4} className={"col-span-6"}>Thông tin chung</Typography.Title>
-                        <Controller
-                            name="subjectCode"
-                            control={subjectControl}
-                            render={({ field }) => (
-                                <Form.Item  label={<Typography>Mã môn học</Typography>} className={"col-span-3"}>
-                                    <Input size={"large"} {...field}   />
-                                </Form.Item>
-                            )}
-                        />
+                        <Typography.Title level={4} className={"col-span-6"}>Thông tin cấu hình thời khóa biểu</Typography.Title>
                         <Controller
                             name="periodTotal"
                             control={subjectControl}
                             render={({ field }) => (
-                                <Form.Item  label={<Typography>Tổng số tiết học</Typography>}  className={"col-span-3"}>
-                                    <Input size={"large"} {...field}   />
+                                <Form.Item  label={<Typography>Tổng số tiết học</Typography>}  className={"col-span-6"}>
+                                    <Input type={"number"}  {...field}   />
                                 </Form.Item>
                             )}
                         />
@@ -84,16 +174,7 @@ const SubjectTimelineDetail = () => {
                             control={subjectControl}
                             render={({ field }) => (
                                 <Form.Item  label={<Typography>Số tiết lý thuyết</Typography>} className={"col-span-2"}>
-                                    <Input size={"large"} {...field}   />
-                                </Form.Item>
-                            )}
-                        />
-                        <Controller
-                            name="lecturePeriod"
-                            control={subjectControl}
-                            render={({ field }) => (
-                                <Form.Item  label={<Typography>Số buổi lý thuyết trong 1 tuần</Typography>}  className={"col-span-2"}>
-                                    <Input size={"large"} {...field}   />
+                                    <Input  {...field}   />
                                 </Form.Item>
                             )}
                         />
@@ -101,8 +182,17 @@ const SubjectTimelineDetail = () => {
                             name="lectureLesson"
                             control={subjectControl}
                             render={({ field }) => (
+                                <Form.Item  label={<Typography>Số buổi lý thuyết trong 1 tuần</Typography>}  className={"col-span-2"}>
+                                    <Input  {...field}   />
+                                </Form.Item>
+                            )}
+                        />
+                        <Controller
+                            name="lecturePeriod"
+                            control={subjectControl}
+                            render={({ field }) => (
                                 <Form.Item  label={<Typography>Số tiết lý thuyết trong 1 buổi</Typography>}  className={"col-span-2"}>
-                                    <Input size={"large"} {...field}   />
+                                    <Input  {...field}   />
                                 </Form.Item>
                             )}
                         />
@@ -110,8 +200,8 @@ const SubjectTimelineDetail = () => {
                             name="minDaySpaceLecture"
                             control={subjectControl}
                             render={({ field }) => (
-                                <Form.Item  label={<Typography>Khoảng cách giữa các buổi học lý thuyết trong 1 tuần</Typography>}  className={"col-span-3"}>
-                                    <Input  size={"large"} {...field}   />
+                                <Form.Item  label={<Typography>Khoảng cách giữa các buổi học lý thuyết trong 1 tuần</Typography>}  className={"col-span-2"}>
+                                    <Input   {...field}   />
                                 </Form.Item>
                             )}
                         />
@@ -119,11 +209,21 @@ const SubjectTimelineDetail = () => {
                             name="lectureMinStudent"
                             control={subjectControl}
                             render={({ field }) => (
-                                <Form.Item  label={<Typography>Số sinh viên tối thiểu trong lớp lý thuyết</Typography>}  className={"col-span-3"}>
-                                    <Input size={"large"} {...field}   />
+                                <Form.Item  label={<Typography>Số sinh viên tối thiểu trong lớp lý thuyết</Typography>}  className={"col-span-2"}>
+                                    <Input  {...field}   />
                                 </Form.Item>
                             )}
                         />
+                        <Controller
+                            name="lectureStartWeek"
+                            control={subjectControl}
+                            render={({ field }) => (
+                                <Form.Item  label={<Typography>Tuần bắt đầu học lớp lý thuyết</Typography>}  className={"col-span-2"}>
+                                    <Input  {...field}   />
+                                </Form.Item>
+                            )}
+                        />
+
                         <Divider className={"col-span-6"} />
                         <Typography.Title level={4} className={"col-span-6"}>Cấu hình tiết học thực hành</Typography.Title>
                         <Controller
@@ -131,7 +231,7 @@ const SubjectTimelineDetail = () => {
                             control={subjectControl}
                             render={({ field }) => (
                                 <Form.Item  label={<Typography>Số tiết thực hành</Typography>} className={"col-span-2"}>
-                                    <Input size={"large"} {...field}   />
+                                    <Input  {...field}   />
                                 </Form.Item>
                             )}
                         />
@@ -140,7 +240,7 @@ const SubjectTimelineDetail = () => {
                             control={subjectControl}
                             render={({ field }) => (
                                 <Form.Item  label={<Typography>Số buổi thực hành trong 1 tuần</Typography>}  className={"col-span-2"}>
-                                    <Input size={"large"} {...field}   />
+                                    <Input  {...field}   />
                                 </Form.Item>
                             )}
                         />
@@ -149,7 +249,7 @@ const SubjectTimelineDetail = () => {
                             control={subjectControl}
                             render={({ field }) => (
                                 <Form.Item  label={<Typography>Số tiết thực hành trong 1 buổi</Typography>}  className={"col-span-2"}>
-                                    <Input size={"large"} {...field}   />
+                                    <Input  {...field}   />
                                 </Form.Item>
                             )}
                         />
@@ -157,8 +257,8 @@ const SubjectTimelineDetail = () => {
                             name="minDaySpaceLecture"
                             control={subjectControl}
                             render={({ field }) => (
-                                <Form.Item  label={<Typography>Khoảng cách giữa các buổi học thực hành trong 1 tuần</Typography>}  className={"col-span-3"}>
-                                    <Input  size={"large"} {...field}   />
+                                <Form.Item  label={<Typography>Khoảng cách giữa các buổi học thực hành trong 1 tuần</Typography>}  className={"col-span-2"}>
+                                    <Input   {...field}   />
                                 </Form.Item>
                             )}
                         />
@@ -166,14 +266,53 @@ const SubjectTimelineDetail = () => {
                             name="labMinStudent"
                             control={subjectControl}
                             render={({ field }) => (
-                                <Form.Item  label={<Typography>Số sinh viên tối thiểu trong lớp thực hành</Typography>}  className={"col-span-3"}>
-                                    <Input size={"large"} {...field}   />
+                                <Form.Item  label={<Typography>Số sinh viên tối thiểu trong lớp thực hành</Typography>}  className={"col-span-2"}>
+                                    <Input  {...field}   />
                                 </Form.Item>
                             )}
                         />
+                        <Controller
+                            name="labStartWeek"
+                            control={subjectControl}
+                            render={({ field }) => (
+                                <Form.Item  label={<Typography>Tuần bắt đầu học lớp thực hành</Typography>}  className={"col-span-2"}>
+                                    <Input  {...field}   />
+                                </Form.Item>
+                            )}
+                        />
+                        <Divider className={"col-span-6"} />
+                        <Typography.Title level={4} className={"col-span-6"}>Cấu hình khác</Typography.Title>
+                        <Controller
+                            name="stage"
+                            control={subjectControl}
+                            render={({ field }) => (
+                                <Form.Item  label={<Typography>Giai đoạn học</Typography>}  className={"col-span-3"}>
+                                    <Radio.Group
+                                        value={field?.value ?? 0}
+                                        options={[
+                                            { value: 0, label: '1' },
+                                            { value: 1, label: '2' },
+                                            { value: 2, label: 'Cả 2' },
+                                        ]}
+                                        onChange={e => field.onChange(e.target.value)}
+                                    />
+                                </Form.Item>
+                            )}
+                        />
+                        <Controller
+                            name="durationInWeeks"
+                            control={subjectControl}
+                            render={({ field }) => (
+                                <Form.Item  label={<Typography>Số tuần học</Typography>}  className={"col-span-3"}>
+                                    <Input {...field}   />
+                                </Form.Item>
+                            )}
+                        />
+
                         <Button loading={isPending} type={"primary"} onClick={() => {
                             mutate({
-                                ...getValues()
+                                ...getValues(),
+                                subjectCode: id!
                             }, {
                                 onSuccess: () => {
                                     toast.success("Cập nhật thành công")

@@ -1,19 +1,22 @@
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 import {CommonState, setGroupFuncName } from "@/app/stores/common_slice";
 import { useAppDispatch, useAppSelector } from "@/app/stores/hook";
-import {useEffect} from "react";
+import {ReactElement, useEffect, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Box} from "@mui/material";
 import {ColumnsType} from "@/app/modules/common/hook.ts";
-import {StudentRegister} from "@/domain/student_register.ts";
-import dayjs from "dayjs";
 import {Space, Table} from "antd";
-import {Link} from "react-router";
-import {EyeIcon} from "lucide-react";
 import {Semester} from "@/domain/semester.ts";
 import {DateTimeFormat} from "@/infrastructure/date.ts";
 import SemesterModal from "@/app/modules/education/components/semester_modal.tsx";
-
+import {Query} from "@/infrastructure/query.ts";
+import {Badge} from "@/app/components/ui/badge.tsx"
+const labelMap: Record<number, ReactElement> = {
+    0: <Badge variant={"destructive"} >Tạo mới</Badge>,
+    1: <Badge variant={"secondary"}>Đăng ký học</Badge>,
+    2: <Badge variant={"default"}>Hoạt động</Badge>,
+    3: <Badge variant={"secondary"}>Kết thúc</Badge>,
+};
 const SemesterList = () => {
     const dispatch = useAppDispatch()
 
@@ -21,7 +24,11 @@ const SemesterList = () => {
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Danh sách kì học"}));
     }, []);
-    const {data, isLoading, isSuccess, refetch} = useGetSemesters({})
+    const [query, setQuery] = useState<Query>({
+        Sorts: ["IdDesc"]
+    })
+
+    const {data, isLoading, isSuccess, refetch} = useGetSemesters(query)
 
     const columns: ColumnsType<Semester> = [
         {
@@ -46,6 +53,14 @@ const SemesterList = () => {
                 <div>{DateTimeFormat(record?.endDate)}</div>
             )
         },
+        {
+            title: 'Trạng thái',
+            dataIndex: "semesterStatus",
+            render: (text, record) => (
+                labelMap[Math.floor(record?.semesterStatus ?? 0)]
+            )
+        },
+
     ];
 
     const tableColumns = columns.map((item) => ({ ...item }));
@@ -65,13 +80,19 @@ const SemesterList = () => {
                         <SemesterModal refetch={refetch} />
                     </Box>}
                     size={"small"}
-                    // rowSelection={{
-                    //     // onChange: (selectedRowKeys, selectedRows) => {
-                    //     //     setDataAdd(prevState => [...selectedRows])
-                    //     // },
-                    // }}
                     bordered={true}
-                    // pagination={true}
+                    pagination={{
+                        current: query?.Page ?? 1,
+                        pageSize: query?.PageSize ?? 10,
+                        total: data?.data?.data?.totalItems ?? 0
+                    }}
+                    onChange={(e) => {
+                        setQuery(prevState => ({
+                            ...prevState,
+                            Page: e?.current ?? 1 - 1,
+                            PageSize: e?.pageSize
+                        }))
+                    }}
                     columns={tableColumns}
                     dataSource={data?.data?.data?.items ?? []}
 

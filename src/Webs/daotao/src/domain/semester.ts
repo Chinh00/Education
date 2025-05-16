@@ -4,4 +4,5 @@ export interface Semester {
     semesterCode: string;
     startDate: string;
     endDate: string;
+    semesterStatus: number
 }

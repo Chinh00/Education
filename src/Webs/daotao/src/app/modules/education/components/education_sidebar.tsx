@@ -83,11 +83,6 @@ const EducationSidebar = () => {
                                 <List />
                                 Danh sách môn học
                             </SidebarMenuButton>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_SUBJECT_TIMELINE)}>
-                                <Settings />
-                                Cấu hình thời gian biểu
-                            </SidebarMenuButton>
-
                         </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarGroupContent>

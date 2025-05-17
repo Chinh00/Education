@@ -236,7 +236,7 @@ const SubjectTimelineDetail = () => {
                             )}
                         />
                         <Controller
-                            name="labPeriod"
+                            name="labLesson"
                             control={subjectControl}
                             render={({ field }) => (
                                 <Form.Item  label={<Typography>Số buổi thực hành trong 1 tuần</Typography>}  className={"col-span-2"}>
@@ -245,7 +245,7 @@ const SubjectTimelineDetail = () => {
                             )}
                         />
                         <Controller
-                            name="labLesson"
+                            name="labPeriod"
                             control={subjectControl}
                             render={({ field }) => (
                                 <Form.Item  label={<Typography>Số tiết thực hành trong 1 buổi</Typography>}  className={"col-span-2"}>

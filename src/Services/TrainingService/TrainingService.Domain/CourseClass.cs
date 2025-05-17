@@ -11,9 +11,11 @@ public class CourseClass : BaseEntity
     public CourseClassType CourseClassType { get; set; }
     public string SubjectCode { get; set; }
     public int SessionLength { get; set; }
+    public int Session { get; set; }
     public Guid CorrectionId { get; set; }
     public int DurationInWeeks { get; set; }
     public int MinDaySpaceLesson { get; set; }
+    public SubjectTimelineStage Stage { get; set; } = SubjectTimelineStage.Stage1;
 }
 
 public class SlotTimeline : BaseEntity

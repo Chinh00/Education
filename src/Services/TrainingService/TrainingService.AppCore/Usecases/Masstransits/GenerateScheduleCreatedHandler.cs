@@ -83,7 +83,7 @@ public class GenerateScheduleCreatedHandler(
                         }
                     }
                 }
-                model.Add(LinearExpr.Sum(vars) == c.SessionLength);
+                model.Add(LinearExpr.Sum(vars) == c.Session);
             }
             // Không trùng giờ giữa các phòng
             for (int day = 0; day < 6; day++)
@@ -260,10 +260,11 @@ public class GenerateScheduleCreatedHandler(
                         ClassIndex = i,
                         CourseClassType = CourseClassType.Lecture,
                         StudentIds = new List<string>(), 
-                        SessionLength = subjectRegister.LectureLesson,
+                        SessionLength = subjectRegister.LecturePeriod,
                         SubjectCode = subjectRegister.SubjectCode,
                         DurationInWeeks = subjectRegister.DurationInWeeks,
-                        MinDaySpaceLesson = subjectRegister.MinDaySpaceLecture
+                        MinDaySpaceLesson = subjectRegister.MinDaySpaceLecture,
+                        Session = subjectRegister.LectureLesson
                     };
                     courseClasses.Add(lectureClass);
                 }
@@ -274,10 +275,11 @@ public class GenerateScheduleCreatedHandler(
                         ClassIndex = i,
                         CourseClassType = CourseClassType.Lab,
                         StudentIds = new List<string>(),
-                        SessionLength = subjectRegister.LabLesson,
+                        SessionLength = subjectRegister.LabPeriod,
                         SubjectCode = subjectRegister.SubjectCode,
                         DurationInWeeks = subjectRegister.DurationInWeeks,
-                        MinDaySpaceLesson = subjectRegister.MinDaySpaceLab
+                        MinDaySpaceLesson = subjectRegister.MinDaySpaceLab,
+                        Session = subjectRegister.LabLesson
                     };
                     courseClasses.Add(labClass);
                 }

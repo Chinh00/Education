@@ -14,11 +14,16 @@ export const RoutePaths = {
     EDUCATION_REGISTER_TIMELINE: '/educations/register/timeline',
     EDUCATION_REGISTER_DASHBOARD: '/educations/register-dashboard',
     EDUCATION_REGISTER_CONFIG: '/educations/register-config',
+    EDUCATION_REGISTER_COURSE: '/educations/course-class',
+    EDUCATION_REGISTER_COURSE_DETAIL: '/educations/course-class/:id',
+
+
 
     EDUCATION_SEMESTER_LIST: '/educations/semesters',
     EDUCATION_SUBJECT_LIST: '/educations/subjects',
     EDUCATION_SUBJECT_TIMELINE: '/educations/subjects/:id/timeline',
     EDUCATION_SUBJECT_TIMELINE_CREATE: '/educations/subjects/timeline/create',
+
 
 
 

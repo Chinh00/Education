@@ -6,8 +6,8 @@ namespace TrainingService.Domain;
 public class CourseClass : BaseEntity
 {
     public int ClassIndex { get; set; } 
-    public string CourseClassCode { get; set; } 
-    public List<string> StudentIds { get; set; }
+    public string CourseClassCode { get; set; }
+    public List<string> StudentIds { get; set; } = [];
     public CourseClassType CourseClassType { get; set; }
     public string SubjectCode { get; set; }
     public int SessionLength { get; set; }

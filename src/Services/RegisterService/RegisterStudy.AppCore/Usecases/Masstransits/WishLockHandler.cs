@@ -26,8 +26,8 @@ public class WishLockHandler(
             var register = await registerRepository.GetAsync(key);
             registerLockedIntegrationEvent.Students.Add(new StudentRegisterConfirm()
             {
-                StudentCode = split[2],
-                EducationCode = split[1],
+                StudentCode = split[1],
+                EducationCode = split[2],
                 RegisterDate = register.RegisterDate,
                 SubjectCodes = register.SubjectCodes,
                 

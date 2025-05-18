@@ -16,6 +16,8 @@ const DashboardRegister = lazy(() => import("../modules/education/pages/dashboar
 const CreateRegister = lazy(() => import("../modules/education/pages/create_register.tsx"));
 const RegisterDetail = lazy(() => import("../modules/education/pages/register_detail.tsx"));
 const TimelineSettings = lazy(() => import("../modules/education/pages/timeline_settings.tsx"));
+const CourseClassReport = lazy(() => import("../modules/education/pages/courseclass_report.tsx"));
+const CourseClassDetail = lazy(() => import("../modules/education/pages/courseclass_detail.tsx"));
 
 const SemesterList = lazy(() => import("../modules/education/pages/semester_list.tsx"));
 
@@ -104,6 +106,14 @@ const router = createBrowserRouter([
                             {
                                 path: RoutePaths.EDUCATION_SUBJECT_TIMELINE_CREATE,
                                 element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineCreate"}><SubjectTimelineCreate /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_REGISTER_COURSE,
+                                element: <Suspense fallback={<TabLoading />} key={"CourseClassReport"}><CourseClassReport /></Suspense>,
+                            },
+                            {
+                                path: RoutePaths.EDUCATION_REGISTER_COURSE_DETAIL,
+                                element: <Suspense fallback={<TabLoading />} key={"CourseClassDetail"}><CourseClassDetail /></Suspense>,
                             },
 
 

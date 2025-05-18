@@ -9,7 +9,7 @@ import {
     SidebarMenu,
     SidebarMenuButton, SidebarMenuItem
 } from "@/app/components/ui/sidebar.tsx";
-import {List, LayoutDashboard, ChartGantt, Settings} from "lucide-react"
+import {List, LayoutDashboard, ChartGantt, Replace} from "lucide-react"
 import {useNavigate} from "react-router";
 import { RoutePaths } from "@/core/route_paths";
 const EducationSidebar = () => {
@@ -63,6 +63,12 @@ const EducationSidebar = () => {
                             <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER_DASHBOARD)}>
                                 <LayoutDashboard />
                                 Báo cáo đăng ký nguyện vọng học
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER_COURSE)}>
+                                <Replace />
+                                Báo cáo đăng ký lớp học
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>

@@ -25,6 +25,7 @@ const CreateRegister = () => {
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Cấu hình đăng ký nguyện vọng học"}));
     }, []);
+
     const {data: semester, isPending, isSuccess} = useGetSemesters({})
     const {mutate, isPending: mutateLoading, reset} = useCreateRegisterState()
 

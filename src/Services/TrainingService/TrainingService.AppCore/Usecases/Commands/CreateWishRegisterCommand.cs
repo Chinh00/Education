@@ -2,6 +2,8 @@ using Education.Contract;
 using Education.Contract.IntegrationEvents;
 using Education.Core.Domain;
 using Education.Core.Repository;
+using Education.Infrastructure.Validation;
+using FluentValidation;
 using MassTransit;
 using MediatR;
 using TrainingService.AppCore.Usecases.Specs;
@@ -16,15 +18,27 @@ public record CreateWishRegisterCommand(
     string SemesterCode,
     string SemesterName,
     DateTime StartDate,
-    DateTime EndDate) : ICommand<IResult>
+    DateTime EndDate) : ICommand<IResult>, IValidation
 {
-
+    public class Validator : AbstractValidator<CreateWishRegisterCommand>
+    {
+        public Validator()
+        {
+            RuleFor(c => c.MinCredit).GreaterThanOrEqualTo(0);
+            RuleFor(c => c.MinCredit).GreaterThanOrEqualTo(100);
+            RuleFor(c => c.SemesterCode).NotNull().NotEmpty();
+            RuleFor(c => c.SemesterName).NotNull().NotEmpty();
+            RuleFor(c => c.StartDate).NotNull().NotEmpty();
+            RuleFor(c => c.EndDate).NotNull().NotEmpty();
+        }
+    }
+    
+    
+    
     public readonly record struct NotFoundEducation(string Message);
     public readonly record struct NotFoundSemester(string Message);
     
     internal class Handler(
-        IMongoRepository<ClassManager> mongoRepository,
-        IMongoRepository<EducationProgram> educationProgramRepository,
         ITopicProducer<WishListCreated> topicProducer,
         IMongoRepository<Semester> semesterRepository)
         : IRequestHandler<CreateWishRegisterCommand, IResult>

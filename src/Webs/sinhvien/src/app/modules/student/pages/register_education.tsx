@@ -13,7 +13,6 @@ import {isNowBetweenServerTime} from "@/infrastructure/datetime_format.ts";
 import {Button} from "antd";
 import {RefreshCcw} from "lucide-react"
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
-type TablePagination<T extends object> = NonNullable<Exclude<TableProps<T>['pagination'], boolean>>;
 import {useCreateRegisterWish} from "../hooks/useCreateRegisterWish.ts"
 import toast from "react-hot-toast";
 
@@ -26,23 +25,11 @@ const columns: ColumnsType<EducationSubject> = [
         title: 'Mã môn học',
         dataIndex: ["subject", "subjectCode"],
     },
-
     {
-        title: 'Action',
-        key: 'action',
-        sorter: true,
-        render: () => (
-            <Space size="middle">
-                <a>Delete</a>
-                <a>
-                    <Space>
-                        More actions
-                        <DownOutlined />
-                    </Space>
-                </a>
-            </Space>
-        ),
+        title: 'STC',
+        dataIndex: ["subject", "numberOfCredits"],
     },
+
 ];
 
 
@@ -84,70 +71,58 @@ const RegisterEducation: React.FC = () => {
                     loading={isLoading}
                     options={educations?.data?.data?.items.map((e) => ({ label: e?.name, value: e?.code }))}
                 />
-                <Box>
+                <Box className={"flex flex-row justify-between"}>
                     <div>
                         <Typography>Thời gian bắt đầu đăng ký: {dayjs(registerCurrentState?.data?.data?.staDate).format("HH:mm:ss DD-MM-YYYY")}</Typography>
                         <Typography>Thời gian kết thúc đăng ký: {dayjs(registerCurrentState?.data?.data?.endDate).format("HH:mm:ss DD-MM-YYYY")}</Typography>
                     </div>
-                    <div>
-                        <Button className={"px-10"} onClick={() => refetch()}><RefreshCcw /></Button>
-                    </div>
+                    <Button className={"px-10"} onClick={() => refetch()}><RefreshCcw /></Button>
                 </Box>
-                <div>
-                    <Table<EducationSubject>
-                        rowKey={(c) => c.subject.subjectCode}
-                        loading={isLoading}
-                        style={{
-                            height: "200px",
-                            position: "relative"
-                        }}
-                        virtual
-                        showHeader={true}
-                        title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white bg-green-600"}>
-                            <Typography variant="h6" gutterBottom>Đăng ký học: {registerCurrentState?.data?.data?.semesterCode}</Typography>
-                            <Typography className={"font-bold text-red-800"}>Bạn được đăng ký tín chỉ trong khoảng [{registerCurrentState?.data?.data?.minCredit}:{registerCurrentState?.data?.data?.maxCredit}]</Typography>
-                        </Box>}
-                        size={"small"}
-                        rowSelection={{
-                            onChange: (selectedRowKeys, selectedRows) => {
-                                setDataAdd(prevState => [...selectedRows])
-                            },
-                            getCheckboxProps: (record) => ({
-                                disabled: !isNowBetweenServerTime(registerCurrentState?.data?.data?.staDate, registerCurrentState?.data?.data?.endDate)
-                            }),
-                        }}
-                        bordered={true}
-                        pagination={false}
-                        columns={tableColumns}
-                        dataSource={educations?.data?.data?.items[0]?.educationSubjects?.filter(c => c?.subject?.isCalculateMark === true) ?? []}
-                        scroll={{
-                            y: 300,
-                        }}
-                    />
-                </div>
-                <div className={"mt-[150px]"}>
-                    <Table<EducationSubject>
-                        rowKey={(c) => c.subject.subjectCode}
-                        style={{
-                            height: "200px",
-                            marginTop: "50px",
-                            position: "relative"
+                <Table<EducationSubject>
+                    rowKey={(c) => c.subject.subjectCode}
+                    loading={isLoading}
+                    showHeader={true}
+                    title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white bg-green-600"}>
+                        <Typography variant="h6" gutterBottom>Đăng ký học: {registerCurrentState?.data?.data?.semesterCode}</Typography>
+                        <Typography className={"font-bold text-red-800"}>Bạn được đăng ký tín chỉ trong khoảng [{registerCurrentState?.data?.data?.minCredit}:{registerCurrentState?.data?.data?.maxCredit}]</Typography>
+                    </Box>}
+                    size={"small"}
+                    rowSelection={{
+                        onChange: (selectedRowKeys, selectedRows) => {
+                            setDataAdd(prevState => [...selectedRows])
+                        },
+                        getCheckboxProps: (record) => ({
+                            disabled: !isNowBetweenServerTime(registerCurrentState?.data?.data?.staDate, registerCurrentState?.data?.data?.endDate)
+                        }),
+                    }}
+                    bordered={true}
+                    pagination={false}
+                    columns={tableColumns}
+                    dataSource={educations?.data?.data?.items[0]?.educationSubjects?.filter(c => c?.subject?.isCalculateMark === true) ?? []}
+                    scroll={{
+                        y: 500,
+                    }}
+                />
+                <Table<EducationSubject>
+                    rowKey={(c) => c.subject.subjectCode}
+                    style={{
+                        height: "200px",
+                        marginTop: "50px",
+                        position: "relative"
 
-                        }}
-                        showHeader={true}
-                        title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white bg-blue-400"}>
-                            <Typography variant="h6" gutterBottom>Môn học đã chọn ( Đã chọn {dataAdd?.length} môn)</Typography>
-                        </Box>}
-                        virtual
-                        size={"small"}
-                        bordered={true}
-                        columns={tableColumns}
-                        dataSource={dataAdd}
-                        scroll={{
-                            y: 300,
-                        }}
-                    />
-                </div>
+                    }}
+                    showHeader={true}
+                    title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white bg-blue-400"}>
+                        <Typography variant="h6" gutterBottom>Môn học đã chọn ( Đã chọn {dataAdd?.length} môn)</Typography>
+                    </Box>}
+                    size={"small"}
+                    bordered={true}
+                    columns={tableColumns}
+                    dataSource={dataAdd}
+                    scroll={{
+                        y: 300,
+                    }}
+                />
                 <Box className={" mt-[100px] w-full flex justify-end gap-5"}>
                     <Button type={"default"}>Huỷ thay đổi</Button>
                     <Button loading={mutateLoading} type={"primary"} onClick={() => [

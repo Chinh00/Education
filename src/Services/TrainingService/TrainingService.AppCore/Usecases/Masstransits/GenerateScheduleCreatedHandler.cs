@@ -33,7 +33,7 @@ public class GenerateScheduleCreatedHandler(
                 await studentRegisterRepository.FindAsync(
                     new GetStudentRegisterByCorrelationIdSpec(notification.CorrelationId), cancellationToken);
             var rooms =
-                (await roomRepository.FindAsync(new TrueSpecificationBase<Room>(), cancellationToken)).Slice(0, 1);
+                (await roomRepository.FindAsync(new TrueSpecificationBase<Room>(), cancellationToken));
 
             var list = studentRegisters.Select(c => c.SubjectCodes).ToList();
 

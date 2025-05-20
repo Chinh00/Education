@@ -226,14 +226,14 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                                         DayOfWeek = day,
                                         Slots = slots.Select(e => e.ToString()).ToList()
                                     });
-                                    // await scheduleRepository.AddAsync(new SlotTimeline()
-                                    // {
-                                    //     CourseClassCode = courseClassCode,
-                                    //     RoomCode = r.Code,
-                                    //     BuildingCode = r.BuildingCode,
-                                    //     DayOfWeek = day,
-                                    //     Slots = slots.Select(e => e.ToString()).ToList()
-                                    // }, cancellationToken);
+                                    await scheduleRepository.AddAsync(new SlotTimeline()
+                                    {
+                                        CourseClassCode = courseClassCode,
+                                        RoomCode = r.Code,
+                                        BuildingCode = r.BuildingCode,
+                                        DayOfWeek = day,
+                                        Slots = slots.Select(e => e.ToString()).ToList()
+                                    }, cancellationToken);
                                 }
                             }
                         }

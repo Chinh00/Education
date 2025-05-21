@@ -1,6 +1,6 @@
-using System.Text.Json.Serialization;
 using Education.Infrastructure.Behavior;
 using MediatR;
+using Newtonsoft.Json;
 
 namespace Education.Infrastructure.Controllers;
 
@@ -13,11 +13,12 @@ public static class Extensions
         services.AddMediatR(c => c.RegisterServicesFromAssemblies(types.Select(e => e.Assembly).ToArray()))
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidateBehaviorPipeline<,>));
         services.AddControllers();
-        services.AddControllers().AddJsonOptions(opt =>
+        services.AddControllers().AddNewtonsoftJson(opt =>
         {
-            opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-            opt.JsonSerializerOptions.WriteIndented = true;
-        });;
+            opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            opt.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+            opt.SerializerSettings.Formatting = Formatting.Indented;
+        });
         action?.Invoke(services);
         return services;
     }

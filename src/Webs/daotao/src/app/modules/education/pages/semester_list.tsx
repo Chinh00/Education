@@ -3,14 +3,18 @@ import {CommonState, setGroupFuncName } from "@/app/stores/common_slice";
 import { useAppDispatch, useAppSelector } from "@/app/stores/hook";
 import {ReactElement, useEffect, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
-import {Box} from "@mui/material";
+import {Box, IconButton} from "@mui/material";
 import {ColumnsType} from "@/app/modules/common/hook.ts";
-import {Space, Table} from "antd";
+import {Space, Table, Tooltip} from "antd";
 import {Semester} from "@/domain/semester.ts";
 import {DateTimeFormat} from "@/infrastructure/date.ts";
 import SemesterModal from "@/app/modules/education/components/semester_modal.tsx";
 import {Query} from "@/infrastructure/query.ts";
 import {Badge} from "@/app/components/ui/badge.tsx"
+import {RoutePaths} from "@/core/route_paths.ts";
+import {Eye} from "lucide-react";
+import {HistoryItem} from "@/app/components/modals/history_item.tsx";
+import { HistoryModal } from "@/app/components/modals/history_modal";
 const labelMap: Record<number, ReactElement> = {
     0: <Badge variant={"destructive"} >Tạo mới</Badge>,
     1: <Badge variant={"secondary"}>Đăng ký học</Badge>,
@@ -59,6 +63,13 @@ const SemesterList = () => {
             render: (text, record) => (
                 labelMap[Math.floor(record?.semesterStatus ?? 0)]
             )
+        },
+        {
+            title: 'Hành động',
+            key: 'action',
+            render: (_, record) => (
+                <HistoryModal aggregationId={record.id} aggregateType={"Semester"} />
+            ),
         },
 
     ];

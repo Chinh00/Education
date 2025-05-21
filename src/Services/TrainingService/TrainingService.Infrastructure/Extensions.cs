@@ -5,6 +5,7 @@ using Education.Contract.IntegrationEvents;
 using Education.Core.Domain;
 using Education.Core.Repository;
 using Education.Core.Services;
+using Education.Infrastructure;
 using Education.Infrastructure.Application;
 using Education.Infrastructure.EventBus;
 using Education.Infrastructure.EventStore;
@@ -23,9 +24,7 @@ public static class Extensions
     public static IServiceCollection AddMasstransitService(this IServiceCollection services, IConfiguration configuration,
         Action<IServiceCollection> action = null)
     {
-        services.AddScoped<IEventBus, EventBus>();
-        services.AddScoped(typeof(IEventStoreRepository<>), typeof(EventStoreRepositoryBase<>));
-        services.AddScoped(typeof(IApplicationService<>), typeof(ApplicationServiceBase<>));
+        services.AddApplicationService();
         BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         services.AddMassTransit(c =>
         {
@@ -35,6 +34,7 @@ public static class Extensions
             c.UsingInMemory();
             c.AddRider(e =>
             {
+                e.AddProducer<StartRegisterPipelineIntegrationEvent>(nameof(StartRegisterPipelineIntegrationEvent));
                 e.AddProducer<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent));
                 e.AddProducer<WishListCreated>(nameof(WishListCreated));
                 e.AddProducer<GenerateScheduleCreated>(nameof(GenerateScheduleCreated));
@@ -46,6 +46,7 @@ public static class Extensions
                 
                 e.AddProducer<SemesterCreatedDomainEvent>(nameof(SemesterCreatedDomainEvent));
                 e.AddProducer<SemesterStatusChangedDomainEvent>(nameof(SemesterStatusChangedDomainEvent));
+                e.AddProducer<RegisterConfigCreatedDomainEvent>(nameof(RegisterConfigCreatedDomainEvent));
 
                 e.AddConsumer<EventDispatcher>();
                 e.AddSagaStateMachine<RegisterStateMachine, RegisterState, RegisterStateMachineDefinition>()
@@ -66,6 +67,15 @@ public static class Extensions
                 e.UsingKafka((context, configurator) =>
                 {
                     configurator.Host(configuration.GetValue<string>("Kafka:BootstrapServers"));
+                    configurator.TopicEndpoint<StartRegisterPipelineIntegrationEvent>(nameof(StartRegisterPipelineIntegrationEvent), "training-register",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureSaga<RegisterState>(context);
+                        });
+                    
+                    
                     configurator.TopicEndpoint<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent), "training-register",
                         endpointConfigurator =>
                         {
@@ -122,8 +132,15 @@ public static class Extensions
                              endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                              endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
                          });
+                     configurator.TopicEndpoint<RegisterConfigCreatedDomainEvent>(nameof(RegisterConfigCreatedDomainEvent), "generate-register",
+                         endpointConfigurator =>
+                         {
+                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                         });
                      
-                                            
+                    
                 });
             });
         });

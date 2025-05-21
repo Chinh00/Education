@@ -13,8 +13,6 @@ public class WishLockHandler(
     public async Task Handle(Guid correlationId, CancellationToken cancellationToken)
     {
         var keys = await registerRepository.GetKeysAsync("subjects:*");
-        
-        
         var registerLockedIntegrationEvent = new RegisterLockedIntegrationEvent
         {
             CorrelationId = correlationId,
@@ -30,7 +28,6 @@ public class WishLockHandler(
                 EducationCode = split[2],
                 RegisterDate = register.RegisterDate,
                 SubjectCodes = register.SubjectCodes,
-                
             });
         }
         await topicProducer.Produce(registerLockedIntegrationEvent, cancellationToken);

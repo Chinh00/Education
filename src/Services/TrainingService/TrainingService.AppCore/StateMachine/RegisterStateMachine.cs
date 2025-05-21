@@ -8,7 +8,7 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
 {
     public RegisterStateMachine(ILogger<RegisterStateMachine> logger)
     {
-       
+        Event(() => StartRegisterPipelineIntegrationEvent, c => c.CorrelateById(x => x.Message.CorrelationId));
         Event(() => WishListCreatedIntegrationEvent, c => c.CorrelateById(x => x.Message.CorrelationId));
         Event(() => WishListCreated, c => c.CorrelateById(x => x.Message.CorrelationId));
         Event(() => WishListLockedIntegrationEvent, c => c.CorrelateById(x => x.Message.CorrelationId));
@@ -17,10 +17,10 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
         Event(() => GenerateScheduleFail, c => c.CorrelateById(x => x.Message.CorrelationId));
         InstanceState(e => e.CurrentState);
         Initially(
-            When(WishListCreated)
+            When(StartRegisterPipelineIntegrationEvent)
                 .ThenAsync(async context =>
                 {
-                    logger.LogInformation($"Register submitted {context.Message.CorrelationId}");
+                    logger.LogInformation($"Register started {context.Message.CorrelationId}");
                     context.Saga.CorrelationId = context.Message.CorrelationId;
                     context.Saga.StartDate = context.Message.StartDate;
                     context.Saga.EndDate = context.Message.EndDate;
@@ -84,6 +84,7 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
     
     
     public Event<WishListCreated> WishListCreated { get; private set; } = null!;
+    public Event<StartRegisterPipelineIntegrationEvent> StartRegisterPipelineIntegrationEvent { get; private set; } = null!;
     public Event<WishListCreatedIntegrationEvent> WishListCreatedIntegrationEvent { get; private set; } = null!;
     public Event<WishListLockedIntegrationEvent> WishListLockedIntegrationEvent { get; private set; } = null!;
     public Event<GenerateScheduleCreated> GenerateScheduleCreated { get; private set; } = null!;

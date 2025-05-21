@@ -8,6 +8,7 @@ import {Speciality} from "@/domain/speciality.ts";
 import {Subject} from "@/domain/subject.ts";
 import {Building} from "@/domain/building.ts";
 import {Room} from "@/domain/room.ts";
+import {EventHistory} from "@/domain/event_history.ts";
 
 const getCourses= async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Course>>>> => await http.get(`/trainingservice/api/Course?${GetQuery(query)}`)
 const getDepartments = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Department>>>> => await http.get(`/trainingservice/api/Department?${GetQuery(query)}`)
@@ -15,6 +16,8 @@ const getSpecialities = async (query: Query): Promise<AxiosResponse<SuccessRespo
 const getSubjects = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Subject>>>> => await http.get(`/trainingservice/api/Subject?${GetQuery(query)}`)
 const getBuildings = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Building>>>> => await http.get(`/trainingservice/api/Building?${GetQuery(query)}`)
 const getRooms = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Room>>>> => await http.get(`/trainingservice/api/Building/Room?${GetQuery(query)}`)
+const getEventsStore = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<EventHistory>>>> => await http.get(`/trainingservice/api/EventStore?${GetQuery(query)}`)
 
 
-export {getCourses, getDepartments, getSpecialities, getSubjects, getBuildings, getRooms};
+
+export {getCourses, getDepartments, getSpecialities, getSubjects, getBuildings, getRooms, getEventsStore};

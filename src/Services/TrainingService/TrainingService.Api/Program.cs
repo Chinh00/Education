@@ -12,7 +12,7 @@ builder.Services.AddAuth(builder.Configuration)
     .AddMongodbService(builder.Configuration, typeof(MongoRepository<>))
     .AddMasstransitService(builder.Configuration)
     .AddGrpc();
-    ;
+    
 
 var app = builder.Build();
 app.UseAuth();

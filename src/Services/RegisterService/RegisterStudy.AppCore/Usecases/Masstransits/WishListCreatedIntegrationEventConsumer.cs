@@ -14,9 +14,6 @@ public class WishListCreatedIntegrationEventConsumer(IBackgroundJobClient jobCli
     {
         var delay = TimeZoneInfo
             .ConvertTimeFromUtc(notification.EndDate, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")) - DateTimeUtils.GetUtcTime();
-        Console.WriteLine(TimeZoneInfo
-            .ConvertTimeFromUtc(notification.EndDate, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")));
-        Console.WriteLine(DateTimeUtils.GetUtcTime());
         if (delay <= TimeSpan.Zero) await Task.CompletedTask;
         await registerRepository.SaveAsync(nameof(RegisterCourse), () => Task.FromResult(new RegisterCourse()
         {

@@ -1,35 +1,31 @@
 using Education.Core.Domain;
+using Education.Core.Services;
 using Education.Core.Utils;
 using Education.Infrastructure.Authentication;
-using GrpcServices;
 using MediatR;
 using RegisterStudy.Domain;
-using RegisterStudy.Domain.Repository;
 
 namespace RegisterStudy.AppCore.Usecases.Commands;
 
 public record CreateWishSubjectsCommand(string EducationCode, List<string> SubjectCodes) : ICommand<IResult>
 {
     internal class Handler(
-        IRegisterRepository<StudentRegister> registerRepository,
         IClaimContextAccessor claimContextAccessor,
-        Training.TrainingClient trainingClient,
+        IApplicationService<StudentRegister> service,
         IHttpContextAccessor httpContextAccessor)
         : IRequestHandler<CreateWishSubjectsCommand, IResult>
     {
+        public IHttpContextAccessor HttpContextAccessor { get; } = httpContextAccessor;
+
         public async Task<IResult> Handle(CreateWishSubjectsCommand request, CancellationToken cancellationToken)
         {
-            var studentCode = claimContextAccessor.GetName();
-            var key = $"subjects:{studentCode}:{request.EducationCode}";
-            var register = await registerRepository.GetAsync(key) ?? new StudentRegister()
-            {
-                StudentCode = studentCode,
-                EducationCode = request.EducationCode,
-                RegisterDate = DateTimeUtils.GetUtcTime(),
-                SubjectCodes = request.SubjectCodes,
-            };
-            await registerRepository.SaveAsync(key, () => Task.FromResult(register));
-            return Results.Ok(ResultModel<StudentRegister>.Create(register));
+            var (educationCode, subjectCodes) = request;
+            var (userId, studentCode) = (claimContextAccessor.GetUserId(), claimContextAccessor.GetUsername());
+
+            var studentRegister = new StudentRegister();
+            studentRegister.CreateStudentRegister(studentCode, DateTimeUtils.GetUtcTime(), educationCode, subjectCodes);
+            await service.SaveEventStore(studentRegister, cancellationToken);
+            return Results.Created();
         }
     }
 }

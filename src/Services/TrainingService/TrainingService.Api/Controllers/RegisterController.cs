@@ -12,15 +12,15 @@ public class RegisterController : BaseController
     /// <summary>
     /// Tạo đăng ký nguyện vọng học
     /// </summary>
-    /// <param name="command"></param>
+    /// <param name="configCommand"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("create-wish-register")]
     [Authorize]
-    public async Task<object> HandlerRegisterWishAsync([FromBody] CreateWishRegisterCommand command,
+    public async Task<object> HandlerRegisterWishAsync([FromBody] CreateRegisterConfigCommand configCommand,
         CancellationToken cancellationToken = default)
     {
-        return await Mediator.Send(command, cancellationToken);
+        return await Mediator.Send(configCommand, cancellationToken);
     }
     
     /// <summary>

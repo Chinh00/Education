@@ -2,6 +2,9 @@ using Education.Contract;
 using Education.Contract.IntegrationEvents;
 using Education.Core.Domain;
 using Education.Core.Repository;
+using Education.Core.Services;
+using Education.Infrastructure.Authentication;
+using Education.Infrastructure.EventStore;
 using Education.Infrastructure.Validation;
 using FluentValidation;
 using MassTransit;
@@ -12,7 +15,7 @@ using TrainingService.Domain.Enums;
 
 namespace TrainingService.AppCore.Usecases.Commands;
 
-public record CreateWishRegisterCommand(
+public record CreateRegisterConfigCommand(
     int MinCredit,
     int MaxCredit,
     string SemesterCode,
@@ -20,7 +23,7 @@ public record CreateWishRegisterCommand(
     DateTime StartDate,
     DateTime EndDate) : ICommand<IResult>, IValidation
 {
-    public class Validator : AbstractValidator<CreateWishRegisterCommand>
+    public class Validator : AbstractValidator<CreateRegisterConfigCommand>
     {
         public Validator()
         {
@@ -39,27 +42,27 @@ public record CreateWishRegisterCommand(
     public readonly record struct NotFoundSemester(string Message);
     
     internal class Handler(
-        ITopicProducer<WishListCreated> topicProducer,
+        IClaimContextAccessor claimContextAccessor,
         IMongoRepository<Semester> semesterRepository,
+        IApplicationService<RegisterConfig> application,
         ISender sender)
-        : IRequestHandler<CreateWishRegisterCommand, IResult>
+        : IRequestHandler<CreateRegisterConfigCommand, IResult>
     {
-        public async Task<IResult> Handle(CreateWishRegisterCommand request, CancellationToken cancellationToken)
+        public async Task<IResult> Handle(CreateRegisterConfigCommand request, CancellationToken cancellationToken)
         {
+            var (minCredit, maxCredit, semesterCode, semesterName, startDate, endDate) = request;
+            var (userId, userName) = (claimContextAccessor.GetUserId(), claimContextAccessor.GetUsername());
             var semester =
                 await semesterRepository.FindOneAsync(new GetSemesterByCodeSpec(request.SemesterCode),
                     cancellationToken);
             await sender.Send(new ChangeSemesterStatusCommand(semester.Id, SemesterStatus.Register), cancellationToken);
-            await topicProducer.Produce(new
+            var registerConfig = new RegisterConfig();
+            registerConfig.CreateRegisterConfig(semesterCode, semesterName, startDate, endDate, minCredit, maxCredit, new Dictionary<string, object>()
             {
-                CorrelationId = Guid.NewGuid(),
-                request.MinCredit,
-                request.MaxCredit,
-                request.StartDate,
-                request.EndDate,
-                request.SemesterCode,
-                request.SemesterName,
-            }, cancellationToken);
+                {nameof(KeyMetadata.PerformedBy), userId},
+                {nameof(KeyMetadata.PerformedByName), userName},
+            });
+            await application.SaveEventStore(registerConfig, cancellationToken);
             return Results.Created();
         }
     }

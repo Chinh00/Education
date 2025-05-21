@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using Confluent.Kafka;
 using Education.Contract.IntegrationEvents;
+using Education.Infrastructure;
 using GrpcServices;
 using MassTransit;
 
@@ -32,6 +33,7 @@ public static class Extensions
     public static IServiceCollection AddMasstransitService(this IServiceCollection services, IConfiguration configuration,
         Action<IServiceCollection> action = null)
     {
+        services.AddApplicationService();
         services.AddMassTransit(c =>
         {
             c.SetKebabCaseEndpointNameFormatter();

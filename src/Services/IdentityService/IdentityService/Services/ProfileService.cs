@@ -26,7 +26,7 @@ public class ProfileService(UserManager userManager, RoleManager<IdentityRole> r
             
             
             context.IssuedClaims.AddRange(claims);
-        }
+        } 
 
         
     }

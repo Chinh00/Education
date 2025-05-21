@@ -17,7 +17,6 @@ public static class Extensions
         {
             opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             opt.JsonSerializerOptions.WriteIndented = true;
-
         });;
         action?.Invoke(services);
         return services;

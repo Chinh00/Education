@@ -25,7 +25,7 @@ public record CreateWishRegisterCommand(
         public Validator()
         {
             RuleFor(c => c.MinCredit).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.MinCredit).GreaterThanOrEqualTo(100);
+            RuleFor(c => c.MinCredit).LessThanOrEqualTo(100);
             RuleFor(c => c.SemesterCode).NotNull().NotEmpty();
             RuleFor(c => c.SemesterName).NotNull().NotEmpty();
             RuleFor(c => c.StartDate).NotNull().NotEmpty();
@@ -40,7 +40,8 @@ public record CreateWishRegisterCommand(
     
     internal class Handler(
         ITopicProducer<WishListCreated> topicProducer,
-        IMongoRepository<Semester> semesterRepository)
+        IMongoRepository<Semester> semesterRepository,
+        ISender sender)
         : IRequestHandler<CreateWishRegisterCommand, IResult>
     {
         public async Task<IResult> Handle(CreateWishRegisterCommand request, CancellationToken cancellationToken)
@@ -48,9 +49,7 @@ public record CreateWishRegisterCommand(
             var semester =
                 await semesterRepository.FindOneAsync(new GetSemesterByCodeSpec(request.SemesterCode),
                     cancellationToken);
-            semester.SemesterStatus = SemesterStatus.Register;
-            await semesterRepository.UpsertOneAsync(new GetSemesterByCodeSpec(request.SemesterCode), semester,
-                cancellationToken);
+            await sender.Send(new ChangeSemesterStatusCommand(semester.Id, SemesterStatus.Register), cancellationToken);
             await topicProducer.Produce(new
             {
                 CorrelationId = Guid.NewGuid(),

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TrainingService.AppCore.Usecases.Commands;
 using TrainingService.AppCore.Usecases.Queries;
@@ -27,6 +28,7 @@ public class SemesterController : BaseController
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost]
+    [Authorize]
     public async Task<object> HandlerCreateSemesterAsync(CreateSemesterCommand command,
         CancellationToken cancellationToken = default)
     {

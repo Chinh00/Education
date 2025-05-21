@@ -1,6 +1,13 @@
 using Confluent.Kafka;
 using Education.Contract;
+using Education.Contract.DomainEvents;
 using Education.Contract.IntegrationEvents;
+using Education.Core.Domain;
+using Education.Core.Repository;
+using Education.Core.Services;
+using Education.Infrastructure.Application;
+using Education.Infrastructure.EventBus;
+using Education.Infrastructure.EventStore;
 using Education.Infrastructure.Mongodb;
 using MassTransit;
 using MongoDB.Bson;
@@ -16,6 +23,9 @@ public static class Extensions
     public static IServiceCollection AddMasstransitService(this IServiceCollection services, IConfiguration configuration,
         Action<IServiceCollection> action = null)
     {
+        services.AddScoped<IEventBus, EventBus>();
+        services.AddScoped(typeof(IEventStoreRepository<>), typeof(EventStoreRepositoryBase<>));
+        services.AddScoped(typeof(IApplicationService<>), typeof(ApplicationServiceBase<>));
         BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         services.AddMassTransit(c =>
         {
@@ -31,6 +41,11 @@ public static class Extensions
                 e.AddProducer<GenerateScheduleSuccess>(nameof(GenerateScheduleSuccess));
                 e.AddProducer<GenerateScheduleFail>(nameof(GenerateScheduleFail));
                 e.AddProducer<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent));
+                
+                
+                
+                e.AddProducer<SemesterCreatedDomainEvent>(nameof(SemesterCreatedDomainEvent));
+                e.AddProducer<SemesterStatusChangedDomainEvent>(nameof(SemesterStatusChangedDomainEvent));
 
                 e.AddConsumer<EventDispatcher>();
                 e.AddSagaStateMachine<RegisterStateMachine, RegisterState, RegisterStateMachineDefinition>()
@@ -91,6 +106,22 @@ public static class Extensions
                      
                      
                      
+                     
+                     
+                     configurator.TopicEndpoint<SemesterCreatedDomainEvent>(nameof(SemesterCreatedDomainEvent), "generate-register",
+                         endpointConfigurator =>
+                         {
+                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                         });
+                     configurator.TopicEndpoint<SemesterStatusChangedDomainEvent>(nameof(SemesterStatusChangedDomainEvent), "generate-register",
+                         endpointConfigurator =>
+                         {
+                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                         });
                      
                                             
                 });

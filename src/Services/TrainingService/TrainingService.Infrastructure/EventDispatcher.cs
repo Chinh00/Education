@@ -4,7 +4,7 @@ using MediatR;
 
 namespace TrainingService.Infrastructure;
 
-public class EventDispatcher : IConsumer<IIntegrationEvent>
+public class EventDispatcher : IConsumer<INotification>
 {
     private readonly ILogger<EventDispatcher> _logger;
     private readonly IServiceProvider _serviceProvider;
@@ -15,7 +15,7 @@ public class EventDispatcher : IConsumer<IIntegrationEvent>
         _serviceProvider = serviceProvider;
     }
 
-    public async Task Consume(ConsumeContext<IIntegrationEvent> context)
+    public async Task Consume(ConsumeContext<INotification> context)
     {
         _logger.LogInformation("Dispatching event: {IntegrationEvent}", context.Message.GetType().Name);
         var mediator = _serviceProvider.GetService<IMediator>();

@@ -21,6 +21,7 @@ public class ProfileService(UserManager userManager, RoleManager<IdentityRole> r
             {
                 new("studentCode", user.UserName ?? ""),
                 new(ClaimTypes.Role, roles?.First()),
+                new(ClaimTypes.Name, user.UserName ?? string.Empty),
             };
             
             

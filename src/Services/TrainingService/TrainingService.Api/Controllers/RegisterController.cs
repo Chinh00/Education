@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using TrainingService.AppCore.Usecases.Commands;
@@ -15,6 +16,7 @@ public class RegisterController : BaseController
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("create-wish-register")]
+    [Authorize]
     public async Task<object> HandlerRegisterWishAsync([FromBody] CreateWishRegisterCommand command,
         CancellationToken cancellationToken = default)
     {

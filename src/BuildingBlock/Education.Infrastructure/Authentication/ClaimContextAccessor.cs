@@ -31,7 +31,7 @@ public class ClaimContextAccessor : IClaimContextAccessor
 
     public string GetUsername()
     {
-        if (_httpContextAccessor.HttpContext != null) return _httpContextAccessor.HttpContext.User.FindFirst("username")?.Value;
+        if (_httpContextAccessor.HttpContext != null) return _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
         throw new UnauthorizedAccessException();
     }
 

@@ -8,7 +8,7 @@ services:
       - "15002:80"
     environment:
       ConnectionStrings__Db: "Server=100.116.190.43,1439;Database=education_backup_2024_05_03_150002_2497437;Encrypt=false;User Id=sa;Password=@P@ssw0rd02"
-      Mongodb__ServerName: "localhost"
+      Mongodb__ServerName: "mongodb"
       Mongodb__Database: "trainingdb"
       Mongodb__Username: "root"
       Mongodb__Password: "Pass1234"

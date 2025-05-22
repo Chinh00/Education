@@ -23,27 +23,24 @@ public class TestGrantValidator(UserManager<ApplicationUser> userManager, HttpCl
         if (user is null)
         {
             var student = await GetStudentDetailAsync(studentCode);
-            
+            await userManager.CreateAsync(new ApplicationUser()
+            {
+                UserName = studentCode,
+                Email = $"{studentCode}@example.com",
+                IsConfirm = false
+            }, studentCode);
+            user = await userManager.FindByNameAsync(studentCode!);
         }
-        else
-        {
-            
-        }
 
-
-
-        var claims = new List<Claim>
-        {
-        };
         context.Result = new GrantValidationResult(
-            subject: Guid.NewGuid().ToString(),
+            subject: user?.Id,
             authenticationMethod: GrantType,
-            claims: claims);
+            claims: []);
     }
 
     public string GrantType { get; } = "external_student";
 
-    public async Task<StudentDetail> GetStudentDetailAsync(string studentCode)
+    public async Task<object> GetStudentDetailAsync(string studentCode)
     {
         var url = $"https://api5.tlu.edu.vn/api/Student/{studentCode}/detail";
         var response = await httpClient.GetAsync(url);
@@ -51,7 +48,7 @@ public class TestGrantValidator(UserManager<ApplicationUser> userManager, HttpCl
             return null;
         var json = await response.Content.ReadAsStringAsync();
     
-        var result = JsonSerializer.Deserialize<ResultModelApi<StudentDetail>>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<ResultModelApi<object>>(json, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });

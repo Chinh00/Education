@@ -110,15 +110,7 @@ const SubjectTimelineDetail = () => {
                                     </Form.Item>
                                 )}
                             />
-                        <Controller
-                                name="subjectCode"
-                                control={form.control}
-                                render={({ field }) => (
-                                    <Form.Item label={<Typography>Mã môn học</Typography>}  className={"col-span-3"}>
-                                        <Input disabled {...field}   />
-                                    </Form.Item>
-                                )}
-                            />
+
                         <Controller
                                 name="subjectDescription"
                                 control={form.control}
@@ -132,7 +124,7 @@ const SubjectTimelineDetail = () => {
                                 name="departmentCode"
                                 control={form.control}
                                 render={({ field }) => (
-                                    <Form.Item label={<Typography>Mã quản lý</Typography>}  className={"col-span-3"}>
+                                    <Form.Item label={<Typography>Mã ngành quản lý</Typography>}  className={"col-span-3"}>
                                         <Input disabled {...field}   />
                                     </Form.Item>
                                 )}

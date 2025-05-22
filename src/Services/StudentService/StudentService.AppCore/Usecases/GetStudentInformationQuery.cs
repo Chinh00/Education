@@ -16,8 +16,8 @@ public record GetStudentInformationQuery : IQuery<Student>
 
         public async Task<ResultModel<Student>> Handle(GetStudentInformationQuery request, CancellationToken cancellationToken)
         {
-            var userId = ObjectId.Parse(contextAccessor.GetUserId());
-            var spec = new GetStudentByUserIdSpec(userId);
+            var studentCode = contextAccessor.GetUsername();
+            var spec = new GetStudentByCodeSpec(studentCode);
             var student = await repository.FindOneAsync(spec, cancellationToken);
             return ResultModel<Student>.Create(student);
         }

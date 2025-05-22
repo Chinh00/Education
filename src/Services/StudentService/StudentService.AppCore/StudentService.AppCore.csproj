@@ -23,7 +23,6 @@
 
     <ItemGroup>
       <Folder Include="Usecases\Command\" />
-      <Folder Include="Usecases\DomainEvents\" />
     </ItemGroup>
 
 </Project>

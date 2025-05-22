@@ -8,15 +8,9 @@ import {useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState} from "@/app/stores/common_slice.ts";
 import {useEffect} from "react";
 import toast from "react-hot-toast";
+import {useGetUserInfo} from "@/app/modules/auth/hooks/useGetUserInfo.ts";
+import {RoutePaths} from "@/cores/route_paths.ts";
 export function AppSidebar() {
-    const { authenticate } = useAppSelector<CommonState>(c => c.common)
-    const nav = useNavigate()
-    useEffect(() => {
-        if (!authenticate) {
-            toast.error("Hết thời gian đăng nhập.")
-            nav("/login")
-        }
-    }, [authenticate]);
 
     return (
         <Sidebar className={"relative h-full"}>

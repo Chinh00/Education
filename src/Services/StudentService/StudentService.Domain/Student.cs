@@ -1,38 +1,71 @@
+using Education.Contract.DomainEvents;
 using Education.Contract.IntegrationEvents;
 using Education.Core.Domain;
+using StudentService.Domain.Enums;
 
 namespace StudentService.Domain;
 
 public class Student : AggregateBase
 {
+    public StudentStatus Status { get; set; } = StudentStatus.NoData;
     public PersonalInformation PersonalInformation { get; set; }
     public InformationBySchool InformationBySchool { get; set; }
     public List<StudentEducationProgram> EducationPrograms { get; set; }
 
-    public void CreateStudent(StudentDetail studentDetail)
+    public void ChangeStatus(StudentStatus status)
     {
-        PersonalInformation = new PersonalInformation()
+        Status = status;
+    }
+    public void CreateStudent(PersonalInformation personalInformation, InformationBySchool informationBySchool,
+        List<StudentEducationProgram> educationPrograms, IDictionary<string, object> metadata = null)
+    {
+        PersonalInformation = personalInformation;
+        InformationBySchool = informationBySchool;
+        EducationPrograms = educationPrograms;
+        AddDomainEvent(version => new StudentPulledDomainEvent(Id.ToString(), new StudentEvent()
         {
-            FirstName = studentDetail?.PersonalInformation?.FirstName,
-            LastName = studentDetail?.PersonalInformation?.LastName,
-            FullName = studentDetail?.PersonalInformation?.FullName,
-            BirthDate = studentDetail?.PersonalInformation?.BirthDate ?? DateTime.MinValue,
-            Gender = (PersonGender)(studentDetail?.PersonalInformation?.Gender ?? 0),
-            PlaceOfBirth = studentDetail?.PersonalInformation?.PlaceOfBirth,
-            ContactAddress = studentDetail?.PersonalInformation?.ContactAddress,
-            IdNumber = studentDetail?.PersonalInformation?.IdNumber,
-            Note = studentDetail?.PersonalInformation?.Note,
-            PhoneNumber = studentDetail?.PersonalInformation?.PhoneNumber,
-            Email = studentDetail?.PersonalInformation?.Email,
-            OfficeEmail = studentDetail?.PersonalInformation?.OfficeEmail,
-            CurrentLive = studentDetail?.PersonalInformation?.CurrentLive,
-            Ethnic = studentDetail?.PersonalInformation?.Ethnic
-        };
-        InformationBySchool = new InformationBySchool()
+            PersonalInformation = new PersonalInformationEvent()
+            {
+                FirstName = personalInformation?.FirstName,
+                LastName = personalInformation?.LastName,
+                FullName = personalInformation?.FullName,
+                BirthDate = personalInformation.BirthDate,
+                Gender = (int)personalInformation.Gender,
+                PlaceOfBirth = personalInformation.PlaceOfBirth,
+                ContactAddress = personalInformation.ContactAddress,
+                IdNumber = personalInformation.IdNumber,
+                Email = personalInformation.Email,
+                PhoneNumber = personalInformation.PhoneNumber,
+                OfficeEmail = personalInformation.OfficeEmail,
+                CurrentLive = personalInformation.CurrentLive,
+                Ethnic = personalInformation.Ethnic,
+            },
+            InformationBySchool = new InformationBySchoolEvent()
+            {
+                StudentCode = informationBySchool?.StudentCode,
+                BankCode = informationBySchool?.BankCode,
+                BankName = informationBySchool?.BankName,
+                YearOfHighSchoolGraduation = informationBySchool.YearOfHighSchoolGraduation,
+            },
+            EducationPrograms = educationPrograms.Select(x => new EducationProgramEvent()
+            {
+                Code = x.Code,
+                Name = x.Name,
+                Type = x.Type,
+                TrainingTime = x.TrainingTime,
+                StudentClassName = x.StudentClassName,
+                StudentClassCode = x.StudentClassCode,
+                CourseYear = x.CourseYear,
+                DepartmentName = x.DepartmentName,
+                SpecialityName = x.SpecialityName,
+                SpecialityCode = x.SpecialityCode,
+                Status = (int)x.Status,
+            }).ToList()
+        })
         {
-            StudentCode = studentDetail?.InformationBySchool?.StudentCode,
-            
-        };
+            Version = version,
+            MetaData = metadata
+        });
     }
     
 }

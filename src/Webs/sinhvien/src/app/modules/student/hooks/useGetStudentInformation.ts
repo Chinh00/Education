@@ -1,5 +1,5 @@
 import {useQuery} from "@tanstack/react-query";
-import getStudentInformation from "../services/student.service.ts"
+import {getStudentInformation} from "@/app/modules/student/services/student.service.ts";
 const useGetStudentInformation = () => {
     return useQuery({
         queryKey: ["student"],

@@ -40,4 +40,17 @@ public class StudentController : BaseController
     public async Task<IActionResult> HandleGetStudentsAsync([FromQuery] GetStudentsQuery query,
         CancellationToken cancellationToken) => Ok(await Mediator.Send(query, cancellationToken));
 
+    /// <summary>
+    /// Đông bộ sinh viên từ Data Provider
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("Sync")]
+    [Authorize]
+    public async Task<IActionResult> HandleSyncStudentFromDataProviderAsync(CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new SyncStudentFromDataProviderQuery(), cancellationToken));
+    }
+    
 }

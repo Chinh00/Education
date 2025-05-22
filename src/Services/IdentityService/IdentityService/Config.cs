@@ -11,7 +11,7 @@ public static class Config
         new IdentityResources.OpenId(),
         new IdentityResources.Profile()
         {
-            UserClaims = { "studentCode", "role" },
+            UserClaims = { "isConfirm", "role" },
         },
     ];
 

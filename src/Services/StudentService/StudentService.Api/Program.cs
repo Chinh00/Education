@@ -12,6 +12,7 @@ using StudentService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuth(builder.Configuration)
+    .AddHttpClient()
     .AddLoggingService()
     .AddControllerService([typeof(Anchor)])
     .AddSwaggerService(typeof(StudentController))

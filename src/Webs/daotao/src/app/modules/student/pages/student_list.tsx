@@ -65,7 +65,7 @@ const StudentList = () => {
 
 
     const [query, setQuery] = useState<Query>({
-        Includes: ["InformationBySchool", "PersonalInformation"]
+        Includes: ["InformationBySchool", "PersonalInformation", "EducationPrograms"]
     })
 
 

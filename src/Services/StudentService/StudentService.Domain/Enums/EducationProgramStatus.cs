@@ -2,6 +2,6 @@ namespace StudentService.Domain.Enums;
 
 public enum EducationProgramStatus
 {
-    Active,
-    InActive,
+    Active = 0,
+    InActive = 1,
 }

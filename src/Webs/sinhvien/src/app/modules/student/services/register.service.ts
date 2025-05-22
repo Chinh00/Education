@@ -6,10 +6,6 @@ export interface EducationSubjectModel {
     educationCode: string;
     subjectCodes: string[];
 }
-const getRegisterStateCurrent = async (): Promise<AxiosResponse<SuccessResponse<RegisterState>>> => {
-    return await http.get<SuccessResponse<RegisterState>>("/registerservice/api/Register/current")
-}
-const createRegisterWish = async (model: EducationSubjectModel): Promise<AxiosResponse<SuccessResponse<string>>> => {
-    return await http.post<SuccessResponse<string>>("/registerservice/api/Register", model)
-}
+const getRegisterStateCurrent = async (): Promise<AxiosResponse<SuccessResponse<RegisterState>>> => await http.get("/registerservice/api/Register/current")
+const createRegisterWish = async (model: EducationSubjectModel): Promise<AxiosResponse<SuccessResponse<string>>> =>  await http.post("/registerservice/api/Register", model)
 export {getRegisterStateCurrent, createRegisterWish}

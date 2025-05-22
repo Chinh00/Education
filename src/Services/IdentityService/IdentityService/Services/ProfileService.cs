@@ -19,9 +19,9 @@ public class ProfileService(UserManager userManager, RoleManager<IdentityRole> r
             var roles = await userManager.GetRolesAsync(user);
             var claims = new List<Claim>
             {
-                new("studentCode", user.UserName ?? ""),
-                new(ClaimTypes.Role, roles?.First()),
+                new(ClaimTypes.Role, ""),
                 new(ClaimTypes.Name, user.UserName ?? string.Empty),
+                new("isConfirm", user.IsConfirm.ToString()),
             };
             
             

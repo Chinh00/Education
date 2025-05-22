@@ -1,5 +1,7 @@
 using Confluent.Kafka;
+using Education.Contract.DomainEvents;
 using Education.Contract.IntegrationEvents;
+using Education.Infrastructure;
 using MassTransit;
 
 namespace StudentService.Infrastructure;
@@ -10,6 +12,7 @@ public static class Extensions
         IConfiguration configuration,
         Action<IServiceCollection> action = null)
     {
+        services.AddApplicationService();
         services.AddMassTransit(c =>
         {
             c.SetKebabCaseEndpointNameFormatter();
@@ -17,6 +20,9 @@ public static class Extensions
             c.AddRider(e =>
             {
                 e.AddProducer<StudentCreatedIntegrationEvent>(nameof(StudentCreatedIntegrationEvent));
+                e.AddProducer<StudentPullStartedDomainEvent>(nameof(StudentPullStartedDomainEvent));
+                e.AddProducer<StudentPulledDomainEvent>(nameof(StudentPulledDomainEvent));
+                e.AddProducer<StudentPulledIntegrationEvent>(nameof(StudentPulledIntegrationEvent));
                 e.AddConsumer<EventDispatcher>();
                 e.UsingKafka((context, config) =>
                 {
@@ -28,14 +34,26 @@ public static class Extensions
                             configurator.AutoOffsetReset = AutoOffsetReset.Earliest;
                         });
                     
-                    config.TopicEndpoint<StudentCreatedIntegrationEvent>(nameof(StudentCreatedIntegrationEvent), "student-identity",
+                    
+                    config.TopicEndpoint<StudentPullStartedDomainEvent>(nameof(StudentPullStartedDomainEvent), "student-identity",
                         configurator =>
                         {
                             configurator.CreateIfMissing(n => n.NumPartitions = 1);
                             configurator.AutoOffsetReset = AutoOffsetReset.Earliest;
                             configurator.ConfigureConsumer<EventDispatcher>(context);
                         });
-
+                    
+                    config.TopicEndpoint<StudentPulledDomainEvent>(nameof(StudentPulledDomainEvent), "student-identity",
+                        configurator =>
+                        {
+                            configurator.CreateIfMissing(n => n.NumPartitions = 1);
+                            configurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            configurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
+                    
+                    
+                    
+                    
 
                 });
             });

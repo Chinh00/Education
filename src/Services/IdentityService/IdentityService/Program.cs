@@ -81,7 +81,6 @@ builder.Services.AddMassTransit(c =>
     c.UsingInMemory();
     c.AddRider(e =>
     {
-        e.AddProducer<StudentPulledIntegrationEvent>(nameof(StudentPulledIntegrationEvent));
         e.AddConsumer<EventDispatcher>();
         e.UsingKafka((context, configurator) =>
         {
@@ -92,7 +91,15 @@ builder.Services.AddMassTransit(c =>
                     endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
                     endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                     endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
-                });            
+                });      
+            configurator.TopicEndpoint<StudentPulledIntegrationEvent>(nameof(StudentPulledIntegrationEvent), "identity-student",
+                config =>
+                {
+                    config.CreateIfMissing(n => n.NumPartitions = 1);
+                    config.AutoOffsetReset = AutoOffsetReset.Earliest;
+                    config.ConfigureConsumer<EventDispatcher>(context);
+                });
+
         });
     });
 });

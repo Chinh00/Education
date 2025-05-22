@@ -55,7 +55,6 @@ public class MicrosoftGrantValidator(IHttpClientFactory httpClientFactory, IToke
 
         var claims = new List<Claim>
         {
-          
             new Claim("idp", provider)
         };
 

@@ -21,4 +21,9 @@
       <ProjectReference Include="..\StudentService.Domain\StudentService.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Usecases\Command\" />
+      <Folder Include="Usecases\DomainEvents\" />
+    </ItemGroup>
+
 </Project>

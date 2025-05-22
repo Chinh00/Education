@@ -7,6 +7,7 @@ public class CourseClass : BaseEntity
 {
     public int ClassIndex { get; set; } 
     public string CourseClassCode { get; set; }
+    public string CourseClassName { get; set; }
     public List<string> StudentIds { get; set; } = [];
     public CourseClassType CourseClassType { get; set; }
     public string SubjectCode { get; set; }
@@ -15,6 +16,8 @@ public class CourseClass : BaseEntity
     public Guid CorrectionId { get; set; }
     public int DurationInWeeks { get; set; }
     public int MinDaySpaceLesson { get; set; }
+    public string SemesterCode { get; set; }
+    public int NumberStudents { get; set; }
     public SubjectTimelineStage Stage { get; set; } = SubjectTimelineStage.Stage1;
 }
 

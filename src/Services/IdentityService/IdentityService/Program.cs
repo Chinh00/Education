@@ -18,6 +18,7 @@ using Config = IdentityService.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddLoggingService();
+builder.Services.AddHttpClient();
 builder.Services.AddMediatorService([typeof(EventDispatcher)]);
 builder.Services.AddCors(c => c.AddPolicy("Cors", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 builder.Services.AddDbContext<IdentityContext>(c => c.UseNpgsql(builder.Configuration.GetConnectionString("postgres"), optionsBuilder =>
@@ -57,6 +58,7 @@ builder.Services.AddIdentityServer(options =>
     .AddInMemoryApiScopes(Config.ApiScopes)
     .AddInMemoryClients(Config.Clients)
     .AddExtensionGrantValidator<MicrosoftGrantValidator>()
+    .AddExtensionGrantValidator<TestGrantValidator>()
     .AddAspNetIdentity<ApplicationUser>()
     .AddProfileService<ProfileService>()
     .AddDeveloperSigningCredential();
@@ -79,6 +81,7 @@ builder.Services.AddMassTransit(c =>
     c.UsingInMemory();
     c.AddRider(e =>
     {
+        e.AddProducer<StudentPulledIntegrationEvent>(nameof(StudentPulledIntegrationEvent));
         e.AddConsumer<EventDispatcher>();
         e.UsingKafka((context, configurator) =>
         {

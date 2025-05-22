@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\BuildingBlock\Education.Contract\Education.Contract.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlock\Education.Core\Education.Core.csproj" />
     </ItemGroup>
 

@@ -35,10 +35,7 @@ public class MongoRepositoryBase<TEntity> : IMongoRepository<TEntity>
         {
             source = source.Skip(specification.Skip).Take(specification.Take);
         }
-        // if (specification.Includes is not null)
-        // {
-        //     specification.Includes.ForEach(e => source = source.Select(e).OfType<TEntity>());
-        // }
+       
         if (specification.IncludeStrings is not null)
         {
             var expression = Core.Specification.Extensions.MakeSelectExpression(specification.IncludeStrings, specification.Includes);

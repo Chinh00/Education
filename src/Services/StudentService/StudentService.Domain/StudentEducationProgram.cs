@@ -3,7 +3,7 @@ using StudentService.Domain.Enums;
 
 namespace StudentService.Domain;
 
-public class EducationProgram
+public class StudentEducationProgram
 {
     public string Code { get; set; }
     public string Name { get; set; }
@@ -12,16 +12,15 @@ public class EducationProgram
     [Description("Lớp quản lý")]
     public string StudentClassName { get; set; }
     public string StudentClassCode { get; set; }
-    [Description("Năm bắt đầu học")]
-    public int StartYear { get; set; } 
     [Description("Khoá ")]
     public int CourseYear { get; set; }
     [Description("Khoa")]
-    public string Department { get; set; }
+    public string DepartmentName { get; set; }
+    public string DepartmentCode { get; set; }
     [Description("Ngành")]
-    public string Branch { get; set; }
+    public string SpecialityName { get; set; }
+    [Description("Ngành")]
+    public string SpecialityCode { get; set; }
     [Description("Trạng thái chương trình học")]
     public EducationProgramStatus Status { get; set; } = EducationProgramStatus.Active;
-    
-
 }

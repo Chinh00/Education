@@ -42,7 +42,7 @@ public static class Config
             new Client
             {
                 ClientId = "sinhvientest",
-                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                AllowedGrantTypes = {"external_student"},
                 ClientSecrets = { new Secret("secret".Sha256()) },
                 AllowedScopes =  { "openid", "profile", "api.student", "role" },
                 AlwaysIncludeUserClaimsInIdToken = true, 

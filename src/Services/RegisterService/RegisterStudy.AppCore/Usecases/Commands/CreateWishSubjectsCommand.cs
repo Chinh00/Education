@@ -2,6 +2,7 @@ using Education.Core.Domain;
 using Education.Core.Services;
 using Education.Core.Utils;
 using Education.Infrastructure.Authentication;
+using Education.Infrastructure.EventStore;
 using MediatR;
 using RegisterStudy.Domain;
 
@@ -23,7 +24,11 @@ public record CreateWishSubjectsCommand(string EducationCode, List<string> Subje
             var (userId, studentCode) = (claimContextAccessor.GetUserId(), claimContextAccessor.GetUsername());
 
             var studentRegister = new StudentRegister();
-            studentRegister.CreateStudentRegister(studentCode, DateTimeUtils.GetUtcTime(), educationCode, subjectCodes);
+            studentRegister.CreateStudentRegister(studentCode, DateTimeUtils.GetUtcTime(), educationCode, subjectCodes, new Dictionary<string, object>( )
+            {
+                { nameof(KeyMetadata.PerformedBy), userId },
+                { nameof(KeyMetadata.PerformedByName), studentCode }
+            });
             await service.SaveEventStore(studentRegister, cancellationToken);
             return Results.Created();
         }

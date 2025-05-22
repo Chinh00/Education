@@ -17,7 +17,7 @@ public static class Extensions
             c.AddRider(e =>
             {
                 e.AddProducer<StudentCreatedIntegrationEvent>(nameof(StudentCreatedIntegrationEvent));
-                
+                e.AddConsumer<EventDispatcher>();
                 e.UsingKafka((context, config) =>
                 {
                     config.Host(configuration.GetValue<string>("Kafka:BootstrapServers"));
@@ -27,6 +27,16 @@ public static class Extensions
                             configurator.CreateIfMissing(n => n.NumPartitions = 1);
                             configurator.AutoOffsetReset = AutoOffsetReset.Earliest;
                         });
+                    
+                    config.TopicEndpoint<StudentCreatedIntegrationEvent>(nameof(StudentCreatedIntegrationEvent), "student-identity",
+                        configurator =>
+                        {
+                            configurator.CreateIfMissing(n => n.NumPartitions = 1);
+                            configurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            configurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
+
+
                 });
             });
         });

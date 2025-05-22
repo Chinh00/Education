@@ -16,7 +16,6 @@ public class EducationProgram : BaseEntity
     public string CourseCode { get; set; }
     public string BrandCode { get; set; }
     public float TrainingTime { get; set; }
-    public ICollection<KnowledgeBlockDescription> KnowledgeBlockDescriptions { get; set; }
     public ICollection<EducationSubject> EducationSubjects { get; set; }
     public string SpecialityCode { get; set; }
 }

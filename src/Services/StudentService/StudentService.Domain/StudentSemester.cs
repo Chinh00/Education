@@ -1,10 +1,11 @@
 using System.ComponentModel;
+using Education.Core.Domain;
 
 namespace StudentService.Domain;
 
-public class HistorySemester
+public class StudentSemester : BaseEntity
 {
-    public string EducationCode { get; set; }
+    public string StudentCode { get; set; }
     public string SemesterCode { get; set; }
     public string SemesterName { get; set; }
     
@@ -18,7 +19,6 @@ public class HistorySemester
     public DateTime StartDate { get; set; }
     [Description("Thời gian kết thúc kì học")]
     public DateTime EndDate { get; set; }
-    [Description("Lịch sử học")]
-
-    public ICollection<SubjectResult> SubjectResults { get; set; }
+    public ICollection<SubjectResult> SubjectResults { get; set; } = new List<SubjectResult>();
+    public ICollection<CourseSubject> CourseSubjects { get; set; } = new List<CourseSubject>();
 }

@@ -1,6 +1,7 @@
 using Education.Core.Domain;
 using Education.Core.Services;
 using Education.Infrastructure.Authentication;
+using Education.Infrastructure.EventStore;
 using MediatR;
 using RegisterStudy.AppCore.Usecases.Common;
 using RegisterStudy.Domain;
@@ -24,7 +25,11 @@ public record UpdateWishSubjectsCommand(string EducationCode, List<string> Subje
             var spec = RedisKey.GetKeyWishSubjects(studentCode, educationCode);
             var studentRegister = await studentRegisterRepository.GetAsync(spec);
             var studentFromHistory = await service.ReplayAggregate(studentRegister.Id, cancellationToken);
-            studentFromHistory.ChangeSubjectCode(subjectCodes);
+            studentFromHistory.ChangeSubjectCode(subjectCodes, new Dictionary<string, object>( )
+            {
+                { nameof(KeyMetadata.PerformedBy), userId },
+                { nameof(KeyMetadata.PerformedByName), studentCode }
+            });
             await service.SaveEventStore(studentFromHistory, cancellationToken);
             return Results.NoContent();
         }

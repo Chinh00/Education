@@ -1,4 +1,23 @@
 services:
+  mytludataproviderworker:
+    image: chinhval/mytludataproviderworker
+    container_name: mytludataproviderworker
+    hostname: mytludataproviderworker
+    restart: always
+    ports:
+      - "15002:80"
+    environment:
+      ConnectionStrings__Db: "Server=100.116.190.43,1439;Database=education_backup_2024_05_03_150002_2497437;Encrypt=false;User Id=sa;Password=@P@ssw0rd02"
+      Mongodb__ServerName: "localhost"
+      Mongodb__Database: "trainingdb"
+      Mongodb__Username: "root"
+      Mongodb__Password: "Pass1234"
+      Mongodb__Port: "27017"
+      RedisOptions__Server: "vps-tlu.ip-tech.vn"
+      RedisOptions__Port: 6379
+      RedisOptions__Password: "Pass123$"
+  
+  
   redis:
     restart: always
     image: redis/redis-stack

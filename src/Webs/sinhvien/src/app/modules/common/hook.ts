@@ -1,6 +1,6 @@
 import {Query} from "@/infrastructure/query.ts";
 import {useQuery} from "@tanstack/react-query";
-import {getCourses, getDepartments, getEducations, getSpecialities} from "./service";
+import {getCourses, getDepartments, getEducations, getSpecialities, getSubjects} from "./service";
 
 const useGetCourses = (query: Query, enable: boolean = true) => {
     return useQuery({
@@ -33,10 +33,18 @@ const useGetEducations = (query: Query, enable: boolean = true) => {
         enabled: enable,
     })
 }
+const useGetSubjects = (query: Query, enable: boolean = true) => {
+    return useQuery({
+        queryKey: ["subjects", query],
+        queryFn: () => getSubjects(query),
+        enabled: enable,
 
+    })
+}
 export {
     useGetCourses,
     useGetDepartments,
     useGetSpecialityDepartments,
+    useGetSubjects,
     useGetEducations
 };

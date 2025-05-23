@@ -58,16 +58,6 @@ const StudentInformation = () => {
                     </Button>
                 </div>
             </Card>
-            {/*<Tabs className={"w-full py-5"} defaultValue="personal" >*/}
-            {/*    <TabsList className="grid grid-cols-3 w-full flex-wrap" >*/}
-            {/*        <TabsTrigger value="personal">Thông tin cá nhân</TabsTrigger>*/}
-            {/*        <TabsTrigger value="school">Kết quả học tập</TabsTrigger>*/}
-            {/*        <TabsTrigger value="result">Chương trình đào tạo</TabsTrigger>*/}
-            {/*        */}
-            {/*    </TabsList>*/}
-            {/*    <TabsContent value={"personal"} >*/}
-            {/*    </TabsContent>*/}
-            {/*</Tabs>*/}
             <div className={"grid md:grid-cols-5 gap-5 grid-cols-1 w-full mt-10"}>
                 <PersonalInformation personalInformation={data?.data?.data?.personalInformation} />
                 <InformationBySchool educations={data?.data?.data?.educationPrograms ?? []}  />

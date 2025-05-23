@@ -25,6 +25,12 @@ export function AppSidebar() {
                                     <Link to={"/student/information"}>Thông tin sinh viên</Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton className="text-sidebar-foreground/70" >
+                                    <ListTree />
+                                    <Link to={"/student/education"}>Chương trình đào tạo</Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
 
                             <SidebarMenuItem>
                                 <SidebarMenuButton className="text-sidebar-foreground/70">
@@ -44,12 +50,7 @@ export function AppSidebar() {
                                     <Link to={"/student/result"}>Kết quả học tập</Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton className="text-sidebar-foreground/70" >
-                                    <ListTree />
-                                    <Link to={"/student/education"}>Chương trình đào tạo</Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
+
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>

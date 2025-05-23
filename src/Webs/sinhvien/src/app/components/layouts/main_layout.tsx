@@ -33,7 +33,7 @@ const MainLayout = () => {
                 </div>
             </div>
         </header>
-        <SidebarProvider className={"relative"}>
+        <SidebarProvider className={"relative w-full"}>
             <AppSidebar />
             <SidebarInset className={"w-full"}>
                 {/*<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">*/}

@@ -1,177 +1,199 @@
 import useGetStudentInformation from "@/app/modules/student/hooks/useGetStudentInformation.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
-import {ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState} from "@tanstack/react-table";
-import {EducationSubject} from "@/domain/education_subject.ts";
-import {useGetEducations} from "@/app/modules/common/hook.ts";
-import {Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow} from "@/app/components/ui/table";
-import { Checkbox } from "@/app/components/ui/checkbox";
-import {useState} from "react";
-import { Input } from "@/app/components/ui/input";
-import { Button } from "@/app/components/ui/button";
-import {ArrowUpDown, ChevronDown, MoreHorizontal} from "lucide-react";
-import {DropdownMenu,
-    DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu";
-import Lottie from "lottie-react";
-import IconLoading from "@/assets/icons/Animation - 1745297696467.json"
+import {useGetEducations, useGetSubjects} from "@/app/modules/common/hook.ts";
+import {useEffect, useState} from "react";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/app/components/ui/select.tsx";
+import {Subject} from "@/domain/subject.ts";
+import {Checkbox, GetProp, Progress, Table, TableProps} from "antd";
+import {Box, Typography} from "@mui/material";
+import { Badge } from "@/app/components/ui/badge";
+import {BookOpen, Calendar, Clock, GraduationCap, MapPin} from "lucide-react";
+import {useGetUserInfo} from "@/app/modules/auth/hooks/useGetUserInfo.ts";
 
+export type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 
-export const columns: ColumnDef<EducationSubject>[] = [
-    {
-        accessorKey: "subject.subjectCode",
-        header: "Mã môn học",
-
-    },
-    {
-        accessorKey: "subject.subjectName",
-        header: "Tên môn học",
-
-    },
-    {
-        accessorKey: "subject.numberOfCredits",
-        header: "Số tín chỉ",
-
-    },
-
-    {
-        id: "actions",
-        enableHiding: false,
-        cell: ({ row }) => {
-            const cell = row.original
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(cell.subject.subjectCode)}
-                        >
-                            Copy payment ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>View customer</DropdownMenuItem>
-                        <DropdownMenuItem>View payment details</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )
-        },
-    },
-]
 
 const StudentEducation = () => {
-    const {data: studentInformation, isPending, isSuccess} = useGetStudentInformation()
-    const {data: educations, isPending: isLoading} = useGetEducations({
+    const {data, isPending, isSuccess} = useGetStudentInformation()
+    const {data: educations, isLoading: educationsLoading} = useGetEducations({
         Filters: [
             {
                 field: "Code",
-                operator: "==",
-                value: studentInformation?.data?.data?.informationBySchool?.educationCodes[0]!
+                operator: "In",
+                value: data?.data?.data?.educationPrograms?.map(c => c.code).join(",")!
             }
         ],
         Includes: ["EducationSubjects"]
     }, isSuccess)
 
-    const [sorting, setSorting] = useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-        []
-    )
-    const [columnVisibility, setColumnVisibility] =
-        useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = useState({})
 
-    const table = useReactTable({
-        data: educations?.data?.data?.items[0]?.educationSubjects ?? [],
-        columns,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        onRowSelectionChange: setRowSelection,
-        state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
-            rowSelection,
+
+    const {data: subjects, isLoading: subjectsLoading} = useGetSubjects({
+        Filters: [
+            {
+                field: "SubjectCode",
+                operator: "In",
+                value: educations?.data?.data?.items?.[0]?.educationSubjects?.map(c => c.subjectCode)?.join(",")!
+            }
+        ],
+        Includes: ["IsCalculateMark"],
+        Page: 1,
+        PageSize: 1000
+    }, educations?.data?.data?.items?.[0] !== undefined)
+
+
+
+
+    const [selectedEducation, setSelectedEducation] = useState<string>()
+
+    useEffect(() => {
+        if (data) {
+            setSelectedEducation(data?.data?.data?.educationPrograms[0]?.code)
+        }
+    }, [data]);
+    const { data: userInfo} = useGetStudentInformation()
+    const columns: ColumnsType<Subject> = [
+        {
+            title: 'Mã môn học',
+            dataIndex: "subjectCode",
+            width: 50,
         },
-    })
+        {
+            title: 'Tên môn học',
+            dataIndex: "subjectName",
+            width: 150,
+
+        },
+        {
+            title: 'Là môn tính điểm',
+            render: (value, record) => {
+                return <Checkbox defaultChecked={record?.isCalculateMark} disabled={true} />
+            },
+            width: 50,
+        },
+
+
+        {
+            title: 'Số tín chỉ',
+            dataIndex: "numberOfCredits",
+            width: 50,
+
+        },
+    ];
+
+
+
 
     return (
         <PredataScreen isLoading={isPending} isSuccess={isSuccess} >
             <div className="w-full">
                 <div className="flex items-center py-4">
-                    <Select>
-                        <SelectTrigger className={"w-full mb-5"} defaultValue={"educationSelected"}>
+                    <Select value={selectedEducation} onValueChange={(value) => {
+                        const edu = data?.data?.data?.educationPrograms?.find(e => e.code === value);
+                        if (edu) setSelectedEducation(edu?.code);
+                    }}>
+                        <SelectTrigger className={"w-full mb-5"} >
                             <SelectValue placeholder="Chương trình đào tạo" />
                         </SelectTrigger>
                         <SelectContent>
-                            {!!educations && educations?.data?.data?.items?.map((item, index) => (
-                                <SelectItem value={item.code} key={item.code}>{item?.name}</SelectItem>
+                            {!!data && data?.data?.data?.educationPrograms?.map((item, index) => (
+                                <SelectItem value={item?.code} key={item?.code}>{item?.name}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="rounded-md border">
-                    <Table className={""}>
-                        <TableHeader>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id} className={"border-[1px]"}>
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
-                                            </TableHead>
-                                        )
-                                    })}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            {isSuccess && table.getRowModel().rows?.length > 0 && (
-                                table.getRowModel().rows.map((row) => (
-                                    <TableRow
-                                        key={row.id}
-                                        data-state={row.getIsSelected() && "selected"}
-                                    >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id} className={"border-[1px]"}>
-                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))
-                            ) }
-                            {!isSuccess && <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
-                                </TableCell>
-                            </TableRow>}
+                <div className="rounded-md ">
+                    <Table<Subject>
 
+                        rowKey={(c) => c.id}
+                        loading={subjectsLoading || educationsLoading}
 
-                        </TableBody>
-                        <TableFooter>
-                            <TableRow>
-                                <TableCell colSpan={3}>
-                                    {isLoading && <div className={"w-full flex justify-center"}><Lottie animationData={IconLoading} loop={true} className={"w-[200px]"}  /></div>}
-                                </TableCell>
-                            </TableRow>
-                        </TableFooter>
+                        showHeader={true}
+                        title={() => <Box className={"flex flex-col w-full justify-between p-[16px] text-white gap-5"}>
+                            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
+                                <div className="flex-1">
+                                    <div className="flex flex-wrap gap-2 mb-3">
+                                        <Badge variant="outline" className="bg-white">
+                                            {educations?.data?.data?.items?.[0]?.code}
+                                        </Badge>
+                                        <Badge className="bg-blue-500 text-white">Đang học</Badge>
+                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                            {educations?.data?.data?.items?.[0]?.specialityCode}
+                                        </Badge>
+                                    </div>
+                                    <h1 className="text-2xl font-bold text-slate-900 mb-2">{educations?.data?.data?.items?.[0]?.name}</h1>
+                                    <div className="flex items-center text-slate-600 mb-1">
+                                        <MapPin className="h-4 w-4 mr-2" />
+                                        <span>{userInfo?.data?.data?.educationPrograms?.filter(c => c.code === educations?.data?.data?.items?.[0]?.code)[0]?.specialityName}</span>
+                                    </div>
+                                    <p className="text-slate-500">Trường Đại học Thủy Lợi</p>
+                                </div>
 
-                    </Table>
+                                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                                    <div className="text-center">
+                                        <div className="text-3xl font-bold text-blue-600 mb-1">-1</div>
+                                        <div className="text-sm text-slate-600">GPA hiện tại</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Progress Overview */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div className="bg-white rounded-lg p-4 border border-slate-200">
+                                    <div className="flex items-center mb-2">
+                                        <Calendar className="h-5 w-5 text-blue-500 mr-2" />
+                                        <span className="text-sm text-slate-600">Tiến độ học tập</span>
+                                    </div>
+                                    <div className="text-2xl font-bold text-slate-900 mb-1">{90}%</div>
+                                    <Progress className="h-2" />
+                                    <p className="text-xs text-slate-500 mt-1">
+                                        Học kỳ 5/8
+                                    </p>
+                                </div>
+
+                                <div className="bg-white rounded-lg p-4 border border-slate-200">
+                                    <div className="flex items-center mb-2">
+                                        <Clock className="h-5 w-5 text-green-500 mr-2" />
+                                        <span className="text-sm text-slate-600">Thời gian đào tạo</span>
+                                    </div>
+                                    <div className="text-2xl font-bold text-slate-900">{educations?.data?.data?.items?.[0]?.trainingTime}</div>
+                                    <p className="text-xs text-slate-500">năm</p>
+                                </div>
+
+                                <div className="bg-white rounded-lg p-4 border border-slate-200">
+                                    <div className="flex items-center mb-2">
+                                        <BookOpen className="h-5 w-5 text-purple-500 mr-2" />
+                                        <span className="text-sm text-slate-600">Môn học</span>
+                                    </div>
+                                    <div className="text-2xl font-bold text-slate-900">
+                                        {10}/{educations?.data?.data?.items?.[0]?.educationSubjects.length}
+                                    </div>
+                                    <p className="text-xs text-slate-500">hoàn thành</p>
+                                </div>
+
+                                <div className="bg-white rounded-lg p-4 border border-slate-200">
+                                    <div className="flex items-center mb-2">
+                                        <GraduationCap className="h-5 w-5 text-amber-500 mr-2" />
+                                        <span className="text-sm text-slate-600">Tín chỉ</span>
+                                    </div>
+                                    <div className="text-2xl font-bold text-slate-900">
+                                        {100}/{140}
+                                    </div>
+                                    <p className="text-xs text-slate-500">tín chỉ</p>
+                                </div>
+                            </div>
+                            <Typography className={"w-full text-gray-700"} align={"center"} fontWeight={"bold"} >Danh sách môn học</Typography>
+                        </Box>}
+                        size={"small"}
+                        bordered={true}
+
+                        columns={columns}
+                        pagination={false}
+                        virtual
+                        dataSource={subjects?.data?.data?.items ?? []}
+                        scroll={{ x: 2000, y: 700 }}
+
+                    />
                 </div>
             </div>
 

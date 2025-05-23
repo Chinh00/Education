@@ -35,7 +35,7 @@ export function AppSidebar() {
                             <SidebarMenuItem>
                                 <SidebarMenuButton className="text-sidebar-foreground/70">
                                     <BadgePlus />
-                                    <Link to={"/student/register"}>Đăng môn học</Link>
+                                    <Link to={"/student/register"}>Đăng ký nguyện vọng</Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>

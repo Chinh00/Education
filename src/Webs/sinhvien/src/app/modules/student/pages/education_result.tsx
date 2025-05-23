@@ -2,11 +2,7 @@ import {motion} from "framer-motion"
 import {
     Card
 } from "@/app/components/ui/card.tsx"
-import {
-    User,
-    GraduationCap
-
-} from "lucide-react"
+import _ from "lodash";
 import {Badge} from "@/app/components/ui/badge"
 import useGetStudentInformation from "@/app/modules/student/hooks/useGetStudentInformation.ts";
 import { useParams } from "react-router";
@@ -24,6 +20,7 @@ import {useEffect, useState} from "react";
 import useGetStudentSemesters from "@/app/modules/student/hooks/useGetStudentSemesters.ts";
 import {Query} from "@/infrastructure/query.ts";
 import GradeCard from "../components/grade_card";
+import {SubjectResult} from "@/domain/subject_result.ts";
 const EducationResult = () => {
     const {id} = useParams()
     const { data, isLoading: studentLoading, isSuccess: studentSuccess } = useGetStudentInformation();
@@ -57,6 +54,7 @@ const EducationResult = () => {
         Includes: ["SubjectResults"]
     })
     const {data: studentSemester} = useGetStudentSemesters(query, query?.Filters?.filter(c => c.field !== "SemesterCode") !== undefined)
+
 
     return (
         <PredataScreen isLoading={studentLoading} isSuccess={studentSuccess} >
@@ -164,14 +162,14 @@ const EducationResult = () => {
                                 </Badge>
                             </div>
                             <div className="grid gap-4">
-                                {!!studentSemester && studentSemester?.data?.data?.items[0]?.subjectResults?.map((grade, index) => (
+                                {!!studentSemester && Object.entries<SubjectResult[]>(_.groupBy(studentSemester?.data?.data?.items[0]?.subjectResults, "subjectCode")).map(([key, grades], index) => (
                                     <motion.div
-                                        key={`${grade?.subjectCode}-${index}`}
+                                        key={`${key}-${key}`}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ duration: 0.3, delay: index * 0.1 }}
                                     >
-                                        <GradeCard grade={grade} semesterCode={studentSemester?.data?.data?.items[0]?.semesterCode} />
+                                        <GradeCard grade={grades} semesterCode={studentSemester?.data?.data?.items[0]?.semesterCode} />
                                     </motion.div>
                                 ))}
                             </div>

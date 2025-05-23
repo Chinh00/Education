@@ -1,7 +1,7 @@
 import {Sidebar, SidebarContent,
     SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
     SidebarRail} from "@/app/components/ui/sidebar"
-import {BadgePlus, CakeSlice, GraduationCap, ListTree, User} from "lucide-react"
+import {BadgePlus, CakeSlice, GraduationCap, ListTree, User, Timer} from "lucide-react"
 import {Link, useNavigate} from "react-router"
 import {NavUser} from "@/app/components/navbar/nav-user.tsx";
 import {useAppSelector} from "@/app/stores/hook.ts";
@@ -39,11 +39,19 @@ export function AppSidebar() {
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <SidebarMenuButton className="text-sidebar-foreground/70" >
-                                    <CakeSlice />
-                                    <Link to={"/student/register"}>Đăng ký nguyện vọng học</Link>
+                                <SidebarMenuButton className="text-sidebar-foreground/70">
+                                    <BadgePlus />
+                                    <Link to={"/student/register"}>Kết quả đăng ký học</Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton className="text-sidebar-foreground/70">
+                                    <Timer />
+                                    <Link to={"/student/register"}>Thời khóa biểu của tôi</Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+
+
                             <SidebarMenuItem>
                                 <SidebarMenuButton className="text-sidebar-foreground/70" >
                                     <CakeSlice />

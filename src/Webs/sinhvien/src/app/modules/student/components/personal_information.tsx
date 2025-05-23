@@ -1,4 +1,3 @@
-import PersonalInformation from "@/domain/personal_information.model"
 import {
     Card,
     CardContent,
@@ -13,6 +12,7 @@ import {BookOpen, Building, Calendar, Edit, Flag, Home, Mail, Phone, School, Use
 import { Button } from "@/app/components/ui/button"
 
 import dayjs from "dayjs"
+import {PersonalInformation} from "@/domain/personal_information.model.ts";
 
 export interface PersonalInformationProps {
     personalInformation?: PersonalInformation

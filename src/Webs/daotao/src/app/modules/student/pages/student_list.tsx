@@ -39,8 +39,8 @@ const columns: ColumnsType<Student> = [
         dataIndex: ["personalInformation", "educationCodes"],
         render: (_, record) => (
             <>
-                {record?.informationBySchool?.educationCodes?.map((c, index) => {
-                    return <Badge key={index}>{c}</Badge>
+                {record?.educationPrograms?.map((c, index) => {
+                    return <Badge key={index}>{c?.name}</Badge>
                 })}
             </>
         ),

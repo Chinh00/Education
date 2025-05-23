@@ -1,4 +1,4 @@
-interface PersonalInformation {
+export interface PersonalInformation {
     firstName: string;
     lastName: string;
     fullName: string;
@@ -15,4 +15,3 @@ interface PersonalInformation {
     ethnic: string;
 }
 
-export default PersonalInformation;

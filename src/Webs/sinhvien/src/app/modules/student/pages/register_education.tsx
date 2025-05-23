@@ -112,7 +112,7 @@ const RegisterEducation= () => {
         },
     ];
 
-    const {data: registerSubject} = useGetRegisterSubjectCurrent(educations?.data?.data?.items[0]?.code, educations?.data?.data?.items[0]?.code !== undefined)
+    const {data: registerSubject} = useGetRegisterSubjectCurrent(educations?.data?.data?.items[0]?.code ?? "", educations?.data?.data?.items[0]?.code !== undefined)
 
     useEffect(() => {
         if (registerSubject && registerSubject?.data?.data !== undefined && subjects?.data?.data?.items !== undefined) {

@@ -24,8 +24,8 @@ public class StudentController : BaseController
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [Authorize(Roles = "student, admin")]
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> HandleGetStudentInformationAsync(CancellationToken cancellationToken) =>
         Ok(await Mediator.Send(new GetStudentInformationQuery(), cancellationToken));
 

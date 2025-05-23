@@ -32,7 +32,7 @@ public record SyncStudentFromDataProviderQuery() : IQuery<bool>
             };
             student.ChangeStatus(StudentStatus.PullPending);      
             await mongoRepository.UpsertOneAsync(spec, student, cancellationToken);
-            await producer.Produce(new { studentCode }, cancellationToken);
+            await producer.Produce(new StudentPullStartedDomainEvent(studentCode), cancellationToken);
             return ResultModel<bool>.Create(true);
         }
     }

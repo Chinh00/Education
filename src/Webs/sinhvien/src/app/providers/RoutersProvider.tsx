@@ -15,6 +15,8 @@ const LoginFirst = lazy(() => import('../modules/auth/pages/login_first.tsx'))
 
 const ProtectedRoute = () => {
     const {authenticate} = useAppSelector(e => e.common)
+
+
     return authenticate ? <Outlet/> : <Navigate to={RoutePaths.LOGIN}/>
 }
 
@@ -24,10 +26,15 @@ const AuthRoute = () => {
 }
 const ConfirmRoute = () => {
     const {data} = useGetUserInfo()
-
-    if (data === null) return <></>
-    return data?.data?.isConfirm === "True" ? <Outlet/> : <Navigate to={RoutePaths.LOGIN_FIRST}/>
+    return data?.data?.isConfirm === "False" ? <Navigate to={RoutePaths.LOGIN_FIRST}/> : <Outlet />
 }
+
+const ConfirmRouteAuth = () => {
+    const {data} = useGetUserInfo()
+    return data?.data?.isConfirm === "True" ? <Navigate to={RoutePaths.HOME}/> : <Outlet />
+}
+
+
 
 
 const router = createBrowserRouter([
@@ -70,9 +77,16 @@ const router = createBrowserRouter([
                 ]
             },
             {
-                path: RoutePaths.LOGIN_FIRST,
-                element: <Suspense fallback={<ProgressScreen  />} key={"StudentResult"}><LoginFirst /></Suspense>,
-            },
+                path: "",
+                element: <Suspense fallback={<ProgressScreen  />} key={"ConfirmRouteAuth"}><ConfirmRouteAuth /></Suspense>,
+                children: [
+                    {
+                        path: RoutePaths.LOGIN_FIRST,
+                        element: <Suspense fallback={<ProgressScreen  />} key={"StudentResult"}><LoginFirst /></Suspense>,
+                    },
+                ]
+            }
+
         ]
     },
 

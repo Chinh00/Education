@@ -1,14 +1,13 @@
-import { HistorySemester } from "./history_semester.model";
 import { InformationBySchool } from "./information_by_school.model";
 import PersonalInformation from "./personal_information.model.ts";
+import {StudentEducationProgram} from "@/domain/student_education_program.ts";
 
 export type Student = {
     personalInformation: PersonalInformation;
     informationBySchool: InformationBySchool;
-    trainingPrograms: any; 
-    historySemesters: HistorySemester[];
+    educationPrograms: StudentEducationProgram[];
     id: string;
-    createdAt: string; 
+    createdAt: string;
     updatedAt: string | null;
 
 }

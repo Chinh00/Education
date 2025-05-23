@@ -1,4 +1,4 @@
-import { Student } from "@/domain/student.model";
+import { Student } from "@/domain/student.ts";
 import http from "@/infrastructure/http";
 import { SuccessResponse } from "@/infrastructure/utils/success_response";
 import {AxiosResponse} from "axios";

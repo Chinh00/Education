@@ -2,54 +2,29 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/app/c
 import {BookOpen, Building, Edit, School, Users} from "lucide-react";
 import {Button} from "@/app/components/ui/button.tsx";
 import {Avatar, AvatarFallback} from "@/app/components/ui/avatar.tsx";
-import {InformationBySchool as InfoSchool} from "@/domain/information_by_school.model"
 import {
     useGetCourses,
     useGetDepartments,
-    useGetEducations,
     useGetSpecialityDepartments
 } from "@/app/modules/common/hook.ts";
 import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/app/components/ui/select";
 import {useEffect, useState} from "react";
 import {Education} from "@/domain/education.ts";
 import {Department} from "@/domain/department.ts";
+import {StudentEducationProgram} from "@/domain/student_education_program.ts";
 export type InformationBySchoolProps = {
-    educations: Education[],
-    studentClassName: string
+    educations: StudentEducationProgram[],
 }
 
 const InformationBySchool = (props: InformationBySchoolProps) => {
-    const [selectedEducation, setSelectedEducation] = useState<Education>(props.educations[0])
+    const [selectedEducation, setSelectedEducation] = useState(props?.educations[0]?.code)
+    const [education, setEducation] = useState(props?.educations[0])
 
-    const {data: courses} = useGetCourses({
-        Filters: [
-            {
-                field: "CourseCode",
-                operator: "==",
-                value: props?.educations[0]?.courseCode
-            }
-        ]
-    })
-
-    const {data: specialityDepartment} = useGetSpecialityDepartments({
-        Filters: [
-            {
-                field: "SpecialityCode",
-                operator: "==",
-                value: props?.educations[0]?.specialityCode
-            },
-        ],
-    }, !!props.educations[0])
-    const {data: departments} = useGetDepartments({
-        Filters: [
-            {
-                field: "DepartmentCode",
-                operator: "==",
-                value: specialityDepartment?.data?.data?.items[0]?.departmentCode!
-            },
-        ],
-    }, specialityDepartment?.data?.data?.items[0] !== undefined)
-
+    useEffect(() => {
+        if (selectedEducation && props?.educations?.filter(e => e.code === selectedEducation).length > 0) {
+            setEducation(props?.educations?.filter(e => e.code === selectedEducation)[0])
+        }
+    }, [selectedEducation]);
 
     return (
         <>
@@ -67,9 +42,9 @@ const InformationBySchool = (props: InformationBySchoolProps) => {
                     <CardDescription>Thông tin liên quan đến trường học</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Select value={selectedEducation?.code} onValueChange={(value) => {
+                    <Select value={selectedEducation} onValueChange={(value) => {
                         const edu = props?.educations?.find(e => e.code === value);
-                        if (edu) setSelectedEducation(edu);
+                        if (edu) setSelectedEducation(edu?.code);
                     }}>
                         <SelectTrigger className={"w-full mb-5"} >
                             <SelectValue placeholder="Chương trình đào tạo" />
@@ -88,7 +63,7 @@ const InformationBySchool = (props: InformationBySchoolProps) => {
                                 </div>
                                 <h3 className="font-medium">Khoa</h3>
                             </div>
-                            <p className="text-lg font-semibold">{departments?.data?.data?.items[0]?.departmentName}</p>
+                            <p className="text-lg font-semibold">{education?.departmentName}</p>
                         </div>
 
                         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200 hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]">
@@ -98,7 +73,7 @@ const InformationBySchool = (props: InformationBySchoolProps) => {
                                 </div>
                                 <h3 className="font-medium">Chuyên ngành</h3>
                             </div>
-                            <p className="text-lg font-semibold">{specialityDepartment?.data?.data?.items[0]?.specialityName}</p>
+                            <p className="text-lg font-semibold">{education?.specialityName}</p>
                         </div>
 
                         <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200 hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]">
@@ -108,9 +83,12 @@ const InformationBySchool = (props: InformationBySchoolProps) => {
                                 </div>
                                 <h3 className="font-medium">Lớp</h3>
                             </div>
-                            <p className="text-lg font-semibold">{props?.studentClassName}</p>
+                            <p className="text-lg font-semibold">{education?.studentClassName}</p>
                         </div>
                     </div>
+
+
+
 
                     <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 hover:shadow-md transition-all duration-300">
                         <div className="flex items-center mb-2">

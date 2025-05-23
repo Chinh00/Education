@@ -3,7 +3,7 @@ import useGetStudentInformation from "../hooks/useGetStudentInformation";
 import { Card } from "@/app/components/ui/card";
 import {Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar";
 import { Button } from "@/app/components/ui/button";
-import {CircleUserRound, Clock, Edit, GraduationCap, School, Share } from "lucide-react";
+import {CircleUserRound, Clock, Edit, Share, Mail } from "lucide-react";
 import BadgeInformation from "../components/badge_information";
 import { Typography } from "@mui/material";
 import PersonalInformation from "../components/personal_information";
@@ -11,18 +11,8 @@ import Background from "@/assets/images/background.jpg"
 import DefaultAvatar from "@/assets/images/avatar.png"
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import InformationBySchool from "@/app/modules/student/components/information_by_school.tsx";
-import {useGetCourses, useGetDepartments, useGetEducations} from "../../common/hook";
 const StudentInformation = () => {
     const {data, isPending, isSuccess} = useGetStudentInformation()
-    const {data: educations, isSuccess: educationIsSuccess} = useGetEducations({
-        Filters: [
-            {
-                field: "Code",
-                operator: "In",
-                value: data?.data?.data?.informationBySchool?.educationCodes.join(",") ?? ""
-            }
-        ]
-    }, isSuccess);
 
 
 
@@ -53,10 +43,10 @@ const StudentInformation = () => {
                     </div>
                     <div className={"flex flex-col w-full justify-center content-center h-full gap-2"}>
                         <Typography className={"text-center md:text-left"} fontSize={"large"} fontWeight={"bold"}>{data?.data?.data?.personalInformation?.fullName}</Typography>
-                        <BadgeInformation text={"Mã sinh viên: 2151062726"} icon={<CircleUserRound color={"gray"} size={20} className={"border-none border-0"}/>} />
+                        <BadgeInformation text={`Mã sinh viên: ${data?.data?.data?.informationBySchool?.studentCode}`} icon={<CircleUserRound color={"gray"} size={20} className={"border-none border-0"}/>} />
                         <BadgeInformation text={"Đang học"} icon={<Clock color={"gray"} size={20} />} className={" bg-green-200 border-none"}/>
-                        <BadgeInformation text={data?.data?.data?.informationBySchool?.studentClassName} icon={<School color={"gray"} size={20} />} />
-                        <BadgeInformation text={"Công nghệ thông tin"} icon={<GraduationCap color={"gray"} size={20} />}/>
+                        <BadgeInformation text={data?.data?.data?.personalInformation?.officeEmail} icon={<Mail color={"gray"} size={20} />} />
+                        {/*<BadgeInformation text={"Công nghệ thông tin"} icon={<GraduationCap color={"gray"} size={20} />}/>*/}
 
                     </div>
                 </div>
@@ -80,7 +70,7 @@ const StudentInformation = () => {
             {/*</Tabs>*/}
             <div className={"grid md:grid-cols-5 gap-5 grid-cols-1 w-full mt-10"}>
                 <PersonalInformation personalInformation={data?.data?.data?.personalInformation} />
-                <InformationBySchool educations={educations?.data?.data?.items ?? []} studentClassName={data?.data?.data?.informationBySchool?.studentClassName ?? ""}   />
+                <InformationBySchool educations={data?.data?.data?.educationPrograms ?? []}  />
             </div>
 
 

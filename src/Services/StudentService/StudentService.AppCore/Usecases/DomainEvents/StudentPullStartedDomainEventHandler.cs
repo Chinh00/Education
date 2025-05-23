@@ -34,6 +34,6 @@ public class StudentPullStartedDomainEventHandler(
         student.CreateStudent(result?.Value?.PersonalInformation, result?.Value?.InformationBySchool, result?.Value?.EducationPrograms);
         student.ChangeStatus(StudentStatus.Active);
         await service.SaveEventStore(student, cancellationToken);
-        await producer.Produce(new { UserName = notification?.StudentCode }, cancellationToken);
+        await producer.Produce(new StudentPulledIntegrationEvent(notification?.StudentCode), cancellationToken);
     }
 }

@@ -3,6 +3,7 @@ using Education.Infrastructure.Controllers;
 using Education.Infrastructure.Exception;
 using Education.Infrastructure.Logging;
 using Education.Infrastructure.Mediator;
+using Education.Infrastructure.Mongodb;
 using Education.Infrastructure.Redis;
 using Education.Infrastructure.Swagger;
 using Hangfire;
@@ -26,7 +27,8 @@ builder.Services.AddAuth(builder.Configuration)
     .AddHangfire(config =>
     {
         config.UseRedisStorage($"{builder.Configuration.GetValue<string>("Redis:Server")}:{builder.Configuration.GetValue<string>("Redis:Port")},abortConnect=false");
-    }); 
+    })
+    .AddMongodbService(builder.Configuration, typeof(Program)); 
 builder.Services.AddHangfireServer();
 var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();

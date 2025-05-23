@@ -32,16 +32,18 @@ public class RegisterController : BaseController
     {
         return Ok(await Mediator.Send(new GetRegisterCourseCurrentQuery(), cancellationToken));
     }
-        
+
     /// <summary>
     /// Thông tin đã đăng ký
     /// </summary>
+    /// <param name="educationCode"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> HandleGetStudentRegisterAsync(CancellationToken cancellationToken)
+    [HttpGet("{educationCode}")]
+    [Authorize]
+    public async Task<IActionResult> HandleGetStudentRegisterAsync(string educationCode, CancellationToken cancellationToken)
     {
-        return Ok(await Mediator.Send(new GetRegisterCourseStateQuery(), cancellationToken));
+        return Ok(await Mediator.Send(new GetRegisterCourseStateQuery(educationCode), cancellationToken));
     }
 
 }

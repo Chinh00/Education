@@ -1,5 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 using Confluent.Kafka;
+using Education.Contract.DomainEvents;
 using Education.Contract.IntegrationEvents;
 using Education.Infrastructure;
 using GrpcServices;
@@ -41,11 +42,21 @@ public static class Extensions
             c.AddRider(e =>
             {
                 e.AddProducer<RegisterLockedIntegrationEvent>(nameof(RegisterLockedIntegrationEvent));
+                e.AddProducer<StudentRegisterCreatedDomainEvent>(nameof(StudentRegisterCreatedDomainEvent));
                 
                 e.AddConsumer<EventDispatcher>();
                 e.UsingKafka((context, configurator) =>
                 {
                     configurator.Host(configuration.GetValue<string>("Kafka:BootstrapServers"));
+                    configurator.TopicEndpoint<StudentRegisterCreatedDomainEvent>(nameof(StudentRegisterCreatedDomainEvent), "register-training",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
+                    
+                    
                     configurator.TopicEndpoint<RegisterSemesterCreatedIntegrationEvent>(nameof(RegisterSemesterCreatedIntegrationEvent), "register-training",
                         endpointConfigurator =>
                         {

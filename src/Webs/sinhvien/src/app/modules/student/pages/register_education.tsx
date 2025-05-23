@@ -19,6 +19,7 @@ import { Subject } from '@/domain/subject.ts';
 import {Badge} from "@/app/components/ui/badge.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/app/components/ui/select.tsx";
 import RegistrationTimer from "@/app/modules/student/components/reigstration_timer.tsx";
+import {useGetRegisterSubjectCurrent} from "@/app/modules/student/hooks/useGetRegisterSubjectCurrent.ts";
 
 
 
@@ -110,7 +111,18 @@ const RegisterEducation= () => {
 
         },
     ];
-    const tableColumns = columns.map((item) => ({ ...item }));
+
+    const {data: registerSubject} = useGetRegisterSubjectCurrent(educations?.data?.data?.items[0]?.code, educations?.data?.data?.items[0]?.code !== undefined)
+
+    useEffect(() => {
+        if (registerSubject && registerSubject?.data?.data !== undefined && subjects?.data?.data?.items !== undefined) {
+            setDataAdd(prevState => [
+                ...prevState,
+                ...subjects?.data?.data?.items?.filter(c => registerSubject?.data?.data?.subjectCodes?.includes(c?.subjectCode))
+            ])
+        }
+    }, [registerSubject, subjects?.data?.data?.items]);
+
     return (
         <PredataScreen isLoading={isPending || registerCurrentStateLoading} isSuccess={isSuccess && registerCurrentStateSuccess}>
             <div className={"flex flex-col gap-10"}>

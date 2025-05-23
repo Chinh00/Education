@@ -26,7 +26,9 @@ const CreateRegister = () => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Cấu hình đăng ký nguyện vọng học"}));
     }, []);
 
-    const {data: semester, isPending, isSuccess} = useGetSemesters({})
+    const {data: semester, isPending, isSuccess} = useGetSemesters({
+        Sorts: ["IdDesc"]
+    })
     const {mutate, isPending: mutateLoading, reset} = useCreateRegisterState()
 
     const {control, handleSubmit, setValue, getValues} = useForm<CreateRegisterStateModel>({

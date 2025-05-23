@@ -16,7 +16,7 @@ public static class Extensions
         services.AddControllers().AddNewtonsoftJson(opt =>
         {
             opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            opt.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+            // opt.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             opt.SerializerSettings.Formatting = Formatting.Indented;
         });
         action?.Invoke(services);

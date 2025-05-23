@@ -13,6 +13,7 @@ const rootReducer = combineReducers({
 const rootConfig = {
     key: 'root',
     storage,
+    blacklist: []
 }
 const store = configureStore({
     reducer: persistReducer(rootConfig, rootReducer),

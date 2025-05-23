@@ -6,5 +6,6 @@ export const RoutePaths = {
     STUDENT_REGISTER: "/student/register",
     STUDENT_EDUCATION: "/student/education",
     STUDENT_RESULT: "/student/result",
+    STUDENT_EDUCATION_RESULT: "/student/result/:id",
     HOME: "/"
 }

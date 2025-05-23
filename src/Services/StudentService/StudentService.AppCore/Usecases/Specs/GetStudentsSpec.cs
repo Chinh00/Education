@@ -12,5 +12,6 @@ public class GetStudentsSpec : ListSpecificationBase<Student>
         ApplyIncludes(query.Includes);
         ApplySorts(query.Sorts);
         ApplyPaging(query.Page, query.PageSize);
+        ApplyInclude(c => c.Id);
     }
 }

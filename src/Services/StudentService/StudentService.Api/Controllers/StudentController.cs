@@ -31,6 +31,18 @@ public class StudentController : BaseController
 
 
     /// <summary>
+    /// Lấy thông tin sinh viên theo kì
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("Semester")]
+    [Authorize]
+    public async Task<IActionResult> HandleGetStudentSemestersAsync([FromQuery] GetStudentSemestersQuery query, CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(query, cancellationToken));
+
+    
+    /// <summary>
     /// Danh sách sinh viên
     /// </summary>
     /// <param name="query"></param>

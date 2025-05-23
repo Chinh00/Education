@@ -14,7 +14,11 @@ public class ListSpecificationBase<TEntity> : IListSpecification<TEntity>
     public int Skip { get; set; } = 1;
     public int Take { get; set; } = 10;
     
-    public void ApplyFilter(Expression<Func<TEntity, bool>> filter) => Filters.Add(filter);
+    public void ApplyFilter(Expression<Func<TEntity, bool>> filter)
+    {
+        Filters.Add(filter);
+    }
+
     public void ApplyFilter(FilterModel filterModel) => Filters.Add(Extensions.MakeFilterExpression<TEntity>(filterModel));
     public void ApplyFilters(List<Expression<Func<TEntity, bool>>> filters) => Filters.AddRange(filters);
     public void ApplyFilters(List<FilterModel> filterModels) => filterModels.ForEach(ApplyFilter);

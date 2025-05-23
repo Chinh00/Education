@@ -33,7 +33,7 @@ const MainLayout = () => {
                 </div>
             </div>
         </header>
-        <SidebarProvider className={"relative w-full"}>
+        <SidebarProvider className={"relative w-full overflow-hidden"}>
             <AppSidebar />
             <SidebarInset className={"w-full"}>
                 {/*<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">*/}
@@ -43,7 +43,7 @@ const MainLayout = () => {
 
                 {/*    </div>*/}
                 {/*</header>*/}
-                <div className={"p-5"}>
+                <div className={"p-5 overflow-hidden"}>
                     <Outlet />
                     <div className={"mt-20"}></div>
                 </div>

@@ -1,119 +1,83 @@
 import { Card, CardContent } from "@/app/components/ui/card";
-import { Calendar } from "lucide-react";
+import { Calendar, GraduationCap, User } from "lucide-react";
 import useGetStudentInformation from "../hooks/useGetStudentInformation";
-import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/app/components/ui/accordion";
-import {HistorySemester} from "@/domain/history_semester.model.ts";
-import dayjs from "dayjs";
-
-
+import {motion} from "framer-motion"
+import {Button} from "@/app/components/ui/button.tsx";
+import {
+    ArrowLeft
+} from "lucide-react"
+import StatsCard from "../components/stats_card";
+import {Badge} from "@/app/components/ui/badge";
+import ProgramCard from "../components/program_card";
+import {DateTimeFormat} from "@/infrastructure/datetime_format.ts";
 const StudentResult = () => {
-    const { data } = useGetStudentInformation();
+    const {data} = useGetStudentInformation();
     return (
-        <Card className={"hover:shadow-lg transition-all duration-300 border-t-4 border-t-blue-500"}>
-            <CardContent>
-                <div className="space-y-6">
-                    <h2 className="text-2xl font-bold">Kết quả học tập theo học kỳ</h2>
-                    {/*{!!data?.data?.data?.historySemesters && data?.data?.data?.historySemesters?.map((c: HistorySemester) => {*/}
-                    {/*    return (*/}
-                    {/*        <Accordion type="multiple" className="w-full space-y-4">*/}
-                    {/*            <AccordionItem*/}
-                    {/*                key={c?.semesterCode}*/}
-                    {/*                value={c?.semesterCode}*/}
-                    {/*                className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all"*/}
-                    {/*            >*/}
-                    {/*                <AccordionTrigger className="px-6 py-4 hover:no-underline bg-gradient-to-r from-blue-50 to-indigo-50">*/}
-                    {/*                    <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full text-left">*/}
-                    {/*                        <div className="flex items-center">*/}
-                    {/*                            <div className="mr-4 bg-blue-100 p-2 rounded-full">*/}
-                    {/*                                <Calendar className="h-5 w-5 text-blue-600" />*/}
-                    {/*                            </div>*/}
-                    {/*                            <div>*/}
-                    {/*                                <h3 className="font-medium text-lg">{c?.semesterName}</h3>*/}
-                    {/*                                <p className="text-sm text-muted-foreground">*/}
-                    {/*                                    {dayjs(c?.startDate).format("DD-MM-YYYY")} - {c?.endDate}*/}
-                    {/*                                </p>*/}
-                    {/*                            </div>*/}
-                    {/*                        </div>*/}
-                    {/*                        <div className="flex items-center gap-4 mt-2 md:mt-0">*/}
-                    {/*                            <div className="text-center">*/}
-                    {/*                                <p className="text-sm text-muted-foreground">GPA</p>*/}
-                    {/*                                <p className="font-bold text-blue-600">*/}
-                    {/*                                    /!*{ === "Đang học" ? "-" : semester.gpa.toFixed(2)}*!/*/}
-                    {/*                                    Đang học*/}
-                    {/*                                </p>*/}
-                    {/*                            </div>*/}
-                    {/*                            <div className="text-center">*/}
-                    {/*                                <p className="text-sm text-muted-foreground">Tín chỉ</p>*/}
-                    {/*                                <p className="font-bold text-green-600">{10}</p>*/}
-                    {/*                            </div>*/}
-                    {/*                            /!*<Badge*!/*/}
-                    {/*                            /!*    className={*!/*/}
-                    {/*                            /!*        semester.status === "Đã hoàn thành"*!/*/}
-                    {/*                            /!*            ? "bg-green-100 text-green-800"*!/*/}
-                    {/*                            /!*            : "bg-blue-100 text-blue-800"*!/*/}
-                    {/*                            /!*    }*!/*/}
-                    {/*                            /!*>*!/*/}
-                    {/*                            /!*    {semester.status}*!/*/}
-                    {/*                            /!*</Badge>*!/*/}
-                    {/*                        </div>*/}
-                    {/*                    </div>*/}
-                    {/*                </AccordionTrigger>*/}
-                    {/*                <AccordionContent className="px-6 py-4">*/}
-                    {/*                    <div className="overflow-x-auto">*/}
-                    {/*                        <table className="w-full border-collapse">*/}
-                    {/*                            <thead>*/}
-                    {/*                            <tr className="bg-muted/50 text-left">*/}
-                    {/*                                <th className="p-2 font-medium">Mã môn</th>*/}
-                    {/*                                <th className="p-2 font-medium">Tên môn học</th>*/}
-                    {/*                                <th className="p-2 font-medium text-center">Tín chỉ</th>*/}
-                    {/*                                <th className="p-2 font-medium text-center">Điểm</th>*/}
-                    {/*                                <th className="p-2 font-medium">Giảng viên</th>*/}
-                    {/*                                <th className="p-2 font-medium text-center">Trạng thái</th>*/}
-                    {/*                            </tr>*/}
-                    {/*                            </thead>*/}
-                    {/*                            <tbody>*/}
-                    {/*                            {c?.subjectResults?.map((subject, index) => (*/}
-                    {/*                                <tr*/}
-                    {/*                                    key={subject?.subjectCode}*/}
-                    {/*                                    className={`${index % 2 === 0 ? "bg-white" : "bg-muted/20"} hover:bg-muted/30 transition-colors`}*/}
-                    {/*                                >*/}
-                    {/*                                    <td className="p-2 font-medium">{subject?.subjectCode}</td>*/}
-                    {/*                                    <td className="p-2">{subject?.subjectName}</td>*/}
-                    {/*                                    <td className="p-2 text-center">{subject?.numberOfCredits}</td>*/}
-                    {/*                                    <td className="p-2 text-center">*/}
-                    {/*                                        /!*{course.grade ? (*!/*/}
-                    {/*                                        /!*    <Badge className={getGradeColor(course.grade)}>{course.grade}</Badge>*!/*/}
-                    {/*                                        /!*) : (*!/*/}
-                    {/*                                        /!*    <span className="text-muted-foreground text-sm italic">Chưa có điểm</span>*!/*/}
-                    {/*                                        /!*)}*!/*/}
-                    {/*                                    </td>*/}
-                    {/*                                    <td className="p-2">{subject?.description}</td>*/}
-                    {/*                                    <td className="p-2 text-center">*/}
-                    {/*                                        /!*<Badge*!/*/}
-                    {/*                                        /!*    className={*!/*/}
-                    {/*                                        /!*        course.status === "Đã hoàn thành"*!/*/}
-                    {/*                                        /!*            ? "bg-green-100 text-green-800"*!/*/}
-                    {/*                                        /!*            : "bg-blue-100 text-blue-800"*!/*/}
-                    {/*                                        /!*    }*!/*/}
-                    {/*                                        /!*>*!/*/}
-                    {/*                                        /!*    {course.status}*!/*/}
-                    {/*                                        /!*</Badge>*!/*/}
-                    {/*                                    </td>*/}
-                    {/*                                </tr>*/}
-                    {/*                            ))}*/}
-                    {/*                            </tbody>*/}
-                    {/*                        </table>*/}
-                    {/*                    </div>*/}
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4 md:p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <Card className="p-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white border-0 shadow-xl overflow-hidden relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 backdrop-blur-3xl"></div>
+                        <div className="relative flex items-center justify-between flex-wrap gap-4">
+                            <div className="flex items-center gap-4">
+                                <motion.div
+                                    className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm"
+                                    whileHover={{ scale: 1.05 }}
+                                    transition={{ type: "spring", stiffness: 300 }}
+                                >
+                                    <User className="w-8 h-8" />
+                                </motion.div>
+                                <div>
+                                    <h1 className="text-2xl md:text-3xl font-bold">{data?.data?.data?.personalInformation?.fullName}</h1>
+                                    <div className="flex items-center gap-4 mt-2 text-blue-100">
+                                        <div className="flex items-center gap-1">
+                                            <GraduationCap className="w-4 h-4" />
+                                            <span>{data?.data?.data?.informationBySchool?.studentCode}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <Calendar className="w-4 h-4" />
+                                            <span>{DateTimeFormat(data?.data?.data?.personalInformation?.birthDate ?? (new Date()).toString(), "DD-MM-YYYY")}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-sm text-blue-100">Tổng số chương trình</div>
+                                <div className="text-xl font-semibold">{data?.data?.data?.educationPrograms?.length}</div>
+                                <Badge variant="secondary" className="mt-2 bg-white/20 text-white hover:bg-white/30">
+                                    {data?.data?.data?.educationPrograms?.length} đang học
+                                </Badge>
+                            </div>
+                        </div>
+                    </Card>
+                </motion.div>
 
-
-                    {/*                </AccordionContent>*/}
-                    {/*            </AccordionItem>*/}
-                    {/*        </Accordion>*/}
-                    {/*    )*/}
-                    {/*})}*/}
-                </div>
-            </CardContent>
-        </Card>
+                {/* Programs List */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                    <Card className="p-6">
+                        <h2 className="text-xl font-semibold mb-6 text-gray-900">Chương trình học</h2>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {!!data && data?.data?.data?.educationPrograms?.map((program, index) => (
+                                <ProgramCard
+                                    key={program.code}
+                                    program={program}
+                                    index={index}
+                                />
+                            ))}
+                        </div>
+                    </Card>
+                </motion.div>
+            </div>
+        </div>
     )
 }
 

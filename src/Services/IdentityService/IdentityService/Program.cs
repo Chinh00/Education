@@ -3,6 +3,7 @@ using Duende.IdentityServer;
 using Education.Contract.IntegrationEvents;
 using Education.Infrastructure.Logging;
 using Education.Infrastructure.Mediator;
+using Education.Infrastructure.Swagger;
 using IdentityService;
 using IdentityService.Data;
 using IdentityService.Data.Internal;
@@ -107,7 +108,6 @@ builder.Services.AddHostedService<SeedDataHostedService>();
 
 
 
-
 var app = builder.Build();
 app.UseCors("Cors");
 
@@ -121,5 +121,5 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseIdentityServer();
-
+app.UseStaticFiles();
 app.Run();

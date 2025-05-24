@@ -1,0 +1,195 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Duende IdentityServer",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/identityservice"
+    }
+  ],
+  "paths": {
+    "/connect/token": {
+      "post": {
+        "summary": "Token Endpoint",
+        "description": "Xác thực người dùng sinh viên",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "grant_type": {
+                    "type": "string",
+                    "example": "external_student"
+                  },
+                  "client_id": {
+                    "type": "string",
+                    "example": "sinhvientest"
+                  },
+                  "client_secret": {
+                    "type": "string",
+                    "example": "secret"
+                  },
+                  "scope": {
+                    "type": "string",
+                    "example": "openid profile api.student"
+                  },
+                  "student_code": {
+                    "type": "string",
+                    "example": "2151062726"
+                  }
+                },
+                "required": ["grant_type", "client_id", "client_secret"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": { "type": "string" },
+                    "expires_in": { "type": "integer" },
+                    "token_type": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connect/userinfo": {
+      "get": {
+        "summary": "UserInfo Endpoint",
+        "description": "Returns claims about the authenticated end-user.",
+        "security": [
+          {
+            "oauth2": ["openid", "profile"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User Info Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connect/introspect": {
+      "post": {
+        "summary": "Introspection Endpoint",
+        "description": "Validates a token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  },
+                  "token_type_hint": {
+                    "type": "string",
+                    "example": "access_token"
+                  }
+                },
+                "required": ["token"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Introspection Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connect/revocation": {
+      "post": {
+        "summary": "Revocation Endpoint",
+        "description": "Revoke a token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  },
+                  "token_type_hint": {
+                    "type": "string"
+                  }
+                },
+                "required": ["token"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful revocation (empty response)"
+          }
+        }
+      }
+    },
+    "/.well-known/openid-configuration": {
+      "get": {
+        "summary": "Discovery Endpoint",
+        "description": "Provides OpenID Connect configuration metadata.",
+        "responses": {
+          "200": {
+            "description": "Discovery metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "/connect/token",
+            "scopes": {
+              "openid": "OpenID scope",
+              "profile": "Profile scope"
+            }
+          }
+        }
+      }
+    }
+  }
+}

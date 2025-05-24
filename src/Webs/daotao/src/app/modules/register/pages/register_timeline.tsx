@@ -1,8 +1,16 @@
-import {useParams} from "react-router";
+import {useNavigate, useParams} from "react-router";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
-import {useEffect} from "react";
-
+import {useEffect, useState} from "react";
+import {ColumnsType} from "@/app/modules/common/hook.ts";
+import {SubjectRegister} from "@/domain/student_register.ts";
+import { useGetSubjectRegister } from "../../education/hooks/useGetSubjectRegister";
+import { Query } from "@/infrastructure/query";
+import {Box, IconButton} from "@mui/material";
+import {Table, Typography} from "antd";
+import PredataScreen from "@/app/components/screens/predata_screen.tsx";
+import {useGetRegistersState} from "@/app/modules/education/hooks/useGetRegisters.ts";
+import {Settings} from "lucide-react"
 const RegisterTimeline = () => {
     const {semester} = useParams()
     const dispatch = useAppDispatch()
@@ -11,10 +19,116 @@ const RegisterTimeline = () => {
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: `Thời khóa biểu học kì ${semester}`}));
     }, []);
-    return (
-        <>
+    const {data: RegisterState} = useGetRegistersState({
+        Filters: [
+            {
+                field: "SemesterCode",
+                operator: "==",
+                value: semester!
+            }
+        ]
+    })
+    const columns: ColumnsType<SubjectRegister> = [
+        {
+            title: 'Mã môn học',
+            dataIndex: "subjectCode",
+        },
+        {
+            title: 'Mã chương trình học',
+            dataIndex: "educationCode",
+        },
+        {
+            title: 'Số lượng sinh viên đăng ký',
+            dataIndex: "registerDate",
+            render: (text, record) => (
+                <div>{record?.studentCodes?.length}</div>
+            )
+        },
+        {
+            title: 'Cấu hình thời khóa biểu',
+            key: "action",
+            render: (text, record) => (
+                <IconButton size={"small"}><Settings /></IconButton>
+            )
+        }
 
-        </>
+
+    ];
+    const tableColumns = columns.map((item) => ({ ...item }));
+    const nav = useNavigate();
+
+
+    const [query, setQuery] = useState<Query>({
+        Filters: [
+            {
+                field: "SemesterCode",
+                operator: "==",
+                value: semester!
+            }
+        ]
+    })
+    useEffect(() => {
+        if (RegisterState) {
+            setStudentRegisterQuery(prevState => ({
+                ...prevState,
+                Filters: [
+                    ...prevState?.Filters?.filter(c => c.field !== "CorrelationId") ?? [],
+                    {
+                        field: "CorrelationId",
+                        operator: "==",
+                        value: RegisterState?.data?.data?.items[0]?.correlationId
+                    }
+                ]
+            }))
+        }
+    }, [RegisterState]);
+    const [studentRegisterQuery, setStudentRegisterQuery] = useState<Query>({
+
+    })
+    const {data, isPending, isSuccess} = useGetSubjectRegister(studentRegisterQuery)
+
+
+
+
+
+
+
+
+
+
+
+    return (
+        <PredataScreen isLoading={isPending} isSuccess={isSuccess} >
+            <Box className={"flex gap-5 flex-col"}>
+                <Table<SubjectRegister>
+                    rowKey={(c) => c.id}
+                    loading={isPending}
+                    style={{
+                        height: "500px",
+                    }}
+                    showHeader={true}
+                    title={() => <Box className={"flex flex-col justify-start items-start p-[16px] text-white "}>
+                    </Box>}
+                    size={"small"}
+                    pagination={{
+                        current: query?.Page ?? 1,
+                        pageSize: query?.PageSize ?? 10,
+                        total: data?.data?.data?.totalItems ?? 0
+                    }}
+                    onChange={(e) => {
+                        setQuery(prevState => ({
+                            ...prevState,
+                            Page: e?.current ?? 1 - 1,
+                            PageSize: e?.pageSize
+                        }))
+                    }}
+                    bordered={true}
+                    columns={tableColumns}
+                    dataSource={data?.data?.data?.items ?? []}
+
+                />
+            </Box>
+        </PredataScreen>
     )
 }
 export default RegisterTimeline;

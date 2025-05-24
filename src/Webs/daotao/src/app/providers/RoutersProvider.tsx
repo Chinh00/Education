@@ -37,6 +37,7 @@ const EducationLayout = lazy(() => import("../modules/education/layouts/educatio
 const StudentLayout = lazy(() => import("../modules/student/layouts/student_layout.tsx"));
 const StudentList = lazy(() => import("../modules/student/pages/student_list.tsx"));
 const LoginPage = lazy(() => import("../modules/auth/pages/login.tsx"));
+const HistoryRecord = lazy(() => import("../modules/history/pages/history_record.tsx"));
 
 
 const ProtectedRoute = () => {
@@ -115,10 +116,10 @@ const router = createBrowserRouter([
                                 path: RoutePaths.EDUCATION_REGISTER_COURSE_DETAIL,
                                 element: <Suspense fallback={<TabLoading />} key={"CourseClassDetail"}><CourseClassDetail /></Suspense>,
                             },
-
-
-
-
+                            {
+                                path: RoutePaths.HISTORY_RECORD,
+                                element: <Suspense fallback={<TabLoading />} key={"HistoryRecord"}><HistoryRecord /></Suspense>,
+                            },
                         ],
                     },
 

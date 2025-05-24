@@ -1,11 +1,13 @@
 using Education.Core.Domain;
 using MassTransit;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace TrainingService.AppCore.StateMachine;
 
 public class RegisterState : SagaStateMachineInstance, ISagaVersion
 {
+    public ObjectId Id { get; set; }
     [BsonId]
     public Guid CorrelationId { get; set; }
     public int Version { get; set; }

@@ -6,10 +6,11 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using TrainingService.AppCore.StateMachine;
 using TrainingService.AppCore.Usecases.Specs;
+using TrainingService.Domain;
 
 namespace TrainingService.AppCore.Usecases.Queries;
 
-public record GetRegistersQuery : IListQuery<ListResultModel<RegisterState>>
+public record GetRegistersQuery : IListQuery<ListResultModel<RegisterConfig>>
 {
     public List<FilterModel> Filters { get; set; } = [];
     public List<string> Sorts { get; set; } = [];
@@ -17,25 +18,16 @@ public record GetRegistersQuery : IListQuery<ListResultModel<RegisterState>>
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 10;
     
-    internal class Handler : IRequestHandler<GetRegistersQuery, ResultModel<ListResultModel<RegisterState>>>
+    internal class Handler(IMongoRepository<RegisterConfig> repository)
+        : IRequestHandler<GetRegistersQuery, ResultModel<ListResultModel<RegisterConfig>>>
     {
-        private readonly IMongoRepository<RegisterState> _repository;
-
-        public Handler(IOptions<MongoOptions> mnOptions)
+        public async Task<ResultModel<ListResultModel<RegisterConfig>>> Handle(GetRegistersQuery request, CancellationToken cancellationToken)
         {
-            _repository = new MongoRepositoryBase<RegisterState>(new MongoClient(mnOptions.Value.ToString())
-                .GetDatabase(mnOptions.Value.Database)
-                .GetCollection<RegisterState>("RegisterSaga"));
-
-        }
-
-        public async Task<ResultModel<ListResultModel<RegisterState>>> Handle(GetRegistersQuery request, CancellationToken cancellationToken)
-        {
-            var spec = new GetRegisterStatesSpec(request);
-            var items = await _repository.FindAsync(spec, cancellationToken);
-            var totalItems = await _repository.CountAsync(spec, cancellationToken);
-            return ResultModel<ListResultModel<RegisterState>>.Create(
-                ListResultModel<RegisterState>.Create(items, totalItems, request.Page, request.PageSize));
+            var spec = new GetRegisterConfigsSpec(request);
+            var items = await repository.FindAsync(spec, cancellationToken);
+            var totalItems = await repository.CountAsync(spec, cancellationToken);
+            return ResultModel<ListResultModel<RegisterConfig>>.Create(
+                ListResultModel<RegisterConfig>.Create(items, totalItems, request.Page, request.PageSize));
         }
     }
 }

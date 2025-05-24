@@ -7,52 +7,11 @@ import { Box } from "@mui/material";
 import {RegisterState} from "@/domain/register_state.ts";
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 import {Table, Typography, type GetProp, type RadioChangeEvent, type TableProps } from 'antd';
-import {Button} from "@/app/components/ui/button.tsx";
+import {IconButton, Button} from "@mui/material";
 import { useNavigate } from "react-router";
 import {RoutePaths} from "@/core/route_paths.ts";
 import dayjs from "dayjs";
-const columns: ColumnsType<RegisterState> = [
-    {
-        title: 'Mã đăng ký học',
-        dataIndex: "semesterCode",
-    },
-    {
-        title: 'Thời gian bắt đầu',
-        dataIndex: "startDate",
-        render: (text, record) => (
-            <div>{dayjs(record?.startDate).format("HH:mm:ss DD-MM-YYYY")}</div>
-        )
-    },
-    {
-        title: 'Thời gian kết thúc',
-        dataIndex: "endDate",
-        render: (text, record) => (
-            <div>{dayjs(record?.endDate).format("HH:mm:ss DD-MM-YYYY")}</div>
-        )
-    },
-    {
-        title: 'Trạng thái',
-        dataIndex: "currentState",
-    },
-
-
-    // {
-    //     title: 'Action',
-    //     key: 'action',
-    //     sorter: true,
-    //     render: () => (
-    //         <Space size="middle">
-    //             <a>Delete</a>
-    //             <a>
-    //                 <Space>
-    //                     More actions
-    //                     <DownOutlined />
-    //                 </Space>
-    //             </a>
-    //         </Space>
-    //     ),
-    // },
-];
+import {History} from "lucide-react"
 
 const RegisterEducation = () => {
     const dispatch = useAppDispatch()
@@ -61,10 +20,44 @@ const RegisterEducation = () => {
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Danh sách đăng ký học"}));
     }, []);
-    const tableColumns = columns.map((item) => ({ ...item }));
     const {data, isLoading, isSuccess, refetch} = useGetRegisterSates({})
 
     const nav = useNavigate();
+    const columns: ColumnsType<RegisterState> = [
+        {
+            title: 'Mã kì đăng ký học',
+            dataIndex: "semesterCode",
+        },
+        {
+            title: 'Thời gian bắt đầu',
+            dataIndex: "startDate",
+            render: (text, record) => (
+                <div>{dayjs(record?.startDate).format("HH:mm:ss DD-MM-YYYY")}</div>
+            )
+        },
+        {
+            title: 'Thời gian kết thúc',
+            dataIndex: "endDate",
+            render: (text, record) => (
+                <div>{dayjs(record?.endDate).format("HH:mm:ss DD-MM-YYYY")}</div>
+            )
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: "currentState",
+        },
+        {
+            title: 'Lịch sử',
+            key: 'action',
+            render: (_, record) => (
+                <IconButton size={"small"} onClick={() => nav(`/history/RegisterConfig/${record?.id}`)}><History /></IconButton>
+            ),
+        },
+
+    ];
+    const tableColumns = columns.map((item) => ({ ...item }));
+
+
     return (
         <PredataScreen isLoading={isLoading} isSuccess={isSuccess}>
             <Box>
@@ -79,11 +72,6 @@ const RegisterEducation = () => {
                         <Button onClick={() => {nav(RoutePaths.EDUCATION_REGISTER_CONFIG)}} className={"bg-green-600 cursor-pointer"}>Tạo mới</Button>
                     </Box>}
                     size={"small"}
-                    // rowSelection={{
-                    //     // onChange: (selectedRowKeys, selectedRows) => {
-                    //     //     setDataAdd(prevState => [...selectedRows])
-                    //     // },
-                    // }}
                     bordered={true}
                     // pagination={true}
                     columns={tableColumns}

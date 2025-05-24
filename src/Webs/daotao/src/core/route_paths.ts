@@ -32,6 +32,7 @@ export const RoutePaths = {
 
     CLASS_LIST: '/classes',
     LOGIN_PAGE: '/login',
+    HISTORY_RECORD: '/history/:aggregateType/:aggregateId',
 
 
 }

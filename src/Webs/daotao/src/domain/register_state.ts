@@ -1,4 +1,5 @@
 export interface RegisterState {
+    id: string
     correlationId: string;
     version: number;
     currentState: string;

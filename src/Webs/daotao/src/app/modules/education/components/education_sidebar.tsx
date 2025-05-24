@@ -59,12 +59,7 @@ const EducationSidebar = () => {
                                 Danh sách đăng ký học
                             </SidebarMenuButton>
                         </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER_DASHBOARD)}>
-                                <LayoutDashboard />
-                                Báo cáo đăng ký nguyện vọng học
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
+
                         <SidebarMenuItem>
                             <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER_COURSE)}>
                                 <Replace />

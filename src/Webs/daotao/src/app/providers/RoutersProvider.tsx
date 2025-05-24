@@ -77,7 +77,7 @@ const router = createBrowserRouter([
                                 element: <Suspense fallback={<TabLoading />} key={"RegisterEducation"} ><RegisterEducation /></Suspense>,
                             },
                             {
-                                path: RoutePaths.EDUCATION_REGISTER_DASHBOARD,
+                                path: RoutePaths.EDUCATION_REGISTER_REPORT,
                                 element: <Suspense fallback={<TabLoading />} key={"DashboardRegister"} ><DashboardRegister /></Suspense>,
                             },
                             {

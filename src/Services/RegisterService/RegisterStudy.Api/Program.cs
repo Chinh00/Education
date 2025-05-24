@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuth(builder.Configuration)
     .AddLoggingService()
     .AddControllerService([typeof(Program)])
-    .AddSwaggerService(typeof(Program))
+    .AddSwaggerService(typeof(Program), "registerservice")
     .AddMediatorService([typeof(Anchor)])
     .AddMasstransitService(builder.Configuration)
     .AddRedis(builder.Configuration)

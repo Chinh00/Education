@@ -11,7 +11,7 @@ import {IconButton, Button} from "@mui/material";
 import { useNavigate } from "react-router";
 import {RoutePaths} from "@/core/route_paths.ts";
 import dayjs from "dayjs";
-import {History} from "lucide-react"
+import {History, ChartNoAxesCombined} from "lucide-react"
 
 const RegisterEducation = () => {
     const dispatch = useAppDispatch()
@@ -46,6 +46,14 @@ const RegisterEducation = () => {
             title: 'Trạng thái',
             dataIndex: "currentState",
         },
+
+        {
+            title: 'Báo cáo',
+            key: 'action',
+            render: (_, record) => (
+                <IconButton size={"small"} onClick={() => nav(`/educations/dashboard/${record?.semesterCode}`)}><ChartNoAxesCombined /></IconButton>
+            ),
+        },
         {
             title: 'Lịch sử',
             key: 'action',
@@ -53,7 +61,6 @@ const RegisterEducation = () => {
                 <IconButton size={"small"} onClick={() => nav(`/history/RegisterConfig/${record?.id}`)}><History /></IconButton>
             ),
         },
-
     ];
     const tableColumns = columns.map((item) => ({ ...item }));
 

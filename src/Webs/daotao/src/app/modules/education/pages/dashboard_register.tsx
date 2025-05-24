@@ -9,26 +9,22 @@ import {StudentRegister} from "@/domain/student_register.ts";
 import { ColumnsType } from "../../common/hook";
 import dayjs from "dayjs";
 import {RegisterState} from "@/domain/register_state.ts";
-import {Button, Space, Table, Typography} from "antd";
+import {Button, Space, Steps, Table, Typography} from "antd";
 import { RoutePaths } from "@/core/route_paths";
-import {Link, useNavigate } from "react-router";
+import {Link, useNavigate, useParams} from "react-router";
 import { EyeIcon } from "lucide-react"
-import {DashboardState, setSemesterSelected} from "@/app/modules/education/stores/dashboard_register_slice.ts";
-import SemesterSelect from "@/app/components/select/semester_select.tsx";
 import {Query} from "@/infrastructure/query.ts";
 
 const DashboardRegister = () => {
+    const {semester} = useParams()
     const dispatch = useAppDispatch()
 
     const {groupFuncName} = useAppSelector<CommonState>(c => c.common)
     useEffect(() => {
-        dispatch(setGroupFuncName({...groupFuncName, itemName: "Báo cáo đăng ký nguyện vọng học"}));
+        dispatch(setGroupFuncName({...groupFuncName, itemName: `Báo cáo đăng ký nguyện vọng học kì ${semester}`}));
     }, []);
 
-    const [studentRegisterQuery, setStudentRegisterQuery] = useState<Query>({
 
-    })
-    const {data, isPending, isSuccess} = useGetStudentRegister(studentRegisterQuery)
 
 
 
@@ -67,42 +63,71 @@ const DashboardRegister = () => {
 
     const tableColumns = columns.map((item) => ({ ...item }));
     const nav = useNavigate();
-    const {semesterSelected} = useAppSelector<DashboardState>(c => c.dashboardRegister)
 
 
-
-
-    const {data: registerState, isLoading, isSuccess: registerIsSuccess} = useGetRegisterSates({
+    const [query, setQuery] = useState<Query>({
         Filters: [
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: semesterSelected!
+                value: semester!
             }
         ]
-    }, semesterSelected !== undefined)
-
+    })
+    const {data: registerState, isLoading, isSuccess: registerIsSuccess} = useGetRegisterSates(query, semester !== undefined)
     useEffect(() => {
-        if (semesterSelected !== undefined) {
+        if (registerState) {
             setStudentRegisterQuery(prevState => ({
                 ...prevState,
                 Filters: [
+                    ...prevState?.Filters?.filter(c => c.field !== "CorrelationId") ?? [],
                     {
                         field: "CorrelationId",
                         operator: "==",
-                        value: registerState?.data?.data?.items[0]?.correlationId ?? ""
+                        value: registerState?.data?.data?.items[0]?.correlationId
                     }
                 ]
             }))
         }
-    }, [registerState, isLoading, registerIsSuccess]);
+    }, [registerState]);
+    const [studentRegisterQuery, setStudentRegisterQuery] = useState<Query>({
 
+    })
+    const {data, isPending, isSuccess} = useGetStudentRegister(studentRegisterQuery)
+
+    const description = 'This is a description.';
 
     return <PredataScreen isLoading={isPending} isSuccess={isSuccess} >
         <Box className={"flex gap-5 flex-col"}>
-            <SemesterSelect valueSelected={""} onChange={(value) => {
-                dispatch(setSemesterSelected(value))
-            }} />
+            <Steps
+                current={1}
+                items={[
+                    {
+                        title: 'Finished',
+                        description: "Lấy nguyện vọng sinh viên",
+                    },
+                    {
+                        title: 'In Progress',
+                        description: "Lập thời khóa biểu",
+                        subTitle: 'Left 00:00:08',
+                    },
+                    {
+                        title: 'Waiting',
+                        description: "Gán giáo viên vào lớp học",
+                    },
+                    {
+                        title: 'Waiting',
+                        description: "Sinh viên thay đổi",
+                    },
+                    {
+                        title: 'Waiting',
+                        description: "Kết thúc",
+                    },
+
+
+                ]}
+            />
+
             <Table<StudentRegister>
                 rowKey={(c) => c.id}
                 loading={isPending}
@@ -115,13 +140,19 @@ const DashboardRegister = () => {
                     <Typography>Tổng số sinh viên đăng ký: {data?.data?.data?.totalItems}</Typography>
                 </Box>}
                 size={"small"}
-                // rowSelection={{
-                //     // onChange: (selectedRowKeys, selectedRows) => {
-                //     //     setDataAdd(prevState => [...selectedRows])
-                //     // },
-                // }}
+                pagination={{
+                    current: query?.Page ?? 1,
+                    pageSize: query?.PageSize ?? 10,
+                    total: data?.data?.data?.totalItems ?? 0
+                }}
+                onChange={(e) => {
+                    setQuery(prevState => ({
+                        ...prevState,
+                        Page: e?.current ?? 1 - 1,
+                        PageSize: e?.pageSize
+                    }))
+                }}
                 bordered={true}
-                // pagination={true}
                 columns={tableColumns}
                 dataSource={data?.data?.data?.items ?? []}
 

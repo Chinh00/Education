@@ -4,19 +4,17 @@ using TrainingService.Domain;
 
 namespace TrainingService.AppCore.Usecases.Specs;
 
-public class GetStudentRegistersSpec : ListSpecificationBase<StudentRegister> 
+public class GetSubjectRegistersSpec : ListSpecificationBase<SubjectRegister> 
 {
-    public GetStudentRegistersSpec(IListQuery<ListResultModel<StudentRegister>> query)
+    public GetSubjectRegistersSpec(IListQuery<ListResultModel<SubjectRegister>> query)
     {
         ApplyFilters(query.Filters);
         ApplyPaging(query.Page, query.PageSize);
         ApplyIncludes(query.Includes);
         ApplySorts(query.Sorts);
         ApplyInclude(c => c.Id);
-        ApplyInclude(c => c.StudentCode);
+        ApplyInclude(c => c.StudentCodes);
+        ApplyInclude(c => c.SubjectCode);
         ApplyInclude(c => c.CorrelationId);
-        ApplyInclude(c => c.EducationCode);
-        ApplyInclude(c => c.SubjectCodes);
-        ApplyInclude(c => c.RegisterDate);
     }
 }

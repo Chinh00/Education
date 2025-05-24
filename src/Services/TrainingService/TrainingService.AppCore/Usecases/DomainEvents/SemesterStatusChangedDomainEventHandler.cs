@@ -15,7 +15,7 @@ public class SemesterStatusChangedDomainEventHandler(IMongoRepository<Semester> 
     {
         var spec = new GetSemesterByCodeSpec(notification.SemesterCode);
         var semester = await repository.FindOneAsync(spec, cancellationToken);
-        semester.SemesterStatus = (SemesterStatus)notification.Status;
+        semester.SemesterStatus = (SemesterStatus)notification?.Status;
         semester.Version = notification.Version;
         await repository.UpsertOneAsync(spec, semester, cancellationToken);
     }

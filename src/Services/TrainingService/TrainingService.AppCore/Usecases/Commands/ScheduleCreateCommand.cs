@@ -31,157 +31,96 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
             var studentRegisters =
                 await studentRegisterRepository.FindAsync(
                     new GetStudentRegisterByCorrelationIdSpec(Guid.Parse(request.CorrelationId)), cancellationToken);
-            var rooms =
-                (await roomRepository.FindAsync(new TrueSpecificationBase<Room>(), cancellationToken)).Slice(0, 1);
+            var rooms = (await roomRepository.FindAsync(new TrueSpecificationBase<Room>(), cancellationToken)).Slice(0, 5);
 
             var list = studentRegisters.Select(c => c.SubjectCodes).ToList();
 
             var listSubjectCode = new List<string>();
             if (listSubjectCode == null) throw new ArgumentNullException(nameof(listSubjectCode));
             list.ForEach(c => listSubjectCode.AddRange(c));
-            ;
-
-
+            
             var subjectTimelineConfigs =
                 await subjectTimelineConfigRepository.FindAsync(
                     new GetSubjectTimelineBySubjectCodesSpec(listSubjectCode), cancellationToken);
 
 
-
-            var assignmentVars = new Dictionary<(string classId, string roomId, int day, int slotStart), BoolVar>();
-
-
             var allClasses = GenerateCourseClasses(studentRegisters,
                 subjectTimelineConfigs.Where(c => listSubjectCode.Contains(c.SubjectCode)).ToList());
+        
+            var classDayVars = new Dictionary<(int, int), IntVar>();
+            var classSlotVars = new Dictionary<(int, int), IntVar>();
+            var classRoomVars = new Dictionary<(int, int), IntVar>();
+            var classIntervals = new Dictionary<(int, int), IntervalVar>();
 
-            foreach (var c in allClasses)
+            for (var i = 0; i < allClasses.Count; i++)
             {
-                foreach (var r in rooms)
+                for (var j = 0; j < allClasses[i].Session; j++)
                 {
-                    for (int day = 0; day < 6; day++)
-                    {
-                        for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
-                        {
-                            var varName = $"class_{c.Id}_room_{r.Id}_slot_{slot}";
-                            assignmentVars[(c.Id.ToString(), r.Id.ToString(), day, slot)] = model.NewBoolVar(varName);
-                        }
-                    }
+                    var day = model.NewIntVar(0, 5, $"day_c{i}_s{j}");
+                    var start = model.NewIntVar(0, 12 - allClasses[i].SessionLength, $"start_c{i}_s{j}");
+                    var interval = model.NewIntervalVar(start, allClasses[i].SessionLength, start + allClasses[i].SessionLength, $"interval_c{i}_s{j}");
+                    var room = model.NewIntVar(0, rooms.Count - 1, $"room_c{i}_s{j}");
+                    classDayVars[(i, j)] = day;
+                    classSlotVars[(i, j)] = start;
+                    classIntervals[(i, j)] = interval;
+                    classRoomVars[(i, j)] = room;
                 }
             }
 
-
-            // Rằng buộcố buổi trên tuần
-            foreach (var c in allClasses)
+            for (var r = 0; r < rooms.Count; r++)
             {
-                var vars = new List<BoolVar>();
-                foreach (var r in rooms)
+                var intervalsInRoom = new List<IntervalVar>();
+                for (var i = 0; i < allClasses.Count; i++)
                 {
-                    for (int day = 0; day < 6; day++)
+                    for (var j = 0; j < allClasses[i].Session; j++)
                     {
-                        for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
-                        {
-                            vars.Add(assignmentVars[(c.Id.ToString(), r.Id.ToString(), day, slot)]);
-                        }
+                        var roomVar = classRoomVars[(i, j)];
+                        var interval = classIntervals[(i, j)];
+
+                        var isInRoom = model.NewBoolVar($"is_class{i}_session{j}_in_room{r}");
+
+                        model.Add(roomVar == r).OnlyEnforceIf(isInRoom);
+                        model.Add(roomVar != r).OnlyEnforceIf(isInRoom.Not());
+                        var optionalInterval = model.NewOptionalIntervalVar(
+                            classSlotVars[(i, j)],
+                            allClasses[i].SessionLength,
+                            classSlotVars[(i, j)] + allClasses[i].SessionLength,
+                            isInRoom,
+                            $"opt_interval_c{i}_s{j}_r{r}"
+                        );
+                        intervalsInRoom.Add(optionalInterval);
                     }
                 }
-
-                model.Add(LinearExpr.Sum(vars) == c.Session);
+                model.AddNoOverlap(intervalsInRoom);
             }
+            
+            // for (int i = 0; i < allClasses.Count; i++)
+            // {
+            //     var sessionCount = allClasses[i].Session;
+            //     for (int j1 = 0; j1 < sessionCount; j1++)
+            //     {
+            //         for (int j2 = j1 + 1; j2 < sessionCount; j2++)
+            //         {
+            //             var day1 = classDayVars[(i, j1)];
+            //             var day2 = classDayVars[(i, j2)];
+            //
+            //             var diff = model.NewIntVar(-5, 5, $"day_diff_c{i}_s{j1}_s{j2}");
+            //             model.Add(diff == day1 - day2);
+            //
+            //             var absDiff = model.NewIntVar(0, 5, $"abs_day_diff_c{i}_s{j1}_s{j2}");
+            //             model.AddAbsEquality(absDiff, diff);
+            //
+            //             model.Add(absDiff >= 3);
+            //         }
+            //     }
+            // }
 
-            // Không trùng giờ giữa các phòng
-            for (int day = 0; day < 6; day++)
-            {
-                for (int slot = 0; slot < 12; slot++)
-                {
-                    foreach (var room in rooms)
-                    {
-                        var occupiedVars = new List<BoolVar>();
+            
+            
+            
+            
 
-                        foreach (var c in allClasses)
-                        {
-                            for (int s = Math.Max(0, slot - c.SessionLength + 1);
-                                 s <= Math.Min(slot, 12 - c.SessionLength + 1);
-                                 s++)
-                            {
-                                // Nếu lớp này bắt đầu từ s và kéo dài c.SessionLength thì nó chiếm tiết `slot`
-                                if (s + c.SessionLength - 1 >= slot)
-                                {
-                                    var key = (c.Id.ToString(), room.Id.ToString(), day, s);
-                                    if (assignmentVars.TryGetValue(key, out var v))
-                                    {
-                                        occupiedVars.Add(v);
-                                    }
-                                }
-                            }
-                        }
 
-                        model.Add(LinearExpr.Sum(occupiedVars) <= 1);
-                    }
-                }
-            }
-
-            foreach (var c in allClasses)
-            {
-                for (int day = 0; day < 6; day++)
-                {
-                    var dayVars = new List<BoolVar>();
-
-                    foreach (var room in rooms)
-                    {
-                        for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
-                        {
-                            var key = (c.Id.ToString(), room.Id.ToString(), day, slot);
-                            if (assignmentVars.TryGetValue(key, out var v))
-                            {
-                                dayVars.Add(v);
-                            }
-                        }
-                    }
-
-                    // Không được học nhiều hơn 1 buổi trong cùng một ngày
-                    model.Add(LinearExpr.Sum(dayVars) <= 1);
-                }
-            }
-
-            foreach (var c in allClasses)
-            {
-                var classDayVars = new List<BoolVar>();
-
-                for (int day = 0; day < 6; day++)
-                {
-                    var varsInDay = new List<BoolVar>();
-
-                    foreach (var r in rooms)
-                    {
-                        for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
-                        {
-                            var key = (c.Id.ToString(), r.Id.ToString(), day, slot);
-                            if (assignmentVars.TryGetValue(key, out var v))
-                            {
-                                varsInDay.Add(v);
-                            }
-                        }
-                    }
-
-                    var dayVar = model.NewBoolVar($"class_{c.Id}_active_day_{day}");
-                    model.Add(LinearExpr.Sum(varsInDay) >= 1).OnlyEnforceIf(dayVar);
-                    model.Add(LinearExpr.Sum(varsInDay) == 0).OnlyEnforceIf(dayVar.Not());
-                    classDayVars.Add(dayVar);
-                }
-
-                // Ràng buộc khoảng cách tối thiểu
-                int minDistance = c.MinDaySpaceLesson;
-                for (int d1 = 0; d1 < 6; d1++)
-                {
-                    for (int d2 = d1 + 1; d2 < 6; d2++)
-                    {
-                        if (Math.Abs(d2 - d1) < minDistance)
-                        {
-                            model.Add(classDayVars[d1] + classDayVars[d2] <= 1);
-                        }
-                    }
-                }
-            }
 
 
 
@@ -191,59 +130,17 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
             var status = solver.Solve(model);
             if (status == CpSolverStatus.Optimal || status == CpSolverStatus.Feasible)
             {
-                var listClass = new List<CourseClass>();
-                var listTimeLine = new List<SlotTimeline>();
-                foreach (var c in allClasses)
+                for (var i = 0; i < allClasses.Count; i++)
                 {
-                    var courseClassCode = $"{c.SubjectCode}_{c.CourseClassType}_{c.ClassIndex}";
-                    var courseClass = new CourseClass()
+                    Console.WriteLine($"Subject {allClasses[i].SubjectCode} Type {allClasses[i].CourseClassType} Class {allClasses[i].ClassIndex}:");
+                    for (var j = 0; j < allClasses[i].Session; j++)
                     {
-                        CorrectionId = Guid.Parse(request.CorrelationId),
-                        ClassIndex = c.ClassIndex,
-                        CourseClassType = c.CourseClassType,
-                        SubjectCode = c.SubjectCode,
-                        DurationInWeeks = c.DurationInWeeks,
-                        SessionLength = c.SessionLength,
-                        CourseClassCode = courseClassCode
-                    };
-                    foreach (var r in rooms)
-                    {
-                        for (int day = 0; day < 6; day++)
-                        {
-                            for (int slot = 0; slot <= 12 - c.SessionLength; slot++)
-                            {
-                                var key = (c.Id.ToString(), r.Id.ToString(), day, slot);
-                                if (assignmentVars.TryGetValue(key, out var variable) && solver.Value(variable) == 1)
-                                {
-                                    var slots = Enumerable.Range(slot, c.SessionLength).ToList();
-                                    Console.WriteLine(
-                                        $"✅ Môn {c.SubjectCode} Lớp {c.ClassIndex} ({c.CourseClassType}) học ở phòng {r.Name} ngày {day} slot {string.Join(",", slots)}");
-                                    listTimeLine.Add(new SlotTimeline()
-                                    {
-                                        CourseClassCode = courseClassCode,
-                                        RoomCode = r.Code,
-                                        BuildingCode = r.BuildingCode,
-                                        DayOfWeek = day,
-                                        Slots = slots.Select(e => e.ToString()).ToList()
-                                    });
-                                    await scheduleRepository.AddAsync(new SlotTimeline()
-                                    {
-                                        CourseClassCode = courseClassCode,
-                                        RoomCode = r.Code,
-                                        BuildingCode = r.BuildingCode,
-                                        DayOfWeek = day,
-                                        Slots = slots.Select(e => e.ToString()).ToList()
-                                    }, cancellationToken);
-                                }
-                            }
-                        }
+                        var day = (int)solver.Value(classDayVars[(i, j)]);
+                        var start = (int)solver.Value(classSlotVars[(i, j)]);
+                        var room = (int)solver.Value(classRoomVars[(i, j)]);
+                        Console.WriteLine($"  Session {j + 1}: Day {day}, StartSlot {start}, Duration {allClasses[i].SessionLength} Room {room}");
                     }
-
-                    // await courseClassRepository.AddAsync(courseClass, cancellationToken);
-                    listClass.Add(courseClass);
                 }
-                AssignStudentsToClasses(studentRegisters, listClass, listTimeLine);;
-                return Results.Ok(new { });
             }
 
             return Results.BadRequest("Không thể xếp lịch học");
@@ -373,17 +270,17 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
                 var classPairs = assignVars.Keys
                     .Where(k => k.studentId == student.StudentCode)
                     .ToList();
-
-                for (int i = 0; i < classPairs.Count; i++)
+            
+                for (var i = 0; i < classPairs.Count; i++)
                 {
                     var c1 = classPairs[i];
                     if (!classTimelines.TryGetValue(allClasses.First(c => c.Id.ToString() == c1.classId).CourseClassCode, out var t1)) continue;
-
-                    for (int j = i + 1; j < classPairs.Count; j++)
+            
+                    for (var j = i + 1; j < classPairs.Count; j++)
                     {
                         var c2 = classPairs[j];
                         if (!classTimelines.TryGetValue(allClasses.First(c => c.Id.ToString() == c2.classId).CourseClassCode, out var t2)) continue;
-
+            
                         // Check trùng thời gian giữa 2 lớp
                         foreach (var t1item in t1)
                         {
@@ -421,6 +318,7 @@ public record ScheduleCreateCommand(string CorrelationId) : ICommand<IResult>
             
             
         }
+        
 
     }
 }

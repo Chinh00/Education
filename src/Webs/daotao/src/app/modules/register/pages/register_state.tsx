@@ -3,13 +3,13 @@ import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect, useState} from "react";
 import {ColumnsType} from "@/app/modules/common/hook.ts";
-import {StudentRegister} from "@/domain/student_register.ts";
+import {SubjectRegister} from "@/domain/student_register.ts";
 import dayjs from "dayjs";
 import {Space, Steps, Table, Typography} from "antd";
 import {EyeIcon} from "lucide-react";
 import {Query} from "@/infrastructure/query.ts";
-import {useGetRegisterSates} from "@/app/modules/education/hooks/useGetRegisterSates.ts";
-import {useGetStudentRegister} from "@/app/modules/education/hooks/useGetStudentRegister.ts";
+import {useGetRegisters, useGetRegistersState} from "@/app/modules/education/hooks/useGetRegisters.ts";
+import {useGetSubjectRegister} from "@/app/modules/education/hooks/useGetSubjectRegister.ts";
 import {Box} from "@mui/material";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 
@@ -21,38 +21,33 @@ const RegisterState = () => {
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: `Báo cáo đăng ký nguyện vọng học kì ${semester}`}));
     }, []);
+    const {data: RegisterState} = useGetRegistersState({
+        Filters: [
+            {
+                field: "SemesterCode",
+                operator: "==",
+                value: semester!
+            }
+        ]
+    })
 
-    const columns: ColumnsType<StudentRegister> = [
+
+    const columns: ColumnsType<SubjectRegister> = [
         {
-            title: 'Mã sinh viên',
-            dataIndex: "studentCode",
+            title: 'Mã môn học',
+            dataIndex: "subjectCode",
         },
         {
             title: 'Mã chương trình học',
             dataIndex: "educationCode",
         },
         {
-            title: 'Thời gian đăng ký',
+            title: 'Số lượng sinh viên đăng ký',
             dataIndex: "registerDate",
             render: (text, record) => (
-                <div>{dayjs(record?.registerDate).format("HH:mm:ss DD-MM-YYYY")}</div>
+                <div>{record?.studentCodes?.length}</div>
             )
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            sorter: true,
-            render: (text, record) => (
-                <Space size="middle">
-                    <Link to={`/educations/register/${record?.studentCode}`}>
-                        <Space>
-                            Chi tiết
-                            <EyeIcon />
-                        </Space>
-                    </Link>
-                </Space>
-            ),
-        },
+        }
     ];
 
     const tableColumns = columns.map((item) => ({ ...item }));
@@ -68,9 +63,8 @@ const RegisterState = () => {
             }
         ]
     })
-    const {data: registerState, isLoading, isSuccess: registerIsSuccess} = useGetRegisterSates(query, semester !== undefined)
     useEffect(() => {
-        if (registerState) {
+        if (RegisterState) {
             setStudentRegisterQuery(prevState => ({
                 ...prevState,
                 Filters: [
@@ -78,30 +72,32 @@ const RegisterState = () => {
                     {
                         field: "CorrelationId",
                         operator: "==",
-                        value: registerState?.data?.data?.items[0]?.correlationId
+                        value: RegisterState?.data?.data?.items[0]?.correlationId
                     }
                 ]
             }))
         }
-    }, [registerState]);
+    }, [RegisterState]);
     const [studentRegisterQuery, setStudentRegisterQuery] = useState<Query>({
 
     })
-    const {data, isPending, isSuccess} = useGetStudentRegister(studentRegisterQuery)
+    const {data, isPending, isSuccess} = useGetSubjectRegister(studentRegisterQuery)
 
 
     return (
         <PredataScreen isLoading={isPending} isSuccess={isSuccess} >
             <Box className={"flex gap-5 flex-col"}>
-                <Table<StudentRegister>
+                <Table<SubjectRegister>
                     rowKey={(c) => c.id}
                     loading={isPending}
                     style={{
                         height: "500px",
                     }}
                     showHeader={true}
-                    title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
-                        <Typography>Tổng số sinh viên đăng ký: {data?.data?.data?.totalItems}</Typography>
+                    title={() => <Box className={"flex flex-col justify-start items-start p-[16px] text-white "}>
+                        <Typography>Tổng số sinh viên đăng ký: {RegisterState?.data?.data?.items[0]?.numberStudent}</Typography>
+                        <Typography>Tổng số môn học đăng ký: {RegisterState?.data?.data?.items[0]?.numberSubject}</Typography>
+                        <Typography>Tổng số nguyện vọng: {RegisterState?.data?.data?.items[0]?.numberWish}</Typography>
                     </Box>}
                     size={"small"}
                     pagination={{

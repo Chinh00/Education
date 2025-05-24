@@ -7,7 +7,6 @@ namespace TrainingService.AppCore.StateMachine;
 
 public class RegisterState : SagaStateMachineInstance, ISagaVersion
 {
-    public ObjectId Id { get; set; }
     [BsonId]
     public Guid CorrelationId { get; set; }
     public int Version { get; set; }
@@ -19,6 +18,10 @@ public class RegisterState : SagaStateMachineInstance, ISagaVersion
     
     public int MinCredit { get; set; }
     public int MaxCredit { get; set; }
+    
+    public int NumberStudent { get; set; }
+    public int NumberSubject { get; set; }
+    public int NumberWish { get; set; }
 }
 
 

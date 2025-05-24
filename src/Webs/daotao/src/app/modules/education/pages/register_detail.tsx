@@ -1,5 +1,5 @@
 import {Link, useNavigate, useParams} from "react-router";
-import {useGetStudentRegister} from "@/app/modules/education/hooks/useGetStudentRegister.ts";
+import {useGetSubjectRegister} from "@/app/modules/education/hooks/useGetSubjectRegister.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import { Box } from "@mui/material";
 import {ColumnsType, useGetSubjects} from "@/app/modules/common/hook.ts";
@@ -26,7 +26,7 @@ const RegisterDetail = () => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Chi tiết đăng ký học"}));
     }, []);
     const {id} = useParams()
-    const { data, isPending, isSuccess } = useGetStudentRegister({
+    const { data, isPending, isSuccess } = useGetSubjectRegister({
         Filters: [
             {
                 field: "StudentCode",
@@ -68,11 +68,7 @@ const RegisterDetail = () => {
     }, [studentsSuccess, students, reset]);
     const {data: subjects, isPending: subjectPending, isSuccess: subjectSuccess} = useGetSubjects({
         Filters: [
-            {
-                field: "SubjectCode",
-                operator: "In",
-                value: data?.data?.data?.items[0]?.subjectCodes?.join(",")!
-            }
+
         ]
     }, isSuccess)
 

@@ -10,11 +10,8 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
     {
         Event(() => StartRegisterPipelineIntegrationEvent, c => c.CorrelateById(x => x.Message.CorrelationId));
         Event(() => WishListCreatedIntegrationEvent, c => c.CorrelateById(x => x.Message.CorrelationId));
-        Event(() => WishListCreated, c => c.CorrelateById(x => x.Message.CorrelationId));
         Event(() => WishListLockedIntegrationEvent, c => c.CorrelateById(x => x.Message.CorrelationId));
-        Event(() => GenerateScheduleCreated, c => c.CorrelateById(x => x.Message.CorrelationId));
-        Event(() => GenerateScheduleSuccess, c => c.CorrelateById(x => x.Message.CorrelationId));
-        Event(() => GenerateScheduleFail, c => c.CorrelateById(x => x.Message.CorrelationId));
+        
         InstanceState(e => e.CurrentState);
         Initially(
             When(StartRegisterPipelineIntegrationEvent)
@@ -39,55 +36,37 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
                     context.Message.MinCredit,
                     context.Message.MaxCredit,
                 }))
-                .TransitionTo(WishSubmitted)
+                .TransitionTo(Submitted)
         );
         
         
-        During(WishSubmitted, Ignore(WishListCreated),
+        During(Submitted,
             When(WishListLockedIntegrationEvent).ThenAsync(async (context) =>
                 {
-                    logger.LogInformation($"Register locked {context.Message.CorrelationId}");                    
-                    logger.LogInformation($"Start generate schedule {context.Message.CorrelationId}");                    
+                    logger.LogInformation($"Register locked {context.Message.CorrelationId}"); 
+                    context.Saga.NumberStudent = context.Message.NumberStudent;
+                    context.Saga.NumberSubject = context.Message.NumberSubject;
+                    context.Saga.NumberWish = context.Message.NumberWish;;
                 })
-                .Produce(context => context.Init<GenerateScheduleCreated>(new
-                {
-                    context.Saga.CorrelationId,
-                }))
-                .TransitionTo(GenerateSchedule)
+                .TransitionTo(Schedule)
         );  
         
-        During(GenerateSchedule, 
-            Ignore(GenerateScheduleCreated),
-            When(GenerateScheduleSuccess).ThenAsync(async (context) =>
-            {
-                logger.LogInformation($"Schedule generated {context.Message.CorrelationId}");
-            }).TransitionTo(AdminChanging),
-            When(GenerateScheduleFail).ThenAsync(async (context) =>
-            {
-                logger.LogInformation($"Schedule generated fail {context.Message.CorrelationId}");
-            }).TransitionTo(PendingState)
-            );
+        
         
     }
-    // Đăng ký nguyện vọng học
-    public State WishSubmitted { get; private set; }
+    public State Submitted { get; private set; }
     
-    // Hệ thống tự động tạo thời khóa biểu
-    public State GenerateSchedule { get; private set; }
+    public State Schedule { get; private set; }
     
-    // Quản trị thay đổi
-    public State AdminChanging { get; private set; }
+    public State AssignTeacher { get; private set; }
     
     
-    public State PendingState { get; private set; }
+    public State StudentChange { get; private set; }
+    public State Cancel { get; private set; }
     
     
     
-    public Event<WishListCreated> WishListCreated { get; private set; } = null!;
     public Event<StartRegisterPipelineIntegrationEvent> StartRegisterPipelineIntegrationEvent { get; private set; } = null!;
     public Event<WishListCreatedIntegrationEvent> WishListCreatedIntegrationEvent { get; private set; } = null!;
     public Event<WishListLockedIntegrationEvent> WishListLockedIntegrationEvent { get; private set; } = null!;
-    public Event<GenerateScheduleCreated> GenerateScheduleCreated { get; private set; } = null!;
-    public Event<GenerateScheduleSuccess> GenerateScheduleSuccess { get; private set; } = null!;
-    public Event<GenerateScheduleFail> GenerateScheduleFail { get; private set; } = null!;
 }

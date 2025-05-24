@@ -6,7 +6,7 @@ using TrainingService.Domain;
 
 namespace TrainingService.AppCore.Usecases.Queries;
 
-public record GetStudentRegisterQuery : IListQuery<ListResultModel<StudentRegister>>
+public record GetSubjectRegisterQuery : IListQuery<ListResultModel<SubjectRegister>>
 {
     public List<FilterModel> Filters { get; set; } = [];
     public List<string> Sorts { get; set; } = [];
@@ -15,18 +15,18 @@ public record GetStudentRegisterQuery : IListQuery<ListResultModel<StudentRegist
     public int PageSize { get; set; } = 10;
     
     
-    internal class Handler(IMongoRepository<StudentRegister> repository)
-        : IRequestHandler<GetStudentRegisterQuery, ResultModel<ListResultModel<StudentRegister>>>
+    internal class Handler(IMongoRepository<SubjectRegister> repository)
+        : IRequestHandler<GetSubjectRegisterQuery, ResultModel<ListResultModel<SubjectRegister>>>
     {
 
-        public async Task<ResultModel<ListResultModel<StudentRegister>>> Handle(GetStudentRegisterQuery request,
+        public async Task<ResultModel<ListResultModel<SubjectRegister>>> Handle(GetSubjectRegisterQuery request,
             CancellationToken cancellationToken)
         {
-            var spec = new GetStudentRegistersSpec(request);
+            var spec = new GetSubjectRegistersSpec(request);
             var items = await repository.FindAsync(spec, cancellationToken);
             var totalItems = await repository.CountAsync(spec, cancellationToken);
-            return ResultModel<ListResultModel<StudentRegister>>.Create(
-                ListResultModel<StudentRegister>.Create(items, totalItems, request.Page, request.PageSize));
+            return ResultModel<ListResultModel<SubjectRegister>>.Create(
+                ListResultModel<SubjectRegister>.Create(items, totalItems, request.Page, request.PageSize));
         }
     }
 

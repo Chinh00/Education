@@ -1,5 +1,6 @@
 using Education.Contract.IntegrationEvents;
 using Education.Core.Repository;
+using Education.Core.Services;
 using MassTransit;
 using MediatR;
 using TrainingService.AppCore.Usecases.Specs;
@@ -9,35 +10,49 @@ namespace TrainingService.AppCore.Usecases.Masstransits;
     
 
 public class RegisterLockedIntegrationEventConsumer(
-    IMongoRepository<StudentRegister> studentRegisterRepository,
-    ITopicProducer<WishListLockedIntegrationEvent> producer)
+    ITopicProducer<WishListLockedIntegrationEvent> producer,
+    IApplicationService<SubjectRegister> applicationService
+    )
     : INotificationHandler<RegisterLockedIntegrationEvent>
 {
     public async Task Handle(RegisterLockedIntegrationEvent notification, CancellationToken cancellationToken)
     {
         
-        foreach (var studentRegisterConfirm in notification.Students)
+        
+        var subjectGroups = notification.Students
+            .SelectMany(s => s.SubjectCodes.Select(code => new
+            {
+                SubjectCode = code,
+                StudentCode = s.StudentCode
+            }))
+            .GroupBy(x => x.SubjectCode)
+            .Select(g => new
+            {
+                SubjectCode = g.Key,
+                StudentCodes = g.Select(x => x.StudentCode).ToList()
+            })
+            .ToList();
+        foreach (var subjectGroup in subjectGroups)
         {
-            var studentRegister =
-                await studentRegisterRepository.FindOneAsync(
-                    new GetStudentRegisterByStudentCodeAndEducationCodeSpec(studentRegisterConfirm.StudentCode,
-                        studentRegisterConfirm.EducationCode), cancellationToken) ??
-                new StudentRegister()
-                {
-                    CorrelationId = notification.CorrelationId,
-                    StudentCode = studentRegisterConfirm.StudentCode,
-                    EducationCode = studentRegisterConfirm.EducationCode,
-                    RegisterDate = studentRegisterConfirm.RegisterDate,
-                    SubjectCodes = studentRegisterConfirm.SubjectCodes,
-                };
-            await studentRegisterRepository.UpsertOneAsync(
-                new GetStudentRegisterByStudentCodeAndEducationCodeSpec(studentRegister.StudentCode,
-                    studentRegister.EducationCode), studentRegister,
-                cancellationToken);
+            var subjectRegister = new SubjectRegister();
+            subjectRegister.Create(subjectGroup?.SubjectCode, notification.CorrelationId, subjectGroup?.StudentCodes);
+            await applicationService.SaveEventStore(subjectRegister, cancellationToken);
         }
+        var studentCount = notification.Students.Count;
 
-        await producer.Produce(new { notification.CorrelationId }, cancellationToken);
+        var subjectCount = notification.Students
+            .SelectMany(s => s.SubjectCodes)
+            .Distinct()
+            .Count();
 
-
+        var totalPreferences = notification.Students
+            .Sum(s => s.SubjectCodes.Count);
+        await producer.Produce(new WishListLockedIntegrationEvent()
+        {
+            CorrelationId = notification.CorrelationId,
+            NumberStudent = studentCount,
+            NumberSubject = subjectCount,
+            NumberWish = totalPreferences
+        }, cancellationToken);
     }
 }

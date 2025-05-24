@@ -2,9 +2,9 @@ import { CommonState, setGroupFuncName } from "@/app/stores/common_slice";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook";
 import { useEffect } from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
-import {useGetRegisterSates} from "@/app/modules/education/hooks/useGetRegisterSates.ts";
+import {useGetRegisters} from "@/app/modules/education/hooks/useGetRegisters.ts";
 import { Box } from "@mui/material";
-import {RegisterState} from "@/domain/register_state.ts";
+import {Register} from "@/domain/register_state.ts";
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 import {Table, Typography, type GetProp, type RadioChangeEvent, type TableProps } from 'antd';
 import {IconButton, Button} from "@mui/material";
@@ -20,10 +20,10 @@ const RegisterEducation = () => {
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Danh sách đăng ký học"}));
     }, []);
-    const {data, isLoading, isSuccess, refetch} = useGetRegisterSates({})
+    const {data, isLoading, isSuccess, refetch} = useGetRegisters({})
 
     const nav = useNavigate();
-    const columns: ColumnsType<RegisterState> = [
+    const columns: ColumnsType<Register> = [
         {
             title: 'Mã kì đăng ký học',
             dataIndex: "semesterCode",
@@ -68,7 +68,7 @@ const RegisterEducation = () => {
     return (
         <PredataScreen isLoading={isLoading} isSuccess={isSuccess}>
             <Box>
-                <Table<RegisterState>
+                <Table<Register>
                     rowKey={(c) => c.correlationId}
                     loading={isLoading}
                     style={{

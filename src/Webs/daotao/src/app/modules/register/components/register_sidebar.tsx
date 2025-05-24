@@ -36,7 +36,7 @@ const RegisterSidebar = () => {
                         </SidebarMenuItem>
 
                         <SidebarMenuItem>
-                            <SidebarMenuButton onClick={() => nav(pathname + "/timeline")}>
+                            <SidebarMenuButton onClick={() => nav(pathname?.split("/").filter(c => c != "timeline").join("/") + "/timeline")}>
                                 <CalendarSync color={"white"}  />
                                 Lập thời khóa biểu
                             </SidebarMenuButton>

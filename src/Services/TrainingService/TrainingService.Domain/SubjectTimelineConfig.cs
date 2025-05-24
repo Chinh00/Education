@@ -45,6 +45,7 @@ public class SubjectTimelineConfig : BaseEntity
     
     [Description("Số tuần học")]
     public int DurationInWeeks { get; set; } = 8;
+    public List<string> RequiredConditions { get; set; } = [];
 
     
 }

@@ -2,6 +2,6 @@ namespace TrainingService.Domain.Enums;
 
 public enum CourseClassType
 {
-    Lecture,
-    Lab
+    Lecture = 0,
+    Lab = 1
 }

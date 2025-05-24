@@ -36,11 +36,12 @@ public static class Extensions
             {
                 e.AddProducer<StartRegisterPipelineIntegrationEvent>(nameof(StartRegisterPipelineIntegrationEvent));
                 e.AddProducer<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent));
-                e.AddProducer<WishListCreated>(nameof(WishListCreated));
-                e.AddProducer<GenerateScheduleCreated>(nameof(GenerateScheduleCreated));
-                e.AddProducer<GenerateScheduleSuccess>(nameof(GenerateScheduleSuccess));
-                e.AddProducer<GenerateScheduleFail>(nameof(GenerateScheduleFail));
                 e.AddProducer<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent));
+                
+                
+                e.AddProducer<CourseClassCreatedDomainEvent>(nameof(CourseClassCreatedDomainEvent));
+                e.AddProducer<SlotTimelineCreatedDomainEvent>(nameof(SlotTimelineCreatedDomainEvent));
+                e.AddProducer<SubjectRegisterCreatedDomainEvent>(nameof(SubjectRegisterCreatedDomainEvent));
                 
                 
                 
@@ -50,18 +51,18 @@ public static class Extensions
 
                 e.AddConsumer<EventDispatcher>();
                 e.AddSagaStateMachine<RegisterStateMachine, RegisterState, RegisterStateMachineDefinition>()
-                    .MongoDbRepository(e =>
+                    .MongoDbRepository(t =>
                     {
-                        e.Connection = mOption.ToString();
-                        e.DatabaseName = mOption.Database;
-                        e.CollectionName = "RegisterSaga";
+                        t.Connection = mOption.ToString();
+                        t.DatabaseName = mOption.Database;
+                        t.CollectionName = "RegisterSaga";
                     });
                 e.AddSagaStateMachine<SubjectStateMachine, SubjectState, SubjectStateMachineDefinition>()
-                    .MongoDbRepository(e =>
+                    .MongoDbRepository(t =>
                     {
-                        e.Connection = mOption.ToString();
-                        e.DatabaseName = mOption.Database;
-                        e.CollectionName = "SubjectSaga";
+                        t.Connection = mOption.ToString();
+                        t.DatabaseName = mOption.Database;
+                        t.CollectionName = "SubjectSaga";
                     });
                 
                 e.UsingKafka((context, configurator) =>
@@ -74,6 +75,9 @@ public static class Extensions
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureSaga<RegisterState>(context);
                         });
+                    
+                    
+                    
                     
                     
                     configurator.TopicEndpoint<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent), "training-register",
@@ -90,13 +94,6 @@ public static class Extensions
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureSaga<RegisterState>(context);
                         });
-                     configurator.TopicEndpoint<WishListCreated>(nameof(WishListCreated), "training-register",
-                        endpointConfigurator =>
-                        {
-                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
-                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
-                            endpointConfigurator.ConfigureSaga<RegisterState>(context);
-                        });
                      
                      
                      configurator.TopicEndpoint<RegisterLockedIntegrationEvent>(nameof(RegisterLockedIntegrationEvent), "training-register",
@@ -106,17 +103,6 @@ public static class Extensions
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
                         });
-                     configurator.TopicEndpoint<GenerateScheduleCreated>(nameof(GenerateScheduleCreated), "generate-register",
-                        endpointConfigurator =>
-                        {
-                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
-                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
-                            endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
-                        });
-                     
-                     
-                     
-                     
                      
                      configurator.TopicEndpoint<SemesterCreatedDomainEvent>(nameof(SemesterCreatedDomainEvent), "generate-register",
                          endpointConfigurator =>
@@ -133,6 +119,28 @@ public static class Extensions
                              endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
                          });
                      configurator.TopicEndpoint<RegisterConfigCreatedDomainEvent>(nameof(RegisterConfigCreatedDomainEvent), "generate-register",
+                         endpointConfigurator =>
+                         {
+                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                         });
+                     configurator.TopicEndpoint<CourseClassCreatedDomainEvent>(nameof(CourseClassCreatedDomainEvent), "generate-register",
+                         endpointConfigurator =>
+                         {
+                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                         });
+                     configurator.TopicEndpoint<SlotTimelineCreatedDomainEvent>(nameof(SlotTimelineCreatedDomainEvent), "generate-register",
+                         endpointConfigurator =>
+                         {
+                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                         });
+                     
+                    configurator.TopicEndpoint<SubjectRegisterCreatedDomainEvent>(nameof(SubjectRegisterCreatedDomainEvent), "generate-register",
                          endpointConfigurator =>
                          {
                              endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;

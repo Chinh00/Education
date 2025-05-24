@@ -10,7 +10,6 @@ export const RoutePaths = {
     EDUCATION_TRAINING: '/educations/training',
 
     EDUCATION_REGISTER: '/educations/register',
-    EDUCATION_REGISTER_REPORT: '/educations/dashboard/:semester',
     EDUCATION_REGISTER_DETAIL: '/educations/register/:id',
     EDUCATION_REGISTER_TIMELINE: '/educations/register/timeline',
     EDUCATION_REGISTER_CONFIG: '/educations/register-config',
@@ -33,6 +32,9 @@ export const RoutePaths = {
     CLASS_LIST: '/classes',
     LOGIN_PAGE: '/login',
     HISTORY_RECORD: '/history/:aggregateType/:aggregateId',
+
+    REGISTER_STATE: '/register/state/:semester',
+    REGISTER_STATE_TIMELINE: '/register/state/:semester/timeline',
 
 
 }

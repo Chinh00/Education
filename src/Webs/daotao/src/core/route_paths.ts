@@ -35,7 +35,8 @@ export const RoutePaths = {
 
     REGISTER_STATE: '/register/state/:semester',
     REGISTER_STATE_TIMELINE: '/register/state/:semester/timeline',
-    COURSE_CLASS_CONFIG: '/register/state/:semester/timeline/:subject',
+    COURSE_CLASS_CONFIG: '/register/state/:semester/timeline/:subject/class/:classCode',
+    SUBJECT_COURSE_CLASS_LIST: '/register/state/:semester/timeline/:subject',
 
 
 }

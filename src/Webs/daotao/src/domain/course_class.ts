@@ -1,8 +1,8 @@
-import {SlotTimeline} from "@/domain/slot_timeline.ts";
 
 export interface CourseClass {
     classIndex: number,
     courseClassCode: string,
+    courseClassName: string,
     studentIds: string[],
     courseClassType: number,
     subjectCode: string,
@@ -11,8 +11,10 @@ export interface CourseClass {
     correctionId: string,
     durationInWeeks: number,
     minDaySpaceLesson: number,
+    semesterCode: string,
+    numberStudents: number,
     stage: number,
     id: string,
     createdAt: string,
-    updatedAt: string | null,
+    updatedAt: string | null
 }

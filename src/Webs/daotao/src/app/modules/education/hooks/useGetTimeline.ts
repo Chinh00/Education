@@ -5,7 +5,8 @@ import {getCourseClassTimeline} from "@/app/modules/education/services/courseCla
 const useGetTimeline = (query: Query, enable: boolean = true) => {
     return useQuery({
         queryKey: ["timeline", query],
-        queryFn: () => getCourseClassTimeline(query)
+        queryFn: () => getCourseClassTimeline(query),
+        enabled: enable,
     })
 }
 export {useGetTimeline};

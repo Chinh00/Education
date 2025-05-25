@@ -24,6 +24,7 @@ public class CourseClassCreatedDomainEventHandler(IMongoRepository<CourseClass> 
             Session = notification.Session,
             Stage = (SubjectTimelineStage)notification.Stage,
             TotalSession = notification.TotalSession,
+            SemesterCode = notification.SemesterCode,
         }, cancellationToken);
     }
 }

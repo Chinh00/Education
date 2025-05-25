@@ -11,6 +11,7 @@ import {Box, Button, IconButton} from "@mui/material";
 import {useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {Calendar} from "lucide-react"
+import { useGetTimeline } from "../../education/hooks/useGetTimeline";
 const CourseClassList = () => {
     const {subject, semester} = useParams()
     const [query, setQuery] = useState<Query>({
@@ -29,6 +30,9 @@ const CourseClassList = () => {
     })
     const {data, isLoading, isSuccess} = useGetCourseClasses(query)
     const nav = useNavigate()
+
+
+
     const columns: ColumnsType<CourseClass> = [
         {
             title: 'Số thứ tự lớp',
@@ -44,24 +48,34 @@ const CourseClassList = () => {
         },
         {
             title: 'Loại lớp',
-            dataIndex: "courseClassType",
+            render: (text, record) => (
+                <>{record?.courseClassType === 0 ? "Lý thuyết" : "Thực hành"}</>
+            )
         },
-
-
         {
-            title: 'Hành động',
+            title: 'Lịch học',
             key: 'action',
             render: (_, record) => (
-                <Tooltip title={"Chi tiết"}>
-                    <IconButton size={"small"} onClick={() => nav(`/register/state/${semester}/timeline/${subject}/class/${record?.courseClassCode}`)}><Calendar size={18}/> </IconButton>
-                </Tooltip>
+                <div>
+                    {timeLine?.data?.data?.items?.filter(c => c.courseClassCode === record?.courseClassCode)?.map(e => {
+                        return <div key={e.id}>Phòng {e?.roomCode} Thứ {e?.dayOfWeek + 2}  ( Tiết {e?.slots?.join(",")})</div>
+                    })}
+                </div>
             ),
         },
 
     ];
     const tableColumns = columns.map((item) => ({ ...item }));
 
-
+    const {data: timeLine} = useGetTimeline({
+        Filters: [
+            {
+                field: "CourseClassCode",
+                operator: "In",
+                value: data?.data?.data?.items?.map(c => c.courseClassCode)?.join(",")!
+            },
+        ]
+    }, data !== undefined)
     return (
         <PredataScreen isLoading={isLoading} isSuccess={isSuccess} >
             <Table<CourseClass>

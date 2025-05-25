@@ -76,18 +76,7 @@ const CourseClassConfig = () => {
     const [draggedFrom, setDraggedFrom] = useState<string | null>(null)
     const [dragPreview, setDragPreview] = useState<{ dayIndex: number; startSlot: number; endSlot: number } | null>(null)
 
-    // useEffect(() => {
-    //     setScheduledItems(prevState => [...prevState, {
-    //         id: "string",
-    //         title: "string",
-    //         subject: "string",
-    //         color: "bg-red-100",
-    //         startSlot: 6,
-    //         endSlot: 9,
-    //         dayIndex: 5,
-    //         duration: 6
-    //     }])
-    // }, [])
+
     const {mutate, isPending: createLoading} = useCreateCourseClass()
     const handleDragStart = (e: React.DragEvent, item: any, from: string) => {
         setDraggedItem(item)

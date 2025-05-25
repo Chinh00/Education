@@ -17,5 +17,6 @@ public class GetCourseClassesSpec : ListSpecificationBase<CourseClass>
         ApplyInclude(c => c.ClassIndex);
         ApplyInclude(c => c.SubjectCode);
         ApplyInclude(c => c.CourseClassCode);
+        ApplyInclude(c => c.CourseClassName);
     }
 }

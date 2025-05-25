@@ -16,19 +16,14 @@ public class CourseClassCreatedDomainEventHandler(IMongoRepository<CourseClass> 
         {
             Id = ObjectId.Parse(notification.AggregateId),
             Version = notification.Version,
-            ClassIndex = notification.ClassIndex,
             CourseClassCode = notification.CourseClassCode,
             CourseClassName = notification.CourseClassName,
             CourseClassType = (CourseClassType)notification.CourseClassType,
             SubjectCode = notification.SubjectCode,
             SessionLength = notification.SessionLength,
             Session = notification.Session,
-            CorrectionId = notification.CorrectionId,
-            DurationInWeeks = notification.DurationInWeeks,
-            MinDaySpaceLesson = notification.MinDaySpaceLesson,
-            SemesterCode = notification.SemesterCode,
-            NumberStudents = notification.NumberStudents,
             Stage = (SubjectTimelineStage)notification.Stage,
+            TotalSession = notification.TotalSession,
         }, cancellationToken);
     }
 }

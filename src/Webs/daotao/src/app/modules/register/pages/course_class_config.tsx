@@ -1,12 +1,12 @@
 
 import {EventReceiveArg} from '@fullcalendar/interaction';
 import { Draggable } from '@fullcalendar/interaction';
-import { Card } from "@/app/components/ui/card"
+import {Card, CardContent} from "@/app/components/ui/card"
 import { GripVertical } from "lucide-react"
 import {useEffect, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Fragment} from "react"
-import {Table, Typography} from "antd";
+import {Form, Select, Table, Typography} from "antd";
 import {Box, Button, Divider} from "@mui/material";
 import {useParams} from "react-router";
 import {useGetSubjectTimelineConfig} from "@/app/modules/education/hooks/useGetSubjectTimelineConfig.ts";
@@ -19,6 +19,12 @@ import {DateTimeFormat} from "@/infrastructure/date.ts";
 import {HistoryModal} from "@/app/components/modals/history_modal.tsx";
 import {Room} from "@/domain/room.ts";
 import SemesterModal from "@/app/modules/education/components/semester_modal.tsx";
+import {Controller, useForm} from "react-hook-form";
+import {CourseClassModel, SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
+import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
+import FormItem from "antd/es/form/FormItem";
+import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
+import toast from "react-hot-toast";
 interface ScheduleItem {
     id: string
     title: string
@@ -32,8 +38,6 @@ interface ScheduleItem {
 
 interface ScheduleBlock {
     id: string
-    title: string
-    subject: string
     color: string
     duration: number
 }
@@ -52,52 +56,39 @@ const timeSlots = [
 
 const daysOfWeek = ["Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy", "Chủ nhật"]
 
-// Block đơn giản cho một môn học
-const initialBlocks: ScheduleBlock[] = [
-    {
-        id: "math-1",
-        title: "Toán (1 tiết)",
-        subject: "Toán",
-        color: "bg-blue-100 text-blue-800 border-blue-200",
-        duration: 1,
-    },
-    {
-        id: "math-2",
-        title: "Toán (2 tiết)",
-        subject: "Toán",
-        color: "bg-blue-100 text-blue-800 border-blue-200",
-        duration: 2,
-    },
-    {
-        id: "math-3",
-        title: "Toán (3 tiết)",
-        subject: "Toán",
-        color: "bg-blue-100 text-blue-800 border-blue-200",
-        duration: 3,
-    },
-]
+
+
 
 const CourseClassConfig = () => {
+    const {semester, subject, classCode} = useParams()
+    const [courseClassType, setCourseClassType] = useState(0)
+    const {data: subjectTimelineConfig} = useGetSubjectTimelineConfig(subject!, subject !== undefined)
+    const scheduleBlock = Array.from({ length: (courseClassType === 0 ? (subjectTimelineConfig?.data?.data?.lectureLesson ?? 0) :  (subjectTimelineConfig?.data?.data?.labLesson ?? 0)) }, (_, i) => i + 1).map(c => {
+        return {
+            id: `${c + 1}`,
+            color: "bg-blue-100 text-blue-800 border-blue-200",
+            duration: courseClassType === 0 ? (subjectTimelineConfig?.data?.data?.lecturePeriod ?? 0) :  (subjectTimelineConfig?.data?.data?.labPeriod ?? 0),
+        } as ScheduleBlock
+    } )
     const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([])
-    const [availableBlocks, setAvailableBlocks] = useState<ScheduleBlock[]>(initialBlocks)
+    const [availableBlocks, setAvailableBlocks] = useState<ScheduleBlock[]>(scheduleBlock)
     const [draggedItem, setDraggedItem] = useState<any>(null)
     const [draggedFrom, setDraggedFrom] = useState<string | null>(null)
     const [dragPreview, setDragPreview] = useState<{ dayIndex: number; startSlot: number; endSlot: number } | null>(null)
 
-    const {semester, subject, classCode} = useParams()
-
-    useEffect(() => {
-        setScheduledItems(prevState => [...prevState, {
-            id: "string",
-            title: "string",
-            subject: "string",
-            color: "bg-red-100",
-            startSlot: 6,
-            endSlot: 9,
-            dayIndex: 5,
-            duration: 6
-        }])
-    }, []);
+    // useEffect(() => {
+    //     setScheduledItems(prevState => [...prevState, {
+    //         id: "string",
+    //         title: "string",
+    //         subject: "string",
+    //         color: "bg-red-100",
+    //         startSlot: 6,
+    //         endSlot: 9,
+    //         dayIndex: 5,
+    //         duration: 6
+    //     }])
+    // }, [])
+    const {mutate, isPending: createLoading} = useCreateCourseClass()
     const handleDragStart = (e: React.DragEvent, item: any, from: string) => {
         setDraggedItem(item)
         setDraggedFrom(from)
@@ -115,12 +106,13 @@ const CourseClassConfig = () => {
         if (!draggedItem) return
 
         const endSlot = Math.min(slotIndex + draggedItem.duration - 1, timeSlots.length - 1)
-
         setDragPreview({
             dayIndex,
             startSlot: slotIndex,
             endSlot,
         })
+
+
     }
 
     const handleDrop = (e: React.DragEvent, dayIndex: number, slotIndex: number) => {
@@ -173,6 +165,17 @@ const CourseClassConfig = () => {
         }
 
         newScheduledItems.push(newScheduledItem)
+        setTimeline(prevState => [
+            ...prevState,
+            {
+                schedule: {
+                    dayOfWeek: dayIndex,
+                    roomCode: selectedRoom,
+                    slot: Array.from({length: 100}, (_, i) => i).slice(slotIndex, slotIndex + draggedItem.duration).map(c => `${c}`)
+                },
+                id: draggedItem.id
+            } as {schedule: SlotTimelineModel, id: string}
+        ])
 
         setScheduledItems(newScheduledItems)
         setAvailableBlocks(newAvailableBlocks)
@@ -189,8 +192,6 @@ const CourseClassConfig = () => {
         const newScheduledItems = scheduledItems.filter((item) => item.id !== draggedItem.id)
         const newAvailableBlock: ScheduleBlock = {
             id: draggedItem.id,
-            title: draggedItem.title,
-            subject: draggedItem.subject,
             color: draggedItem.color,
             duration: draggedItem.duration,
         }
@@ -223,7 +224,6 @@ const CourseClassConfig = () => {
     }
 
 
-    const {data: subjectTimelineConfig} = useGetSubjectTimelineConfig(subject!, subject !== undefined)
     const [selectedRoom, setSelectedRoom] = useState<string>()
 
     const {data: courseClass} = useGetCourseClasses({
@@ -253,7 +253,7 @@ const CourseClassConfig = () => {
     }, courseClass?.data?.data?.items?.length !== undefined && courseClass?.data?.data?.items?.length > 0 && selectedRoom !== undefined)
 
 
-    
+
 
     const {data: rooms, isLoading: RoomLoadings} = useGetRooms({
         Page: 1,
@@ -268,7 +268,14 @@ const CourseClassConfig = () => {
             title: 'Hành động',
             key: 'action',
             render: (_, record) => (
-                <Button size={"small"} onClick={() => setSelectedRoom(record.code)}>Chọn</Button>
+                <Button size={"small"} onClick={() => {
+                    setSelectedRoom(record.code)
+
+                    setScheduledItems([])
+
+
+
+                }}>Chọn</Button>
             ),
         },
 
@@ -277,43 +284,73 @@ const CourseClassConfig = () => {
     const tableColumns = columns.map((item) => ({ ...item }));
 
 
+    const {control, reset, getValues, setValue} = useForm<CourseClassModel>({
+        defaultValues: {
+            semesterCode: semester,
+            subjectCode: subject,
+            courseClassType: 0
+        }
+    } )
 
+
+    const [timeline, setTimeline] = useState<{schedule: SlotTimelineModel, id: string}[]>([])
 
 
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
 
-            <div>
-                Thông tin lớp học
+            <Card>
+                <Form>
+                    <CardContent >
+                        <FormInputAntd control={control} name={"subjectCode"} initialValue={subject} label={"Mã môn học"} />
+                        <FormInputAntd control={control} name={"semesterCode"} initialValue={semester} label={"Mã kì học"} />
+                        <FormInputAntd control={control} name={"courseClassName"} initialValue={""} label={"Tên lớp học"} />
+                        <FormInputAntd control={control} name={"courseClassCode"} initialValue={""} label={"Mã lớp học"} />
+                        <FormItem label={"Loại lớp"}>
+                            <Select className={"w-full"} defaultValue={courseClassType} onChange={(e) => {
+                                setCourseClassType(e)
+                                setValue("courseClassType", e)
+                            }} >
+                                <Select.Option value={0}>Lý thuyết</Select.Option>
+                                <Select.Option value={1} disabled={subjectTimelineConfig?.data?.data?.labTotal === 0}>Thực hành</Select.Option>
+                            </Select>
+                        </FormItem>
+                    </CardContent>
+                </Form>
 
-            </div>
+            </Card>
             <Typography.Title level={4} className={"text-center"}>Thời khóa biểu</Typography.Title>
             <Divider />
             <div className={"grid grid-cols-6 gap-5 mt-5"}>
                 <div className={"col-span-2"}>
                     <div className="col-span-2 p-4 border border-gray-400 rounded min-h-[500px]">
-                        <p className="font-bold mb-4">Cấu hình</p>
+                        <p className="font-bold mb-4">Cấu hình cho lớp {courseClassType === 0 ? "Lý thuyết" : "Thực hành"}</p>
                         <p className="">Phòng đang chọn: {selectedRoom ? selectedRoom : "Chưa chọn phòng nào"}</p>
 
-                        <div>Buổi học trên tuần: </div>
+                        <div>Tổng số tiết: {courseClassType === 0 ? subjectTimelineConfig?.data?.data?.lectureTotal: subjectTimelineConfig?.data?.data?.labTotal}  </div>
+                        <div>Buổi học trên tuần: {courseClassType === 0 ? subjectTimelineConfig?.data?.data?.lectureLesson: subjectTimelineConfig?.data?.data?.labLesson}  </div>
+                        <div>Số tiết mỗi buổi: {courseClassType === 0 ? subjectTimelineConfig?.data?.data?.lecturePeriod: subjectTimelineConfig?.data?.data?.labPeriod}  </div>
 
-                        <p className="font-bold mb-4">Số buổi trong tuần:</p>
 
                         <div
                             className="space-y-2 p-4 rounded-lg border-2 border-dashed border-gray-300 min-h-[200px]"
                             onDragOver={handleDragOver}
                             onDrop={handleDropToAvailable}
                         >
-                            {availableBlocks.map((block) => (
+                            {scheduleBlock.map((block) => (
                                 <div
                                     key={block.id}
-                                    draggable
+                                    draggable={selectedRoom !== undefined}
                                     onDragStart={(e) => handleDragStart(e, block, "available")}
                                     className={`${block.color} px-3 py-2 rounded-md border cursor-move flex items-center justify-between hover:shadow-md transition-shadow`}
                                 >
                                     <div className="flex items-center gap-2">
                                         <GripVertical className="w-4 h-4" />
                                     </div>
+                                    {timeline?.filter(c => c.id === block.id).length > 0 && (
+                                        <div className={"text-sm whitespace-nowrap"}>Phòng {timeline?.filter(c => c.id === block.id)[0]?.schedule?.roomCode} - Thứ {timeline?.filter(c => c.id === block.id)[0]?.schedule?.dayOfWeek} - Tiết 4, 5, 6</div>
+                                    )}
+
                                     <span className="text-xs bg-white bg-opacity-50 px-2 py-1 rounded">{block.duration} tiết</span>
                                 </div>
                             ))}
@@ -414,6 +451,21 @@ const CourseClassConfig = () => {
                 </div>
 
             </div>
+            <div className={"py-10 float-right"}><Button variant={"contained"} size={"small"} onClick={() => {
+                console.log(getValues())
+                console.log(timeline)
+
+                mutate({
+                    ...getValues(),
+                    slotTimelines: timeline.map(c => {
+                        return c.schedule
+                    })
+                }, {
+                    onSuccess: () => {
+                        toast.success("Thành công")
+                    }
+                })
+            }}>Lưu lại</Button></div>
         </PredataScreen>
     )
 }

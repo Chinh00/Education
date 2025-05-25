@@ -6,26 +6,21 @@ namespace TrainingService.Domain;
 
 public class CourseClass : AggregateBase
 {
-    public void Create(int classIndex, string courseClassCode, string courseClassName, CourseClassType courseClassType,
-        string subjectCode, int sessionLength, int session, Guid correctionId, int durationInWeeks,
-        int minDaySpaceLesson, string semesterCode, int numberStudents, SubjectTimelineStage stage, IDictionary<string, object> metaData = null)
+    public void Create(string courseClassCode, string courseClassName, CourseClassType courseClassType,
+        string subjectCode, int sessionLength, int session, int totalSession, string semesterCode,
+        SubjectTimelineStage stage, IDictionary<string, object> metaData = null)
     {
-        ClassIndex = classIndex;
         CourseClassCode = courseClassCode;
         CourseClassName = courseClassName;
         CourseClassType = courseClassType;
         SubjectCode = subjectCode;
         SessionLength = sessionLength;
         Session = session;
-        CorrectionId = correctionId;
-        DurationInWeeks = durationInWeeks;
-        MinDaySpaceLesson = minDaySpaceLesson;
         SemesterCode = semesterCode;
-        NumberStudents = numberStudents;
+        TotalSession = totalSession;
         Stage = stage;
-        AddDomainEvent(version => new CourseClassCreatedDomainEvent(Id.ToString(), classIndex, courseClassCode,
-            courseClassName, (int)courseClassType, subjectCode, sessionLength, session, correctionId, durationInWeeks,
-            minDaySpaceLesson, semesterCode, numberStudents, (int)stage)
+        AddDomainEvent(version => new CourseClassCreatedDomainEvent(Id.ToString(), courseClassCode,
+            courseClassName, (int)courseClassType, subjectCode, sessionLength, session, totalSession, semesterCode, (int)stage)
         {
             Version = version,
             MetaData = metaData
@@ -40,10 +35,8 @@ public class CourseClass : AggregateBase
     public CourseClassType CourseClassType { get; set; }
     public string SubjectCode { get; set; }
     public int SessionLength { get; set; }
+    public int TotalSession { get; set; }
     public int Session { get; set; }
-    public Guid CorrectionId { get; set; }
-    public int DurationInWeeks { get; set; }
-    public int MinDaySpaceLesson { get; set; }
     public string SemesterCode { get; set; }
     public int NumberStudents { get; set; }
     public SubjectTimelineStage Stage { get; set; } = SubjectTimelineStage.Stage1;

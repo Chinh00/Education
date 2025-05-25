@@ -34,7 +34,7 @@ const RegisterTimeline = () => {
             dataIndex: "subjectCode",
         },
         {
-            title: 'Mã chương trình học',
+            title: 'Tên môn học',
             dataIndex: "educationCode",
         },
         {
@@ -48,7 +48,9 @@ const RegisterTimeline = () => {
             title: 'Cấu hình thời khóa biểu',
             key: "action",
             render: (text, record) => (
-                <IconButton size={"small"}><Settings /></IconButton>
+                <IconButton size={"small"} onClick={() => {
+                    nav(`/register/state/${semester}/timeline/${record?.subjectCode}`)
+                }}><Settings /></IconButton>
             )
         }
 
@@ -125,7 +127,6 @@ const RegisterTimeline = () => {
                     bordered={true}
                     columns={tableColumns}
                     dataSource={data?.data?.data?.items ?? []}
-
                 />
             </Box>
         </PredataScreen>

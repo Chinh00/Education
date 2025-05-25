@@ -34,6 +34,7 @@ const EducationLayout = lazy(() => import("../modules/education/layouts/educatio
 const RegisterLayout = lazy(() => import("../modules/register/layouts/register_layout.tsx"));
 const RegisterState = lazy(() => import("../modules/register/pages/register_state.tsx"));
 const RegisterTimeline = lazy(() => import("../modules/register/pages/register_timeline.tsx"));
+const CourseClassConfig = lazy(() => import("../modules/register/pages/course_class_config.tsx"));
 
 const NOTFOUND = lazy(() => import("../modules/system/pages/notfound_page.tsx"));
 const StudentLayout = lazy(() => import("../modules/student/layouts/student_layout.tsx"));
@@ -144,6 +145,11 @@ const router = createBrowserRouter([
                                 path: RoutePaths.REGISTER_STATE_TIMELINE,
                                 element: <Suspense fallback={<TabLoading />} key={"RegisterTimeline"} ><RegisterTimeline /></Suspense>,
                             },
+                            {
+                                path: RoutePaths.COURSE_CLASS_CONFIG,
+                                element: <Suspense fallback={<TabLoading />} key={"CourseClassConfig"} ><CourseClassConfig /></Suspense>,
+                            },
+
 
                         ],
                     },

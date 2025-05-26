@@ -28,9 +28,6 @@ const Home = () => {
   }, []);
   return <div className={"grid grid-cols-12 p-10 gap-5"} style={{flexWrap: "nowrap"}}>
     <Typography.Title level={2} className={"col-span-12"}>Trang chủ</Typography.Title>
-    <Card className={"col-span-6"}>
-      <Overview />
-    </Card>
     <div className={"col-span-10 h-screen"}>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="col-span-1">

@@ -126,7 +126,10 @@ public static class Extensions
         var type = typeof(List<string>);
         var methodInfo = type.GetMethod("Contains", new[] { typeof(string) });
         var list = Expression.Constant(stringValues, typeof(List<string>));
-        var body = Expression.Call(list, methodInfo, left);
+
+        var leftAsString = Expression.Call(left, typeof(object).GetMethod("ToString"));
+
+        var body = Expression.Call(list, methodInfo, leftAsString);
         return body;
     }
 

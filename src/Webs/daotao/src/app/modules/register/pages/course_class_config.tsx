@@ -6,7 +6,7 @@ import { GripVertical } from "lucide-react"
 import {useEffect, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Fragment} from "react"
-import {Form, Select, Table, Typography} from "antd";
+import {Form, Select, Spin, Table, Typography} from "antd";
 import {Box, Button, Divider} from "@mui/material";
 import {useParams} from "react-router";
 import {useGetSubjectTimelineConfig} from "@/app/modules/education/hooks/useGetSubjectTimelineConfig.ts";
@@ -226,7 +226,7 @@ const CourseClassConfig = () => {
     }, selectedRoom !== undefined)
     // dữ liệu thời khóa biểu của phòng
 
-    const {data: timeLine} = useGetTimeline({
+    const {data: timeLine, isLoading: timelineLoading} = useGetTimeline({
         Filters: [
             {
                 field: "CourseClassCode",
@@ -241,8 +241,26 @@ const CourseClassConfig = () => {
         ]
     }, courseClass?.data?.data?.items?.length !== undefined && courseClass?.data?.data?.items?.length > 0 && selectedRoom !== undefined)
 
-
-
+    console.log(scheduledItems)
+    useEffect(() => {
+        if(timeLine !== undefined && timeLine?.data?.data?.items?.length > 0) {
+            setScheduledItems(prevState => [
+                ...prevState,
+                ...timeLine?.data?.data?.items?.map(c => {
+                    return {
+                        id: c?.id,
+                        title: "",
+                        subject: "Đã có tiết",
+                        color: "bg-red-100 text-blue-800 border-blue-200",
+                        startSlot: +c?.slots[0],
+                        endSlot: +c?.slots[c.slots?.length - 1],
+                        dayIndex: c?.dayOfWeek,
+                        duration: c.slots?.length
+                    } as unknown as ScheduleItem
+                }) ?? []
+            ])
+        }
+    }, [timeLine]);
 
     const {data: rooms, isLoading: RoomLoadings} = useGetRooms({
         Page: 1,
@@ -371,7 +389,7 @@ const CourseClassConfig = () => {
                 <div className={"col-span-4"}>
                     <div className="col-span-4">
                         <Card className="overflow-hidden">
-                            <div className="grid grid-cols-8 gap-0 schedule-grid">
+                            <div className="grid grid-cols-8 gap-0 schedule-grid relative">
                                 {/* Header */}
                                 <div className="bg-gray-50 p-3 border-b border-r font-medium text-center">Tiết học</div>
                                 {daysOfWeek.map((day) => (
@@ -433,6 +451,11 @@ const CourseClassConfig = () => {
                                         })}
                                     </Fragment>
                                 ))}
+                                {
+                                    timelineLoading && <div className={"absolute top-0 left-0 w-full h-full flex justify-center items-center"}>
+                                        <Spin size={"large"} />
+                                    </div>
+                                }
                             </div>
                         </Card>
                     </div>
@@ -441,8 +464,7 @@ const CourseClassConfig = () => {
 
             </div>
             <div className={"py-10 float-right"}><Button variant={"contained"} size={"small"} onClick={() => {
-                console.log(getValues())
-                console.log(timeline)
+
 
                 mutate({
                     ...getValues(),

@@ -25,13 +25,13 @@ const HistoryRecord = () => {
         Filters: [
             {
                 field: "AggregateId",
-                operator: "==",
-                value: aggregateId!
+                operator: "In",
+                value: aggregateId?.split("-")?.join(",")!
             },
             {
                 field: "AggregateType",
-                operator: "==",
-                value: aggregateType!
+                operator: "In",
+                value: aggregateType?.split("-").join(",")!
             },
 
         ],

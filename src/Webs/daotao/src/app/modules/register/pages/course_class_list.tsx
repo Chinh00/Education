@@ -10,7 +10,7 @@ import {Table, Tooltip, Typography} from "antd";
 import {Box, Button, IconButton} from "@mui/material";
 import {useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
-import {Calendar} from "lucide-react"
+import {Calendar, History} from "lucide-react"
 import { useGetTimeline } from "../../education/hooks/useGetTimeline";
 const CourseClassList = () => {
     const {subject, semester} = useParams()
@@ -63,6 +63,18 @@ const CourseClassList = () => {
                 </div>
             ),
         },
+        {
+            title: 'Lịch sử',
+            key: 'action',
+            render: (_, record) => (
+                <div>
+                    <IconButton size={"small"} onClick={() => nav(`/history/CourseClass-SlotTimeline/${record?.id}-${timeLine?.data?.data?.items?.filter(c => c.courseClassCode === record?.courseClassCode)?.map(e => e.id)?.join("-")}`)}>
+                        <History />
+                    </IconButton>
+                </div>
+            ),
+        },
+
 
     ];
     const tableColumns = columns.map((item) => ({ ...item }));

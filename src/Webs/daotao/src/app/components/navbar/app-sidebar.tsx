@@ -47,8 +47,55 @@ export function AppSidebar() {
     }, [data, isLoading, isPending]);
 
 
+    if (data?.data?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] === "department-admin") {
+        return <Sidebar variant={"inset"} collapsible="icon"  style={{backgroundColor: "#0c458d", width: "75px"}} >
+            <SidebarContent className={"bg-[#0c458d] pt-4"}>
+                <SidebarMenu className={"flex flex-col gap-2 bg-[#0c458d]"}>
+                    <SidebarMenuItem  className={""}>
 
-    return (
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.HOME_PATH)} tooltip="Trang chủ"  className={"inset-0 cursor-pointer mx-auto "} >
+                            <Avatar  />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem  className={""}>
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.HOME_PATH)} tooltip="Trang chủ"  className={"cursor-pointer mx-auto "} >
+                            <Home  className="scale-150 mx-auto hover:text-black text-white transition-all" />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+
+                    <SidebarMenuItem  className={""}>
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.STUDENT_LIST)} tooltip="Sinh viên"  className={"inset-0 cursor-pointer mx-auto "} >
+                            <Users  className="scale-150 mx-auto hover:text-black text-white transition-all" />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+
+
+
+
+
+
+
+                </SidebarMenu>
+            </SidebarContent>
+            <SidebarFooter className={"bg-[#124485]"}>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton onClick={() => {
+                            dispatch(setAuthenticate(false))
+                            Auth.ClearCookie()
+                        }} tooltip="Đăng xuất" className={"mx-auto cursor-pointer"}>
+                            {/*<Settings className="h-5 w-5" />*/}
+                            <LogOut className={"scale-150"} />
+                            <span>Cài đặt</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
+        </Sidebar>
+
+    }
+
+    if (data?.data?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] === "admin") return (
         <Sidebar variant={"inset"} collapsible="icon"  style={{backgroundColor: "#0c458d", width: "75px"}} >
             <SidebarContent className={"bg-[#0c458d] pt-4"}>
                 <SidebarMenu className={"flex flex-col gap-2 bg-[#0c458d]"}>
@@ -64,7 +111,7 @@ export function AppSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem  className={""}>
-                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.EDUCATION_TRAINING)} tooltip="Đào tạo"  className={"inset-0 cursor-pointer mx-auto "} >
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.EDUCATION_DASHBOARD)} tooltip="Đào tạo"  className={"inset-0 cursor-pointer mx-auto "} >
                             <GraduationCap  className="scale-150 mx-auto hover:text-black text-white transition-all" />
                         </SidebarMenuButton>
                     </SidebarMenuItem>

@@ -21,19 +21,6 @@ const EducationSidebar = () => {
     const nav = useNavigate()
     return (
         <div className={"h-[250vh] bg-[#0c458d] text-white pl-3"}>
-            <SidebarGroup >
-                <SidebarGroupLabel className={"text-white"}>Chương trình đào tạo</SidebarGroupLabel>
-                <SidebarGroupContent>
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_TRAINING)}>
-                                <List />
-                                Danh sách đào tạo
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
-                </SidebarGroupContent>
-            </SidebarGroup>
 
             <SidebarGroup>
                 <SidebarGroupLabel  className={"text-white"}>Học kì</SidebarGroupLabel>
@@ -57,19 +44,6 @@ const EducationSidebar = () => {
                             <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER)}>
                                 <List />
                                 Danh sách đăng ký học
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-
-                        <SidebarMenuItem>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER_COURSE)}>
-                                <Replace />
-                                Báo cáo đăng ký lớp học
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER_TIMELINE)}>
-                                <ChartGantt />
-                                Cài đặt thời khóa biểu
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>

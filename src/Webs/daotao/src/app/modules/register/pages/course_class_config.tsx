@@ -241,7 +241,6 @@ const CourseClassConfig = () => {
         ]
     }, courseClass?.data?.data?.items?.length !== undefined && courseClass?.data?.data?.items?.length > 0 && selectedRoom !== undefined)
 
-    console.log(scheduledItems)
     useEffect(() => {
         if(timeLine !== undefined && timeLine?.data?.data?.items?.length > 0) {
             setScheduledItems(prevState => [

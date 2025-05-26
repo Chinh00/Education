@@ -6,14 +6,11 @@ export const RoutePaths = {
     STUDENT: "/students",
     STUDENT_LIST: "/students/list",
 
-    EDUCATION: '/educations',
-    EDUCATION_TRAINING: '/educations/training',
+    EDUCATION_DASHBOARD: '/educations',
 
     EDUCATION_REGISTER: '/educations/register',
     EDUCATION_REGISTER_DETAIL: '/educations/register/:id',
-    EDUCATION_REGISTER_TIMELINE: '/educations/register/timeline',
     EDUCATION_REGISTER_CONFIG: '/educations/register-config',
-    EDUCATION_REGISTER_COURSE: '/educations/course-class',
     EDUCATION_REGISTER_COURSE_DETAIL: '/educations/course-class/:id',
 
 

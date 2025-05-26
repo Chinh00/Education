@@ -19,7 +19,7 @@ public class ProfileService(UserManager userManager, RoleManager<IdentityRole> r
             var roles = await userManager.GetRolesAsync(user);
             var claims = new List<Claim>
             {
-                new(ClaimTypes.Role, ""),
+                new(ClaimTypes.Role, roles?.FirstOrDefault() ?? string.Empty),
                 new(ClaimTypes.Name, user.UserName ?? string.Empty),
                 new("isConfirm", user.IsConfirm.ToString()),
             };

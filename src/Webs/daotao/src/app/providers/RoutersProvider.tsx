@@ -6,16 +6,11 @@ import ProgressScreen from "../components/screens/progress_screen.tsx";
 import TabLoading from "@/app/components/screens/tab_loading.tsx";
 import { useAppSelector } from "../stores/hook.ts";
 import {CommonState} from "@/app/stores/common_slice.ts";
-const RegisterConfig = lazy(() => import("../modules/register/pages/register_config.tsx"));
-const TimelineConfig = lazy(() => import("../modules/register/pages/timeline_config.tsx"));
-const Login = lazy(() => import("../modules/auth/pages/login.tsx"));
 const Home = lazy(() => import("../modules/home/pages/home.tsx"));
-const TrainingEducations = lazy(() => import("../modules/education/pages/training_educations.tsx"));
 const RegisterEducation = lazy(() => import("../modules/education/pages/register_education.tsx"));
 const CreateRegister = lazy(() => import("../modules/education/pages/create_register.tsx"));
 const RegisterDetail = lazy(() => import("../modules/education/pages/register_detail.tsx"));
-const TimelineSettings = lazy(() => import("../modules/education/pages/timeline_settings.tsx"));
-const CourseClassReport = lazy(() => import("../modules/education/pages/courseclass_report.tsx"));
+
 const CourseClassDetail = lazy(() => import("../modules/education/pages/courseclass_detail.tsx"));
 
 const SemesterList = lazy(() => import("../modules/education/pages/semester_list.tsx"));
@@ -29,6 +24,7 @@ const SubjectTimelineCreate = lazy(() => import("../modules/education/pages/subj
 
 const MainLayout = lazy(() => import("../components/layouts/main_layout.tsx"));
 const EducationLayout = lazy(() => import("../modules/education/layouts/education_layout.tsx"));
+const EducationDashboard = lazy(() => import("../modules/education/pages/education_dashboard.tsx"));
 
 
 const RegisterLayout = lazy(() => import("../modules/register/layouts/register_layout.tsx"));
@@ -73,8 +69,8 @@ const router = createBrowserRouter([
                         element: <Suspense fallback={<ProgressScreen />} key={"EducationLayout"} ><EducationLayout /></Suspense>,
                         children: [
                             {
-                                path: RoutePaths.EDUCATION_TRAINING,
-                                element: <Suspense fallback={<TabLoading />} key={"TrainingEducations"} ><TrainingEducations /></Suspense>,
+                                path: RoutePaths.EDUCATION_DASHBOARD,
+                                element: <Suspense fallback={<TabLoading />} key={"EducationDashboard"} ><EducationDashboard /></Suspense>,
                             },
                             {
                                 path: RoutePaths.EDUCATION_REGISTER,
@@ -88,10 +84,6 @@ const router = createBrowserRouter([
                             {
                                 path: RoutePaths.EDUCATION_REGISTER_DETAIL,
                                 element: <Suspense fallback={<TabLoading />} key={"RegisterDetail"} ><RegisterDetail /></Suspense>,
-                            },
-                            {
-                                path: RoutePaths.EDUCATION_REGISTER_TIMELINE,
-                                element: <Suspense fallback={<TabLoading />} key={"TimelineSettings"}><TimelineSettings /></Suspense>,
                             },
                             {
                                 path: RoutePaths.EDUCATION_SEMESTER_LIST,
@@ -108,10 +100,6 @@ const router = createBrowserRouter([
                             {
                                 path: RoutePaths.EDUCATION_SUBJECT_TIMELINE_CREATE,
                                 element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineCreate"}><SubjectTimelineCreate /></Suspense>,
-                            },
-                            {
-                                path: RoutePaths.EDUCATION_REGISTER_COURSE,
-                                element: <Suspense fallback={<TabLoading />} key={"CourseClassReport"}><CourseClassReport /></Suspense>,
                             },
                             {
                                 path: RoutePaths.EDUCATION_REGISTER_COURSE_DETAIL,
@@ -163,6 +151,7 @@ const router = createBrowserRouter([
             }
         ]
     },
+
     {
         path: "",
         element: <AuthRoute />,

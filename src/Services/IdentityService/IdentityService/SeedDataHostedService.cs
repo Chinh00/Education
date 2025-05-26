@@ -49,11 +49,24 @@ public class SeedDataHostedService(IServiceScopeFactory scopeFactory) : IHostedS
                 
             }, "nv2");
         }
-
-
+        var departmentAdmin = await userManager.FindByNameAsync("A14.DT1002");
+        
+        if (departmentAdmin is null)
+        {
+            var result = await userManager.CreateAsync(new ApplicationUser()
+            {
+                UserName = "A14.DT1002",
+                Email = "A14.DT1002@example.com",
+                IsConfirm = true
+                
+            }, "A14.DT1002");
+        }
+        
+        
         if (admin != null) await userManager.AddToRoleAsync(admin, "admin");
         if (nv1 != null) await userManager.AddToRoleAsync(nv1, "admin");
         if (nv2 != null) await userManager.AddToRoleAsync(nv2, "admin");
+        if (departmentAdmin != null) await userManager.AddToRoleAsync(departmentAdmin, "department-admin");
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

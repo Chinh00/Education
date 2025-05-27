@@ -40,6 +40,10 @@ const LoginPage = lazy(() => import("../modules/auth/pages/login.tsx"));
 const HistoryRecord = lazy(() => import("../modules/history/pages/history_record.tsx"));
 
 
+const TeacherSubjectList = lazy(() => import("../modules/teacher/pages/subject_list.tsx"));
+const TeacherLayout = lazy(() => import("../modules/teacher/layouts/teacher_layout.tsx"));
+
+
 const ProtectedRoute = () => {
     const {authenticate} = useAppSelector<CommonState>(e => e.common)
     return authenticate ? <Outlet/> : <Navigate to={RoutePaths.LOGIN_PAGE}/>
@@ -147,6 +151,17 @@ const router = createBrowserRouter([
 
                         ],
                     },
+
+                    {
+                        path: "",
+                        element: <Suspense fallback={<ProgressScreen />} key={"TeacherLayout"} ><TeacherLayout /></Suspense>,
+                        children: [
+                            {
+                                path: RoutePaths.TEACHER_SUBJECT_LIST,
+                                element: <Suspense fallback={<TabLoading />} key={"TeacherSubjectList"} ><TeacherSubjectList /></Suspense>
+                            },
+                        ],
+                    }
                 ],
             }
         ]

@@ -1,6 +1,5 @@
 
 import {Link, useLocation, useNavigate} from "react-router";
-import { NavUser } from "./nav-user";
 import {
     Sidebar,
     SidebarContent,
@@ -28,6 +27,7 @@ import {
     Users,
     Home,
     LogOut,
+    AtSign
 } from "lucide-react"
 import {RoutePaths} from "@/core/route_paths.ts";
 import { Avatar } from "antd";
@@ -63,6 +63,11 @@ export function AppSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
 
+                    <SidebarMenuItem  className={""}>
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.TEACHER_SUBJECT_LIST)} tooltip="Môn học"  className={"cursor-pointer mx-auto "} >
+                            <AtSign  className="scale-150 mx-auto hover:text-black text-white transition-all" />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
 
 
 

@@ -36,4 +36,7 @@ export const RoutePaths = {
     SUBJECT_COURSE_CLASS_LIST: '/register/state/:semester/timeline/:subject',
 
 
+    TEACHER_SUBJECT_LIST: "/teacher/subjects",
+
+
 }

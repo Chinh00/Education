@@ -40,7 +40,7 @@ const CourseClassReport = () => {
             key: 'action',
             render: (_, record) => (
                 <Tooltip title="Chi tiết">
-                    <IconButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER_COURSE + `/${record?.id}`)}><Eye /></IconButton>
+                    <IconButton onClick={() => nav(`/${record?.id}`)}><Eye /></IconButton>
                 </Tooltip>
             ),
         },

@@ -52,6 +52,7 @@ public class StudentPulledDomainEventHandler(IMongoRepository<Student> mongoRepo
             SpecialityCode = x.SpecialityCode,
             Status = (EducationProgramStatus)x.Status,
         }).ToList();
+        studentEntity.Status = StudentStatus.Active;
         await mongoRepository.UpsertOneAsync(spec, studentEntity, cancellationToken);
 
     }

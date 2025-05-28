@@ -23,6 +23,7 @@ public static class Extensions
                 e.AddProducer<StudentPullStartedDomainEvent>(nameof(StudentPullStartedDomainEvent));
                 e.AddProducer<StudentPulledDomainEvent>(nameof(StudentPulledDomainEvent));
                 e.AddProducer<StudentPulledIntegrationEvent>(nameof(StudentPulledIntegrationEvent));
+                e.AddProducer<StudentSemesterPulledDomainEvent>(nameof(StudentSemesterPulledDomainEvent));
                 e.AddConsumer<EventDispatcher>();
                 e.UsingKafka((context, config) =>
                 {
@@ -44,6 +45,13 @@ public static class Extensions
                         });
                     
                     config.TopicEndpoint<StudentPulledDomainEvent>(nameof(StudentPulledDomainEvent), "student-identity",
+                        configurator =>
+                        {
+                            configurator.CreateIfMissing(n => n.NumPartitions = 1);
+                            configurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            configurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
+                    config.TopicEndpoint<StudentSemesterPulledDomainEvent>(nameof(StudentSemesterPulledDomainEvent), "student-identity",
                         configurator =>
                         {
                             configurator.CreateIfMissing(n => n.NumPartitions = 1);

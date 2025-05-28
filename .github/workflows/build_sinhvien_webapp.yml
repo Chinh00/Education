@@ -31,8 +31,11 @@ jobs:
           echo "VITE_CLIENT_ID=${{ secrets.VITE_CLIENT_ID }}" >> src/Webs/sinhvien/.env
           echo "VITE_TENANT_ID=${{ secrets.VITE_TENANT_ID }}" >> src/Webs/sinhvien/.env
           echo "VITE_REDIRECT_URL=${{ secrets.VITE_REDIRECT_URL }}" >> src/Webs/sinhvien/.env
-          
-          
+      - name: Cat .env   
+        run: |
+          cat /src/Webs/sinhvien/.env
+      
+      
       - name: 🏗️ Build and push Docker image gateway service
         uses: docker/build-push-action@v5
         with:

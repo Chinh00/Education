@@ -8,3 +8,5 @@ riderModule.iml
 docker-compose.debug.yml
 .DS_Store
 .env
+
+appsettings.json

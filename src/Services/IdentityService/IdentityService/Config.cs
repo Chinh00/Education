@@ -26,9 +26,9 @@ public static class Config
             new Client
             {
                 ClientId = "microsoft",
-                AllowedGrantTypes = new List<string> { "external" },
+                AllowedGrantTypes = new List<string> { "microsoft" },
                 ClientSecrets = { new Secret("secret".Sha256()) },
-                AllowedScopes =  { "openid", "profile", "api" },
+                AllowedScopes =  { "openid", "profile", "api.student" },
                 AlwaysIncludeUserClaimsInIdToken = true, 
             },
             new Client

@@ -1,48 +1,68 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Json;
 using Duende.IdentityModel.Client;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Validation;
+using IdentityService.Models;
+using IdentityService.Services;
 using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityService.Externals;
 
-public class MicrosoftGrantValidator(IHttpClientFactory httpClientFactory, ITokenValidator tokenValidator) : IExtensionGrantValidator
+public class MicrosoftGrantValidator(IConfiguration configuration, UserManager userManager, HttpClient httpClient) : IExtensionGrantValidator
 {
     
     public async Task ValidateAsync(ExtensionGrantValidationContext context)
     {
-        var provider = context.Request.Raw["provider"];
-        var token = context.Request.Raw["token"];
-
-        if (string.IsNullOrWhiteSpace(provider) || string.IsNullOrWhiteSpace(token))
+        var idToken = context.Request.Raw["id_token"];
+        if (string.IsNullOrWhiteSpace(idToken))
         {
-            context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Invalid provider or token");
-            return;
+            context.Result = new GrantValidationResult("Id token invalid", "/connect/authorize");
         }
+
+
+
+        
         var handler = new JwtSecurityTokenHandler();
-        var httpClient = new HttpClient();
-        var keysUrl = "https://login.microsoftonline.com/bbf9aad6-5f58-4387-927e-02f0b07a72fa/discovery/v2.0/keys";
+        var keysUrl = $"https://login.microsoftonline.com/{configuration.GetValue<string>("Microsoft:TenantId")}/discovery/v2.0/keys";
         var keysJson = await httpClient.GetStringAsync(keysUrl);
         var keys = JsonWebKeySet.Create(keysJson).GetSigningKeys();
 
         var validationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = "https://login.microsoftonline.com/bbf9aad6-5f58-4387-927e-02f0b07a72fa/v2.0",
+            ValidIssuer = $"https://login.microsoftonline.com/{configuration.GetValue<string>("Microsoft:TenantId")}/v2.0",
             ValidateAudience = true,
-            ValidAudience = "0f7c379c-0685-4e1d-96e3-42c9e3f7381c",
+            ValidAudience = configuration.GetValue<string>("Microsoft:ClientId"),
             ValidateLifetime = true,
             IssuerSigningKeys = keys
         };
 
         try
         {
-            handler.ValidateToken(token, validationParameters, out var validatedToken);
-            Console.WriteLine(string.Join(",", handler.ReadJwtToken(token).Claims.Select( c => c.Type)));
-            Console.WriteLine(handler.ReadJwtToken(token).Claims.First( c => c.Type == "email").Value);
+            handler.ValidateToken(idToken, validationParameters, out var validatedToken);
+            Console.WriteLine(string.Join(",", handler.ReadJwtToken(idToken).Claims.Select( c => c.Type)));
+            var email = handler.ReadJwtToken(idToken).Claims.First(c => c.Type == "email").Value;
+            var studentCode = email.Split("@").First();
             
+            var user = await userManager.FindByNameAsync(studentCode!);
+            if (user is null)
+            {
+                var student = await GetStudentDetailAsync(studentCode);
+                await userManager.CreateAsync(new ApplicationUser()
+                {
+                    UserName = studentCode,
+                    Email = email,
+                    IsConfirm = false
+                }, studentCode);
+                user = await userManager.FindByNameAsync(studentCode!);
+            }
             
+            context.Result = new GrantValidationResult(
+                subject: user?.Id,
+                authenticationMethod: GrantType,
+                claims: []);
         }
         catch (Exception ex)
         {
@@ -53,21 +73,28 @@ public class MicrosoftGrantValidator(IHttpClientFactory httpClientFactory, IToke
         
         
 
-        var claims = new List<Claim>
-        {
-            new Claim("idp", provider)
-        };
 
-        context.Result = new GrantValidationResult(
-            subject: Guid.NewGuid().ToString(),
-            authenticationMethod: provider,
-            claims: claims);
+        
     }
 
-    public string GrantType => "external";
+    public string GrantType => "microsoft";
+    public async Task<object> GetStudentDetailAsync(string studentCode)
+    {
+        var url = $"https://api5.tlu.edu.vn/api/Student/{studentCode}/detail";
+        var response = await httpClient.GetAsync(url);
+        if (!response.IsSuccessStatusCode)
+            return null;
+        var json = await response.Content.ReadAsStringAsync();
+    
+        var result = JsonSerializer.Deserialize<ResultModelApi<object>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        return result?.Value;
+    }
+    record ResultModelApi<T>(T Value, bool IsError, string Message);
 
     
 
 }
 
-public record MicrosoftUserPayload(string? Email, string? Name, string? Picture);

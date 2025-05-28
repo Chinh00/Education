@@ -1,10 +1,16 @@
-import {useMutation} from "@tanstack/react-query";
-import {getTestAccessTokenFromServer} from "../services/login.service"
+import { useMutation } from "@tanstack/react-query";
+import { getAccessTokenFromServer, getTestAccessTokenFromServer } from "../services/login.service"
 
 const useLogin = () => {
-    return useMutation({
-        mutationKey: ["useLogin"],
-        mutationFn: getTestAccessTokenFromServer 
-    })
+  return useMutation({
+    mutationKey: ["useLogin"],
+    mutationFn: getTestAccessTokenFromServer
+  })
 }
-export {useLogin}
+const useLoginMicrosoft = () => {
+  return useMutation({
+    mutationKey: ["useLoginMicrosoft"],
+    mutationFn: getAccessTokenFromServer
+  })
+}
+export { useLogin, useLoginMicrosoft }

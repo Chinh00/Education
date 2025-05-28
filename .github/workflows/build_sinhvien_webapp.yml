@@ -27,10 +27,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Create .env
         run: |
-          echo "VITE_URL=${{ secrets.VITE_URL }}" > src/Webs/sinhvien/.env
-          echo "VITE_CLIENT_ID=${{ secrets.VITE_CLIENT_ID }}" >> src/Webs/sinhvien/.env
-          echo "VITE_TENANT_ID=${{ secrets.VITE_TENANT_ID }}" >> src/Webs/sinhvien/.env
-          echo "VITE_REDIRECT_URL=${{ secrets.VITE_REDIRECT_URL }}" >> src/Webs/sinhvien/.env
+          echo "VITE_URL=${{ secrets.VITE_URL }}" > src/Webs/sinhvien/.env.production
+          echo "VITE_CLIENT_ID=${{ secrets.VITE_CLIENT_ID }}" >> src/Webs/sinhvien/.env.production
+          echo "VITE_TENANT_ID=${{ secrets.VITE_TENANT_ID }}" >> src/Webs/sinhvien/.env.production
+          echo "VITE_REDIRECT_URL=${{ secrets.VITE_REDIRECT_URL }}" >> src/Webs/sinhvien/.env.production
       - name: Cat .env   
         run: |
           cat src/Webs/sinhvien/.env

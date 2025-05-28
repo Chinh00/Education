@@ -25,7 +25,7 @@ const LoginFirst = () => {
   const { mutate, isPending } = useSyncDataFromDataProvider()
   const { data: userInfo } = useGetUserInfo()
 
-  const { data, isLoading, refetch } = useGetStudentInformation(3000)
+  const { data, isLoading, refetch } = useGetStudentInformation(5000)
 
   const nav = useNavigate()
   useEffect(() => {

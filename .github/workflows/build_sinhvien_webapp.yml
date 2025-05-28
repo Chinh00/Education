@@ -33,7 +33,7 @@ jobs:
           echo "VITE_REDIRECT_URL=${{ secrets.VITE_REDIRECT_URL }}" >> src/Webs/sinhvien/.env
       - name: Cat .env   
         run: |
-          cat /src/Webs/sinhvien/.env
+          cat src/Webs/sinhvien/.env
       
       
       - name: 🏗️ Build and push Docker image gateway service

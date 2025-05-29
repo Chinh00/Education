@@ -90,24 +90,7 @@ const InformationBySchool = (props: InformationBySchoolProps) => {
 
 
 
-                    <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 hover:shadow-md transition-all duration-300">
-                        <div className="flex items-center mb-2">
-                            <School className="h-5 w-5 text-blue-600 mr-2" />
-                            <h3 className="font-medium">Giáo viên cố vấn</h3>
-                        </div>
-                        <div className="flex items-center">
-                            <Avatar className="h-12 w-12 mr-3">
-                                <AvatarFallback className="bg-blue-100 text-blue-600">{"student.advisor.charAt(0)"}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <p className="font-semibold">{"student.advisor"}</p>
-                                <p className="text-sm text-muted-foreground">Giáo viên cố vấn học tập</p>
-                            </div>
-                            <Button variant="outline" size="sm" className="ml-auto">
-                                Liên hệ
-                            </Button>
-                        </div>
-                    </div>
+
 
                 </CardContent>
             </Card>

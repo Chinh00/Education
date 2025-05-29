@@ -144,12 +144,7 @@ const PersonalInformation = (props: PersonalInformationProps) => {
                         </div>
                     </div>
                 </CardContent>
-                <CardFooter className="border-t pt-4 flex justify-end">
-                    <Button variant="outline" size="sm">
-                        <Mail className="mr-2 h-4 w-4" />
-                        Gửi email
-                    </Button>
-                </CardFooter>
+
             </Card>
         </>
             

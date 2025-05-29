@@ -1,3 +1,4 @@
+using Education.Infrastructure;
 using TrainingService.Infrastructure;
 using TrainingService.Infrastructure.GrpcService.Implements;
 
@@ -11,7 +12,10 @@ builder.Services.AddAuth(builder.Configuration)
     .AddAutoMapperService(typeof(MapperConfigs))
     .AddMongodbService(builder.Configuration, typeof(MongoRepository<>))
     .AddMasstransitService(builder.Configuration)
-    .AddGrpc();
+    .AddOpenTelemetryCustom(builder.Configuration, "training-service")
+    .AddGrpc()
+    
+    ;
     
 
 var app = builder.Build();

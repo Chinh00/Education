@@ -49,7 +49,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton className="text-sidebar-foreground/70">
                   <Timer />
-                  <Link to={"/student/register"}>Thời khóa biểu của tôi</Link>
+                  <Link to={RoutePaths.STUDENT_TIMELINE}>Thời khóa biểu của tôi</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 

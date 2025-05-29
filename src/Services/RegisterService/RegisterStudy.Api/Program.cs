@@ -1,3 +1,4 @@
+using Education.Infrastructure;
 using Education.Infrastructure.Authentication;
 using Education.Infrastructure.Controllers;
 using Education.Infrastructure.Exception;
@@ -28,7 +29,9 @@ builder.Services.AddAuth(builder.Configuration)
     {
         config.UseRedisStorage($"{builder.Configuration.GetValue<string>("Redis:Server")}:{builder.Configuration.GetValue<string>("Redis:Port")},abortConnect=false");
     })
-    .AddMongodbService(builder.Configuration, typeof(Program)); 
+    .AddMongodbService(builder.Configuration, typeof(Program))
+    .AddOpenTelemetryCustom(builder.Configuration, "register-service")
+    ; 
 builder.Services.AddHangfireServer();
 var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();

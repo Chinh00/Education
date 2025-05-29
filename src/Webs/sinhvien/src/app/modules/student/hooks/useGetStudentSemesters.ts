@@ -1,7 +1,7 @@
 import {useQuery} from "@tanstack/react-query";
 import {getStudentSemesters} from "@/app/modules/student/services/student.service.ts";
 import {Query} from "@/infrastructure/query.ts";
-const useGetStudentSemesters = (query: Query, enable: boolean) => {
+const useGetStudentSemesters = (query: Query, enable: boolean = true) => {
     return useQuery({
         queryKey: ["useGetStudentSemesters", query],
         queryFn: () => getStudentSemesters(query),

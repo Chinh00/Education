@@ -10,6 +10,7 @@ const StudentInformation = lazy(() => import("../modules/student/pages/student_i
 const StudentResult = lazy(() => import("../modules/student/pages/student_result.tsx"))
 const StudentEducation = lazy(() => import("../modules/student/pages/student_education.tsx"))
 const StudentRegister = lazy(() => import("../modules/student/pages/register_education.tsx"))
+const StudentTimeline = lazy(() => import("../modules/student/pages/student_timeline.tsx"))
 const EducationResult = lazy(() => import("../modules/student/pages/education_result.tsx"))
 const Login = lazy(() => import('../modules/auth/pages/login.tsx'))
 const LoginFirst = lazy(() => import('../modules/auth/pages/login_first.tsx'))
@@ -75,6 +76,11 @@ const router = createBrowserRouter([
                                 path: RoutePaths.STUDENT_EDUCATION_RESULT,
                                 element: <Suspense fallback={<ProgressScreen  />} key={"EducationResult"}><EducationResult /></Suspense>,
                             },
+                            {
+                                path: RoutePaths.STUDENT_TIMELINE,
+                                element: <Suspense fallback={<ProgressScreen  />} key={"StudentTimeline"}><StudentTimeline /></Suspense>,
+                            },
+
 
 
 

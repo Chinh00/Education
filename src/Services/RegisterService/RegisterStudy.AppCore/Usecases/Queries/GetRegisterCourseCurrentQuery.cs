@@ -13,7 +13,7 @@ public record GetRegisterCourseCurrentQuery : IQuery<RegisterCourse>
 
         public async Task<ResultModel<RegisterCourse>> Handle(GetRegisterCourseCurrentQuery request, CancellationToken cancellationToken)
         {
-            return ResultModel<RegisterCourse>.Create(await registerRepository.GetAsync(nameof(RegisterCourse)));
+            return ResultModel<RegisterCourse>.Create(await registerRepository.GetAsync(nameof(RegisterCourse)) ?? null);
         }
     }
 }

@@ -1,4 +1,5 @@
 
+using Education.Infrastructure;
 using Education.Infrastructure.Authentication;
 using Education.Infrastructure.Controllers;
 using Education.Infrastructure.Swagger;
@@ -21,6 +22,7 @@ builder.Services.AddAuth(builder.Configuration)
     .AddMasstransitService(builder.Configuration)
     // .AddHostedService<StudentSeedService>();
     // .AddOpenTelemetryCustom(builder.Configuration, "student-service")
+    .AddOpenTelemetryCustom(builder.Configuration, "student-service")
     ;
     
 var app = builder.Build();

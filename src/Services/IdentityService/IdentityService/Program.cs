@@ -1,6 +1,7 @@
 ﻿using Confluent.Kafka;
 using Duende.IdentityServer;
 using Education.Contract.IntegrationEvents;
+using Education.Infrastructure;
 using Education.Infrastructure.Logging;
 using Education.Infrastructure.Mediator;
 using Education.Infrastructure.Swagger;
@@ -105,7 +106,7 @@ builder.Services.AddMassTransit(c =>
     });
 });
 builder.Services.AddHostedService<SeedDataHostedService>();
-
+builder.Services.AddOpenTelemetryCustom(builder.Configuration, "identity-service");
 
 
 var app = builder.Build();

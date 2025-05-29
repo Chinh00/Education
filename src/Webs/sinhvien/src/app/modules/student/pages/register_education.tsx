@@ -31,6 +31,10 @@ import {useGetRegisterSubjectCurrent} from "@/app/modules/student/hooks/useGetRe
 
 const RegisterEducation= () => {
     const {data, isPending, isSuccess} = useGetStudentInformation()
+
+
+
+
     const {data: educations, isPending: educationsLoading} = useGetEducations({
         Filters: [
             {
@@ -46,7 +50,7 @@ const RegisterEducation= () => {
     const {data: registerCurrentState, isPending: registerCurrentStateLoading, isSuccess: registerCurrentStateSuccess, refetch} = useGetRegisterStateCurrent()
     const { mutate, isPending: mutateLoading} = useCreateRegisterWish()
 
-    const {data: subjects, isLoading: subjectsLoading} = useGetSubjects({
+    const {data: subjects, isLoading: subjectsLoading, isSuccess: subjectsSuccess} = useGetSubjects({
         Filters: [
             {
                 field: "SubjectCode",
@@ -58,13 +62,22 @@ const RegisterEducation= () => {
         Page: 1,
         PageSize: 1000
     }, educations?.data?.data?.items?.[0] !== undefined)
+
+
+
     const [selectedEducation, setSelectedEducation] = useState<string>()
+
+    useEffect(() => {
+        if (data) {
+            setSelectedEducation(data?.data?.data?.educationPrograms[0]?.code)
+        }
+    }, [data]);
+
+
     const columns: ColumnsType<Subject> = [
         {
             title: 'Nguyện vọng',
             key: 'action',
-            fixed: 'left',
-            width: 5,
             render: (_, record) => (
                 <Checkbox disabled={!isNowBetweenServerTime(registerCurrentState?.data?.data?.staDate, registerCurrentState?.data?.data?.endDate)} checked={dataAdd?.filter(c => c.subjectCode === record?.subjectCode)?.length > 0} onChange={(e) => {
 
@@ -86,28 +99,29 @@ const RegisterEducation= () => {
         {
             title: 'Mã môn học',
             dataIndex: "subjectCode",
-            width: 10,
-            fixed: "left"
+            key: 'subjectCode',
+
         },
         {
             title: 'Tên môn học',
             dataIndex: "subjectName",
-            width: 20,
+            key: 'subjectName',
 
         },
         {
             title: 'Là môn tính điểm',
+            dataIndex: 'isCalculateMark',
+            key: 'isCalculateMark',
             render: (value, record) => {
                 return <Checkbox  defaultChecked={record?.isCalculateMark} disabled={true} />
             },
-            width: 10,
         },
 
 
         {
             title: 'Số tín chỉ',
             dataIndex: "numberOfCredits",
-            width: 40,
+            key: 'numberOfCredits',
 
         },
     ];
@@ -118,19 +132,20 @@ const RegisterEducation= () => {
         if (registerSubject && registerSubject?.data?.data !== undefined && subjects?.data?.data?.items !== undefined) {
             setDataAdd(prevState => [
                 ...prevState,
-                ...subjects?.data?.data?.items?.filter(c => registerSubject?.data?.data?.subjectCodes?.includes(c?.subjectCode))
+                ...subjects?.data?.data?.items?.filter(c => registerSubject?.data?.data?.subjectCodes?.includes(c?.subjectCode)) ?? []
             ])
         }
     }, [registerSubject, subjects?.data?.data?.items]);
 
+
     return (
-        <PredataScreen isLoading={isPending || registerCurrentStateLoading} isSuccess={isSuccess && registerCurrentStateSuccess}>
-            <div className={"flex flex-col gap-10"}>
+        <PredataScreen isLoading={isPending } isSuccess={isSuccess }>
+            <div className={"flex flex-col gap-5 w-full"}>
                 <Select value={selectedEducation} onValueChange={(value) => {
                     const edu = data?.data?.data?.educationPrograms?.find(e => e.code === value);
                     if (edu) setSelectedEducation(edu?.code);
                 }}>
-                    <SelectTrigger className={"w-full mb-5"} >
+                    <SelectTrigger className={"w-full"} >
                         <SelectValue placeholder="Chương trình đào tạo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -145,7 +160,7 @@ const RegisterEducation= () => {
                 <Box className={"flex flex-row justify-between w-full"}>
                     <RegistrationTimer startTime={''} endTime={''} timeSlot={`${registerCurrentState?.data?.data?.minCredit} - ${registerCurrentState?.data?.data?.maxCredit}`} />
                 </Box>
-                <div className={"relative"}>
+                <div className={"relative w-full inset-0 min-h-[450px]"}>
                     {!isNowBetweenServerTime(registerCurrentState?.data?.data?.staDate, registerCurrentState?.data?.data?.endDate) &&
                         <div className={"absolute left-1/2 top-1/2 z-50 -translate-y-1/2 -translate-x-1/2"}>
                             <Badge
@@ -157,7 +172,7 @@ const RegisterEducation= () => {
                             `}
                                 onClick={() => {}}
                             >
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center space-x-2 text-black">
                                     <AlertCircle />
                                     <span>Chưa đến thời gian đăng ký</span>
                                 </div>
@@ -166,9 +181,9 @@ const RegisterEducation= () => {
                     }
 
                     <Table<Subject>
-
+                        className={"absolute top-0"}
                         rowKey={(c) => c.id}
-                        loading={subjectsLoading || educationsLoading}
+                        loading={subjectsLoading }
                         title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white bg-gradient-to-r from-green-600 to-teal-600"}>
                             <Typography variant="h6" gutterBottom>Danh sách môn được chọn</Typography>
                         </Box>}
@@ -178,27 +193,28 @@ const RegisterEducation= () => {
 
                         columns={columns}
                         pagination={false}
-                        virtual
                         dataSource={subjects?.data?.data?.items ?? []}
-                        scroll={{ x: 2000, y: 350 }}
-
+                        virtual
+                        scroll={{ y: 300 }}
                     />
                 </div>
 
 
-                <Table<Subject>
-                    rowKey={(c) => c.id}
-                    showHeader={true}
-                    title={() => <Box className={"flex flex-row justify-start items-center p-[16px] text-white bg-blue-400"}>
-                        <CheckCircle className="h-5 w-5 mr-2"  />
-                        <Typography variant="h6" gutterBottom> Môn học đã chọn ( Đã chọn {dataAdd?.length} môn)</Typography>
-                    </Box>}
-                    size={"small"}
-                    bordered={true}
-                    columns={columns}
-                    pagination={false}
-                    dataSource={dataAdd}
-                />
+                <div className={"w-full relative min-h-[250px]"}>
+                    <Table<Subject>
+                        rowKey={(c) => c.id}
+                        showHeader={true}
+                        title={() => <Box className={"flex flex-row justify-start items-center p-[16px] text-white bg-blue-400"}>
+                            <CheckCircle className="h-5 w-5 mr-2"  />
+                            <Typography variant="h6" gutterBottom> Môn học đã chọn ( Đã chọn {dataAdd?.length} môn)</Typography>
+                        </Box>}
+                        size={"small"}
+                        bordered={true}
+                        columns={columns}
+                        pagination={false}
+                        dataSource={dataAdd}
+                    />
+                </div>
                 <Box className={" mt-[20px] w-full flex justify-end gap-5"}>
                     <Button type={"default"} onClick={() => setDataAdd([])}>Huỷ thay đổi</Button>
                     <Button loading={mutateLoading} type={"primary"} onClick={() => [

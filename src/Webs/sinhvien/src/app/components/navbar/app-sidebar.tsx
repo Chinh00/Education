@@ -15,7 +15,7 @@ import { RoutePaths } from "@/cores/route_paths.ts";
 export function AppSidebar() {
 
   return (
-    <Sidebar className={"relative h-full"}>
+    <Sidebar className={""} variant={"floating"} >
       <SidebarContent>
         <SidebarGroup>
           {/*<SidebarGroupLabel>Quản lý sinh viên</SidebarGroupLabel>*/}

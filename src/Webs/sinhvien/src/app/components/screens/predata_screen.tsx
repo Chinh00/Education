@@ -25,7 +25,7 @@ const PredataScreen = (props: PredataScreenProps) => {
         transition={{
           duration: 0.45
         }}
-        className="z-50"
+        className="z-50 w-full p-5"
       >
         {
           props.children

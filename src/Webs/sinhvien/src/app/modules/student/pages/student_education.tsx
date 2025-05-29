@@ -102,9 +102,9 @@ const StudentEducation = () => {
             </SelectContent>
           </Select>
         </div>
-        <div className="rounded-md ">
+        <div className="relative rounded-md min-h-[500px]">
           <Table<Subject>
-
+            className={"absolute top-0"}
             rowKey={(c) => c.id}
             loading={subjectsLoading || educationsLoading}
 

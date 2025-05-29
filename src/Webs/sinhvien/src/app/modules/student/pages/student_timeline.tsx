@@ -95,7 +95,7 @@ const StudentTimeline = () => {
           return {
             id: c?.id,
             title: "",
-            subject: courseClass?.data?.data?.items[0]?.courseSubjects?.filter(e => e.courseClassCode === c?.courseClassCode)[0]?.subjectName,
+            subject: courseClass?.data?.data?.items[0]?.courseSubjects?.filter(e => e.courseClassCode === c?.courseClassCode)[0]?.subjectName + ` - (${c?.roomCode})`,
             color: "bg-red-100 text-blue-800 border-blue-200",
             startSlot: +c?.slots[0],
             endSlot: +c?.slots[c.slots?.length - 1],

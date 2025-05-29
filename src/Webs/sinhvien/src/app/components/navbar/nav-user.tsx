@@ -22,13 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge, Box } from "@mui/material";
 import AvatarIcon from "@/assets/images/avatar.png"
 import { useGetUserInfo } from "@/app/modules/auth/hooks/useGetUserInfo";
-export function NavUser({ user, }: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
+export function NavUser() {
   // const { isMobile } = useSidebar()
   const navigate = useNavigate();
   // const {} = useMsal()
@@ -50,7 +44,7 @@ export function NavUser({ user, }: {
       <DropdownMenuTrigger asChild>
         <Box className={"flex justify-center items-center gap-1"}>
           <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage src={AvatarIcon} alt={user.name} />
+            <AvatarImage src={AvatarIcon} alt={"user.name"} />
             <AvatarFallback className="rounded-lg">CN</AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
@@ -68,7 +62,6 @@ export function NavUser({ user, }: {
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback className="rounded-lg">CN</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">

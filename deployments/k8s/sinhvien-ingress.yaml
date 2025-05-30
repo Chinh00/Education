@@ -11,7 +11,7 @@ spec:
         paths:
           - backend:
               service:
-                name: sinhvien-client
+                name: sinhvien
                 port:
                   number: 80
             pathType: ImplementationSpecific

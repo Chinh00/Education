@@ -1,0 +1,73 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: education
+  labels:
+    app: otel-collector
+data:
+  otel-collector-config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4321
+
+    exporters:
+      prometheus:
+        endpoint: "0.0.0.0:9464"
+
+    service:
+      pipelines:
+        metrics:
+          receivers: [otlp]
+          exporters: [prometheus]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: education
+  labels:
+    app: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+        - name: otel-collector
+          image: otel/opentelemetry-collector:latest
+          args: ["--config=/conf/otel-collector-config.yaml"]
+          ports:
+            - containerPort: 4321
+            - containerPort: 9464 
+          volumeMounts:
+            - name: otel-config-vol
+              mountPath: /conf
+      volumes:
+        - name: otel-config-vol
+          configMap:
+            name: otel-collector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: education
+spec:
+  selector:
+    app: otel-collector
+  ports:
+    - name: otlp-grpc
+      port: 4321
+      targetPort: 4321
+    - name: prometheus
+      port: 9464
+      targetPort: 9464
+  type: ClusterIP

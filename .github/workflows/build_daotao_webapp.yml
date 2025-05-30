@@ -25,7 +25,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: 🏗️ Build and push Docker image gateway service
+      - name: Create .env
+        run: |
+          echo "VITE_URL=${{ secrets.VITE_URL }}" > src/Webs/daotao/.env.production
+      - name: 🏗️ Build and push Docker image daotao client service
         uses: docker/build-push-action@v5
         with:
           context: .

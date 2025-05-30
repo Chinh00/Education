@@ -1,0 +1,16 @@
+﻿replicaCount: 1
+
+auth:
+  enabled: false
+
+zookeeper:
+  enabled: true
+
+listeners:
+  client:
+    protocol: PLAINTEXT
+  interBroker:
+    protocol: PLAINTEXT
+
+externalAccess:
+  enabled: false

@@ -28,13 +28,6 @@ spec:
                   key: password
           ports:
             - containerPort: 27017
-#          volumeMounts:
-#            - mountPath: /var/data/mongo
-#              name: mongodata
-#      volumes:
-#        - name: mongodata
-#          persistentVolumeClaim:
-#            claimName: mongo-claim
 ---
 apiVersion: v1
 kind: Service

@@ -1,0 +1,73 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity
+  namespace: education
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: identity
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: identity
+    spec:
+      containers:
+        - image: chinhval/educationidentityservice
+          imagePullPolicy: Always
+          name: identity
+          ports:
+            - containerPort: 80
+          env:
+            - name: ConnectionStrings__postgres
+              valueFrom:
+                secretKeyRef:
+                  key: connect_string
+                  name: postgres-secret
+            - name: Kafka__BootstrapServers
+              valueFrom:
+                secretKeyRef:
+                  key: boostrap_servers
+                  name: kafka-secret
+            - name: Jaeger__Protocol
+              valueFrom:
+                secretKeyRef:
+                  key: jaeger_protocol
+                  name: monitor
+            - name: Jaeger__Host
+              valueFrom:
+                secretKeyRef:
+                  key: jaeger_host
+                  name: monitor
+            - name: Jaeger__Port
+              valueFrom:
+                secretKeyRef:
+                  key: jaeger_port
+                  name: monitor
+            - name: Oltp__Endpoint
+              valueFrom:
+                secretKeyRef:
+                  key: oltp_endpoint
+                  name: monitor
+      
+      
+      
+      
+      
+      
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity
+  namespace: education
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: identity

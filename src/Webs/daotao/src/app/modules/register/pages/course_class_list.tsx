@@ -87,7 +87,7 @@ const CourseClassList = () => {
                 value: data?.data?.data?.items?.map(c => c.courseClassCode)?.join(",")!
             },
         ]
-    }, data !== undefined)
+    }, data !== undefined && data?.data?.data?.items?.map(c => c.courseClassCode)?.length > 0)
     return (
         <PredataScreen isLoading={isLoading} isSuccess={isSuccess} >
             <Table<CourseClass>

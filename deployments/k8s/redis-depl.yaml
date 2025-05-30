@@ -22,7 +22,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-clusterip
+  name: redis
   namespace: education
 spec:
   type: ClusterIP

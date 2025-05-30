@@ -5,6 +5,13 @@ auth:
 
 zookeeper:
   enabled: true
+  replicaCount: 1
+
+controller:
+  replicaCount: 0 
+
+kraft:
+  enabled: false  
 
 listeners:
   client:

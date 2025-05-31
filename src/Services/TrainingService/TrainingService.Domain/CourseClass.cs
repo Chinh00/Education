@@ -18,6 +18,7 @@ public class CourseClass : AggregateBase
         Session = session;
         SemesterCode = semesterCode;
         TotalSession = totalSession;
+        Status = CourseClassStatus.Active;
         Stage = stage;
         AddDomainEvent(version => new CourseClassCreatedDomainEvent(Id.ToString(), courseClassCode,
             courseClassName, (int)courseClassType, subjectCode, sessionLength, session, totalSession, semesterCode, (int)stage)
@@ -26,7 +27,7 @@ public class CourseClass : AggregateBase
             MetaData = metaData
         });
     }
-    
+    public CourseClassStatus Status { get; set; }
 
     public int ClassIndex { get; set; } 
     public string CourseClassCode { get; set; }

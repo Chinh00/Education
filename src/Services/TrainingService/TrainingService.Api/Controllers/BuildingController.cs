@@ -7,18 +7,6 @@ namespace TrainingService.Api.Controllers;
 public class BuildingController : BaseController
 {
     /// <summary>
-    /// Lấy danh sách tòa nhà
-    /// </summary>
-    /// <param name="query"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> HandleGetBuildingsAsync(
-        [FromQuery] GetBuildingsQuery query, CancellationToken cancellationToken)
-    {
-        return Ok(await Mediator.Send(query, cancellationToken));
-    }
-    /// <summary>
     /// Danh sách các phòng
     /// </summary>
     /// <param name="query"></param>

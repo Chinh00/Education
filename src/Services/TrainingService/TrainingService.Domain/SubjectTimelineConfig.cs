@@ -43,8 +43,7 @@ public class SubjectTimelineConfig : BaseEntity
 
     [Description("Giai đoạn học")] public SubjectTimelineStage Stage { get; set; } = SubjectTimelineStage.Stage1;
     
-    [Description("Số tuần học")]
-    public int DurationInWeeks { get; set; } = 8;
+    
     public List<string> RequiredConditions { get; set; } = [];
 
     

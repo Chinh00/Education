@@ -10,8 +10,6 @@ public class Room : BaseEntity
 
     public string Name { get; set; }
 
-    public int? ExamCapacity { get; set; }
-
     public string BuildingCode { get; set; }
     public ICollection<string> SupportedConditions { get; set; }
 }

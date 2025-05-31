@@ -5,7 +5,7 @@ using MediatR;
 using RegisterStudy.Domain;
 using RegisterStudy.Domain.Repository;
 
-namespace RegisterStudy.AppCore.Usecases.Masstransits;
+namespace RegisterStudy.AppCore.Usecases.IntegrationEvents;
 
 public class WishListCreatedIntegrationEventConsumer(IBackgroundJobClient jobClient, IRegisterRepository<RegisterCourse> registerRepository)
     : INotificationHandler<WishListCreatedIntegrationEvent>

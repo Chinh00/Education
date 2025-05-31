@@ -17,6 +17,5 @@ public class GetRoomsSpec : ListSpecificationBase<Room>
         ApplyInclude(c => c.Code);
         ApplyInclude(c => c.Name);
         ApplyInclude(c => c.Capacity);
-        ApplyInclude(c => c.ExamCapacity);
     }
 }

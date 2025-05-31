@@ -3,7 +3,7 @@ using MassTransit;
 using RegisterStudy.Domain;
 using RegisterStudy.Domain.Repository;
 
-namespace RegisterStudy.AppCore.Usecases.Masstransits;
+namespace RegisterStudy.AppCore.Usecases.IntegrationEvents;
 
 public class WishLockHandler(
     ITopicProducer<RegisterLockedIntegrationEvent> topicProducer,

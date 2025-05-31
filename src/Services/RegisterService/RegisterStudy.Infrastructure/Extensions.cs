@@ -79,6 +79,14 @@ public static class Extensions
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
                         });
+                    configurator.TopicEndpoint<CourseClassCreatedIntegrationEvent>(nameof(CourseClassCreatedIntegrationEvent), "register-training",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
+                    
                     
                 });
             });

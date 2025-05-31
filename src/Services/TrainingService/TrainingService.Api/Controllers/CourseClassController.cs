@@ -49,4 +49,18 @@ public class CourseClassController : BaseController
         return Ok(await Mediator.Send(query, cancellationToken));
     }
     
+    
+    /// <summary>
+    /// Lấy danh sách điều kiện mở lớp
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("Condition")]
+    public async Task<IActionResult> HandleGetCourseClassConditionAsync([FromQuery] GetCourseClassConditionQuery query,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(query, cancellationToken));
+    }
+    
 }

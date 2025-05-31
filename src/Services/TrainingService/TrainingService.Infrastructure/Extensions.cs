@@ -2,13 +2,7 @@ using Confluent.Kafka;
 using Education.Contract;
 using Education.Contract.DomainEvents;
 using Education.Contract.IntegrationEvents;
-using Education.Core.Domain;
-using Education.Core.Repository;
-using Education.Core.Services;
 using Education.Infrastructure;
-using Education.Infrastructure.Application;
-using Education.Infrastructure.EventBus;
-using Education.Infrastructure.EventStore;
 using Education.Infrastructure.Mongodb;
 using MassTransit;
 using MongoDB.Bson;
@@ -24,6 +18,7 @@ public static class Extensions
     public static IServiceCollection AddMasstransitService(this IServiceCollection services, IConfiguration configuration,
         Action<IServiceCollection> action = null)
     {
+        services.AddHostedService<SeedDataHostedService>();
         services.AddApplicationService();
         BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         services.AddMassTransit(c =>
@@ -37,6 +32,7 @@ public static class Extensions
                 e.AddProducer<StartRegisterPipelineIntegrationEvent>(nameof(StartRegisterPipelineIntegrationEvent));
                 e.AddProducer<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent));
                 e.AddProducer<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent));
+                e.AddProducer<CourseClassCreatedIntegrationEvent>(nameof(CourseClassCreatedIntegrationEvent));
                 
                 
                 e.AddProducer<CourseClassCreatedDomainEvent>(nameof(CourseClassCreatedDomainEvent));

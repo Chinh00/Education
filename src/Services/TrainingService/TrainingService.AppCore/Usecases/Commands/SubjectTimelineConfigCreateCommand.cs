@@ -24,8 +24,7 @@ public record SubjectTimelineConfigCreateCommand(SubjectTimelineConfigCreateComm
         int LabMinStudent,
         int LectureStartWeek,
         int LabStartWeek,
-        int Stage,
-        int DurationInWeeks
+        int Stage
         );
     
     internal class Handler(IMongoRepository<SubjectTimelineConfig> repository)
@@ -34,7 +33,7 @@ public record SubjectTimelineConfigCreateCommand(SubjectTimelineConfigCreateComm
         public async Task<IResult> Handle(SubjectTimelineConfigCreateCommand request, CancellationToken cancellationToken)
         {
             var (subjectCode, periodTotal, lectureTotal, lectureLesson, lecturePeriod, labTotal, labLesson, labPeriod,
-                minDaySpaceLecture, minDaySpaceLab, lectureMinStudent, labMinStudent, lectureStartWeek, labStartWeek, stage, durationInWeeks) = request.Model;
+                minDaySpaceLecture, minDaySpaceLab, lectureMinStudent, labMinStudent, lectureStartWeek, labStartWeek, stage) = request.Model;
 
             var spec = new GetSubjectTimelineBySubjectCodeSpec(subjectCode);
             var subjectTimelineConfig = await repository.FindOneAsync(spec, cancellationToken) ?? new SubjectTimelineConfig();
@@ -55,7 +54,6 @@ public record SubjectTimelineConfigCreateCommand(SubjectTimelineConfigCreateComm
             subjectTimelineConfig.LectureStartWeek = labMinStudent;
             subjectTimelineConfig.LabStartWeek = labMinStudent;
             subjectTimelineConfig.Stage = (SubjectTimelineStage)stage;
-            subjectTimelineConfig.DurationInWeeks = durationInWeeks;
             
             var result = await repository.UpsertOneAsync(spec, subjectTimelineConfig, cancellationToken);
             return Results.Ok(ResultModel<SubjectTimelineConfig>.Create(result));

@@ -34,16 +34,4 @@ public class SemesterController : BaseController
     {
         return await Mediator.Send(command, cancellationToken);
     }
-    /// <summary>
-    /// Cập nhật kì học cho class
-    /// </summary>
-    /// <param name="command"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpPut("config-class")]
-    public async Task<object> HandlerConfigClassSemesterAsync(ConfigSemesterForClassCommand command,
-        CancellationToken cancellationToken = default)
-    {
-        return await Mediator.Send(command, cancellationToken);
-    }
 }

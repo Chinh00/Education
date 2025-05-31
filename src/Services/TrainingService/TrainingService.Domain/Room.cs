@@ -4,7 +4,7 @@ namespace TrainingService.Domain;
 
 public class Room : BaseEntity
 {
-    public int? Capacity { get; set; }
+    public int Capacity { get; set; }
 
     public string Code { get; set; }
 

@@ -24,19 +24,7 @@ public class RegisterController : BaseController
         return await Mediator.Send(configCommand, cancellationToken);
     }
     
-    /// <summary>
-    /// Lấy danh sách đăng ký cấu hình
-    /// </summary>
-    /// <param name="command"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> HandleGetRegistersAsync([FromQuery] GetRegistersQuery command,
-        CancellationToken cancellationToken = default)
-    {
-        return Ok(await Mediator.Send(command, cancellationToken));
-    }
-    
+   
     /// <summary>
     /// Trạng thái đăng ký
     /// </summary>

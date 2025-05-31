@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Education.Contract.DomainEvents;
 using Education.Core.Domain;
 
@@ -5,44 +6,42 @@ namespace TrainingService.Domain;
 
 public class RegisterConfig : AggregateBase
 {
-    public string CurrentState { get; set; } 
-    public string SemesterCode { get; set; } 
-    public string SemesterName { get; set; } 
+    public string SemesterCode { get; set; }
+
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    
+    
+    [Description("Thời gian sinh viên thay đổi")]
+    public DateTime StudentChangeStart { get; set; } 
+    public DateTime StudentChangeEnd { get; set; } 
+    
+    [Description("Thời gian bắt đầu học")]
+    public DateTime EducationStart { get; set; }
+    public DateTime EducationEnd { get; set; }
     public int MinCredit { get; set; }
     public int MaxCredit { get; set; }
-    public Guid? CorrelationId { get; set; }
-    
 
-    public void CreateRegisterConfig(string semesterCode, string semesterName, DateTime startDate, DateTime endDate,
+    public void Create(string semesterCode, DateTime startDate, DateTime endDate, DateTime studentChangeStart,
+        DateTime studentChangeEnd, DateTime educationStart, DateTime educationEnd, 
         int minCredit, int maxCredit, IDictionary<string, object> metaData = null)
     {
-        SemesterName = semesterName;
         SemesterCode = semesterCode;
         StartDate = startDate;
         EndDate = endDate;
         MinCredit = minCredit;
         MaxCredit = maxCredit;
+        StudentChangeStart = studentChangeStart;
+        StudentChangeEnd = studentChangeEnd;
+        EducationStart = educationStart;
+        EducationEnd = educationEnd;
         AddDomainEvent(version =>
-            new RegisterConfigCreatedDomainEvent(Id.ToString(), semesterCode, semesterName, startDate, endDate,
-                minCredit, maxCredit)
+            new RegisterConfigCreatedDomainEvent(Id.ToString(), semesterCode, startDate, endDate, studentChangeStart,
+                studentChangeEnd, educationStart, educationEnd, minCredit, maxCredit)
         {
             Version = version,
             MetaData = metaData
         });    
     }
-
-    public override void ApplyDomainEvent(IDomainEvent @event) => Apply((dynamic)@event);
-
-    void Apply(RegisterConfigCreatedDomainEvent @event)
-    {
-        SemesterName = @event.SemesterName;
-        SemesterCode = @event.SemesterCode;
-        StartDate = @event.StartDate;
-        EndDate = @event.EndDate;
-        MinCredit = @event.MinCredit;
-        MaxCredit = @event.MaxCredit;
-        Version = @event.Version;
-    }
+    
 }

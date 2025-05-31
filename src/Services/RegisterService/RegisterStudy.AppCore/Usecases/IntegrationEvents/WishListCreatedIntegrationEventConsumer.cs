@@ -18,7 +18,6 @@ public class WishListCreatedIntegrationEventConsumer(IBackgroundJobClient jobCli
         await registerRepository.SaveAsync(nameof(RegisterCourse), () => Task.FromResult(new RegisterCourse()
         {
             SemesterCode = notification.SemesterCode,
-            SemesterName = notification.SemesterName,
             StaDate = notification.StartDate,
             EndDate = notification.EndDate,
             MinCredit = notification.MinCredit,

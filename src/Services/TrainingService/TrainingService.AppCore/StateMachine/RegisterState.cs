@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Education.Core.Domain;
 using MassTransit;
 using MongoDB.Bson;
@@ -15,10 +16,11 @@ public class RegisterState : SagaStateMachineInstance, ISagaVersion
     public string SemesterName { get; set; } = null!;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    
+    [Description("Thời gian sinh viên thay đổi")]
     public DateTime StudentChangeStart { get; set; } 
     public DateTime StudentChangeEnd { get; set; } 
     
+    [Description("Thời gian bắt đầu học")]
     public DateTime EducationStart { get; set; }
     public DateTime EducationEnd { get; set; }
     

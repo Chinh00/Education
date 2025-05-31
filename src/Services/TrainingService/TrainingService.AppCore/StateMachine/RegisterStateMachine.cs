@@ -19,10 +19,13 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
                 {
                     logger.LogInformation($"Register started {context.Message.CorrelationId}");
                     context.Saga.CorrelationId = context.Message.CorrelationId;
+                    context.Saga.SemesterCode = context.Message.SemesterCode;
                     context.Saga.StartDate = context.Message.StartDate;
                     context.Saga.EndDate = context.Message.EndDate;
-                    context.Saga.SemesterCode = context.Message.SemesterCode;
-                    context.Saga.SemesterName = context.Message.SemesterName;
+                    context.Saga.StudentChangeStart = context.Message.StudentChangeStart;
+                    context.Saga.StudentChangeEnd = context.Message.StudentChangeEnd;
+                    context.Saga.EducationStart = context.Message.EducationStart;
+                    context.Saga.EducationEnd = context.Message.EducationEnd;
                     context.Saga.MinCredit = context.Message.MinCredit;
                     context.Saga.MaxCredit = context.Message.MaxCredit;
                 })
@@ -32,7 +35,6 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
                     context.Message.StartDate,
                     context.Message.EndDate,
                     context.Message.SemesterCode,
-                    context.Message.SemesterName,
                     context.Message.MinCredit,
                     context.Message.MaxCredit,
                 }))

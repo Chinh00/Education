@@ -14,7 +14,7 @@ public class GetRegistersStateSpec : ListSpecificationBase<RegisterState>
         ApplySorts(query.Sorts);
         ApplyInclude(c => c.SemesterCode);
         ApplyInclude(c => c.CorrelationId);
-        ApplyInclude(c => c.SemesterName);
+        ApplyInclude(c => c.EventStoreId);
         ApplyInclude(c => c.CurrentState);
         ApplyInclude(c => c.StartDate);
         ApplyInclude(c => c.EndDate);
@@ -24,5 +24,6 @@ public class GetRegistersStateSpec : ListSpecificationBase<RegisterState>
         ApplyInclude(c => c.NumberStudent);
         ApplyInclude(c => c.NumberSubject);
         ApplyInclude(c => c.NumberWish);
+        ApplyInclude(c => c.EventStoreId);
     }
 }

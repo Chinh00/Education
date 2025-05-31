@@ -38,6 +38,7 @@
     <ItemGroup>
       <Folder Include="Controllers\" />
       <Folder Include="Data\Migrations\" />
+      <Folder Include="wwwroot\swagger\v1\" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,6 +1,7 @@
 using Education.Contract;
 using Education.Contract.IntegrationEvents;
 using MassTransit;
+using MongoDB.Bson;
 
 namespace TrainingService.AppCore.StateMachine;
 
@@ -19,6 +20,7 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
                 {
                     logger.LogInformation($"Register started {context.Message.CorrelationId}");
                     context.Saga.CorrelationId = context.Message.CorrelationId;
+                    context.Saga.EventStoreId = context.Message.EventStoreId;
                     context.Saga.SemesterCode = context.Message.SemesterCode;
                     context.Saga.StartDate = context.Message.StartDate;
                     context.Saga.EndDate = context.Message.EndDate;

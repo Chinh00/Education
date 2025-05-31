@@ -16,7 +16,7 @@ public class RegisterController : BaseController
     /// <param name="configCommand"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("create-wish-register")]
+    [HttpPost]
     [Authorize]
     public async Task<object> HandlerRegisterWishAsync([FromBody] CreateRegisterConfigCommand configCommand,
         CancellationToken cancellationToken = default)
@@ -31,7 +31,7 @@ public class RegisterController : BaseController
     /// <param name="command"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpGet("State")]
+    [HttpGet]
     public async Task<IActionResult> HandleGetRegisterStateAsync([FromQuery] GetRegistersStateQuery command,
         CancellationToken cancellationToken = default)
     {

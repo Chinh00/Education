@@ -13,7 +13,6 @@ public class RegisterState : SagaStateMachineInstance, ISagaVersion
     public int Version { get; set; }
     public string CurrentState { get; set; } = null!;
     public string SemesterCode { get; set; } = null!;
-    public string SemesterName { get; set; } = null!;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     [Description("Thời gian sinh viên thay đổi")]
@@ -30,6 +29,8 @@ public class RegisterState : SagaStateMachineInstance, ISagaVersion
     public int NumberStudent { get; set; }
     public int NumberSubject { get; set; }
     public int NumberWish { get; set; }
+    public string EventStoreId { get; set; }
+    
 }
 
 

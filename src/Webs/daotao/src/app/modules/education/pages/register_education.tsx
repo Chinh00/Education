@@ -58,7 +58,7 @@ const RegisterEducation = () => {
             title: 'Lịch sử',
             key: 'action',
             render: (_, record) => (
-                <IconButton size={"small"} onClick={() => nav(`/history/RegisterConfig/${record?.id}`)}><History /></IconButton>
+                <IconButton size={"small"} onClick={() => nav(`/history/RegisterConfig/${record?.eventStoreId}`)}><History /></IconButton>
             ),
         },
     ];

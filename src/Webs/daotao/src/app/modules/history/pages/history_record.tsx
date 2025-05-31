@@ -26,12 +26,12 @@ const HistoryRecord = () => {
             {
                 field: "AggregateId",
                 operator: "In",
-                value: aggregateId?.split("-")?.join(",")!
+                value: aggregateId!
             },
             {
                 field: "AggregateType",
                 operator: "In",
-                value: aggregateType?.split("-").join(",")!
+                value: aggregateType!
             },
 
         ],

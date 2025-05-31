@@ -4,7 +4,6 @@ using Education.Contract.IntegrationEvents;
 using Education.Infrastructure;
 using Education.Infrastructure.Logging;
 using Education.Infrastructure.Mediator;
-using Education.Infrastructure.Swagger;
 using IdentityService;
 using IdentityService.Data;
 using IdentityService.Data.Internal;

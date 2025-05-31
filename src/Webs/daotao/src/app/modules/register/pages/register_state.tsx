@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import {Space, Steps, Table, Typography} from "antd";
 import {EyeIcon} from "lucide-react";
 import {Query} from "@/infrastructure/query.ts";
-import {useGetRegisters, useGetRegistersState} from "@/app/modules/education/hooks/useGetRegisters.ts";
+import {useGetRegisters} from "@/app/modules/education/hooks/useGetRegisters.ts";
 import {useGetSubjectRegister} from "@/app/modules/education/hooks/useGetSubjectRegister.ts";
 import {Box} from "@mui/material";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
@@ -21,7 +21,7 @@ const RegisterState = () => {
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: `Báo cáo đăng ký nguyện vọng học kì ${semester}`}));
     }, []);
-    const {data: RegisterState} = useGetRegistersState({
+    const {data: RegisterState} = useGetRegisters({
         Filters: [
             {
                 field: "SemesterCode",
@@ -63,25 +63,19 @@ const RegisterState = () => {
             }
         ]
     })
-    useEffect(() => {
-        if (RegisterState) {
-            setStudentRegisterQuery(prevState => ({
-                ...prevState,
-                Filters: [
-                    ...prevState?.Filters?.filter(c => c.field !== "CorrelationId") ?? [],
-                    {
-                        field: "CorrelationId",
-                        operator: "==",
-                        value: RegisterState?.data?.data?.items[0]?.correlationId
-                    }
-                ]
-            }))
-        }
-    }, [RegisterState]);
+    
     const [studentRegisterQuery, setStudentRegisterQuery] = useState<Query>({
 
     })
-    const {data, isPending, isSuccess} = useGetSubjectRegister(studentRegisterQuery)
+    const {data, isPending, isSuccess} = useGetSubjectRegister({
+        Filters: [
+            {
+                field: "CorrelationId",
+                operator: "==",
+                value: RegisterState?.data?.data?.items[0]?.correlationId!
+            }
+        ]
+    }, RegisterState !== undefined && RegisterState?.data?.data?.items?.length > 0)
 
 
     return (

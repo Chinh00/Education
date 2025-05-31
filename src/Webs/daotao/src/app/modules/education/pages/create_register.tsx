@@ -35,9 +35,12 @@ const CreateRegister = () => {
         defaultValues: {
             startDate: new Date().toISOString().slice(0, 16),
             endDate: new Date().toISOString().slice(0, 16),
+            studentChangeStart: new Date().toISOString().slice(0, 16),
+            studentChangeEnd: new Date().toISOString().slice(0, 16),
+            educationStart: new Date().toISOString().slice(0, 16),
+            educationEnd: new Date().toISOString().slice(0, 16),
             minCredit: 10,
             maxCredit: 30,
-            semesterName: "",
             semesterCode: ""
         }
     })
@@ -47,13 +50,15 @@ const CreateRegister = () => {
             <Form onFinish={() => {
                 mutate({...getValues(),
                     startDate: dayjs(getValues("startDate")).toISOString(),
-                    endDate: dayjs(getValues("endDate")).toISOString()
+                    endDate: dayjs(getValues("endDate")).toISOString(),
+                    studentChangeStart: dayjs(getValues("studentChangeStart")).toISOString(),
+                    studentChangeEnd: dayjs(getValues("studentChangeEnd")).toISOString(),
+                    educationStart: dayjs(getValues("educationStart")).toISOString(),
+                    educationEnd: dayjs(getValues("educationEnd")).toISOString(),
                 }, {
                     onSuccess: async (data) => {
                         toast.success("Tạo mới thành công")
-                        await sleep(1000)
                         reset()
-                        nav(-1)
                     }
                 })
             }} className="space-y-6">
@@ -71,7 +76,6 @@ const CreateRegister = () => {
                                     <Label className={"whitespace-nowrap"}>Học kỳ</Label>
                                     <Select onValueChange={(e) => {
                                         setValue("semesterCode", e)
-                                        setValue("semesterName", e)
                                     }}
                                     >
                                         <SelectTrigger className={"w-full"}>
@@ -89,25 +93,15 @@ const CreateRegister = () => {
                                     </Select>
                                 </div>
 
-                                <div className="space-y-2 flex justify-center items-center gap-3">
-                                    <Label className={"whitespace-nowrap"}>Trạng thái đăng ký</Label>
-                                    <Select defaultValue="active">
-                                        <SelectTrigger className={"w-full"}>
-                                            <SelectValue placeholder="Chọn trạng thái" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="upcoming">Sắp mở</SelectItem>
-                                            <SelectItem value="active">Đang mở</SelectItem>
-                                            <SelectItem value="closed">Đã đóng</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                                
+                                <div></div>
 
-
-                                <FormDatePickerAntd  control={control} name={"startDate"} label={"Thời gian bắt đầu"} />
-
-
-                                <FormDatePickerAntd  control={control} name={"endDate"} label={"Thời gian kết thúc"}  />
+                                <FormDatePickerAntd  control={control} name={"startDate"} label={"Thời gian bắt đầu đăng ký nguyện vọng"} />
+                                <FormDatePickerAntd  control={control} name={"endDate"} label={"Thời gian kết thúc đăng ký nguyện vọng"}  />
+                                <FormDatePickerAntd  control={control} name={"studentChangeStart"} label={"Thời gian bắt đầu điều chỉnh"} />
+                                <FormDatePickerAntd  control={control} name={"studentChangeEnd"} label={"Thời gian kết thúc điều chỉnh"}  />
+                                <FormDatePickerAntd  control={control} name={"educationStart"} label={"Thời gian bắt đầu học kì"} />
+                                <FormDatePickerAntd  control={control} name={"educationEnd"} label={"Thời gian kết thúc học kì"}  />
 
                             </div>
                         </CardContent>

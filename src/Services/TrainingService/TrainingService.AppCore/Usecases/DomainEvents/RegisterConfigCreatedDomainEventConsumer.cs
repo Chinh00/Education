@@ -17,7 +17,7 @@ public class RegisterConfigCreatedDomainEventConsumer(
 
         await producer.Produce(new StartRegisterPipelineIntegrationEvent()
         {
-            CorrelationId = Guid.Parse(notification.AggregateId),
+            CorrelationId = Guid.NewGuid(),
             SemesterCode = notification.SemesterCode,
             StartDate = notification.StartDate,
             EndDate = notification.EndDate,
@@ -25,6 +25,7 @@ public class RegisterConfigCreatedDomainEventConsumer(
             StudentChangeEnd = notification.StudentChangeEnd,
             EducationStart = notification.EducationStart,
             EducationEnd = notification.EducationEnd,
+            EventStoreId = notification.AggregateId
         }, cancellationToken);
 
     }

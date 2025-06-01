@@ -1,14 +1,13 @@
 ﻿apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: education-app
-  namespace: argocd
+  name: education
 spec:
   project: default
   source:
     repoURL: 'https://github.com/Chinh00/Education'
     targetRevision: HEAD
-    path: deployments/bootstrap
+    path: bootstrap/apps
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: education

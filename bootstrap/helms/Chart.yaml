@@ -1,9 +1,8 @@
 ﻿apiVersion: v2
-name: kafka
-description: A Helm chart for kafka
-
+name: infra-kafka
+description: Helm wrapper for Bitnami Kafka
 type: application
-version: 32.2.11
+version: 0.1.0
 
 dependencies:
   - name: kafka

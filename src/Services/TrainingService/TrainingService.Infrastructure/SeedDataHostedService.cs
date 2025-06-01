@@ -16,6 +16,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         var roomRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Room>>();
         var educationProgramRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<EducationProgram>>();
         var subjectProgramRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Subject>>();
+        var semesterProgramRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Semester>>();
         foreach (var courseClassCondition in _courseClassConditions)
         {
             var spec = new GetCourseClassConditionByCodeSpec(courseClassCondition.ConditionCode);
@@ -44,6 +45,10 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         if ((await subjectProgramRepository.CountAsync(new TrueListSpecification<Subject>(),
                 cancellationToken)) == 0)
         await PullSubjects(subjectProgramRepository, cancellationToken);
+        if ((await semesterProgramRepository.CountAsync(new TrueListSpecification<Semester>(),
+                cancellationToken)) == 0)
+        await PullSemesters(semesterProgramRepository, cancellationToken);
+        
     }
 
     async Task PullEducationPrograms(IMongoRepository<EducationProgram> education, CancellationToken cancellation)
@@ -68,6 +73,21 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         var response = await httpClient.GetAsync(url, cancellation);
         var json = await response.Content.ReadAsStringAsync(cancellation);
         var result = JsonSerializer.Deserialize<ResultModel<ListResultModel<Subject>>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        foreach (var educationProgram in result.Data.Items)
+        {
+            await education.AddAsync(educationProgram, cancellation);
+        }
+    }
+    async Task PullSemesters(IMongoRepository<Semester> education, CancellationToken cancellation)
+    {
+        var url = $"https://api5.tlu.edu.vn/api/EducationProgram/semester?Includes=SemesterCode&Includes=SemesterName&Page=1&PageSize=99";
+        
+        var response = await httpClient.GetAsync(url, cancellation);
+        var json = await response.Content.ReadAsStringAsync(cancellation);
+        var result = JsonSerializer.Deserialize<ResultModel<ListResultModel<Semester>>>(json, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });

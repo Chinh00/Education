@@ -21,6 +21,7 @@ public class ProfileService(UserManager userManager, RoleManager<IdentityRole> r
             {
                 new(ClaimTypes.Role, roles?.FirstOrDefault() ?? string.Empty),
                 new(ClaimTypes.Name, user.UserName ?? string.Empty),
+                new("fullname", user.FullName ?? string.Empty),
                 new("isConfirm", user.IsConfirm.ToString()),
             };
             

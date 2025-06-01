@@ -24,7 +24,7 @@ const SubjectList = () => {
       {
         field: "DepartmentCode",
         operator: "Contains",
-        value: "A14.DT10"
+        value: data?.data?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]!
       }
     ],
     Includes: ["DepartmentCode", "NumberOfCredits",]

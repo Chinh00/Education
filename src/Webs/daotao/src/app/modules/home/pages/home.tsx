@@ -15,19 +15,20 @@ import {
 import {Button} from "@/app/components/ui/button.tsx";
 import {Activity, BookOpen, Calendar, LayoutDashboard, UserPlus } from "lucide-react";
 import {Typography} from "antd";
+import {useGetUserInfo} from "@/app/modules/auth/hooks/useGetUserInfo.ts";
 
 const HomeSidebar = loadable(() => import('../components/home_sidebar.tsx'), {
   fallback: <div>Loading...</div>,
 })
-
 
 const Home = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setGroupFuncName({groupName: "Trang chủ"}));
   }, []);
+  const {data} = useGetUserInfo()
   return <div className={"grid grid-cols-12 p-10 gap-5"} style={{flexWrap: "nowrap"}}>
-    <Typography.Title level={2} className={"col-span-12"}>Trang chủ</Typography.Title>
+    <Typography.Title level={2} className={"col-span-12"}>Trang chủ: {data?.data?.fullname}</Typography.Title>
     <div className={"col-span-10 h-screen"}>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="col-span-1">

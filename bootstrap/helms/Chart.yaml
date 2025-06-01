@@ -1,5 +1,5 @@
 ﻿apiVersion: v2
-name: redis
+name: kafka
 description: A Helm chart for kafka
 
 type: application

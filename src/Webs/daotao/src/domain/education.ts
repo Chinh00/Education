@@ -1,4 +1,3 @@
-import { EducationSubject } from "./education_subject";
 
 export interface Education {
     code: string;
@@ -6,7 +5,7 @@ export interface Education {
     type: number;
     trainingTime: number;
     knowledgeBlockDescriptions: string | null;
-    educationSubjects: EducationSubject[];
+    educationSubjects: string[];
     id: string;
     courseId: string;
     createdAt: string;

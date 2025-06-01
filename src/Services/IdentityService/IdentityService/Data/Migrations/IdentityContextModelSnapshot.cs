@@ -41,6 +41,9 @@ namespace IdentityService.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("FullName")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsConfirm")
                         .HasColumnType("boolean");
 
@@ -72,9 +75,6 @@ namespace IdentityService.Data.Migrations
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)

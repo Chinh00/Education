@@ -13,8 +13,6 @@ public class Subject : BaseEntity
     public string SubjectDescription { get; set; }
     public int NumberOfCredits { get; set; }
     public string DepartmentCode { get; set; }
-    public string DefineCode { get; set; }
-    public int? ExamTime { get; set; }
 
     [Description("Là môn tính điểm")]
     public bool? IsCalculateMark { get; set; }

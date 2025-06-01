@@ -18,6 +18,7 @@ public static class Extensions
     public static IServiceCollection AddMasstransitService(this IServiceCollection services, IConfiguration configuration,
         Action<IServiceCollection> action = null)
     {
+        services.AddHttpClient();
         services.AddHostedService<SeedDataHostedService>();
         services.AddApplicationService();
         BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));

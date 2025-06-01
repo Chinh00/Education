@@ -33,7 +33,7 @@ const StudentEducation = () => {
       {
         field: "SubjectCode",
         operator: "In",
-        value: educations?.data?.data?.items?.[0]?.educationSubjects?.map(c => c.subjectCode)?.join(",")!
+        value: educations?.data?.data?.items?.[0]?.educationSubjects?.join(",")!
       }
     ],
     Includes: ["IsCalculateMark"],

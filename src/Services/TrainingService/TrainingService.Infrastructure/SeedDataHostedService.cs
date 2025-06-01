@@ -1,16 +1,21 @@
-﻿using Education.Core.Repository;
+﻿using System.Text.Json;
+using Education.Core.Domain;
+using Education.Core.Repository;
+using Education.Core.Specification;
 using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;
 
 namespace TrainingService.Infrastructure;
 
-public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory) : IHostedService
+public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, HttpClient httpClient) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         using var scope = serviceScopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IMongoRepository<CourseClassCondition>>();
         var roomRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Room>>();
+        var educationProgramRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<EducationProgram>>();
+        var subjectProgramRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Subject>>();
         foreach (var courseClassCondition in _courseClassConditions)
         {
             var spec = new GetCourseClassConditionByCodeSpec(courseClassCondition.ConditionCode);
@@ -29,15 +34,51 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory) : I
                 await roomRepository.AddAsync(room, cancellationToken);
             }
         }
-        
-        
+
+        if ((await educationProgramRepository.CountAsync(new TrueListSpecification<EducationProgram>(),
+                cancellationToken)) == 0)
+        {
+            await PullEducationPrograms(educationProgramRepository, cancellationToken);
+            
+        } 
+        if ((await subjectProgramRepository.CountAsync(new TrueListSpecification<Subject>(),
+                cancellationToken)) == 0)
+        await PullSubjects(subjectProgramRepository, cancellationToken);
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    async Task PullEducationPrograms(IMongoRepository<EducationProgram> education, CancellationToken cancellation)
     {
-        throw new NotImplementedException();
+        var url = $"https://api5.tlu.edu.vn/api/EducationProgram?Includes=Code&Includes=Name&Sorts=IdDesc&Includes=TrainingTime&Includes=CourseCode&Includes=SpecialityCode&Includes=EducationSubjects&Page=1&PageSize=9999";
+        
+        var response = await httpClient.GetAsync(url, cancellation);
+        var json = await response.Content.ReadAsStringAsync(cancellation);
+        var result = JsonSerializer.Deserialize<ResultModel<ListResultModel<EducationProgram>>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        foreach (var educationProgram in result.Data.Items)
+        {
+            await education.AddAsync(educationProgram, cancellation);
+        }
     }
+    async Task PullSubjects(IMongoRepository<Subject> education, CancellationToken cancellation)
+    {
+        var url = $"https://api5.tlu.edu.vn/api/EducationProgram/subject?Includes=SubjectName&Includes=SubjectNameEng&Includes=SubjectCode&Includes=SubjectDescription&Includes=DepartmentCode&Includes=IsCalculateMark&Includes=NumberOfCredits&Includes=Status&&Page=1&PageSize=9999";
+        
+        var response = await httpClient.GetAsync(url, cancellation);
+        var json = await response.Content.ReadAsStringAsync(cancellation);
+        var result = JsonSerializer.Deserialize<ResultModel<ListResultModel<Subject>>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        foreach (var educationProgram in result.Data.Items)
+        {
+            await education.AddAsync(educationProgram, cancellation);
+        }
+    }
+    
 
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     private readonly List<CourseClassCondition> _courseClassConditions =
     [
         new CourseClassCondition()

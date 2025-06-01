@@ -9,17 +9,6 @@ namespace StudentService.Api.Controllers;
 public class StudentController : BaseController
 {
     /// <summary>
-    /// Thông tin chi tiết sinh viên
-    /// </summary>
-    /// <param name="studentCode"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpGet("detail")]
-    public async Task<IActionResult> HandleGetStudentDetailAsync([FromQuery] string studentCode,
-        CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new GetStudentDetailQuery(studentCode), cancellationToken));
-
-    /// <summary>
     /// Thông tin sinh viên chi tiết
     /// </summary>
     /// <param name="cancellationToken"></param>

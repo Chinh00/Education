@@ -86,13 +86,6 @@ builder.Services.AddMassTransit(c =>
         e.UsingKafka((context, configurator) =>
         {
             configurator.Host(builder.Configuration.GetValue<string>("Kafka:BootstrapServers"));
-            configurator.TopicEndpoint<StudentCreatedIntegrationEvent>(nameof(StudentCreatedIntegrationEvent), "identity-student",
-                endpointConfigurator =>
-                {
-                    endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
-                    endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
-                    endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
-                });      
             configurator.TopicEndpoint<StudentPulledIntegrationEvent>(nameof(StudentPulledIntegrationEvent), "identity-student",
                 config =>
                 {

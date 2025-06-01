@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IdentityService.Data.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20250522143622_UpdateApplicationUserAddIsConfirm")]
-    partial class UpdateApplicationUserAddIsConfirm
+    [Migration("20250601090910_InitDb")]
+    partial class InitDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,6 +43,9 @@ namespace IdentityService.Data.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsConfirm")
                         .HasColumnType("boolean");
@@ -75,9 +78,6 @@ namespace IdentityService.Data.Migrations
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)

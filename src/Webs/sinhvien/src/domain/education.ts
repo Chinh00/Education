@@ -5,8 +5,7 @@ export interface Education {
     name: string;
     type: number;
     trainingTime: number;
-    knowledgeBlockDescriptions: string | null;
-    educationSubjects: EducationSubject[];
+    educationSubjects: string[];
     id: string;
     courseCode: string;
     createdAt: string;

@@ -19,7 +19,6 @@ public static class Extensions
             c.UsingInMemory();
             c.AddRider(e =>
             {
-                e.AddProducer<StudentCreatedIntegrationEvent>(nameof(StudentCreatedIntegrationEvent));
                 e.AddProducer<StudentPullStartedDomainEvent>(nameof(StudentPullStartedDomainEvent));
                 e.AddProducer<StudentPulledDomainEvent>(nameof(StudentPulledDomainEvent));
                 e.AddProducer<StudentPulledIntegrationEvent>(nameof(StudentPulledIntegrationEvent));
@@ -28,12 +27,7 @@ public static class Extensions
                 e.UsingKafka((context, config) =>
                 {
                     config.Host(configuration.GetValue<string>("Kafka:BootstrapServers"));
-                    config.TopicEndpoint<StudentCreatedIntegrationEvent>(nameof(StudentCreatedIntegrationEvent), "student-identity",
-                        configurator =>
-                        {
-                            configurator.CreateIfMissing(n => n.NumPartitions = 1);
-                            configurator.AutoOffsetReset = AutoOffsetReset.Earliest;
-                        });
+                    
                     
                     
                     config.TopicEndpoint<StudentPullStartedDomainEvent>(nameof(StudentPullStartedDomainEvent), "student-identity",

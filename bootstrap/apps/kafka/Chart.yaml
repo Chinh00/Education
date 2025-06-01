@@ -3,7 +3,7 @@ name: redis
 description: A Helm chart for kafka
 
 type: application
-version: 17.11.3
+version: 32.2.11
 
 dependencies:
   - name: kafka

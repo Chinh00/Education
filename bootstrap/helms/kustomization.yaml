@@ -1,0 +1,7 @@
+﻿helmCharts:
+  - name: kafka
+    repo: https://charts.bitnami.com/bitnami
+    releaseName: kafka
+    namespace: kafka
+    valuesFile: values.yaml
+    version: 26.3.2 

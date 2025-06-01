@@ -84,56 +84,6 @@ const RegisterConfig = () => {
         }))
     }, [pagination]);
 
-    const table = useMaterialReactTable({
-        columns,
-        data: data?.data?.data?.items[0]?.educationSubjects ?? [],
-        state: {
-            isLoading: isPending,
-            pagination: pagination,
-        },
-        initialState: {
-            density: 'compact',
-            showGlobalFilter: true
-        },
-        muiTableProps: {
-            padding: "normal"
-        },
-        enablePagination: true,
-        onPaginationChange: setPagination,
-        manualPagination: true,
-        rowCount: data?.data?.data?.totalItems ?? 0,
-        enableDensityToggle: false,
-        enableGlobalFilter: true,
-        enableRowActions: true,
-        positionActionsColumn: "last",
-        renderTopToolbarCustomActions: ({ table }) => (
-            <Box
-                sx={{
-                    display: 'flex',
-                    gap: '16px',
-                    padding: '8px',
-                    flexWrap: 'wrap',
-                }}
-
-            >
-
-            </Box>
-        ),
-        renderRowActions: ({row, table}) => {
-            return <>
-                <Tooltip title={"Xem chi tiết"} >
-                    <IconButton
-                        color="primary"
-                        onClick={() => {
-
-                        }}
-                    >
-                        <Eye />
-                    </IconButton>
-                </Tooltip>
-            </>
-        }
-    });
 
     const dispatch = useAppDispatch();
     useEffect(() => {

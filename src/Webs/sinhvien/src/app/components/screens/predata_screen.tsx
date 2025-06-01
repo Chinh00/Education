@@ -27,7 +27,7 @@ const PredataScreen = (props: PredataScreenProps) => {
         transition={{
           duration: 0.45
         }}
-        className="w-full p-5 space-y-5"
+        className="w-full p-5 pt-2 space-y-5"
       >
         <header className="sticky top-0 z-50 rounded-xl dark:border-gray-800 border-[1px] bg-transparent backdrop-blur-2xl dark:bg-gray-900 shadow-xl">
           <div className="mx-auto py-3 px-4">

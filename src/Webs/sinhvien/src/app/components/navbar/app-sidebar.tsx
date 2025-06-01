@@ -3,7 +3,7 @@ import {
   SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
   SidebarRail
 } from "@/app/components/ui/sidebar"
-import { BadgePlus, CakeSlice, GraduationCap, ListTree, User, Timer } from "lucide-react"
+import { BadgePlus, CakeSlice, GraduationCap, ListTree, User, Timer, Home } from "lucide-react"
 import { Link, useNavigate } from "react-router"
 import { NavUser } from "@/app/components/navbar/nav-user.tsx";
 import { useAppSelector } from "@/app/stores/hook.ts";
@@ -21,6 +21,12 @@ export function AppSidebar() {
           {/*<SidebarGroupLabel>Quản lý sinh viên</SidebarGroupLabel>*/}
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton className="text-sidebar-foreground/70">
+                  <Home />
+                  <Link to={RoutePaths.HOME}>Trang chủ</Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton className="text-sidebar-foreground/70">
                   <User />

@@ -10,34 +10,40 @@ import {
 import { Alert, AlertDescription, AlertTitle, } from "@/app/components/ui/alert"
 import { School, AlertCircle, Database, LogOut } from "lucide-react";
 import { Tooltip, Button, Spin } from "antd";
-import { useAppDispatch } from "@/app/stores/hook.ts";
-import { setAuthenticate } from "@/app/stores/common_slice.ts";
+import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
+import {CommonState, setAuthenticate, setIsConfirm} from "@/app/stores/common_slice.ts";
 import { useSyncDataFromDataProvider } from "@/app/modules/student/hooks/useSyncDataFromDataProvider.ts";
 import toast from "react-hot-toast";
 import useGetStudentInformation from "../../student/hooks/useGetStudentInformation";
-import { useEffect, useReducer } from "react";
-import { useNavigate } from "react-router";
+import {useEffect, useReducer, useRef} from "react";
+import {data, Navigate, useNavigate} from "react-router";
 import { RoutePaths } from "@/cores/route_paths";
 import { useGetUserInfo } from "../hooks/useGetUserInfo";
+
 
 const LoginFirst = () => {
   const dispatch = useAppDispatch();
   const { mutate, isPending } = useSyncDataFromDataProvider()
   const { data: userInfo } = useGetUserInfo()
 
-  const { data, isLoading, refetch } = useGetStudentInformation(5000)
-
+  const { data, isLoading, refetch } = useGetStudentInformation(1500)
+  const hasNavigatedRef = useRef(false);
   const nav = useNavigate()
   useEffect(() => {
-    if (data?.data?.data?.status === 2) {
-      toast.success("Dữ liệu đã được đồng bộ.")
-      nav(RoutePaths.HOME)
+    if (data?.data?.data?.status === 2 && !hasNavigatedRef.current) {
+      dispatch(setIsConfirm(true))
     }
-  }, [data])
+  }, [data]);
+  const {isConfirm} = useAppSelector<CommonState>(e => e.common)
 
+  useEffect(() => {
+    if (isConfirm) {
+      toast.success("Đồng bộ thành công")
+    }
+  }, [isConfirm]);
   return (
     <div className={"w-full h-full flex justify-center items-center pt-16"}>
-
+      {isConfirm && <Navigate to={"/"} />}
       <Card className="w-full max-w-lg shadow-lg">
         <CardHeader className="space-y-1">
           <div className={"flex justify-between items-center"}>
@@ -58,7 +64,7 @@ const LoginFirst = () => {
             <AlertCircle className="h-4 w-4 text-amber-600" />
             <AlertTitle className="text-amber-800">Lưu ý quan trọng</AlertTitle>
             <AlertDescription className="text-amber-700">
-              Bằng việc nhấn xác nhận chuyển dữ liệu, bạn đã đồng ý chuyển dữ liệu cũ của bạn sang hệ thống mới.
+              Bằng việc nhấn xác nhận chuyển dữ liệu, bạn đã đồng ý chuyển dữ liệu cũ của bạn sang hệ thống của chúng tôi.
             </AlertDescription>
           </Alert>
 

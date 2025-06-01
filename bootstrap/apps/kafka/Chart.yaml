@@ -1,0 +1,11 @@
+﻿apiVersion: v2
+name: redis
+description: A Helm chart for kafka
+
+type: application
+version: 17.11.3
+
+dependencies:
+  - name: kafka
+    version: 32.2.11
+    repository: https://charts.bitnami.com/bitnami

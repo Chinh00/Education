@@ -1,23 +1,24 @@
-﻿replicaCount: 1
-
-auth:
-  enabled: false
-
-zookeeper:
-  enabled: true
+﻿kafka:
   replicaCount: 1
 
-controller:
-  replicaCount: 0 
+  auth:
+    enabled: false
 
-kraft:
-  enabled: false  
+  zookeeper:
+    enabled: true
+    replicaCount: 1
 
-listeners:
-  client:
-    protocol: PLAINTEXT
-  interBroker:
-    protocol: PLAINTEXT
+  controller:
+    replicaCount: 0
+  
+  kraft:
+    enabled: false
+  
+  listeners:
+    client:
+      protocol: PLAINTEXT
+    interBroker:
+      protocol: PLAINTEXT
 
-externalAccess:
-  enabled: false
+  externalAccess:
+    enabled: false

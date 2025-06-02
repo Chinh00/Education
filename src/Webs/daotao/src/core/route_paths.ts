@@ -37,6 +37,7 @@ export const RoutePaths = {
 
 
     TEACHER_SUBJECT_LIST: "/teacher/subjects",
+    TEACHER_TIMELINE: "/teacher/timeline",
 
 
 }

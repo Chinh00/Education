@@ -39,6 +39,7 @@ public static class Extensions
                 e.AddProducer<CourseClassCreatedDomainEvent>(nameof(CourseClassCreatedDomainEvent));
                 e.AddProducer<SlotTimelineCreatedDomainEvent>(nameof(SlotTimelineCreatedDomainEvent));
                 e.AddProducer<SubjectRegisterCreatedDomainEvent>(nameof(SubjectRegisterCreatedDomainEvent));
+                e.AddProducer<CourseClassAssignedTeacherDomainEvent>(nameof(CourseClassAssignedTeacherDomainEvent));
                 
                 
                 
@@ -144,6 +145,14 @@ public static class Extensions
                              endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                              endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
                          });
+                    configurator.TopicEndpoint<CourseClassAssignedTeacherDomainEvent>(nameof(CourseClassAssignedTeacherDomainEvent), "generate-register",
+                         endpointConfigurator =>
+                         {
+                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                         });
+                    
                      
                     
                 });

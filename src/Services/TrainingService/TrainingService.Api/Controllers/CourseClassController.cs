@@ -62,5 +62,18 @@ public class CourseClassController : BaseController
     {
         return Ok(await Mediator.Send(query, cancellationToken));
     }
+    /// <summary>
+    /// Cập nhật giáo viên cho lớp học
+    /// </summary>
+    /// <param name="Model"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPut]
+    public async Task<IActionResult> HandleUpdateTeacherCourseClass([FromBody] UpdateCourseTeacherCommand.UpdateCourseTeacherModel Model,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new UpdateCourseTeacherCommand(Model), cancellationToken));
+    }
+    
     
 }

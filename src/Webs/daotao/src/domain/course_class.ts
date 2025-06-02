@@ -1,6 +1,5 @@
 
 export interface CourseClass {
-    classIndex: number,
     courseClassCode: string,
     courseClassName: string,
     studentIds: string[],
@@ -16,5 +15,7 @@ export interface CourseClass {
     stage: number,
     id: string,
     createdAt: string,
-    updatedAt: string | null
+    updatedAt: string | null,
+    teacherCode: string,
+    teacherName: string,
 }

@@ -35,10 +35,6 @@ const CourseClassList = () => {
 
     const columns: ColumnsType<CourseClass> = [
         {
-            title: 'Số thứ tự lớp',
-            dataIndex: "classIndex",
-        },
-        {
             title: 'Mã lớp',
             dataIndex: "courseClassCode",
         },
@@ -74,6 +70,7 @@ const CourseClassList = () => {
                 </div>
             ),
         },
+        
 
 
     ];

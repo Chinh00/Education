@@ -1,5 +1,6 @@
 using Education.Contract.DomainEvents;
 using Education.Core.Domain;
+using MongoDB.Bson;
 using TrainingService.Domain.Enums;
 
 namespace TrainingService.Domain;
@@ -27,9 +28,45 @@ public class CourseClass : AggregateBase
             MetaData = metaData
         });
     }
-    public CourseClassStatus Status { get; set; }
 
-    public int ClassIndex { get; set; } 
+    public override void ApplyDomainEvent(IDomainEvent @event) => Apply((dynamic)@event);
+
+    void Apply(CourseClassCreatedDomainEvent @event)
+    {
+        Id = ObjectId.Parse(@event.AggregateId);
+        CourseClassCode = @event.CourseClassCode;
+        CourseClassName = @event.CourseClassName;
+        CourseClassType = (CourseClassType)@event.CourseClassType;
+        SubjectCode = @event.SubjectCode;
+        SessionLength = @event.SessionLength;
+        Session = @event.Session;
+        SemesterCode = @event.SemesterCode;
+        TotalSession = @event.TotalSession;
+        Stage = (SubjectTimelineStage)@event.Stage;
+        Version = @event.Version;
+    }
+
+    void Apply(CourseClassAssignedTeacherDomainEvent @event)
+    {
+        Id = ObjectId.Parse(@event.AggregateId);
+        TeacherCode = @event.TeacherCode;
+        TeacherName = @event.TeacherName;
+        Version = @event.Version;
+    }
+
+    public void AssignTeacher(string teacherCode,  string teacherName, IDictionary<string, object> metaData = null)
+    {
+        TeacherCode = teacherCode;
+        TeacherName = teacherName;
+        AddDomainEvent(version => new CourseClassAssignedTeacherDomainEvent(Id.ToString(), teacherCode, teacherName)
+        {
+            Version = version,
+            MetaData = metaData
+        });
+    }
+    
+    public CourseClassStatus Status { get; set; } =  CourseClassStatus.Active;
+
     public string CourseClassCode { get; set; }
     public string CourseClassName { get; set; }
     public List<string> StudentIds { get; set; } = [];
@@ -41,6 +78,10 @@ public class CourseClass : AggregateBase
     public string SemesterCode { get; set; }
     public int NumberStudents { get; set; }
     public SubjectTimelineStage Stage { get; set; } = SubjectTimelineStage.Stage1;
+    public string TeacherName { get; set; }
+    public string TeacherCode { get; set; }
+    
+    
 
     
     

@@ -17,7 +17,6 @@ const SemesterList = lazy(() => import("../modules/education/pages/semester_list
 
 const SubjectList = lazy(() => import("../modules/education/pages/subject_list.tsx"));
 const SubjectTimelineDetail = lazy(() => import("../modules/education/pages/subject_timeline_detail.tsx"));
-const SubjectTimelineCreate = lazy(() => import("../modules/education/pages/subject_timeline_create.tsx"));
 
 
 
@@ -41,6 +40,7 @@ const HistoryRecord = lazy(() => import("../modules/history/pages/history_record
 
 
 const TeacherSubjectList = lazy(() => import("../modules/teacher/pages/subject_list.tsx"));
+const TeacherTimeline = lazy(() => import("../modules/teacher/pages/teacher_timeline.tsx"));
 const TeacherLayout = lazy(() => import("../modules/teacher/layouts/teacher_layout.tsx"));
 
 
@@ -102,10 +102,6 @@ const router = createBrowserRouter([
                                 element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineDetail"}><SubjectTimelineDetail /></Suspense>,
                             },
                             {
-                                path: RoutePaths.EDUCATION_SUBJECT_TIMELINE_CREATE,
-                                element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineCreate"}><SubjectTimelineCreate /></Suspense>,
-                            },
-                            {
                                 path: RoutePaths.EDUCATION_REGISTER_COURSE_DETAIL,
                                 element: <Suspense fallback={<TabLoading />} key={"CourseClassDetail"}><CourseClassDetail /></Suspense>,
                             },
@@ -160,6 +156,11 @@ const router = createBrowserRouter([
                                 path: RoutePaths.TEACHER_SUBJECT_LIST,
                                 element: <Suspense fallback={<TabLoading />} key={"TeacherSubjectList"} ><TeacherSubjectList /></Suspense>
                             },
+                            {
+                                path: RoutePaths.TEACHER_TIMELINE,
+                                element: <Suspense fallback={<TabLoading />} key={"TeacherTimeline"} ><TeacherTimeline /></Suspense>
+                            },
+                            
                         ],
                     }
                 ],

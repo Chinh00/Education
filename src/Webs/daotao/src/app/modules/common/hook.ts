@@ -7,7 +7,7 @@ import {
     getDepartments,
     getEventsStore,
     getRooms,
-    getSpecialities,
+    getSpecialities, getStaffs,
     getSubjects
 } from "./service";
 import {AxiosResponse} from "axios";
@@ -85,6 +85,17 @@ const useGetConditions = (query: Query, enable: boolean = true) => {
     })
 }
 
+const useGetStaffs = (query: Query, enable: boolean = true) => {
+    return useQuery({
+        queryKey: ["staffs", query],
+        queryFn: () => getStaffs(query),
+        enabled: enable,
+
+    })
+}
+
+
+
 
 
 export {
@@ -95,7 +106,8 @@ export {
     useGetBuildings,
     useGetRooms,
     useGetEventsStore,
-    useGetConditions
+    useGetConditions,
+    useGetStaffs
 };
 
 

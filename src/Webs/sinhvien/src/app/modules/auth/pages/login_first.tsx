@@ -36,11 +36,7 @@ const LoginFirst = () => {
   }, [data]);
   const {isConfirm} = useAppSelector<CommonState>(e => e.common)
 
-  useEffect(() => {
-    if (isConfirm) {
-      toast.success("Đồng bộ thành công")
-    }
-  }, [isConfirm]);
+  
   return (
     <div className={"w-full h-full flex justify-center items-center pt-16"}>
       {isConfirm && <Navigate to={"/"} />}

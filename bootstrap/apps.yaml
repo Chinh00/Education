@@ -27,9 +27,16 @@ metadata:
 spec:
   project: default 
   source:
-    repoURL: 'https://github.com/Chinh00/Education'
-    targetRevision: HEAD
-    chart: redis
+    - repoURL: https://charts.bitnami.com/bitnami
+      targetRevision: HEAD
+      chart: kafka
+      helm:
+        releaseName: ingress-nginx
+        valueFiles:
+          - $values/bootstrap/helms/values.yaml
+    - repoURL: https://github.com/Chinh00/Education
+      targetRevision: main
+      ref: values
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: education

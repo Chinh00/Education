@@ -18,7 +18,7 @@ spec:
           imagePullPolicy: Always
           name: identity
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
             - name: ConnectionStrings__postgres
               valueFrom:
@@ -66,7 +66,7 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 8080
       protocol: TCP
   type: ClusterIP
   selector:

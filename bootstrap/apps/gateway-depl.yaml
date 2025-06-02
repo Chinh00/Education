@@ -18,7 +18,7 @@ spec:
           imagePullPolicy: Always
           name: gateway
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
             - name: ReverseProxy__Routes__identityservice__ClusterId
               value: identityservice
@@ -86,7 +86,7 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 8080
       protocol: TCP
   type: ClusterIP
   selector:

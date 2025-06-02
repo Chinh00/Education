@@ -18,7 +18,7 @@ spec:
           imagePullPolicy: Always
           name: register
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
             - name: Redis__Server
               valueFrom:
@@ -92,7 +92,7 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 8080
       protocol: TCP
   type: ClusterIP
   selector:

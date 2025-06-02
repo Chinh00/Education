@@ -18,7 +18,7 @@ spec:
           imagePullPolicy: Always
           name: student
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
             - name: IdentityServer__Url
               value: http://identity
@@ -83,7 +83,7 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 8080
       protocol: TCP
   type: ClusterIP
   selector:

@@ -1,18 +1,18 @@
-﻿import {Button, Card, Modal, Input, Typography, Form, Space, Table} from "antd";
+﻿import {Button, Form, Input, Modal, Table, Typography} from "antd";
 import {CourseClass} from "@/domain/course_class.ts";
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {Box, Divider} from "@mui/material";
-import { debounce } from "lodash";
+import {debounce} from "lodash";
 import {Query} from "@/infrastructure/query.ts";
 import {useGetUserInfo} from "@/app/modules/auth/hooks/useGetUserInfo.ts";
 import {ColumnsType, useGetStaffs} from "@/app/modules/common/hook.ts";
 import {Staff} from "@/domain/staff.ts";
-import {Student} from "@/domain/student.ts";
 import {PlusCircle} from "lucide-react";
-import {useMutation} from "@tanstack/react-query";
 import {useUpdateCourseClassTeacher} from "@/app/modules/teacher/hooks/useUpdateCourseClassTeacher.ts";
 import toast from "react-hot-toast";
-import {useEffect} from "react";
+import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
+import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
+import _ from "lodash";
 export type AssignmentTeacherProps = {
     courseClass: CourseClass
     
@@ -84,15 +84,85 @@ const AssignmentTeacher = (props: AssignmentTeacherProps) => {
         Includes: ["Code"],
         Page: 1,
         PageSize: 100
-    })
+    }, openModel)
  
 
-    const [openConfirm, setOpenConfirm] = useState()
+    const {data: courseClasses} = useGetCourseClasses({
+        Filters: [
+            {
+                field: "TeacherCode",
+                operator: 'In',
+                value: staffs?.data?.data?.items?.map(e => e.code).join(",")!,
+            }
+        ],
+        Page: 1,
+        PageSize: 100
+    }, staffs !== undefined && staffs?.data?.data?.items?.length > 0)
+
+    const {data: timeline} = useGetTimeline({
+        Filters: [
+            {
+                field: "CourseClassCode",
+                operator: "In",
+                value: courseClasses?.data?.data?.items?.map(c => c.courseClassCode)?.join(",")!
+            }
+        ]
+    }, courseClasses !== undefined && courseClasses?.data?.data?.items?.length > 0)
+
+    const {data: currentTimeline} = useGetTimeline({
+        Filters: [
+            {
+                field: "CourseClassCode",
+                operator: "==",
+                value: props?.courseClass?.courseClassCode
+            }
+        ]
+    }, openModel)
+
+    const [teacher, setTeacher] = useState<string>([])
+    useEffect(() => {
+        if (timeline && currentTimeline) {
+            
+            
+            
+            // console.log(
+            //     timeline?.data?.data?.items?.filter(e => {
+            //         const current = currentTimeline?.data?.data?.items?.[0];
+            //         if (!current || e?.dayOfWeek !== current.dayOfWeek) return false;
+            //
+            //         const start1 = Math.min(...current.slots.map(Number));
+            //         const end1 = Math.max(...current.slots.map(Number));
+            //         const start2 = Math.min(...e.slots.map(Number));
+            //         const end2 = Math.max(...e.slots.map(Number));
+            //
+            //         return !(end1 < start2 || end2 < start1);
+            //     })
+            // );
+            const current = currentTimeline?.data?.data?.items[0]
+            const currentSlots = currentTimeline?.data?.data?.items[0].slots.map(Number)
+            const currentStart = Math.min(...currentSlots);
+            const currentEnd = Math.max(...currentSlots);
+            timeline?.data?.data?.items.filter(e => e.dayOfWeek === current?.dayOfWeek)?.forEach(t => {
+                const itemSlots = t?.slots.map(Number);
+                const itemStart = Math.min(...t?.slots.map(Number));
+                const itemEnd = Math.max(...t?.slots.map(Number));
+                console.log(t?.courseClassCode)
+                if (!(currentEnd < itemStart || itemEnd < currentStart)) {
+                    console.log(courseClasses?.data?.data?.items?.filter(h => h.courseClassCode === t?.courseClassCode))
+                    // setTeacher(prevState => [...prevState, ])
+                }
+            })
+            
+        }
+    }, [timeline, currentTimeline]);
+    console.log(teacher)
     useEffect(() => {
         return () => {
             reset()
         }
     }, [])
+    
+    
     return (
         <>
             <Button size={"small"} type={props?.courseClass?.teacherCode !== null ? "text" : "primary"} 

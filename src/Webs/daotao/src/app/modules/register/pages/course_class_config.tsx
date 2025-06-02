@@ -1,5 +1,3 @@
-"use client"
-
 import React, {useEffect, useState} from "react"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { GripVertical, Plus, Trash2 } from "lucide-react"
@@ -19,7 +17,7 @@ import FormItem from "antd/es/form/FormItem";
 import {useGetSubjectTimelineConfig} from "@/app/modules/education/hooks/useGetSubjectTimelineConfig.ts";
 import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
 import toast from "react-hot-toast";
-interface ScheduleItem {
+export interface ScheduleItem {
     id: string
     title: string
     subject: string
@@ -383,13 +381,9 @@ const CourseClassConfig = () => {
             }
         ]
     }, subject !== undefined && semester !== undefined && courseClassType !== undefined)
-
-
-    const [initName, setInitName] = useState("")
     
     useEffect(() => {
         if (courseClassType === 0) {
-            // setInitName(`${getValues("subjectCode")}_${getValues("semesterCode")}_Lecture_${(courseClasses?.data?.data?.totalItems ?? 0) + 1}`)
             setValue("courseClassCode", `${getValues("subjectCode")}_${getValues("semesterCode")}_Lecture_${(courseClasses?.data?.data?.totalItems ?? 0) + 1}`)
             setValue("courseClassName", `${getValues("subjectCode")}_${getValues("semesterCode")}_Lecture_${(courseClasses?.data?.data?.totalItems ?? 0) + 1}`)
         } else  {
@@ -398,6 +392,9 @@ const CourseClassConfig = () => {
             
         }
     }, [courseClassType, courseClasses]);
+    
+    
+    
     return (
         <div className="space-y-6">
             <Card>

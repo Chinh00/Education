@@ -23,8 +23,8 @@ public class RegisterConfigCreatedDomainEventConsumer(
             EndDate = notification.EndDate,
             StudentChangeStart = notification.StudentChangeStart,
             StudentChangeEnd = notification.StudentChangeEnd,
-            EducationStart = notification.EducationStart,
-            EducationEnd = notification.EducationEnd,
+            MinCredit = notification.MinCredit,
+            MaxCredit = notification.MaxCredit,
             EventStoreId = notification.AggregateId
         }, cancellationToken);
 

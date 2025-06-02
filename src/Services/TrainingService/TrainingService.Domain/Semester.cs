@@ -13,12 +13,6 @@ public class Semester : AggregateBase
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     
-    public DateTime? EducationStart { get; set; }
-    public DateTime? EducationEnd { get; set; }
-    
-    public DateTime? StudentStart { get; set; }
-    public DateTime? StudentEnd { get; set; }
-    
     
     
     public SemesterStatus SemesterStatus { get; set; } = SemesterStatus.New;

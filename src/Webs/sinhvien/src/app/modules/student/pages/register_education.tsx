@@ -20,6 +20,8 @@ import {Badge} from "@/app/components/ui/badge.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/app/components/ui/select.tsx";
 import RegistrationTimer from "@/app/modules/student/components/reigstration_timer.tsx";
 import {useGetRegisterSubjectCurrent} from "@/app/modules/student/hooks/useGetRegisterSubjectCurrent.ts";
+import {useGetSemesters} from "@/app/modules/student/hooks/useGetSemester.ts";
+import useGetStudentSemesters from "@/app/modules/student/hooks/useGetStudentSemesters.ts";
 
 
 
@@ -32,8 +34,9 @@ import {useGetRegisterSubjectCurrent} from "@/app/modules/student/hooks/useGetRe
 const RegisterEducation= () => {
     const {data, isPending, isSuccess} = useGetStudentInformation()
 
-
-
+    const {data: results} = useGetStudentSemesters({
+        Includes: ["SubjectResults"]
+    })
 
     const {data: educations, isPending: educationsLoading} = useGetEducations({
         Filters: [
@@ -136,7 +139,9 @@ const RegisterEducation= () => {
             ])
         }
     }, [registerSubject, subjects?.data?.data?.items]);
-
+    const subjectCodes = results?.data?.data?.items?.flatMap(c =>
+        c.subjectResults?.map(e => e.subjectCode) ?? []
+    ) ?? [];
 
     return (
         <PredataScreen isLoading={isPending } isSuccess={isSuccess }>
@@ -193,7 +198,7 @@ const RegisterEducation= () => {
 
                         columns={columns}
                         pagination={false}
-                        dataSource={subjects?.data?.data?.items ?? []}
+                        dataSource={subjects?.data?.data?.items?.filter(e => !subjectCodes?.includes(e.subjectCode)) ?? []}
                         virtual
                         scroll={{ y: 300 }}
                     />

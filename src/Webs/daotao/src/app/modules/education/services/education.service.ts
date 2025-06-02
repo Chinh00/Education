@@ -14,8 +14,6 @@ export type CreateRegisterStateModel = {
     endDate: string;
     studentChangeStart: string;
     studentChangeEnd: string;
-    educationStart: string;
-    educationEnd: string;
     minCredit: number;
     maxCredit: number;
 }

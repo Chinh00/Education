@@ -37,8 +37,6 @@ const CreateRegister = () => {
             endDate: new Date().toISOString().slice(0, 16),
             studentChangeStart: new Date().toISOString().slice(0, 16),
             studentChangeEnd: new Date().toISOString().slice(0, 16),
-            educationStart: new Date().toISOString().slice(0, 16),
-            educationEnd: new Date().toISOString().slice(0, 16),
             minCredit: 10,
             maxCredit: 30,
             semesterCode: ""
@@ -53,8 +51,6 @@ const CreateRegister = () => {
                     endDate: dayjs(getValues("endDate")).toISOString(),
                     studentChangeStart: dayjs(getValues("studentChangeStart")).toISOString(),
                     studentChangeEnd: dayjs(getValues("studentChangeEnd")).toISOString(),
-                    educationStart: dayjs(getValues("educationStart")).toISOString(),
-                    educationEnd: dayjs(getValues("educationEnd")).toISOString(),
                 }, {
                     onSuccess: async (data) => {
                         toast.success("Tạo mới thành công")
@@ -100,8 +96,6 @@ const CreateRegister = () => {
                                 <FormDatePickerAntd  control={control} name={"endDate"} label={"Thời gian kết thúc đăng ký nguyện vọng"}  />
                                 <FormDatePickerAntd  control={control} name={"studentChangeStart"} label={"Thời gian bắt đầu điều chỉnh"} />
                                 <FormDatePickerAntd  control={control} name={"studentChangeEnd"} label={"Thời gian kết thúc điều chỉnh"}  />
-                                <FormDatePickerAntd  control={control} name={"educationStart"} label={"Thời gian bắt đầu học kì"} />
-                                <FormDatePickerAntd  control={control} name={"educationEnd"} label={"Thời gian kết thúc học kì"}  />
 
                             </div>
                         </CardContent>

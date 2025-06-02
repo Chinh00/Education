@@ -13,9 +13,6 @@ public class StartRegisterPipelineIntegrationEvent : IIntegrationEvent
     public DateTime StudentChangeStart { get; set; } 
     public DateTime StudentChangeEnd { get; set; } 
     
-    public DateTime EducationStart { get; set; }
-    public DateTime EducationEnd { get; set; }
-    
     public int MinCredit { get; set; }
     public int MaxCredit { get; set; }
 

@@ -1,37 +1,35 @@
-﻿apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: education
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: 'https://github.com/Chinh00/Education'
-    targetRevision: HEAD
-    path: 'bootstrap/apps'
-    directory:
-      recurse: true
-  destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: education
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
----
+﻿#apiVersion: argoproj.io/v1alpha1
+#kind: Application
+#metadata:
+#  name: education
+#  namespace: argocd
+#spec:
+#  project: default
+#  source:
+#    repoURL: 'https://github.com/Chinh00/Education'
+#    targetRevision: HEAD
+#    path: 'bootstrap/apps'
+#    directory:
+#      recurse: true
+#  destination:
+#    server: 'https://kubernetes.default.svc'
+#    namespace: education
+#  syncPolicy:
+#    automated:
+#      prune: true
+#      selfHeal: true
+#---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: infra
   namespace: argocd
 spec:
-  project: default
+  project: default 
   source:
     repoURL: 'https://github.com/Chinh00/Education'
     targetRevision: HEAD
-    path: 'bootstrap/helms'
-    directory:
-      recurse: true
+    chart: redis
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: education

@@ -1,23 +1,5 @@
-﻿replicaCount: 1
-
-auth:
-  enabled: false
-
-zookeeper:
-  enabled: true
-  replicaCount: 1
-
-controller:
-  replicaCount: 0
-
-kraft:
-  enabled: false
-
-listeners:
-  client:
-    protocol: PLAINTEXT
-  interBroker:
-    protocol: PLAINTEXT
-
-externalAccess:
-  enabled: false
+﻿redis:
+  password: your-redis-password
+  replication:
+    enabled: true
+    slaveCount: 2

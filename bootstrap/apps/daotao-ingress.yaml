@@ -11,7 +11,7 @@ spec:
         paths:
           - backend:
               service:
-                name: daotao-client
+                name: daotao
                 port:
                   number: 80
             pathType: ImplementationSpecific

@@ -24,6 +24,8 @@ public record SubjectTimelineConfigCreateCommand(SubjectTimelineConfigCreateComm
         int LabMinStudent,
         int LectureStartWeek,
         int LabStartWeek,
+        string[] LectureRequiredConditions,
+        string[] LabRequiredConditions,
         int Stage
         );
     
@@ -33,7 +35,8 @@ public record SubjectTimelineConfigCreateCommand(SubjectTimelineConfigCreateComm
         public async Task<IResult> Handle(SubjectTimelineConfigCreateCommand request, CancellationToken cancellationToken)
         {
             var (subjectCode, periodTotal, lectureTotal, lectureLesson, lecturePeriod, labTotal, labLesson, labPeriod,
-                minDaySpaceLecture, minDaySpaceLab, lectureMinStudent, labMinStudent, lectureStartWeek, labStartWeek, stage) = request.Model;
+                minDaySpaceLecture, minDaySpaceLab, lectureMinStudent, labMinStudent, lectureStartWeek, labStartWeek,
+                lectureRequiredConditions, labRequiredConditions, stage) = request.Model;
 
             var spec = new GetSubjectTimelineBySubjectCodeSpec(subjectCode);
             var subjectTimelineConfig = await repository.FindOneAsync(spec, cancellationToken) ?? new SubjectTimelineConfig();
@@ -54,6 +57,10 @@ public record SubjectTimelineConfigCreateCommand(SubjectTimelineConfigCreateComm
             subjectTimelineConfig.LectureStartWeek = labMinStudent;
             subjectTimelineConfig.LabStartWeek = labMinStudent;
             subjectTimelineConfig.Stage = (SubjectTimelineStage)stage;
+            subjectTimelineConfig.LectureStartWeek = lectureStartWeek;
+            subjectTimelineConfig.LabStartWeek = labStartWeek;
+            subjectTimelineConfig.LectureRequiredConditions = lectureRequiredConditions.ToList();
+            subjectTimelineConfig.LabRequiredConditions = labRequiredConditions.ToList();
             
             var result = await repository.UpsertOneAsync(spec, subjectTimelineConfig, cancellationToken);
             return Results.Ok(ResultModel<SubjectTimelineConfig>.Create(result));

@@ -44,7 +44,8 @@ public class SubjectTimelineConfig : BaseEntity
     [Description("Giai đoạn học")] public SubjectTimelineStage Stage { get; set; } = SubjectTimelineStage.Stage1;
     
     
-    public List<string> RequiredConditions { get; set; } = [];
+    public List<string> LectureRequiredConditions { get; set; } = [];
+    public List<string> LabRequiredConditions { get; set; } = [];
 
     
 }

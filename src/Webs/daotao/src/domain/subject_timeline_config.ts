@@ -14,8 +14,9 @@ export interface SubjectTimelineConfig {
     lectureStartWeek: number,
     labStartWeek: number,
     stage: number,
-    durationInWeeks: number
     id: string;
     createdAt: string;
     updatedAt: string | null;
+    lectureRequiredConditions: string[]
+    labRequiredConditions: string[]
 }

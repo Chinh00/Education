@@ -3,7 +3,7 @@ import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Box} from "@mui/material";
-import {Button, Card, Checkbox, Form, Input, Radio, Typography} from "antd";
+import {Button, Card, Checkbox, Form, Input, Radio, Select, Space, Typography} from "antd";
 import {data, useNavigate, useParams} from "react-router";
 import {RoutePaths} from "@/core/route_paths.ts";
 import {Controller, useForm} from "react-hook-form";
@@ -15,7 +15,7 @@ import {SubjectTimelineConfig} from "@/domain/subject_timeline_config.ts";
 import {Divider} from "@mui/material"
 import {useUpdateSubjectTimelineConfig} from "@/app/modules/education/hooks/useUpdateSubjectTimelineConfig.ts";
 import toast from "react-hot-toast";
-import {useGetSubjects} from "@/app/modules/common/hook.ts";
+import {useGetConditions, useGetSubjects} from "@/app/modules/common/hook.ts";
 import {Subject} from "@/domain/subject.ts";
 const SubjectTimelineDetail = () => {
     const dispatch = useAppDispatch()
@@ -41,7 +41,7 @@ const SubjectTimelineDetail = () => {
 
 
 
-    const {control: subjectControl, reset: subjectReset, getValues} = useForm<SubjectTimelineConfig>({
+    const {control: subjectControl, reset: subjectReset, getValues, setValue} = useForm<SubjectTimelineConfig>({
        defaultValues: {
 
        }
@@ -77,6 +77,12 @@ const SubjectTimelineDetail = () => {
         }
     }, [data, isLoading, isSuccess]);
 
+   
+
+    
+    const {data: conditions, isLoading: conditionsLoading} = useGetConditions({})
+    
+    
     return (
         <PredataScreen isLoading={subjectLoading} isSuccess={subjectsSuccess}>
             <Box className={"flex flex-col gap-5"}>
@@ -246,7 +252,7 @@ const SubjectTimelineDetail = () => {
                             )}
                         />
                         <Controller
-                            name="minDaySpaceLecture"
+                            name="minDaySpaceLab"
                             control={subjectControl}
                             render={({ field }) => (
                                 <Form.Item  label={<Typography>Khoảng cách giữa các buổi học thực hành trong 1 tuần</Typography>}  className={"col-span-2"}>
@@ -291,16 +297,62 @@ const SubjectTimelineDetail = () => {
                                 </Form.Item>
                             )}
                         />
-                        <Controller
-                            name="durationInWeeks"
-                            control={subjectControl}
-                            render={({ field }) => (
-                                <Form.Item  label={<Typography>Số tuần học</Typography>}  className={"col-span-3"}>
-                                    <Input {...field}   />
-                                </Form.Item>
-                            )}
-                        />
+                        
+                        <Form.Item  label={<Typography>Điều kiện phòng học</Typography>}  className={"col-span-3"}>
+                            <Select
+                                mode="multiple"
+                                style={{ width: '100%'}}
+                                className={"col-span-3"}
+                                placeholder="Chọn điều kiện phòng"
+                                loading={conditionsLoading}
+                                defaultValue={getValues("lectureRequiredConditions")}
+                                onChange={(e, res) => {
+                                    // @ts-ignore
+                                    setValue("lectureRequiredConditions", [...(res?.map(c => c.value))])
+                                }}
+                                options={conditions?.data?.data?.items?.map(e => {
+                                    return {
+                                        label: e?.conditionName,
+                                        value: e?.conditionCode,
+                                    }
+                                })}
+                                optionRender={(option) => (
+                                    <Space>
 
+                                        {option.data.label}
+                                    </Space>
+                                )}
+                            />
+                        </Form.Item>
+                        <Form.Item  label={<Typography>Điều kiện phòng học</Typography>}  className={"col-span-3"}>
+                            <Select
+                                mode="multiple"
+                                style={{ width: '100%'}}
+                                className={"col-span-3"}
+                                placeholder="Chọn điều kiện phòng"
+                                loading={conditionsLoading}
+                                defaultValue={getValues("labRequiredConditions")}
+                                onChange={(e, res) => {
+                                    // @ts-ignore
+                                    setValue("labRequiredConditions", [...(res?.map(c => c.value))])
+                                }}
+                                options={conditions?.data?.data?.items?.map(e => {
+                                    return {
+                                        label: e?.conditionName,
+                                        value: e?.conditionCode,
+                                    }
+                                })}
+                                optionRender={(option) => (
+                                    <Space>
+
+                                        {option.data.label}
+                                    </Space>
+                                )}
+                            />
+                        </Form.Item>
+                        
+                        
+                        <div className={"col-span-3"}></div>
                         <Button loading={isPending} type={"primary"} onClick={() => {
                             mutate({
                                 ...getValues(),

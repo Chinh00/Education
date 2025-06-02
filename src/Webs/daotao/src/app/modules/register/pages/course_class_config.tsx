@@ -1,20 +1,19 @@
 "use client"
 
-import React, {useEffect} from "react"
-import { useState } from "react"
+import React, {useEffect, useState} from "react"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { GripVertical, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/app/components/ui/button"
 import {ColumnsType, useGetRooms } from "../../common/hook"
 import {Room} from "@/domain/room.ts";
-import {Form, Select, Table} from "antd"
+import {Form, Input, Select, Table, Typography} from "antd"
 import { Box } from "@mui/material"
 import {Button as ButtonAntd} from "antd"
 import {useParams} from "react-router";
 import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
 import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
 import {CourseClassModel, SlotTimelineModel} from "../../education/services/courseClass.service"
-import {useForm} from "react-hook-form";
+import {Controller, useForm} from "react-hook-form";
 import FormInputAntd from "@/app/components/inputs/FormInputAntd"
 import FormItem from "antd/es/form/FormItem";
 import {useGetSubjectTimelineConfig} from "@/app/modules/education/hooks/useGetSubjectTimelineConfig.ts";
@@ -273,11 +272,19 @@ const CourseClassConfig = () => {
             slotIndex <= dragPreview.endSlot
         )
     }
+    const {data: subjectTimelineConfig} = useGetSubjectTimelineConfig(subject!, subject !== undefined)
 
     const {data: rooms, isLoading: RoomLoadings} = useGetRooms({
+        Filters: [
+            {
+                field: "SupportedConditions",
+                operator: "ArrayContains",
+                value: courseClassType === 0 ? subjectTimelineConfig?.data?.data?.lectureRequiredConditions.join(",")! : subjectTimelineConfig?.data?.data?.labRequiredConditions.join(",")!
+            }
+        ],
         Page: 1,
         PageSize: 1000
-    })
+    }, subjectTimelineConfig !== undefined && (subjectTimelineConfig?.data?.data?.lectureRequiredConditions?.length > 0 || subjectTimelineConfig?.data?.data?.labRequiredConditions?.length > 0))
     const columns: ColumnsType<Room> = [
         {
             title: 'Tên phòng ',
@@ -356,8 +363,41 @@ const CourseClassConfig = () => {
             courseClassType: 0
         }
     } )
-    const {data: subjectTimelineConfig} = useGetSubjectTimelineConfig(subject!, subject !== undefined)
     const {mutate, isPending: createLoading} = useCreateCourseClass()
+    const {data: courseClasses} = useGetCourseClasses({
+        Filters: [
+            {
+                field: "SubjectCode",
+                operator: "==",
+                value: subject!
+            },
+            {
+                field: "SemesterCode",
+                operator: "==",
+                value: semester!
+            },
+            {
+                field: "CourseClassType",
+                operator: "==",
+                value: `${courseClassType!}`
+            }
+        ]
+    }, subject !== undefined && semester !== undefined && courseClassType !== undefined)
+
+
+    const [initName, setInitName] = useState("")
+    
+    useEffect(() => {
+        if (courseClassType === 0) {
+            // setInitName(`${getValues("subjectCode")}_${getValues("semesterCode")}_Lecture_${(courseClasses?.data?.data?.totalItems ?? 0) + 1}`)
+            setValue("courseClassCode", `${getValues("subjectCode")}_${getValues("semesterCode")}_Lecture_${(courseClasses?.data?.data?.totalItems ?? 0) + 1}`)
+            setValue("courseClassName", `${getValues("subjectCode")}_${getValues("semesterCode")}_Lecture_${(courseClasses?.data?.data?.totalItems ?? 0) + 1}`)
+        } else  {
+            setValue("courseClassCode", `${getValues("subjectCode")}_${getValues("semesterCode")}_Lab_${(courseClasses?.data?.data?.totalItems ?? 0) + 1}`)
+            setValue("courseClassName", `${getValues("subjectCode")}_${getValues("semesterCode")}_Lab_${(courseClasses?.data?.data?.totalItems ?? 0) + 1}`)
+            
+        }
+    }, [courseClassType, courseClasses]);
     return (
         <div className="space-y-6">
             <Card>
@@ -365,15 +405,31 @@ const CourseClassConfig = () => {
                     <CardContent >
                         <FormInputAntd control={control} name={"subjectCode"} initialValue={subject} label={"Mã môn học"} />
                         <FormInputAntd control={control} name={"semesterCode"} initialValue={semester} label={"Mã kì học"} />
-                        <FormInputAntd control={control} name={"courseClassName"} initialValue={""} label={"Tên lớp học"} />
-                        <FormInputAntd control={control} name={"courseClassCode"} initialValue={""} label={"Mã lớp học"} />
+                        <Controller
+                            name="courseClassName"
+                            control={control}
+                            render={({ field }) => (
+                                <Form.Item  label={<Typography>Tên lớp học</Typography>}  className={"col-span-2"}>
+                                    <Input  {...field}   />
+                                </Form.Item>
+                            )}
+                        />
+                        <Controller
+                            name="courseClassCode"
+                            control={control}
+                            render={({ field }) => (
+                                <Form.Item  label={<Typography>Mã lớp học</Typography>}  className={"col-span-2"}>
+                                    <Input  {...field}   />
+                                </Form.Item>
+                            )}
+                        />
                         <FormItem label={"Loại lớp"}>
                             <Select className={"w-full"} defaultValue={courseClassType} onChange={(e) => {
                                 setCourseClassType(e)
                                 setValue("courseClassType", e)
                             }} >
                                 <Select.Option value={0}>Lý thuyết</Select.Option>
-                                <Select.Option value={1} disabled={subjectTimelineConfig?.data?.data?.labTotal === 0}>Thực hành</Select.Option>
+                                <Select.Option value={1} disabled={subjectTimelineConfig?.data?.data === null || subjectTimelineConfig?.data?.data?.labTotal === 0}>Thực hành</Select.Option>
                             </Select>
                         </FormItem>
                     </CardContent>
@@ -383,7 +439,7 @@ const CourseClassConfig = () => {
 
             <div className="grid grid-cols-12 gap-6">
                 <div className=" relative col-span-3">
-                    <div className={"relative  min-h-[450px]"}>
+                    <div className={"relative  min-h-[350px]"}>
                         <Table<Room>
                             className={"absolute top-0"}
                             rowKey={(c) => c.id}

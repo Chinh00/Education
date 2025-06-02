@@ -68,7 +68,7 @@ const CourseClassList = () => {
             key: 'action',
             render: (_, record) => (
                 <div>
-                    <IconButton size={"small"} onClick={() => nav(`/history/CourseClass-SlotTimeline/${record?.id}-${timeLine?.data?.data?.items?.filter(c => c.courseClassCode === record?.courseClassCode)?.map(e => e.id)?.join("-")}`)}>
+                    <IconButton size={"small"} onClick={() => nav(`/history/CourseClass,SlotTimeline/${record?.id},${timeLine?.data?.data?.items?.filter(c => c.courseClassCode === record?.courseClassCode)?.map(e => e.id)?.join(",")}`)}>
                         <History />
                     </IconButton>
                 </div>

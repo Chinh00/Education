@@ -17,23 +17,31 @@ export type CreateRegisterStateModel = {
     minCredit: number;
     maxCredit: number;
 }
+
 export interface SubjectTimelineConfigModel {
     subjectCode: string;
     periodTotal: number;
+    
     lectureTotal: number;
     lectureLesson: number;
     lecturePeriod: number;
+    
     labTotal: number;
     labLesson: number;
     labPeriod: number;
+    
     minDaySpaceLecture: number;
     minDaySpaceLab: number;
+    
     lectureMinStudent: number;
     labMinStudent: number;
+    
     lectureStartWeek: number;
     labStartWeek: number;
+    lectureRequiredConditions: string[]
+    labRequiredConditions: string[]
+    
     stage: number;
-    durationInWeeks: number;
 }
 
 

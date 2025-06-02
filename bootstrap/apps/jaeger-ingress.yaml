@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: jaegerk8s.tlu.my
+    - host: jaeger.tlu.my
       http:
         paths:
           - backend:

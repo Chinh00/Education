@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: daotao-client
+  name: daotao
   namespace: education
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: daotao-client
+      app.kubernetes.io/name: daotao
   replicas: 1
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: daotao-client
+        app.kubernetes.io/name: daotao
     spec:
       containers:
         - image: chinhval/educationdaotaowebapp
@@ -23,7 +23,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: daotao-client
+  name: daotao
   namespace: education
 spec:
   ports:
@@ -32,4 +32,4 @@ spec:
       protocol: TCP
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: daotao-client
+    app.kubernetes.io/name: daotao

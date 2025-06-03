@@ -38,7 +38,7 @@ public class RegisterController : BaseController
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpGet("current")]
+    [HttpGet("CourseClass")]
     public async Task<IActionResult> HandleGetRegisterCourseClassAsync(CancellationToken cancellationToken)
     {
         return Ok(await Mediator.Send(new GetStudentRegisterQuery(), cancellationToken));

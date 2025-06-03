@@ -25,5 +25,12 @@ const getStaffs = async (query: Query): Promise<AxiosResponse<SuccessResponse<Li
 const getNotifications = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Notification>>>> => await http.get(`/notificationservice/api/Notification?${GetQuery(query)}`)
 
 
+export interface RegistrationModel {
+    registerId: string;
+    studentRegistrationStartDate: string; 
+    studentRegistrationEndDate: string;   
+}
+const createRegisterRegistrationPeriod = async (model: RegistrationModel): Promise<AxiosResponse<SuccessResponse<string>>> => await http.post(`/trainingservice/api/Register/RegistrationPeriod`, model)
 
-export {getCourses, getDepartments, getSpecialities, getSubjects, getBuildings, getRooms, getEventsStore, getConditions, getStaffs, getNotifications};
+
+export {getCourses, getDepartments, getSpecialities, getSubjects, getBuildings, getRooms, getEventsStore, getConditions, getStaffs, getNotifications, createRegisterRegistrationPeriod};

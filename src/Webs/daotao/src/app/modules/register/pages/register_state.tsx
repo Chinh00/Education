@@ -16,9 +16,17 @@ import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts"
 import { Badge } from "@/app/components/ui/badge";
 
 const RegisterState = () => {
-    const {semester} = useParams()
     const dispatch = useAppDispatch()
-
+    const {data: semesters} = useGetSemesters({
+        Filters: [
+            {
+                field: "SemesterStatus",
+                operator: "==",
+                value: "1"
+            }
+        ]
+    })
+    const semester = semesters?.data?.data?.items?.[0]
     const {groupFuncName} = useAppSelector<CommonState>(c => c.common)
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: `Báo cáo đăng ký nguyện vọng học kì ${semester}`}));
@@ -28,7 +36,7 @@ const RegisterState = () => {
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: semester!
+                value: semester?.semesterCode!
             }
         ]
     })
@@ -74,7 +82,7 @@ const RegisterState = () => {
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: semester!
+                value: semester?.semesterCode!
             }
         ]
     })
@@ -87,7 +95,7 @@ const RegisterState = () => {
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: semester!
+                value: semester?.semesterCode!
             }
         ]
     }, semester !== undefined)

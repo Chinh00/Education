@@ -1,6 +1,7 @@
 import {Query} from "@/infrastructure/query.ts";
-import {useQuery} from "@tanstack/react-query";
+import {useMutation, useQuery} from "@tanstack/react-query";
 import {
+    createRegisterRegistrationPeriod,
     getBuildings,
     getConditions,
     getCourses,
@@ -14,6 +15,7 @@ import {AxiosResponse} from "axios";
 import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/success_response.ts";
 import {Speciality} from "@/domain/speciality.ts";
 import {GetProp, TableProps } from "antd";
+import {createCourseClasses} from "@/app/modules/education/services/courseClass.service.ts";
 
 const useGetCourses = (query: Query, enable: boolean = true) => {
     return useQuery({
@@ -104,7 +106,13 @@ const useGetNotifications = (query: Query, enable: boolean = true) => {
 
 
 
+const useCreateRegisterRegistrationPeriod = () => {
+    return useMutation({
+        mutationKey: ["useCreateCourseClass"],
+        mutationFn: createRegisterRegistrationPeriod,
 
+    })
+}
 
 
 export {
@@ -117,7 +125,8 @@ export {
     useGetEventsStore,
     useGetConditions,
     useGetStaffs,
-    useGetNotifications
+    useGetNotifications,
+    useCreateRegisterRegistrationPeriod
 };
 
 

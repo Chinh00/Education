@@ -57,7 +57,7 @@ public class
                 new GetSubjectByCodeSpec(courseClass.SubjectCode), cancellationToken);
             var @class = courseClasses?.FirstOrDefault(e => e.CourseClassCode == courseClass.CourseClassCode);
             var slotTimelines = await _slotTimelineRepository.FindAsync(
-                new GetSlotTimelineByCourseClassCodesSpec([]), cancellationToken);
+                new GetSlotTimelineByCourseClassCodesSpec([courseClass?.CourseClassCode]), cancellationToken);
             courseClassOpens.Add(new CourseClassEvent(
                 @class.CourseClassCode,
                 @class.CourseClassName,

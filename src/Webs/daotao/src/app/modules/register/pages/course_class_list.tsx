@@ -12,8 +12,19 @@ import {useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {Calendar, History} from "lucide-react"
 import { useGetTimeline } from "../../education/hooks/useGetTimeline";
+import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 const CourseClassList = () => {
-    const {subject, semester} = useParams()
+    const {subject} = useParams()
+    const {data: semesters} = useGetSemesters({
+        Filters: [
+            {
+                field: "SemesterStatus",
+                operator: "==",
+                value: "1"
+            }
+        ]
+    })
+    const semester = semesters?.data?.data?.items?.[0]
     const [query, setQuery] = useState<Query>({
         Filters: [
             {
@@ -24,11 +35,11 @@ const CourseClassList = () => {
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: semester!
+                value: semester?.semesterCode!
             }
         ]
     })
-    const {data, isLoading, isSuccess} = useGetCourseClasses(query)
+    const {data, isLoading, isSuccess} = useGetCourseClasses(query, semester !== undefined)
     const nav = useNavigate()
 
 

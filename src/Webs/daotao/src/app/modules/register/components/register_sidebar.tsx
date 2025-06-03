@@ -29,21 +29,21 @@ const RegisterSidebar = () => {
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => nav(pathname?.split("/").filter(c => c != "timeline").join("/"))}>
+              <SidebarMenuButton onClick={() => nav(RoutePaths.REGISTER_STATE)}>
                 <CakeSlice color={"white"} />
                 Lấy nguyện vọng sinh viên
               </SidebarMenuButton>
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => nav(pathname?.split("/").filter(c => c != "timeline").join("/") + "/timeline")}>
+              <SidebarMenuButton onClick={() => nav(RoutePaths.REGISTER_STATE_TIMELINE)}>
                 <CalendarSync color={"white"} />
                 Lập thời khóa biểu
               </SidebarMenuButton>
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => nav(RoutePaths.HOME_PATH)}>
+              <SidebarMenuButton onClick={() => nav(RoutePaths.REGISTER_STUDENT_CONFIG)}>
                 <BookUp color={"white"} />
                 Tổ chức đăng ký học
               </SidebarMenuButton>

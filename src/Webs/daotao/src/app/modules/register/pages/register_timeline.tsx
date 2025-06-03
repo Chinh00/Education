@@ -10,16 +10,24 @@ import {Box, IconButton} from "@mui/material";
 import {Table, Typography} from "antd";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Settings} from "lucide-react"
-import {useGetRegisters} from "@/app/modules/education/hooks/useGetRegisters.ts";
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 const RegisterTimeline = () => {
-    const {semester} = useParams()
+    const {data: semesters} = useGetSemesters({
+        Filters: [
+            {
+                field: "SemesterStatus",
+                operator: "==",
+                value: "1"
+            }
+        ]
+    })
+    const semester = semesters?.data?.data?.items?.[0]
     const {data, isPending, isSuccess} = useGetSubjectRegister({
         Filters: [
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: semester!
+                value: semester?.semesterCode!
             }
         ]
     }, semester !== undefined)
@@ -27,7 +35,7 @@ const RegisterTimeline = () => {
 
     const {groupFuncName} = useAppSelector<CommonState>(c => c.common)
     useEffect(() => {
-        dispatch(setGroupFuncName({...groupFuncName, itemName: `Thời khóa biểu học kì ${semester}`}));
+        dispatch(setGroupFuncName({...groupFuncName, itemName: `Các môn học đăng ký mở kì ${semester}`}));
     }, []);
     const { data: subjects} = useGetSubjects({
         Filters: [
@@ -73,7 +81,7 @@ const RegisterTimeline = () => {
             key: "action",
             render: (text, record) => (
                 <IconButton size={"small"} onClick={() => {
-                    nav(`/register/state/${semester}/timeline/${record?.subjectCode}`)
+                    nav(`/register/state/timeline/${record?.subjectCode}`)
                 }}><Settings /></IconButton>
             )
         }
@@ -89,7 +97,7 @@ const RegisterTimeline = () => {
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: semester!
+                value: semester?.semesterCode!
             }
         ]
     })

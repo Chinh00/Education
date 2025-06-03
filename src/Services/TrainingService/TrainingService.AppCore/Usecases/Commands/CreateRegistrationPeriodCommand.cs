@@ -2,6 +2,7 @@
 using Education.Core.Repository;
 using Education.Core.Services;
 using Education.Infrastructure.Authentication;
+using Education.Infrastructure.EventStore;
 using MediatR;
 using MongoDB.Bson;
 using TrainingService.Domain;
@@ -35,8 +36,8 @@ public record CreateRegistrationPeriodCommand(CreateRegistrationPeriodCommand.Cr
                 request.Model.StudentRegistrationEndDate,
                 new Dictionary<string, object>()
                 {
-                    { "UserId", userId },
-                    { "UserName", userName }
+                    { nameof(KeyMetadata.PerformedBy), userId },
+                    { nameof(KeyMetadata.PerformedByName), userName }
                 });
             await registerConfigService.SaveEventStore(registerConfig, cancellationToken);
             return Results.Ok(new

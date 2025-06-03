@@ -52,7 +52,7 @@ const RegisterEducation = () => {
             title: 'Báo cáo',
             key: 'action',
             render: (_, record) => (
-                <IconButton size={"small"} onClick={() => nav(`/register/state/${record?.semesterCode}`)}><ChartNoAxesCombined /></IconButton>
+                <IconButton size={"small"} onClick={() => nav(`/register/state`)}><ChartNoAxesCombined /></IconButton>
             ),
         },
         {

@@ -32,6 +32,33 @@ public class RegisterController : BaseController
     {
         return Ok(await Mediator.Send(new GetRegisterCourseCurrentQuery(), cancellationToken));
     }
+    
+    /// <summary>
+    /// Thông tin đăng ký học phần
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("current")]
+    public async Task<IActionResult> HandleGetRegisterCourseClassAsync(CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new GetStudentRegisterQuery(), cancellationToken));
+    }
+
+    /// <summary>
+    /// Thông tin đăng ký học phần
+    /// </summary>
+    /// <param name="subjectCode">Mã môn học</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("CourseClass/{subjectCode}")]
+    public async Task<IActionResult> HandleGetCourseClassBySubjectCodeAsync(string subjectCode, CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new GetCourseClassBySubjectCodeQuery(subjectCode), cancellationToken));
+    }
+    
+    
+    
+    
 
     /// <summary>
     /// Thông tin đã đăng ký

@@ -55,5 +55,20 @@ public class RegisterController : BaseController
         return Ok(await Mediator.Send(query, cancellationToken));
     }
     
+    /// <summary>
+    /// Tạo cấu hình đăng ký học phần
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("RegistrationPeriod")]
+    public async Task<IActionResult> HandleCreateRegistrationPeriodAsync(CreateRegistrationPeriodCommand.CreateRegistrationPeriodModel model,
+        CancellationToken cancellationToken = default)
+    {
+        return Ok(await Mediator.Send(new CreateRegistrationPeriodCommand(model), cancellationToken));
+    }
+    
+    
+    
     
 }

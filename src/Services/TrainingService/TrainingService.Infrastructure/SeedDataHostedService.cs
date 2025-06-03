@@ -105,7 +105,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
     }
     async Task PullStaffs(IMongoRepository<Staff> education, CancellationToken cancellation)
     {
-        var url = $"https://api5.tlu.edu.vn/api/Staff/Page=1&PageSize=2000";
+        var url = $"https://api5.tlu.edu.vn/api/Staff?Page=1&PageSize=2000";
         
         var response = await httpClient.GetAsync(url, cancellation);
         var json = await response.Content.ReadAsStringAsync(cancellation);

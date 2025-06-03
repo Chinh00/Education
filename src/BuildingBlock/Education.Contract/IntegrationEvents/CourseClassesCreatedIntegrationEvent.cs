@@ -2,22 +2,26 @@
 
 namespace Education.Contract.IntegrationEvents;
 
-public class CourseClassCreatedIntegrationEvent(
+public record CourseClassesCreatedIntegrationEvent(
+    string SemesterCode,
+    DateTime StudentRegisterStart,
+    DateTime StudentRegisterEnd,
+    List<CourseClassEvent> CourseClasses
+) : IIntegrationEvent;
+public record CourseClassEvent(
     string CourseClassCode,
     string CourseClassName,
     int CourseClassType,
     string SubjectCode,
     string SubjectName,
+    int NumberOfCredits,
     string TeacherCode,
     string TeacherName,
     string SemesterCode,
     int Stage,
-    List<SlotTime> slotTimes) : IIntegrationEvent
-{
-    
-}
-public record SlotTime(
-    string CourseClassCode,
+    List<SlotTimelineEvent> SlotTimes);
+
+public record SlotTimelineEvent(
     string BuildingCode,
     string RoomCode,
     int DayOfWeek,

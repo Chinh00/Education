@@ -6,4 +6,6 @@ public class RedisKey
     public static string GetKeyWishSubjects(string studentCode, string educationCode) => $"{WishSubjects}:{studentCode}:{educationCode}";
     public static string GetStudentCodeFromKey(string studentCode, string educationCode) => $"{WishSubjects}:{studentCode}:{educationCode}";
     public static string GetEducationCodeFromKey(string studentCode, string educationCode) => $"{WishSubjects}:{studentCode}:{educationCode}";
+    public static string SubjectCourseClass(string semesterCode, string subjectCode, string courseClassCode) => $"courseClass:{semesterCode}:{subjectCode}";
+    public static string StudentRegister => $"studentRegister";
 }

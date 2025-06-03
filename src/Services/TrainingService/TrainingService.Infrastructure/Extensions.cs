@@ -32,9 +32,9 @@ public static class Extensions
                 e.AddProducer<StartRegisterPipelineIntegrationEvent>(nameof(StartRegisterPipelineIntegrationEvent));
                 e.AddProducer<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent));
                 e.AddProducer<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent));
-                e.AddProducer<CourseClassCreatedIntegrationEvent>(nameof(CourseClassCreatedIntegrationEvent));
                 e.AddProducer<StartRegisterNotificationIntegrationEvent>(nameof(StartRegisterNotificationIntegrationEvent));
                 e.AddProducer<StudentRegistrationStartedIntegrationEvent>(nameof(StudentRegistrationStartedIntegrationEvent));
+                e.AddProducer<CourseClassesCreatedIntegrationEvent>(nameof(CourseClassesCreatedIntegrationEvent));
                 
                 
                 e.AddProducer<CourseClassCreatedDomainEvent>(nameof(CourseClassCreatedDomainEvent));

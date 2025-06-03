@@ -1,4 +1,5 @@
 ﻿using Education.Infrastructure.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.AppCore.Usecases.Queries;
 
@@ -13,6 +14,7 @@ public class NotificationController : BaseController
     /// <param name="query"></param>
     /// <returns></returns>
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> HandleGetNotificationQuery(
         [FromQuery] GetNotificationsQuery query)
     {

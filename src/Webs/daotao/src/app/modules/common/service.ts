@@ -11,6 +11,7 @@ import {Room} from "@/domain/room.ts";
 import {EventHistory} from "@/domain/event_history.ts";
 import {Condition} from "@/domain/condition.ts";
 import {Staff} from "@/domain/staff.ts";
+import {Notification} from "@/domain/notification.ts";
 
 const getCourses= async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Course>>>> => await http.get(`/trainingservice/api/Course?${GetQuery(query)}`)
 const getDepartments = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Department>>>> => await http.get(`/trainingservice/api/Department?${GetQuery(query)}`)
@@ -21,7 +22,8 @@ const getRooms = async (query: Query): Promise<AxiosResponse<SuccessResponse<Lis
 const getEventsStore = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<EventHistory>>>> => await http.get(`/trainingservice/api/EventStore?${GetQuery(query)}`)
 const getConditions = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Condition>>>> => await http.get(`/trainingservice/api/CourseClass/Condition?${GetQuery(query)}`)
 const getStaffs = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Staff>>>> => await http.get(`/trainingservice/api/Staff?${GetQuery(query)}`)
+const getNotifications = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Notification>>>> => await http.get(`/notificationservice/api/Notification?${GetQuery(query)}`)
 
 
 
-export {getCourses, getDepartments, getSpecialities, getSubjects, getBuildings, getRooms, getEventsStore, getConditions, getStaffs};
+export {getCourses, getDepartments, getSpecialities, getSubjects, getBuildings, getRooms, getEventsStore, getConditions, getStaffs, getNotifications};

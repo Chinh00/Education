@@ -5,7 +5,7 @@ import {
     getConditions,
     getCourses,
     getDepartments,
-    getEventsStore,
+    getEventsStore, getNotifications,
     getRooms,
     getSpecialities, getStaffs,
     getSubjects
@@ -93,6 +93,15 @@ const useGetStaffs = (query: Query, enable: boolean = true) => {
 
     })
 }
+const useGetNotifications = (query: Query, enable: boolean = true) => {
+    return useQuery({
+        queryKey: ["notifications", query],
+        queryFn: () => getNotifications(query),
+        enabled: enable,
+
+    })
+}
+
 
 
 
@@ -107,7 +116,8 @@ export {
     useGetRooms,
     useGetEventsStore,
     useGetConditions,
-    useGetStaffs
+    useGetStaffs,
+    useGetNotifications
 };
 
 

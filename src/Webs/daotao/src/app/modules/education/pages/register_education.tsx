@@ -32,14 +32,14 @@ const RegisterEducation = () => {
             title: 'Thời gian bắt đầu',
             dataIndex: "startDate",
             render: (text, record) => (
-                <div>{dayjs(record?.startDate).format("HH:mm:ss DD-MM-YYYY")}</div>
+                <div>{dayjs(record?.wishStartDate).format("HH:mm:ss DD-MM-YYYY")}</div>
             )
         },
         {
             title: 'Thời gian kết thúc',
             dataIndex: "endDate",
             render: (text, record) => (
-                <div>{dayjs(record?.endDate).format("HH:mm:ss DD-MM-YYYY")}</div>
+                <div>{dayjs(record?.wishEndDate).format("HH:mm:ss DD-MM-YYYY")}</div>
             )
         },
         {

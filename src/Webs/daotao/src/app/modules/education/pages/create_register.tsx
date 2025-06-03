@@ -33,10 +33,8 @@ const CreateRegister = () => {
 
     const {control, handleSubmit, setValue, getValues} = useForm<CreateRegisterStateModel>({
         defaultValues: {
-            startDate: new Date().toISOString().slice(0, 16),
-            endDate: new Date().toISOString().slice(0, 16),
-            studentChangeStart: new Date().toISOString().slice(0, 16),
-            studentChangeEnd: new Date().toISOString().slice(0, 16),
+            wishStartDate: new Date().toISOString().slice(0, 16),
+            wishEndDate: new Date().toISOString().slice(0, 16),
             minCredit: 10,
             maxCredit: 30,
             semesterCode: ""
@@ -47,10 +45,8 @@ const CreateRegister = () => {
         <PredataScreen isLoading={isPending} isSuccess={isSuccess}>
             <Form onFinish={() => {
                 mutate({...getValues(),
-                    startDate: dayjs(getValues("startDate")).toISOString(),
-                    endDate: dayjs(getValues("endDate")).toISOString(),
-                    studentChangeStart: dayjs(getValues("studentChangeStart")).toISOString(),
-                    studentChangeEnd: dayjs(getValues("studentChangeEnd")).toISOString(),
+                    wishStartDate: dayjs(getValues("wishStartDate")).toISOString(),
+                    wishEndDate: dayjs(getValues("wishEndDate")).toISOString(),
                 }, {
                     onSuccess: async (data) => {
                         toast.success("Tạo mới thành công")
@@ -94,8 +90,6 @@ const CreateRegister = () => {
 
                                 <FormDatePickerAntd  control={control} name={"startDate"} label={"Thời gian bắt đầu đăng ký nguyện vọng"} />
                                 <FormDatePickerAntd  control={control} name={"endDate"} label={"Thời gian kết thúc đăng ký nguyện vọng"}  />
-                                <FormDatePickerAntd  control={control} name={"studentChangeStart"} label={"Thời gian bắt đầu điều chỉnh"} />
-                                <FormDatePickerAntd  control={control} name={"studentChangeEnd"} label={"Thời gian kết thúc điều chỉnh"}  />
 
                             </div>
                         </CardContent>

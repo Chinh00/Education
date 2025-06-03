@@ -26,14 +26,14 @@ public class RegisterConfigCreatedDomainEventConsumer(
             MaxCredit = notification.MaxCredit,
             EventStoreId = notification.AggregateId
         }, cancellationToken);
-        await producerNotification.Produce(new NotificationMessage()
+        await producerNotification.Produce(new StartRegisterNotificationIntegrationEvent(new NotificationMessage()
         {
             Title = $"Đăng ký nguyện vọng học học kỳ {notification?.SemesterCode}",
             Content = $"Học kỳ {notification?.SemesterCode} đã được mở đăng ký nguyện vọng. " +
                       $"Thời gian đăng ký từ {notification?.StartDate:dd/MM/yyyy} đến {notification?.EndDate:dd/MM/yyyy}. " +
                       $"Số tín chỉ tối thiểu là {notification?.MinCredit}, tối đa là {notification?.MaxCredit}.",
             Roles = ["student", "admin", "department-admin"]
-        }, cancellationToken);
+        }), cancellationToken);
 
     }
 }

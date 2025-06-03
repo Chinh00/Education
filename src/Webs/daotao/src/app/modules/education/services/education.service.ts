@@ -10,10 +10,8 @@ import {SubjectTimelineConfig} from "@/domain/subject_timeline_config.ts";
 
 export type CreateRegisterStateModel = {
     semesterCode: string;
-    startDate: string;
-    endDate: string;
-    studentChangeStart: string;
-    studentChangeEnd: string;
+    wishStartDate: string;
+    wishEndDate: string;
     minCredit: number;
     maxCredit: number;
 }

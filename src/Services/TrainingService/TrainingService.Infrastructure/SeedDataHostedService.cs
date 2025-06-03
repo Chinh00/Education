@@ -4,6 +4,7 @@ using Education.Core.Repository;
 using Education.Core.Specification;
 using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;
+using TrainingService.Domain.Enums;
 
 namespace TrainingService.Infrastructure;
 
@@ -93,6 +94,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         });
         foreach (var educationProgram in result.Data.Items)
         {
+            educationProgram.SemesterStatus = SemesterStatus.Finished;
             await education.AddAsync(educationProgram, cancellation);
         }
     }

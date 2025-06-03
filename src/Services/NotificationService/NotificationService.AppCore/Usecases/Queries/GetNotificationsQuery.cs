@@ -1,5 +1,6 @@
 ﻿using Education.Core.Domain;
 using Education.Core.Repository;
+using Education.Infrastructure.Authentication;
 using MediatR;
 using NotificationService.Domain;
 
@@ -13,13 +14,14 @@ public class GetNotificationsQuery : IListQuery<ListResultModel<Notification>>
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 10;
     
-    internal class Handler(IMongoRepository<Notification> repository)
+    internal class Handler(IMongoRepository<Notification> repository, IClaimContextAccessor claimContextAccessor)
         : IRequestHandler<GetNotificationsQuery, ResultModel<ListResultModel<Notification>>>
     {
         public async Task<ResultModel<ListResultModel<Notification>>> Handle(GetNotificationsQuery request,
             CancellationToken cancellationToken)
         {
-            var spec = new GetNotificationsSpec(request);
+            var role = claimContextAccessor.GetRole();
+            var spec = new GetNotificationsByRoleSpec(request, role);
             var items = await repository.FindAsync(spec, cancellationToken);
             var totalItems = await repository.CountAsync(spec, cancellationToken);
             return ResultModel<ListResultModel<Notification>>.Create(

@@ -40,4 +40,10 @@ public class ClaimContextAccessor : IClaimContextAccessor
         if (_httpContextAccessor.HttpContext != null) return _httpContextAccessor.HttpContext.User.FindFirst("studentCode")?.Value;
         throw new UnauthorizedAccessException();
     }
+
+    public string GetRole()
+    {
+        if (_httpContextAccessor.HttpContext != null) return _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        throw new UnauthorizedAccessException();
+    }
 }

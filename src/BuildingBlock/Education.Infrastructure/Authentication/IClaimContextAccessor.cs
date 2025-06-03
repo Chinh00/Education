@@ -8,4 +8,5 @@ public interface IClaimContextAccessor
     string GetAvatar();
     string GetUsername();
     string GetName();
+    string GetRole();
 }

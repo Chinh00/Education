@@ -20,6 +20,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/trainingservice/swagger/v1/swagger.json", "Training Service");
     c.SwaggerEndpoint("/studentservice/swagger/v1/swagger.json", "Student service");
     c.SwaggerEndpoint("/registerservice/swagger/v1/swagger.json", "Register service");
+    c.SwaggerEndpoint("/notificationservice/swagger/v1/swagger.json", "Notification service");
     // c.SwaggerEndpoint("/identityservice/swagger/v1/swagger.json", "Identity service");
 });
 

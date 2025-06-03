@@ -8,10 +8,8 @@ public class StartRegisterPipelineIntegrationEvent : IIntegrationEvent
     public Guid CorrelationId { get; set; }
     public string SemesterCode { get; set; }
     
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public DateTime StudentChangeStart { get; set; } 
-    public DateTime StudentChangeEnd { get; set; } 
+    public DateTime WishStartDate { get; set; }
+    public DateTime WishEndDate { get; set; }
     
     public int MinCredit { get; set; }
     public int MaxCredit { get; set; }

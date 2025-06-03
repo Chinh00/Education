@@ -13,9 +13,7 @@ builder.Services.AddAuth(builder.Configuration)
     .AddMongodbService(builder.Configuration, typeof(MongoRepository<>))
     .AddMasstransitService(builder.Configuration)
     .AddOpenTelemetryCustom(builder.Configuration, "training-service")
-    .AddGrpc()
-    
-    ;
+    .AddGrpc();
     
 
 var app = builder.Build();

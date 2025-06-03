@@ -13,27 +13,23 @@ public class RegisterConfig : AggregateBase
     
     
     [Description("Thời gian sinh viên thay đổi")]
-    public DateTime StudentChangeStart { get; set; } 
-    public DateTime StudentChangeEnd { get; set; } 
+    public DateTime StudentRegisterStart { get; set; } 
+    public DateTime StudentRegisterEnd { get; set; } 
     
     
     public int MinCredit { get; set; }
     public int MaxCredit { get; set; }
 
-    public void Create(string semesterCode, DateTime startDate, DateTime endDate, DateTime studentChangeStart,
-        DateTime studentChangeEnd, 
+    public void Create(string semesterCode, DateTime wishStartDate, DateTime wishEndDate, 
         int minCredit, int maxCredit, IDictionary<string, object> metaData = null)
     {
         SemesterCode = semesterCode;
-        StartDate = startDate;
-        EndDate = endDate;
+        StartDate = wishStartDate;
+        EndDate = wishEndDate;
         MinCredit = minCredit;
         MaxCredit = maxCredit;
-        StudentChangeStart = studentChangeStart;
-        StudentChangeEnd = studentChangeEnd;
         AddDomainEvent(version =>
-            new RegisterConfigCreatedDomainEvent(Id.ToString(), semesterCode, startDate, endDate, studentChangeStart,
-                studentChangeEnd, minCredit, maxCredit)
+            new RegisterConfigCreatedDomainEvent(Id.ToString(), semesterCode, wishStartDate, wishEndDate, minCredit, maxCredit)
         {
             Version = version,
             MetaData = metaData

@@ -13,15 +13,16 @@ public class RegisterState : SagaStateMachineInstance, ISagaVersion
     public int Version { get; set; }
     public string CurrentState { get; set; } = null!;
     public string SemesterCode { get; set; } = null!;
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    [Description("Thời gian sinh viên thay đổi")]
-    public DateTime StudentChangeStart { get; set; } 
-    public DateTime StudentChangeEnd { get; set; } 
+    [Description("Thời gian bắt đầu đăng ký nguện vọng")]
     
-    [Description("Thời gian bắt đầu học")]
-    public DateTime EducationStart { get; set; }
-    public DateTime EducationEnd { get; set; }
+    public DateTime WishStartDate { get; set; }
+    [Description("Thời gian bắt đầu đăng ký nguện vọng")]
+    
+    public DateTime WishEndDate { get; set; }
+    [Description("Thời gian sinh viên bắt đầu đăng ký học phần")]
+    public DateTime StudentRegisterStart { get; set; } 
+    [Description("Thời gian sinh viên bắt đầu đăng ký học phần")]
+    public DateTime StudentRegisterEnd { get; set; } 
     
     public int MinCredit { get; set; }
     public int MaxCredit { get; set; }

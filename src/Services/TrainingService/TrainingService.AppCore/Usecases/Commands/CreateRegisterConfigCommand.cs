@@ -19,10 +19,8 @@ public record CreateRegisterConfigCommand(
     int MinCredit,
     int MaxCredit,
     string SemesterCode,
-    DateTime StartDate,
-    DateTime EndDate,
-    DateTime StudentChangeStart,
-    DateTime StudentChangeEnd
+    DateTime WishStartDate,
+    DateTime WishEndDate
     ) : ICommand<IResult>, IValidation
 {
     public class Validator : AbstractValidator<CreateRegisterConfigCommand>
@@ -32,8 +30,8 @@ public record CreateRegisterConfigCommand(
             RuleFor(c => c.MinCredit).GreaterThanOrEqualTo(0);
             RuleFor(c => c.MinCredit).LessThanOrEqualTo(100);
             RuleFor(c => c.SemesterCode).NotNull().NotEmpty();
-            RuleFor(c => c.StartDate).NotNull().NotEmpty();
-            RuleFor(c => c.EndDate).NotNull().NotEmpty();
+            RuleFor(c => c.WishStartDate).NotNull().NotEmpty();
+            RuleFor(c => c.WishEndDate).NotNull().NotEmpty();
         }
     }
     
@@ -45,13 +43,12 @@ public record CreateRegisterConfigCommand(
     internal class Handler(
         IClaimContextAccessor claimContextAccessor,
         IMongoRepository<Semester> semesterRepository,
-        IApplicationService<RegisterConfig> application,
-        ISender sender)
+        IApplicationService<RegisterConfig> application)
         : IRequestHandler<CreateRegisterConfigCommand, IResult>
     {
         public async Task<IResult> Handle(CreateRegisterConfigCommand request, CancellationToken cancellationToken)
         {
-            var (minCredit, maxCredit, semesterCode, startDate, endDate, studentChangeStart, studentChangeEnd) = request;
+            var (minCredit, maxCredit, semesterCode, startDate, endDate) = request;
             var (userId, userName) = (claimContextAccessor.GetUserId(), claimContextAccessor.GetUsername());
             var semester =
                 await semesterRepository.FindOneAsync(new GetSemesterByCodeSpec(request.SemesterCode),
@@ -59,7 +56,7 @@ public record CreateRegisterConfigCommand(
             semester.SemesterStatus = SemesterStatus.Register;
             await semesterRepository.UpsertOneAsync(new GetSemesterByCodeSpec(request.SemesterCode), semester, cancellationToken);
             var registerConfig = new RegisterConfig();
-            registerConfig.Create(semesterCode, startDate, endDate, studentChangeStart, studentChangeEnd, minCredit, maxCredit, new Dictionary<string, object>()
+            registerConfig.Create(semesterCode, startDate, endDate, minCredit, maxCredit, new Dictionary<string, object>()
             {
                 {nameof(KeyMetadata.PerformedBy), userId},
                 {nameof(KeyMetadata.PerformedByName), userName},

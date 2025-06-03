@@ -9,7 +9,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using TrainingService.AppCore.StateMachine;
-using TrainingService.AppCore.SubjectSaga;
 
 namespace TrainingService.Infrastructure;
 
@@ -34,6 +33,7 @@ public static class Extensions
                 e.AddProducer<WishListCreatedIntegrationEvent>(nameof(WishListCreatedIntegrationEvent));
                 e.AddProducer<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent));
                 e.AddProducer<CourseClassCreatedIntegrationEvent>(nameof(CourseClassCreatedIntegrationEvent));
+                e.AddProducer<StartRegisterNotificationIntegrationEvent>(nameof(StartRegisterNotificationIntegrationEvent));
                 
                 
                 e.AddProducer<CourseClassCreatedDomainEvent>(nameof(CourseClassCreatedDomainEvent));
@@ -54,13 +54,7 @@ public static class Extensions
                         t.DatabaseName = mOption.Database;
                         t.CollectionName = "RegisterSaga";
                     });
-                e.AddSagaStateMachine<SubjectStateMachine, SubjectState, SubjectStateMachineDefinition>()
-                    .MongoDbRepository(t =>
-                    {
-                        t.Connection = mOption.ToString();
-                        t.DatabaseName = mOption.Database;
-                        t.CollectionName = "SubjectSaga";
-                    });
+                
                 
                 e.UsingKafka((context, configurator) =>
                 {

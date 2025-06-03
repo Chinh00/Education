@@ -8,8 +8,6 @@ public record RegisterConfigCreatedDomainEvent(
     string SemesterCode,
     DateTime StartDate,
     DateTime EndDate,
-    DateTime StudentChangeStart,
-    DateTime StudentChangeEnd, 
     int MinCredit, int MaxCredit) : DomainEventBase
 {
     

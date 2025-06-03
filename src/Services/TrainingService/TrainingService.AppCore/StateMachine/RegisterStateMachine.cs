@@ -22,18 +22,16 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
                     context.Saga.CorrelationId = context.Message.CorrelationId;
                     context.Saga.EventStoreId = context.Message.EventStoreId;
                     context.Saga.SemesterCode = context.Message.SemesterCode;
-                    context.Saga.StartDate = context.Message.StartDate;
-                    context.Saga.EndDate = context.Message.EndDate;
-                    context.Saga.StudentChangeStart = context.Message.StudentChangeStart;
-                    context.Saga.StudentChangeEnd = context.Message.StudentChangeEnd;
+                    context.Saga.WishStartDate = context.Message.WishStartDate;
+                    context.Saga.WishEndDate = context.Message.WishEndDate;
                     context.Saga.MinCredit = context.Message.MinCredit;
                     context.Saga.MaxCredit = context.Message.MaxCredit;
                 })
                 .Produce(context => context.Init<WishListCreatedIntegrationEvent>(new
                 {                                                               
                     context.Saga.CorrelationId,
-                    context.Message.StartDate,
-                    context.Message.EndDate,
+                    StartDate = context.Message.WishStartDate,
+                    EndDate = context.Message.WishEndDate,
                     context.Message.SemesterCode,
                     context.Message.MinCredit,
                     context.Message.MaxCredit,

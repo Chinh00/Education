@@ -45,7 +45,7 @@ const RegisterSidebar = () => {
             <SidebarMenuItem>
               <SidebarMenuButton onClick={() => nav(RoutePaths.HOME_PATH)}>
                 <BookUp color={"white"} />
-                Xếp giáo viên vào lớp học
+                Tổ chức đăng ký học
               </SidebarMenuButton>
             </SidebarMenuItem>
 

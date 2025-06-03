@@ -1,4 +1,5 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {UserInfo} from "@/domain/user_info.ts";
 export type GroupFuncName = {
     groupName?: string,
     itemName?: string,
@@ -6,7 +7,8 @@ export type GroupFuncName = {
 export type CommonState = {
     authenticate: boolean,
     groupFuncName?: GroupFuncName
-    roleName?: string
+    roleName?: string,
+    userInfo?: UserInfo,
 
 }
 
@@ -15,7 +17,8 @@ const commonState: CommonState = {
     groupFuncName: {
         groupName: "default",
         itemName: "default",
-    }
+    },
+    
 }
 
 const CommonSlice = createSlice({
@@ -33,10 +36,14 @@ const CommonSlice = createSlice({
         },
         setRoleName: (state, action: PayloadAction<string>) => {
             state.roleName = action.payload;
+        },
+        setUserInfo: (state, action: PayloadAction<UserInfo>) => {
+            state.userInfo = action.payload;
         }
+        
 
     }
 })
 
 export default CommonSlice.reducer
-export const {setAuthenticate, setGroupFuncName, setRoleName} = CommonSlice.actions
+export const {setAuthenticate, setGroupFuncName, setRoleName, setUserInfo} = CommonSlice.actions

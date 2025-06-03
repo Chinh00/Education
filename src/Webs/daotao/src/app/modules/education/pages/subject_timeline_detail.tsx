@@ -43,7 +43,8 @@ const SubjectTimelineDetail = () => {
 
     const {control: subjectControl, reset: subjectReset, getValues, setValue} = useForm<SubjectTimelineConfig>({
        defaultValues: {
-
+           lectureRequiredConditions: [],
+           labRequiredConditions: []
        }
     })
     const form = useForm<Subject>()
@@ -356,7 +357,9 @@ const SubjectTimelineDetail = () => {
                         <Button loading={isPending} type={"primary"} onClick={() => {
                             mutate({
                                 ...getValues(),
-                                subjectCode: id!
+                                subjectCode: id!,
+                                lectureRequiredConditions: getValues("lectureRequiredConditions") ?? [],
+                                labRequiredConditions: getValues("labRequiredConditions") ?? []
                             }, {
                                 onSuccess: () => {
                                     toast.success("Cập nhật thành công")

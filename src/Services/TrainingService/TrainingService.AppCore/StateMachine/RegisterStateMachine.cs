@@ -12,6 +12,7 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
         Event(() => StartRegisterPipelineIntegrationEvent, c => c.CorrelateById(x => x.Message.CorrelationId));
         Event(() => WishListCreatedIntegrationEvent, c => c.CorrelateById(x => x.Message.CorrelationId));
         Event(() => WishListLockedIntegrationEvent, c => c.CorrelateById(x => x.Message.CorrelationId));
+        Event(() => StudentRegistrationStartedIntegrationEvent, c => c.CorrelateById(x => x.Message.CorrelationId));
         
         InstanceState(e => e.CurrentState);
         Initially(
@@ -50,7 +51,13 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
                 })
                 .TransitionTo(Schedule)
         );  
-        
+        During(Schedule, When(StudentRegistrationStartedIntegrationEvent).ThenAsync(async context =>
+        {
+                    logger.LogInformation($"Student register {context.Message.CorrelationId}"); 
+                    context.Saga.StudentRegisterStart = context.Message.StudentRegisterStartDate;
+                    context.Saga.StudentRegisterEnd = context.Message.StudentRegisterEndDate;;
+            
+        }).TransitionTo(StudentRegister));
         
         
     }
@@ -58,10 +65,8 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
     
     public State Schedule { get; private set; }
     
-    public State AssignTeacher { get; private set; }
     
-    
-    public State StudentChange { get; private set; }
+    public State StudentRegister { get; private set; }
     public State Cancel { get; private set; }
     
     
@@ -69,4 +74,5 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
     public Event<StartRegisterPipelineIntegrationEvent> StartRegisterPipelineIntegrationEvent { get; private set; } = null!;
     public Event<WishListCreatedIntegrationEvent> WishListCreatedIntegrationEvent { get; private set; } = null!;
     public Event<WishListLockedIntegrationEvent> WishListLockedIntegrationEvent { get; private set; } = null!;
+    public Event<StudentRegistrationStartedIntegrationEvent> StudentRegistrationStartedIntegrationEvent { get; private set; } = null!;
 }

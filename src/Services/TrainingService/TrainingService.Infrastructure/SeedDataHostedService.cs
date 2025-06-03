@@ -18,6 +18,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         var educationProgramRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<EducationProgram>>();
         var subjectProgramRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Subject>>();
         var semesterProgramRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Semester>>();
+        var staffRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Staff>>();
         foreach (var courseClassCondition in _courseClassConditions)
         {
             var spec = new GetCourseClassConditionByCodeSpec(courseClassCondition.ConditionCode);
@@ -49,6 +50,10 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         if ((await semesterProgramRepository.CountAsync(new TrueListSpecification<Semester>(),
                 cancellationToken)) == 0)
         await PullSemesters(semesterProgramRepository, cancellationToken);
+        if ((await staffRepository.CountAsync(new TrueListSpecification<Staff>(),
+                cancellationToken)) == 0)
+        await PullStaffs(staffRepository, cancellationToken);
+        
         
     }
 
@@ -98,6 +103,22 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
             await education.AddAsync(educationProgram, cancellation);
         }
     }
+    async Task PullStaffs(IMongoRepository<Staff> education, CancellationToken cancellation)
+    {
+        var url = $"https://api5.tlu.edu.vn/api/Staff/Page=1&PageSize=2000";
+        
+        var response = await httpClient.GetAsync(url, cancellation);
+        var json = await response.Content.ReadAsStringAsync(cancellation);
+        var result = JsonSerializer.Deserialize<ResultModel<ListResultModel<Staff>>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        foreach (var educationProgram in result.Data.Items)
+        {
+            await education.AddAsync(educationProgram, cancellation);
+        }
+    }
+    
     
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

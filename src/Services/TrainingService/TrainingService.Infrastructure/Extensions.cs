@@ -34,11 +34,13 @@ public static class Extensions
                 e.AddProducer<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent));
                 e.AddProducer<CourseClassCreatedIntegrationEvent>(nameof(CourseClassCreatedIntegrationEvent));
                 e.AddProducer<StartRegisterNotificationIntegrationEvent>(nameof(StartRegisterNotificationIntegrationEvent));
+                e.AddProducer<StudentRegistrationStartedIntegrationEvent>(nameof(StudentRegistrationStartedIntegrationEvent));
                 
                 
                 e.AddProducer<CourseClassCreatedDomainEvent>(nameof(CourseClassCreatedDomainEvent));
                 e.AddProducer<SlotTimelineCreatedDomainEvent>(nameof(SlotTimelineCreatedDomainEvent));
                 e.AddProducer<CourseClassAssignedTeacherDomainEvent>(nameof(CourseClassAssignedTeacherDomainEvent));
+                e.AddProducer<RegisterConfigStudentRegisterPeriodUpdatedDomainEvent>(nameof(RegisterConfigStudentRegisterPeriodUpdatedDomainEvent));
                 
                 
                 
@@ -85,6 +87,15 @@ public static class Extensions
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureSaga<RegisterState>(context);
                         });
+                    configurator.TopicEndpoint<StudentRegistrationStartedIntegrationEvent>(
+                        nameof(StudentRegistrationStartedIntegrationEvent), "training-register",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureSaga<RegisterState>(context);
+                        });
+                    
                      
                      
                      configurator.TopicEndpoint<RegisterLockedIntegrationEvent>(nameof(RegisterLockedIntegrationEvent), "training-register",
@@ -133,6 +144,13 @@ public static class Extensions
                      
                     
                     configurator.TopicEndpoint<CourseClassAssignedTeacherDomainEvent>(nameof(CourseClassAssignedTeacherDomainEvent), "generate-register",
+                         endpointConfigurator =>
+                         {
+                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                         });
+                    configurator.TopicEndpoint<RegisterConfigStudentRegisterPeriodUpdatedDomainEvent>(nameof(RegisterConfigStudentRegisterPeriodUpdatedDomainEvent), "generate-register",
                          endpointConfigurator =>
                          {
                              endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;

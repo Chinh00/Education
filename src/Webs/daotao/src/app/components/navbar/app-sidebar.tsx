@@ -18,7 +18,7 @@ import {
 import {useGetUserInfo} from "@/app/modules/auth/hooks/useGetUserInfo.ts";
 import {useAppDispatch} from "@/app/stores/hook.ts";
 import {useEffect} from "react";
-import {setAuthenticate, setRoleName} from "@/app/stores/common_slice.ts";
+import {setAuthenticate, setRoleName, setUserInfo} from "@/app/stores/common_slice.ts";
 
 
 import {
@@ -35,7 +35,6 @@ import Auth from "@/infrastructure/utils/auth.ts";
 
 export function AppSidebar() {
     const nav = useNavigate()
-    const location = useLocation()
     const dispatch = useAppDispatch()
 
     const {data, isLoading, isPending} = useGetUserInfo()
@@ -43,6 +42,7 @@ export function AppSidebar() {
     useEffect(() => {
         if (data) {
             dispatch(setRoleName(data?.data?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]))
+            dispatch(setUserInfo(data?.data))
         }
     }, [data, isLoading, isPending]);
 

@@ -23,14 +23,14 @@ const SubjectList = () => {
   useEffect(() => {
     dispatch(setGroupFuncName({ ...groupFuncName, itemName: "Danh sách lớp học mở" }));
   }, []);
-  const { data } = useGetUserInfo()
+  const { userInfo } = useAppSelector<CommonState>(e => e.common);
 
   const [query, setQuery] = useState<Query>({
     Filters: [
       {
         field: "DepartmentCode",
         operator: "Contains",
-        value: data?.data?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]!
+        value: userInfo?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]!
       }
     ],
     Includes: ["DepartmentCode", "NumberOfCredits",]
@@ -46,7 +46,7 @@ const SubjectList = () => {
     ]
   })
   const semester = semesters?.data?.data?.items?.[0]
-  const { data: subjects, isLoading, isSuccess } = useGetSubjects(query)
+  const { data: subjects, isLoading, isSuccess } = useGetSubjects(query, userInfo !== undefined)
   // const {data: subjectRegister, isPending: subjectLoading, isSuccess: subjectSuccess} = useGetSubjectRegister({
   //   Filters: [
   //     {

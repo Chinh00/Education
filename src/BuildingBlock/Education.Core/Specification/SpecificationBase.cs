@@ -3,7 +3,7 @@ using Education.Core.Domain;
 
 namespace Education.Core.Specification;
 
-public abstract class SpecificationBase<TEntity> : ISpecification<TEntity> where TEntity : BaseEntity
+public abstract class SpecificationBase<TEntity> : ISpecification<TEntity>
 {
     public abstract Expression<Func<TEntity, bool>> Predicate { get; }
     public List<Expression<Func<TEntity, object>>> Includes { get; } = [];

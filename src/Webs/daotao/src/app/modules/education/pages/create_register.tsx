@@ -88,8 +88,8 @@ const CreateRegister = () => {
                                 
                                 <div></div>
 
-                                <FormDatePickerAntd  control={control} name={"startDate"} label={"Thời gian bắt đầu đăng ký nguyện vọng"} />
-                                <FormDatePickerAntd  control={control} name={"endDate"} label={"Thời gian kết thúc đăng ký nguyện vọng"}  />
+                                <FormDatePickerAntd  control={control} name={"wishStartDate"} label={"Thời gian bắt đầu đăng ký nguyện vọng"} />
+                                <FormDatePickerAntd  control={control} name={"wishEndDate"} label={"Thời gian kết thúc đăng ký nguyện vọng"}  />
 
                             </div>
                         </CardContent>

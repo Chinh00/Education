@@ -1,32 +1,35 @@
-﻿import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
-import React, {useEffect, useState} from "react";
-import PredataScreen from "@/app/components/screens/predata_screen.tsx";
-import {Box} from "@mui/material";
-import {Button as ButtonAntd, Input} from "antd"
-import {Card, CardContent} from "@/app/components/ui/card.tsx";
-import {GripVertical, Plus} from "lucide-react";
-import {CourseClassModel, SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
-import {useGetSubjectTimelineConfig} from "@/app/modules/education/hooks/useGetSubjectTimelineConfig.ts";
-import {ColumnsType, useGetRooms} from "@/app/modules/common/hook.ts";
-import {Room} from "@/domain/room.ts";
-import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
-import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
-import {useForm} from "react-hook-form";
-import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
-import {ScheduleItem} from "@/app/modules/register/pages/course_class_config.tsx";
-import {Query} from "@/infrastructure/query.ts";
+﻿import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
+import {CardContent} from "@/app/components/ui/card.tsx";
 import {daysOfWeek, timeSlots} from "@/infrastructure/date.ts";
+import {GripVertical, Plus} from "lucide-react";
+import React, {useEffect, useState} from "react";
+import {ScheduleItem} from "@/app/modules/register/pages/course_class_config.tsx";
+import {SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
+import {Card, Space, Spin} from "antd";
+import { Badge } from "@/app/components/ui/badge";
 
+export type SubjectTimeProps = {
+    courseClassCode: string[],
+    teacherCourseClassCode?: string[],
+    semesterCode?: string,
+}
 
-
-
-const TeacherTimeline = () => {const dispatch = useAppDispatch();
-    const { groupFuncName } = useAppSelector<CommonState>(c => c.common)
-    useEffect(() => {
-        dispatch(setGroupFuncName({ ...groupFuncName, itemName: "Thời khóa biểu giáo viên" }));
-    }, []);
+const SubjectTime = (props: SubjectTimeProps) => {
+    console.log([...props.courseClassCode, ...(props?.teacherCourseClassCode ?? [])])
+    console.log(props.courseClassCode)
+    const {data: timeline, isLoading} = useGetTimeline({
+        Filters: [
+            {
+                field: "CourseClassCode",
+                operator: "In",
+                value: [...props.courseClassCode, ...(props?.teacherCourseClassCode ?? [])].filter(e => e !== "").join(",")
+            },
+        ],
+    }, props?.courseClassCode !== undefined && [...props.courseClassCode, ...(props?.teacherCourseClassCode ?? [])].filter(e => e !== "").length > 0)
     const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([])
+    useEffect(() => {
+        setScheduledItems([]);
+    }, [timeline]);
 
     const [isSelecting, setIsSelecting] = useState(false)
     const [selectionStart, setSelectionStart] = useState<{ dayIndex: number; slotIndex: number } | null>(null)
@@ -36,7 +39,7 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
     const [isDragging, setIsDragging] = useState(false)
     const [timelineCommit, setTimelineCommit] = useState<{schedule: SlotTimelineModel, id: string}[]>([])
 
-    
+
 
 
     const handleMouseDown = (dayIndex: number, slotIndex: number, e: React.MouseEvent) => {
@@ -227,37 +230,6 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
             slotIndex <= dragPreview.endSlot
         )
     }
-    const [staffCode, setStaffCode] = useState("")
-
-    const [query, setQuery] = useState<Query>({
-        
-    })
-
-    useEffect(() => {
-        if (staffCode) {
-            setQuery({
-                Filters: [
-                    {
-                        field: "TeacherCode",
-                        operator: '==',
-                        value: staffCode!,
-                    }
-                ]
-            })
-        }
-    }, [staffCode]);
-    const {data: courseClasses} = useGetCourseClasses(query, query?.Filters?.filter(c => c.field === "TeacherCode") !== undefined)
-    
-    const {data: timeline} = useGetTimeline({
-        Filters: [
-            {
-                field: "CourseClassCode",
-                operator: "In",
-                value: courseClasses?.data?.data?.items?.map(c => c.courseClassCode)?.join(",")!
-            }
-        ]
-    }, courseClasses !== undefined && courseClasses?.data?.data?.items?.length > 0)
-
     useEffect(() => {
         if (timeline) {
             setScheduledItems(prevState => [
@@ -267,7 +239,7 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
                         id: c?.id,
                         title: c?.courseClassCode,
                         subject: "Đã có tiết",
-                        color: "bg-red-100 text-blue-800 border-blue-200",
+                        color: `${!props?.teacherCourseClassCode?.includes(c?.courseClassCode) ? "bg-blue-100" : "bg-red-100"} text-blue-800 border-blue-200`,
                         startSlot: +c?.slots[0],
                         endSlot: +c?.slots[c.slots?.length - 1],
                         dayIndex: c?.dayOfWeek,
@@ -277,123 +249,108 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
             ])
         }
     }, [timeline]);
-    
-    
-
-
-    
-    
-
-    
-
-    
-    
-    
-    
     return (
-        <PredataScreen isLoading={false} isSuccess={true}>
-            <Box className={"space-y-5"}>
-                <Input.Search size={"large"} placeholder={"Tìm theo mã giáo viên"} onSearch={(e) => setStaffCode(e)} />
+        <>
+            <Card className="relative">
+                {isLoading && <Space className={"absolute top-1/2 left-1/2 z-50"}>
+                    <Spin size={"large"} />
+                </Space>}
+                    
+                <div
+                    className="grid grid-cols-8 gap-0 select-none "
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                >
+                    {/* Header */}
+                    <div className="bg-gray-50 p-3 border-b border-r font-medium text-center text-sm">Tiết học</div>
+                    {daysOfWeek.map((day) => (
+                        <div key={day} className="bg-gray-50 p-3 border-b border-r font-medium text-center text-sm">
+                            {day}
+                        </div>
+                    ))}
 
+                    {/* Time slots */}
+                    {timeSlots.map((slot, slotIndex) => (
+                        <div key={slot.id} className="contents">
+                            <div className="p-3 border-b border-r bg-gray-50">
+                                <div className="text-sm font-medium">{slot.period}</div>
+                                <div className="text-xs text-gray-500">{slot.time}</div>
+                            </div>
 
-                <Card>
-                    <CardContent className="p-0">
-                        <div
-                            className="grid grid-cols-8 gap-0 select-none"
-                            onMouseUp={handleMouseUp}
-                            onMouseLeave={handleMouseUp}
-                        >
-                            {/* Header */}
-                            <div className="bg-gray-50 p-3 border-b border-r font-medium text-center text-sm">Tiết học</div>
-                            {daysOfWeek.map((day) => (
-                                <div key={day} className="bg-gray-50 p-3 border-b border-r font-medium text-center text-sm">
-                                    {day}
-                                </div>
-                            ))}
+                            {daysOfWeek.map((day, dayIndex) => {
+                                const isOccupied = isSlotOccupied(dayIndex, slotIndex)
+                                const item = getItemAtSlot(dayIndex, slotIndex)
+                                const isItemStart = item && item.startSlot === slotIndex
+                                const inSelection = isInSelection(dayIndex, slotIndex)
+                                const isPreview = isPreviewSlot(dayIndex, slotIndex)
 
-                            {/* Time slots */}
-                            {timeSlots.map((slot, slotIndex) => (
-                                <div key={slot.id} className="contents">
-                                    <div className="p-3 border-b border-r bg-gray-50">
-                                        <div className="text-sm font-medium">{slot.period}</div>
-                                        <div className="text-xs text-gray-500">{slot.time}</div>
-                                    </div>
-
-                                    {daysOfWeek.map((day, dayIndex) => {
-                                        const isOccupied = isSlotOccupied(dayIndex, slotIndex)
-                                        const item = getItemAtSlot(dayIndex, slotIndex)
-                                        const isItemStart = item && item.startSlot === slotIndex
-                                        const inSelection = isInSelection(dayIndex, slotIndex)
-                                        const isPreview = isPreviewSlot(dayIndex, slotIndex)
-
-                                        return (
-                                            <div
-                                                key={`${dayIndex}-${slotIndex}`}
-                                                className={`
+                                return (
+                                    <div
+                                        key={`${dayIndex}-${slotIndex}`}
+                                        className={`
                             p-1 border-b border-r min-h-[50px] transition-all duration-200 relative
                             ${inSelection ? "bg-blue-200 border-blue-400" : ""}
                             ${isPreview ? "bg-green-200 border-green-400 border-2 border-dashed" : ""}
                             ${!isOccupied && !inSelection && !isPreview ? "hover:bg-gray-50 cursor-pointer" : ""}
                           `}
-                                                onMouseDown={(e) => handleMouseDown(dayIndex, slotIndex, e)}
-                                                onMouseEnter={() => handleMouseEnter(dayIndex, slotIndex)}
-                                                onDragOver={(e) => handleCellDragOver(e, dayIndex, slotIndex)}
-                                                onDragLeave={handleDragLeave}
-                                                onDrop={(e) => handleDrop(e, dayIndex, slotIndex)}
-                                            >
-                                                {isOccupied && isItemStart && item && (
-                                                    <div
-                                                        draggable={false}
-                                                        onDragStart={(e) => handleDragStart(e, item)}
-                                                        onDragEnd={handleDragEnd}
-                                                        onMouseDown={(e) => {
-                                                            e.stopPropagation()
-                                                        }}
-                                                        className={`
+                                        onMouseDown={(e) => handleMouseDown(dayIndex, slotIndex, e)}
+                                        onMouseEnter={() => handleMouseEnter(dayIndex, slotIndex)}
+                                        onDragOver={(e) => handleCellDragOver(e, dayIndex, slotIndex)}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={(e) => handleDrop(e, dayIndex, slotIndex)}
+                                    >
+                                        {isOccupied && isItemStart && item && (
+                                            <div
+                                                draggable={false}
+                                                onDragStart={(e) => handleDragStart(e, item)}
+                                                onDragEnd={handleDragEnd}
+                                                onMouseDown={(e) => {
+                                                    e.stopPropagation()
+                                                }}
+                                                className={`
                                 ${item.color} px-2 py-1 rounded text-sm font-medium cursor-move 
                                 flex flex-col gap-1 transition-all duration-200
                                 absolute inset-1 z-10 border-2 border-transparent
                                 hover:border-gray-400 hover:shadow-lg hover:scale-105
                                 ${draggedItem?.id === item.id ? "opacity-50" : ""}
                               `}
-                                                        style={{
-                                                            height: `${(item.endSlot - item.startSlot + 1) * 48}px`,
-                                                        }}
-                                                    >
-                                                        <div className="flex items-center gap-1 pointer-events-none">
-                                                            <GripVertical className="w-3 h-3" />
-                                                            <span className="truncate">{item.title}</span>
-                                                        </div>
-                                                        <span className="text-xs opacity-75 pointer-events-none">{item.duration} tiết</span>
-                                                        <span className="text-xs opacity-75 pointer-events-none">
+                                                style={{
+                                                    height: `${(item.endSlot - item.startSlot + 1) * 48}px`,
+                                                }}
+                                            >
+                                                <div className="flex items-center gap-1 pointer-events-none">
+                                                    <GripVertical className="w-3 h-3" />
+                                                    <span className="truncate">{item.title}</span>
+                                                </div>
+                                                <span className="text-xs opacity-75 pointer-events-none">{item.duration} tiết</span>
+                                                <span className="text-xs opacity-75 pointer-events-none">
                                 Tiết {item.startSlot + 1}-{item.endSlot + 1}
                               </span>
-                                                    </div>
-                                                )}
+                                            </div>
+                                        )}
 
-                                                {isPreview && (
-                                                    <div className="absolute inset-1 bg-green-300 border-2 border-dashed border-green-500 rounded flex items-center justify-center z-5">
+                                        {isPreview && (
+                                            <div className="absolute inset-1 bg-green-300 border-2 border-dashed border-green-500 rounded flex items-center justify-center z-5">
                               <span className="text-green-700 text-xs font-medium">
                                 {dragPreview && dragPreview.endSlot - dragPreview.startSlot + 1} tiết
                               </span>
-                                                    </div>
-                                                )}
-
-                                                {!isOccupied && !inSelection && !isPreview && (
-                                                    <div className="absolute inset-2 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                                        <Plus className="w-4 h-4 text-gray-400" />
-                                                    </div>
-                                                )}
                                             </div>
-                                        )
-                                    })}
-                                </div>
-                            ))}
+                                        )}
+
+                                        {!isOccupied && !inSelection && !isPreview && (
+                                            <div className="absolute inset-2 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                                <Plus className="w-4 h-4 text-gray-400" />
+                                            </div>
+                                        )}
+                                    </div>
+                                )
+                            })}
                         </div>
-                    </CardContent>
-                </Card>
-            </Box>
-        </PredataScreen>
+                    ))}
+                </div>
+            </Card>
+
+        </>
     )
 }
-export default TeacherTimeline;
+export default SubjectTime

@@ -4,9 +4,8 @@ namespace TrainingService.Domain.Enums;
 
 public enum SemesterStatus
 {
-    DtsData = 0,
-    New = 1,
-    Register = 2,
-    Active = 3,
-    Finished = 4,
+    New = 0,
+    Register = 1,
+    Active = 2,
+    Finished = 3,
 }

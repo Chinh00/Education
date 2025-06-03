@@ -10,12 +10,14 @@ public class WishLockHandler(
     ILogger<WishLockHandler> logger,
     IRegisterRepository<StudentRegister> registerRepository)
 {
-    public async Task Handle(Guid correlationId, CancellationToken cancellationToken)
+    public async Task Handle(Guid correlationId, string semesterCode, CancellationToken cancellationToken)
     {
+        
         var keys = await registerRepository.GetKeysAsync("subjects:*");
         var registerLockedIntegrationEvent = new RegisterLockedIntegrationEvent
         {
             CorrelationId = correlationId,
+            SemesterCode = semesterCode,
             Students = new List<StudentRegisterConfirm>()
         };
         foreach (var key in keys)

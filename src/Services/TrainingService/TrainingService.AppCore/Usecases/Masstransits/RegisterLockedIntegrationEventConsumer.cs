@@ -11,7 +11,7 @@ namespace TrainingService.AppCore.Usecases.Masstransits;
 
 public class RegisterLockedIntegrationEventConsumer(
     ITopicProducer<WishListLockedIntegrationEvent> producer,
-    IApplicationService<SubjectRegister> applicationService
+    IMongoRepository<SubjectRegister> repository
     )
     : INotificationHandler<RegisterLockedIntegrationEvent>
 {
@@ -34,9 +34,13 @@ public class RegisterLockedIntegrationEventConsumer(
             .ToList();
         foreach (var subjectGroup in subjectGroups)
         {
-            var subjectRegister = new SubjectRegister();
-            subjectRegister.Create(subjectGroup?.SubjectCode, notification.CorrelationId, subjectGroup?.StudentCodes);
-            await applicationService.SaveEventStore(subjectRegister, cancellationToken);
+            var subjectRegister = new SubjectRegister()
+            {
+                SubjectCode = subjectGroup.SubjectCode,
+                StudentCodes = subjectGroup?.StudentCodes,
+                SemesterCode = notification.SemesterCode
+            };
+            await repository.AddAsync(subjectRegister, cancellationToken);
         }
         var studentCount = notification.Students.Count;
 
@@ -52,7 +56,7 @@ public class RegisterLockedIntegrationEventConsumer(
             CorrelationId = notification.CorrelationId,
             NumberStudent = studentCount,
             NumberSubject = subjectCount,
-            NumberWish = totalPreferences
+            NumberWish = totalPreferences,
         }, cancellationToken);
     }
 }

@@ -5,6 +5,7 @@ namespace Education.Contract.IntegrationEvents;
 public class RegisterLockedIntegrationEvent : IIntegrationEvent
 {
     public Guid CorrelationId { get; set; }
+    public string SemesterCode { get; set; }
     public ICollection<StudentRegisterConfirm> Students { get; set; }
 }
 

@@ -56,7 +56,8 @@ public record CreateRegisterConfigCommand(
             var semester =
                 await semesterRepository.FindOneAsync(new GetSemesterByCodeSpec(request.SemesterCode),
                     cancellationToken);
-            await sender.Send(new ChangeSemesterStatusCommand(semester.Id, SemesterStatus.Register), cancellationToken);
+            semester.SemesterStatus = SemesterStatus.Register;
+            await semesterRepository.UpsertOneAsync(new GetSemesterByCodeSpec(request.SemesterCode), semester, cancellationToken);
             var registerConfig = new RegisterConfig();
             registerConfig.Create(semesterCode, startDate, endDate, studentChangeStart, studentChangeEnd, minCredit, maxCredit, new Dictionary<string, object>()
             {

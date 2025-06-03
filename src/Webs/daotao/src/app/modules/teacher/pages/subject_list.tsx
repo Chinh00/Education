@@ -12,7 +12,10 @@ import { Query } from "@/infrastructure/query.ts";
 import { useGetCourseClasses } from "../../education/hooks/useGetCourseClasses";
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 import {CourseClass} from "@/domain/course_class.ts";
-import Assignment_teacher from "@/app/modules/teacher/components/assignment_teacher.tsx";
+import CourseClassModel from "@/app/modules/teacher/components/course_class_model.tsx";
+import { Badge } from "@/app/components/ui/badge";
+import {useGetRegisters} from "@/app/modules/education/hooks/useGetRegisters.ts";
+import {useGetSubjectRegister} from "@/app/modules/education/hooks/useGetSubjectRegister.ts";
 
 const SubjectList = () => {
   const dispatch = useAppDispatch();
@@ -33,8 +36,6 @@ const SubjectList = () => {
     Includes: ["DepartmentCode", "NumberOfCredits",]
   })
 
-
-  const { data: subjects, isLoading, isSuccess } = useGetSubjects(query)
   const {data: semesters} = useGetSemesters({
     Filters: [
       {
@@ -44,52 +45,50 @@ const SubjectList = () => {
       }
     ]
   })
-  const {data: courseClass } = useGetCourseClasses({
-    Filters: [
-      {
-        field: "SubjectCode",
-        operator: "In",
-        value: subjects?.data?.data?.items?.map(c => c.subjectCode).join(",")!
-      },
-      {
-        field: "SemesterCode",
-        operator: "==",
-        value: semesters?.data?.data?.items[0]?.semesterCode!
-      }
-    ]
+  const semester = semesters?.data?.data?.items?.[0]
+  const { data: subjects, isLoading, isSuccess } = useGetSubjects(query)
+  // const {data: subjectRegister, isPending: subjectLoading, isSuccess: subjectSuccess} = useGetSubjectRegister({
+  //   Filters: [
+  //     {
+  //       field: "CorrelationId",
+  //       operator: "==",
+  //       value: RegisterState?.data?.data?.items[0]?.correlationId!
+  //     }
+  //   ]
+  // }, RegisterState !== undefined && RegisterState?.data?.data?.items?.length > 0)
+  const columns: ColumnsType<Subject> = [
 
-  }, subjects?.data?.data !== undefined && subjects?.data?.data?.items?.length > 0 && semesters !== undefined && semesters?.data?.data?.items?.length > 0)
-
-  const columns: ColumnsType<CourseClass> = [
-   
     {
-      title: 'Mã lớp',
-      dataIndex: "courseClassCode",
+      title: 'Mã môn học',
+      dataIndex: "subjectCode",
     },
     {
-      title: 'Tên lớp',
-      dataIndex: "courseClassName",
+      title: 'Tên môn học',
+      dataIndex: "subjectName",
     },
     {
-      title: 'Loại lớp',
-      render: (text, record) => (
-          <>{record?.courseClassType === 0 ? "Lý thuyết" : "Thực hành"}</>
-      )
+      title: 'Số tín chỉ',
+      dataIndex: "numberOfCredits",
+    },
+    {
+      title: 'Môn tính điểm',
+      dataIndex: "isCalculateMark",
     },
     {
       title: 'Tình trạng',
       render: (text, record) => (
           <>
-            <Assignment_teacher courseClass={record} />
+            <CourseClassModel subjectCode={record?.subjectCode} semesterCode={semesters?.data?.data?.items?.[0]?.semesterCode!} />
           </>
       )
     },
-      
     
-
-
-
+    
   ];
+  
+  
+  
+  
   const tableColumns = columns.map((item) => ({ ...item }));
 
 
@@ -97,7 +96,7 @@ const SubjectList = () => {
   return (
     <PredataScreen isLoading={isLoading} isSuccess={isSuccess}>
       <Box>
-        <Table<CourseClass>
+        <Table<Subject>
             rowKey={(c) => c.id}
             loading={isLoading}
             style={{
@@ -105,23 +104,14 @@ const SubjectList = () => {
             }}
             showHeader={true}
             title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
+              <Typography.Title level={4} className={"flex justify-center items-center gap-3"}>Kì học đăng ký hiện tại:
+                <Badge className={"bg-blue-400 text-xl"} >{semester?.semesterName}</Badge>  
+              </Typography.Title>
             </Box>}
             size={"small"}
             bordered={true}
-            pagination={{
-              current: query?.Page ?? 1,
-              pageSize: query?.PageSize ?? 10,
-              total: courseClass?.data?.data?.totalItems ?? 0
-            }}
-            onChange={(e) => {
-              setQuery(prevState => ({
-                ...prevState,
-                Page: e?.current ?? 1 - 1,
-                PageSize: e?.pageSize
-              }))
-            }}
             columns={tableColumns}
-            dataSource={courseClass?.data?.data?.items ?? []}
+            dataSource={subjects?.data?.data?.items ?? []}
 
         />
       </Box>

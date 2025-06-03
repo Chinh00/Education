@@ -15,6 +15,5 @@ public class GetSubjectRegistersSpec : ListSpecificationBase<SubjectRegister>
         ApplyInclude(c => c.Id);
         ApplyInclude(c => c.StudentCodes);
         ApplyInclude(c => c.SubjectCode);
-        ApplyInclude(c => c.CorrelationId);
     }
 }

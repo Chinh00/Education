@@ -25,7 +25,7 @@ public class WishListCreatedIntegrationEventConsumer(IBackgroundJobClient jobCli
             RegisterCode = notification.CorrelationId.ToString(),
         }));
         jobClient.Schedule<WishLockHandler>(
-            (x) => x.Handle(notification.CorrelationId, cancellationToken),
+            (x) => x.Handle(notification.CorrelationId, notification.SemesterCode, cancellationToken),
             delay
         );
     }

@@ -27,7 +27,7 @@ const EducationSidebar = () => {
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_SEMESTER_LIST)}>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.SEMESTER_LIST)}>
                                 <List />
                                 Danh sách kì học
                             </SidebarMenuButton>
@@ -55,7 +55,7 @@ const EducationSidebar = () => {
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_SUBJECT_LIST)}>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.SUBJECT_LIST)}>
                                 <List />
                                 Danh sách môn học
                             </SidebarMenuButton>

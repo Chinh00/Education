@@ -8,8 +8,7 @@ import {
     getDepartments,
     getEventsStore, getNotifications,
     getRooms,
-    getSpecialities, getStaffs,
-    getSubjects
+    getSpecialities, getStaffs
 } from "./service";
 import {AxiosResponse} from "axios";
 import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/success_response.ts";
@@ -42,14 +41,6 @@ const useGetSpecialityDepartments = (query: Query, enable: boolean = true) => {
     })
 }
 
-const useGetSubjects = (query: Query, enable: boolean = true) => {
-    return useQuery({
-        queryKey: ["subjects", query],
-        queryFn: () => getSubjects(query),
-        enabled: enable,
-
-    })
-}
 
 
 const useGetBuildings = (query: Query, enable: boolean = true) => {
@@ -119,7 +110,6 @@ export {
     useGetCourses,
     useGetDepartments,
     useGetSpecialityDepartments,
-    useGetSubjects,
     useGetBuildings,
     useGetRooms,
     useGetEventsStore,

@@ -2,14 +2,27 @@ export interface Subject {
     subjectName: string;
     subjectNameEng: string;
     subjectCode: string;
-    subjectDescription: string;
+    subjectDescription: string ;
     numberOfCredits: number;
     departmentCode: string;
-    defineCode: string | null;
-    examTime: string | null;
-    isCalculateMark: boolean;
+    isCalculateMark: boolean | null;
     status: number;
+
+    lectureTotal: number;
+    lectureLesson: number;
+    lecturePeriod: number;
+
+    labTotal: number;
+    labLesson: number;
+    labPeriod: number;
+
+    lectureRequiredConditions: string[];
+    labRequiredConditions: string[];
+
+    lectureStartWeek: number;
+    labStartWeek: number;
+
     id: string;
-    createdAt: string;   
+    createdAt: string; 
     updatedAt: string | null;
 }

@@ -12,7 +12,6 @@ import {useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {Calendar, History} from "lucide-react"
 import { useGetTimeline } from "../../education/hooks/useGetTimeline";
-import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 const CourseClassList = () => {
     const {subject, semester} = useParams()
     

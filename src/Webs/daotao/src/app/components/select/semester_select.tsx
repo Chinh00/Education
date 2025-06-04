@@ -11,7 +11,14 @@ export type SemesterSelectProps = {
 const SemesterSelect = (props: SemesterSelectProps) => {
     const [open, setOpen] = useState(false)
     const {data, isLoading, isSuccess} = useGetSemesters({
-        Sorts: ["IdDesc"]
+        Sorts: ["IdDesc"],
+        Filters: [
+            {
+                field: "ParentSemesterCode",
+                operator: "In",
+                value: ","
+            }
+        ]
     }, open)
 
     return (

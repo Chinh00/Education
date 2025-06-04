@@ -18,3 +18,25 @@ export interface CourseClass {
     createdAt: string,
     updatedAt: string | null
 }
+
+export interface SlotTimeRegister {
+    buildingCode: string;
+    roomCode: string;
+    dayOfWeek: number;
+    slot: string[];
+}
+
+export interface CourseClassRegister {
+    courseClassCode: string;
+    courseClassName: string;
+    courseClassType: number;
+    subjectCode: string;
+    subjectName: string;
+    numberOfCredits: number;
+    teacherCode: string;
+    teacherName: string;
+    semesterCode: string;
+    students: string[] | null;
+    stage: number;
+    slotTimes: SlotTimeRegister[];
+}

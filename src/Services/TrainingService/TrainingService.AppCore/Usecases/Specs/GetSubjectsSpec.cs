@@ -17,5 +17,19 @@ public class GetSubjectsSpec : ListSpecificationBase<Subject>
         ApplyInclude(c => c.SubjectCode);
         ApplyInclude(c => c.SubjectName);
         ApplyInclude(c => c.SubjectNameEng);
+        ApplyInclude(c => c.SubjectDescription);
+        ApplyInclude(c => c.DepartmentCode);
+        ApplyInclude(c => c.DepartmentCode);
+        ApplyInclude(c => c.Status);
+        ApplyInclude(c => c.LectureTotal);
+        ApplyInclude(c => c.LectureLesson);
+        ApplyInclude(c => c.LecturePeriod);
+        ApplyInclude(c => c.LabTotal);
+        ApplyInclude(c => c.LabLesson);
+        ApplyInclude(c => c.LabPeriod);
+        ApplyInclude(c => c.LectureRequiredConditions);
+        ApplyInclude(c => c.LabRequiredConditions);
+        ApplyInclude(c => c.IsCalculateMark);
+        
     }
 }

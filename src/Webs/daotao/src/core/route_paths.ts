@@ -15,9 +15,10 @@ export const RoutePaths = {
 
 
 
-    EDUCATION_SEMESTER_LIST: '/educations/semesters',
-    EDUCATION_SUBJECT_LIST: '/educations/subjects',
-    EDUCATION_SUBJECT_TIMELINE: '/educations/subjects/:id/timeline',
+    SEMESTER_LIST: '/semesters',
+    SEMESTER_CREATE: '/semesters/create',
+    SUBJECT_LIST: '/educations/subjects',
+    SUBJECT_DETAIL: '/subjects/:id',
     EDUCATION_SUBJECT_TIMELINE_CREATE: '/educations/subjects/timeline/create',
 
 

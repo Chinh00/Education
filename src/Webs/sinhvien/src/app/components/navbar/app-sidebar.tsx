@@ -3,7 +3,7 @@ import {
   SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
   SidebarRail
 } from "@/app/components/ui/sidebar"
-import { BadgePlus, CakeSlice, GraduationCap, ListTree, User, Timer, Home } from "lucide-react"
+import { BadgePlus, CakeSlice, GraduationCap, ListTree, User, Timer, Home, PlusSquare } from "lucide-react"
 import { Link, useNavigate } from "react-router"
 import { NavUser } from "@/app/components/navbar/nav-user.tsx";
 import { useAppSelector } from "@/app/stores/hook.ts";
@@ -30,26 +30,26 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton className="text-sidebar-foreground/70">
                   <User />
-                  <Link to={"/student/information"}>Thông tin sinh viên</Link>
+                  <Link to={RoutePaths.STUDENT_INFORMATION}>Thông tin sinh viên</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton className="text-sidebar-foreground/70" >
                   <ListTree />
-                  <Link to={"/student/education"}>Chương trình đào tạo</Link>
+                  <Link to={RoutePaths.STUDENT_EDUCATION}>Chương trình đào tạo</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
               <SidebarMenuItem>
                 <SidebarMenuButton className="text-sidebar-foreground/70">
                   <BadgePlus />
-                  <Link to={"/student/register"}>Đăng ký nguyện vọng</Link>
+                  <Link to={RoutePaths.STUDENT_REGISTER}>Đăng ký nguyện vọng</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton className="text-sidebar-foreground/70">
-                  <BadgePlus />
-                  <Link to={"/student/register"}>Kết quả đăng ký học</Link>
+                  <PlusSquare />
+                  <Link to={RoutePaths.STUDENT_REGISTER_NEW}>Đăng ký học mới</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -63,7 +63,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton className="text-sidebar-foreground/70" >
                   <CakeSlice />
-                  <Link to={"/student/result"}>Kết quả học tập</Link>
+                  <Link to={RoutePaths.STUDENT_RESULT}>Kết quả học tập</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 

@@ -27,6 +27,13 @@ const CreateRegister = () => {
     }, []);
 
     const {data: semester, isPending, isSuccess} = useGetSemesters({
+        Filters: [
+            {
+                field: "ParentSemesterCode",
+                operator: "In",
+                value: ","
+            }
+        ],
         Sorts: ["IdDesc"]
     })
     const {mutate, isPending: mutateLoading, reset} = useCreateRegisterState()

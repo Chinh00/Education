@@ -14,9 +14,10 @@ const RegisterDetail = lazy(() => import("../modules/education/pages/register_de
 const CourseClassDetail = lazy(() => import("../modules/education/pages/courseclass_detail.tsx"));
 
 const SemesterList = lazy(() => import("../modules/education/pages/semester_list.tsx"));
+const SemesterCreate = lazy(() => import("../modules/education/pages/semester_create.tsx"));
 
-const SubjectList = lazy(() => import("../modules/education/pages/subject_list.tsx"));
-const SubjectTimelineDetail = lazy(() => import("../modules/education/pages/subject_timeline_detail.tsx"));
+const SubjectList = lazy(() => import("../modules/subject/pages/subject_list.tsx"));
+const SubjectDetail = lazy(() => import("../modules/subject/pages/subject_detail.tsx"));
 
 
 
@@ -91,16 +92,21 @@ const router = createBrowserRouter([
                                 element: <Suspense fallback={<TabLoading />} key={"RegisterDetail"} ><RegisterDetail /></Suspense>,
                             },
                             {
-                                path: RoutePaths.EDUCATION_SEMESTER_LIST,
+                                path: RoutePaths.SEMESTER_LIST,
                                 element: <Suspense fallback={<TabLoading />} key={"SemesterList"}><SemesterList /></Suspense>,
                             },
                             {
-                                path: RoutePaths.EDUCATION_SUBJECT_LIST,
+                                path: RoutePaths.SEMESTER_CREATE,
+                                element: <Suspense fallback={<TabLoading />} key={"SemesterCreate"}><SemesterCreate /></Suspense>,
+                            },
+                            
+                            {
+                                path: RoutePaths.SUBJECT_LIST,
                                 element: <Suspense fallback={<TabLoading />} key={"SubjectList"}><SubjectList /></Suspense>,
                             },
                             {
-                                path: RoutePaths.EDUCATION_SUBJECT_TIMELINE,
-                                element: <Suspense fallback={<TabLoading />} key={"SubjectTimelineDetail"}><SubjectTimelineDetail /></Suspense>,
+                                path: RoutePaths.SUBJECT_DETAIL,
+                                element: <Suspense fallback={<TabLoading />} key={"SubjectDetail"}><SubjectDetail /></Suspense>,
                             },
                             {
                                 path: RoutePaths.EDUCATION_REGISTER_COURSE_DETAIL,

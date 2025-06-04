@@ -1,4 +1,4 @@
-import {ColumnsType, useGetSubjects} from "@/app/modules/common/hook.ts";
+import {ColumnsType} from "@/app/modules/common/hook.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Box, IconButton} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
@@ -14,6 +14,7 @@ import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
 import {useForm} from "react-hook-form";
 import { RefreshCw, RotateCcw, Eye } from "lucide-react";
 import {useNavigate} from "react-router";
+import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 
 const SubjectList = () => {
     const dispatch = useAppDispatch()
@@ -57,7 +58,7 @@ const SubjectList = () => {
             key: 'action',
             render: (_, record) => (
                 <Tooltip title="Chi tiết">
-                    <IconButton onClick={() => nav(`/educations/subjects/${record?.subjectCode}/timeline`)}><Eye /></IconButton>
+                    <IconButton onClick={() => nav(`/subjects/${record?.subjectCode}`)}><Eye /></IconButton>
                 </Tooltip>
             ),
         },

@@ -12,17 +12,18 @@ export type FormDatePickerAntdProps = {
     name: string,
 } & FormItemProps
 
+export const viLocale: typeof vi = {
+    ...vi,
+    lang: {
+        ...vi.lang,
+        fieldDateFormat: 'DD/MM/YYYY',
+        fieldDateTimeFormat: 'DD/MM/YYYY HH:mm:ss',
+        yearFormat: 'YYYY',
+        cellYearFormat: 'YYYY',
+    },
+};
 const FormDatePickerAntd = (props: FormDatePickerAntdProps) => {
-    const viLocale: typeof vi = {
-        ...vi,
-        lang: {
-            ...vi.lang,
-            fieldDateFormat: 'DD/MM/YYYY',
-            fieldDateTimeFormat: 'DD/MM/YYYY HH:mm:ss',
-            yearFormat: 'YYYY',
-            cellYearFormat: 'YYYY',
-        },
-    };
+    
     const defaultValue = dayjs('2024-01-01');
     return <Controller
        render={({ field, fieldState, formState, }) => {

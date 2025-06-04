@@ -9,7 +9,8 @@ export interface CreateSemesterModel {
     semesterName: string;
     semesterCode: string;
     startDate: string; 
-    endDate: string;  
+    endDate: string;
+    parentSemesterCode?: string;
 }
 
 const getSemesters = (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Semester>>>> => http.get(`/trainingservice/api/Semester?${GetQuery(query)}`) 

@@ -12,23 +12,26 @@ namespace TrainingService.AppCore.Usecases.Commands;
 
 public record UpdateCourseTeacherCommand(UpdateCourseTeacherCommand.UpdateCourseTeacherModel Model) : ICommand<IResult>
 {
-    public record struct UpdateCourseTeacherModel(string Id, string TeacherCode);
-    internal class Handler(IApplicationService<CourseClass> service, IMongoRepository<Staff> staffRepository, IClaimContextAccessor claimContextAccessor)
+    public record struct UpdateCourseTeacherModel(string CourseClassCode, string TeacherCode);
+    internal class Handler(
+        IMongoRepository<Staff> staffRepository,
+        IClaimContextAccessor claimContextAccessor,
+        IMongoRepository<CourseClass> courseClassRepository)
         : IRequestHandler<UpdateCourseTeacherCommand, IResult>
     {
         public async Task<IResult> Handle(UpdateCourseTeacherCommand request, CancellationToken cancellationToken)
         {
             var (userId, userName) = (claimContextAccessor.GetUserId(), claimContextAccessor.GetUsername());
-
+            
             var spec = new GetStaffByCodeSpec(request.Model.TeacherCode);
             var teacher = await staffRepository.FindOneAsync(spec, cancellationToken);
-            var courseClass = await service.ReplayAggregate(ObjectId.Parse(request.Model.Id), cancellationToken);
-            courseClass.AssignTeacher(teacher.Code, teacher.FullName, new Dictionary<string, object>()
-            {
-                { nameof(KeyMetadata.PerformedBy), userId },
-                { nameof(KeyMetadata.PerformedByName), userName },
-            });
-            await service.SaveEventStore(courseClass, cancellationToken);
+            
+            var courseClass = await 
+                courseClassRepository.FindOneAsync(new GetCourseClassByCodeSpec(request.Model.CourseClassCode),
+                    cancellationToken);
+            courseClass.TeacherCode = request.Model.TeacherCode;
+            courseClass.TeacherName = teacher.FullName;
+            
             return Results.Ok();
         }
     }

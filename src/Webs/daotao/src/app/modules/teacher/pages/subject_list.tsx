@@ -42,8 +42,14 @@ const SubjectList = () => {
         field: "SemesterStatus",
         operator: "==",
         value: "1"
+      },
+      {
+        field: "ParentSemesterCode",
+        operator: "In",
+        value: ","
       }
     ]
+    
   })
   const semester = semesters?.data?.data?.items?.[0]
   const { data: subjects, isLoading, isSuccess } = useGetSubjects(query, userInfo !== undefined)

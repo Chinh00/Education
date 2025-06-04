@@ -9,6 +9,7 @@ using MongoDB.Driver;
 using TrainingService.AppCore.StateMachine;
 using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;
+using TrainingService.Domain.Enums;
 
 namespace TrainingService.AppCore.Usecases.DomainEvents;
 
@@ -22,9 +23,12 @@ public class
     private readonly IMongoRepository<SlotTimeline> _slotTimelineRepository;
     private readonly IMongoRepository<Subject> _subjectRepository;
     private readonly ITopicProducer<CourseClassesCreatedIntegrationEvent> _producer;
+    private readonly IMongoRepository<Semester> _mongoRepository;
     
     public RegisterConfigStudentRegisterPeriodUpdatedDomainEventHandler(
-        ITopicProducer<StudentRegistrationStartedIntegrationEvent> topicProducer, IOptions<MongoOptions> mnOptions, IMongoRepository<CourseClass> repositoryCourseClass, IMongoRepository<SlotTimeline> slotTimelineRepository, ITopicProducer<CourseClassesCreatedIntegrationEvent> producer, IMongoRepository<Subject> subjectRepository)
+        ITopicProducer<StudentRegistrationStartedIntegrationEvent> topicProducer, IOptions<MongoOptions> mnOptions,
+        IMongoRepository<CourseClass> repositoryCourseClass, IMongoRepository<SlotTimeline> slotTimelineRepository,
+        ITopicProducer<CourseClassesCreatedIntegrationEvent> producer, IMongoRepository<Subject> subjectRepository)
     {
         _topicProducer = topicProducer;
         _repositoryCourseClass = repositoryCourseClass;
@@ -50,7 +54,8 @@ public class
         var courseClasses = await _repositoryCourseClass.FindAsync(
             new GetCourseClassBySemesterCodeSpec(notification.SemesterCode), cancellationToken);
         var courseClassOpens = new List<CourseClassEvent>();
-        
+        var semester = await _mongoRepository.FindOneAsync(
+            new GetSemesterByCodeSpec(notification.SemesterCode), cancellationToken);
         foreach (var courseClass in courseClasses)
         {
             var subject = await _subjectRepository.FindOneAsync(
@@ -58,6 +63,10 @@ public class
             var @class = courseClasses?.FirstOrDefault(e => e.CourseClassCode == courseClass.CourseClassCode);
             var slotTimelines = await _slotTimelineRepository.FindAsync(
                 new GetSlotTimelineByCourseClassCodesSpec([courseClass?.CourseClassCode]), cancellationToken);
+            
+            // var weekStart = @class.CourseClassType == CourseClassType.Lecture
+            //     ? subject.LectureStartWeek
+            //     : subject.LabStartWeek;
             courseClassOpens.Add(new CourseClassEvent(
                 @class.CourseClassCode,
                 @class.CourseClassName,
@@ -68,13 +77,15 @@ public class
                 @class.TeacherCode,
                 @class.TeacherName,
                 @class.NumberStudentsExpected,
+                1,
+                @class.ParentCourseClassCode,
                 (int)@class.Stage,
                 slotTimelines.Select(e => new SlotTimelineEvent(e.BuildingCode, e.RoomCode, e.DayOfWeek, e.Slots)).ToList()
                 ));    
         }
         await _producer.Produce(
             new CourseClassesCreatedIntegrationEvent(notification.SemesterCode, notification.StudentRegisterStart,
-                notification.StudentRegisterEnd, courseClassOpens), cancellationToken);
+                notification.StudentRegisterEnd, semester.StartDate ?? throw new ArgumentNullException(), semester.EndDate ?? throw new ArgumentNullException(), courseClassOpens), cancellationToken);
         
     }
 }

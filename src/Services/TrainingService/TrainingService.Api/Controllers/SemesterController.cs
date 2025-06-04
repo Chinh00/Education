@@ -20,18 +20,18 @@ public class SemesterController : BaseController
     {
         return Ok(await Mediator.Send(query, cancellationToken));
     }
-    
+
     /// <summary>
     /// Tạo mới kì học
     /// </summary>
-    /// <param name="command"></param>
+    /// <param name="model"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost]
     [Authorize]
-    public async Task<object> HandlerCreateSemesterAsync(CreateSemesterCommand command,
+    public async Task<object> HandlerCreateSemesterAsync(CreateSemesterCommand.CreateSemesterModel model,
         CancellationToken cancellationToken = default)
     {
-        return await Mediator.Send(command, cancellationToken);
+        return await Mediator.Send(new CreateSemesterCommand(model), cancellationToken);
     }
 }

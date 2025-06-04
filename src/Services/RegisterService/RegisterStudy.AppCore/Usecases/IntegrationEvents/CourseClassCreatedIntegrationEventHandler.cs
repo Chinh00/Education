@@ -38,6 +38,7 @@ public class CourseClassCreatedIntegrationEventHandler(IRegisterRepository<Regis
                     TeacherCode = notificationCourseClass.TeacherCode,
                     TeacherName = notificationCourseClass.TeacherName,
                     Stage = notificationCourseClass.Stage,
+                    NumberStudentsExpected = notificationCourseClass.NumberStudentsExpected,
                     SlotTimes = notificationCourseClass.SlotTimes.Select(slotTime => new SlotTime(
                         slotTime.BuildingCode,
                         slotTime.RoomCode,

@@ -6,6 +6,8 @@ public record CourseClassesCreatedIntegrationEvent(
     string SemesterCode,
     DateTime StudentRegisterStart,
     DateTime StudentRegisterEnd,
+    DateTime SemesterStart,
+    DateTime SemesterEnd,
     List<CourseClassEvent> CourseClasses
 ) : IIntegrationEvent;
 public record CourseClassEvent(
@@ -18,6 +20,8 @@ public record CourseClassEvent(
     string TeacherCode,
     string TeacherName,
     int NumberStudentsExpected,
+    int WeekStart,
+    string ParentCourseClassCode,
     int Stage,
     List<SlotTimelineEvent> SlotTimes);
 

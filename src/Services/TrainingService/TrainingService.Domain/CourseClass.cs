@@ -5,11 +5,12 @@ using TrainingService.Domain.Enums;
 
 namespace TrainingService.Domain;
 
-public class CourseClass : AggregateBase
+public class CourseClass : BaseEntity
 {
     public void Create(string courseClassCode, string courseClassName, CourseClassType courseClassType,
         string subjectCode, int sessionLength, int session, int totalSession, string semesterCode, int numberStudentsExpected,
-        SubjectTimelineStage stage, IDictionary<string, object> metaData = null)
+        string parentCourseClassCode,
+        SubjectTimelineStage stage)
     {
         CourseClassCode = courseClassCode;
         CourseClassName = courseClassName;
@@ -22,49 +23,18 @@ public class CourseClass : AggregateBase
         Status = CourseClassStatus.Active;
         Stage = stage;
         NumberStudentsExpected = numberStudentsExpected;
-        AddDomainEvent(version => new CourseClassCreatedDomainEvent(Id.ToString(), courseClassCode,
-            courseClassName, (int)courseClassType, subjectCode, sessionLength, session, totalSession, semesterCode, (int)stage)
-        {
-            Version = version,
-            MetaData = metaData
-        });
+        ParentCourseClassCode = parentCourseClassCode;
+        
     }
 
-    public override void ApplyDomainEvent(IDomainEvent @event) => Apply((dynamic)@event);
 
-    void Apply(CourseClassCreatedDomainEvent @event)
-    {
-        Id = ObjectId.Parse(@event.AggregateId);
-        CourseClassCode = @event.CourseClassCode;
-        CourseClassName = @event.CourseClassName;
-        CourseClassType = (CourseClassType)@event.CourseClassType;
-        SubjectCode = @event.SubjectCode;
-        SessionLength = @event.SessionLength;
-        Session = @event.Session;
-        SemesterCode = @event.SemesterCode;
-        TotalSession = @event.TotalSession;
-        Stage = (SubjectTimelineStage)@event.Stage;
-        Version = @event.Version;
-    }
+    
 
-    void Apply(CourseClassAssignedTeacherDomainEvent @event)
-    {
-        Id = ObjectId.Parse(@event.AggregateId);
-        TeacherCode = @event.TeacherCode;
-        TeacherName = @event.TeacherName;
-        Version = @event.Version;
-    }
 
-    public void AssignTeacher(string teacherCode,  string teacherName, IDictionary<string, object> metaData = null)
-    {
-        TeacherCode = teacherCode;
-        TeacherName = teacherName;
-        AddDomainEvent(version => new CourseClassAssignedTeacherDomainEvent(Id.ToString(), teacherCode, teacherName)
-        {
-            Version = version,
-            MetaData = metaData
-        });
-    }
+    public int LectureStartWeek { get; set; } = 0;
+
+    public int LabStartWeek { get; set; } = 1;
+    
     
     public CourseClassStatus Status { get; set; } =  CourseClassStatus.Active;
 
@@ -83,6 +53,7 @@ public class CourseClass : AggregateBase
     public string TeacherName { get; set; }
     public string TeacherCode { get; set; }
     
+    public string ParentCourseClassCode { get; set; }
     
 
     

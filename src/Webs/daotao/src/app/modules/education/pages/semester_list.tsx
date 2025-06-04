@@ -5,7 +5,7 @@ import {ReactElement, useEffect, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Box, IconButton} from "@mui/material";
 import {ColumnsType} from "@/app/modules/common/hook.ts";
-import {Space, Table, Tooltip} from "antd";
+import {Button, Space, Table, Tooltip} from "antd";
 import {Semester} from "@/domain/semester.ts";
 import {DateTimeFormat} from "@/infrastructure/date.ts";
 import SemesterModal from "@/app/modules/education/components/semester_modal.tsx";
@@ -15,6 +15,7 @@ import {RoutePaths} from "@/core/route_paths.ts";
 import {Eye} from "lucide-react";
 import {HistoryItem} from "@/app/components/modals/history_item.tsx";
 import { HistoryModal } from "@/app/components/modals/history_modal";
+import {useNavigate} from "react-router";
 const labelMap: Record<number, ReactElement> = {
     0: <Badge variant={"destructive"} >Tạo mới</Badge>,
     1: <Badge variant={"secondary"}>Đăng ký học</Badge>,
@@ -29,7 +30,14 @@ const SemesterList = () => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Danh sách kì học"}));
     }, []);
     const [query, setQuery] = useState<Query>({
-        Sorts: ["IdDesc"]
+        Sorts: ["IdDesc"],
+        Filters: [
+            {
+                field: "ParentSemesterCode",
+                operator: "In",
+                value: ","
+            }
+        ]
     })
 
     const {data, isLoading, isSuccess, refetch} = useGetSemesters(query)
@@ -75,7 +83,7 @@ const SemesterList = () => {
     ];
 
     const tableColumns = columns.map((item) => ({ ...item }));
-
+    const nav = useNavigate()
     return (
         <PredataScreen isLoading={isLoading} isSuccess={isSuccess}>
             <Box>
@@ -88,7 +96,8 @@ const SemesterList = () => {
                     showHeader={true}
                     title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
                         {/*<Button onClick={() => {nav(RoutePaths.EDUCATION_REGISTER_CONFIG)}} className={"bg-green-600 cursor-pointer"}>Tạo mới</Button>*/}
-                        <SemesterModal refetch={refetch} />
+                        {/*<SemesterModal refetch={refetch} />*/}
+                        <Button type={"primary"} onClick={() => nav(RoutePaths.SEMESTER_CREATE)}>Tạo mới</Button>
                     </Box>}
                     size={"small"}
                     bordered={true}

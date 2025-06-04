@@ -4,5 +4,6 @@ export interface Semester {
     semesterCode: string;
     startDate: string;
     endDate: string;
-    semesterStatus: number
+    semesterStatus: number,
+    parentSemesterCode: string;
 }

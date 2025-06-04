@@ -7,9 +7,6 @@ import {Button as ButtonAntd, Input} from "antd"
 import {Card, CardContent} from "@/app/components/ui/card.tsx";
 import {GripVertical, Plus} from "lucide-react";
 import {CourseClassModel, SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
-import {useGetSubjectTimelineConfig} from "@/app/modules/education/hooks/useGetSubjectTimelineConfig.ts";
-import {ColumnsType, useGetRooms} from "@/app/modules/common/hook.ts";
-import {Room} from "@/domain/room.ts";
 import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
 import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
 import {useForm} from "react-hook-form";

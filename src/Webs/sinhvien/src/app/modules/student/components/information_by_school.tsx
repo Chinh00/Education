@@ -1,12 +1,7 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/app/components/ui/card.tsx";
 import {BookOpen, Building, Edit, School, Users} from "lucide-react";
 import {Button} from "@/app/components/ui/button.tsx";
-import {Avatar, AvatarFallback} from "@/app/components/ui/avatar.tsx";
-import {
-    useGetCourses,
-    useGetDepartments,
-    useGetSpecialityDepartments
-} from "@/app/modules/common/hook.ts";
+
 import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/app/components/ui/select";
 import {useEffect, useState} from "react";
 import {Education} from "@/domain/education.ts";

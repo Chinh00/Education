@@ -12,22 +12,14 @@ import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Settings} from "lucide-react"
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 const RegisterTimeline = () => {
-    const {data: semesters} = useGetSemesters({
-        Filters: [
-            {
-                field: "SemesterStatus",
-                operator: "==",
-                value: "1"
-            }
-        ]
-    })
-    const semester = semesters?.data?.data?.items?.[0]
+    const { semester} = useParams()
+
     const {data, isPending, isSuccess} = useGetSubjectRegister({
         Filters: [
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: semester?.semesterCode!
+                value: semester!
             }
         ]
     }, semester !== undefined)
@@ -81,7 +73,7 @@ const RegisterTimeline = () => {
             key: "action",
             render: (text, record) => (
                 <IconButton size={"small"} onClick={() => {
-                    nav(`/register/state/timeline/${record?.subjectCode}`)
+                    nav(`/register/${semester}/subject/${record?.subjectCode}/course-class`)
                 }}><Settings /></IconButton>
             )
         }
@@ -97,7 +89,7 @@ const RegisterTimeline = () => {
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: semester?.semesterCode!
+                value: semester!
             }
         ]
     })

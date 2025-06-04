@@ -17,7 +17,7 @@ public record CourseClassEvent(
     int NumberOfCredits,
     string TeacherCode,
     string TeacherName,
-    string SemesterCode,
+    int NumberStudentsExpected,
     int Stage,
     List<SlotTimelineEvent> SlotTimes);
 

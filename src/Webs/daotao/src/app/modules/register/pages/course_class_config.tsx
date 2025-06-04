@@ -18,6 +18,7 @@ import {useGetSubjectTimelineConfig} from "@/app/modules/education/hooks/useGetS
 import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
 import toast from "react-hot-toast";
 import {daysOfWeek, timeSlots } from "@/infrastructure/date"
+import {useAppSelector} from "@/app/stores/hook.ts";
 export interface ScheduleItem {
     id: string
     title: string
@@ -32,7 +33,7 @@ export interface ScheduleItem {
 
 
 const CourseClassConfig = () => {
-    const {semester, subject} = useParams()
+    const { subject, semester} = useParams()
     const [courseClassType, setCourseClassType] = useState(0)
     const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([])
 
@@ -324,8 +325,8 @@ const CourseClassConfig = () => {
                 ...timeLine?.data?.data?.items?.map(c => {
                     return {
                         id: c?.id,
-                        title: "",
-                        subject: "Đã có tiết",
+                        title: "Đã có tiết",
+                        subject: "",
                         color: "bg-red-100 text-blue-800 border-blue-200",
                         startSlot: +c?.slots[0],
                         endSlot: +c?.slots[c.slots?.length - 1],
@@ -364,6 +365,11 @@ const CourseClassConfig = () => {
             }
         ]
     }, subject !== undefined && semester !== undefined && courseClassType !== undefined)
+    useEffect(() => {
+        if (rooms !== undefined && selectedRoom && rooms?.data?.data?.items?.filter(e => e.code === selectedRoom).length > 0) {
+            setValue("numberStudentsExpected", rooms?.data?.data?.items?.filter(e => e.code === selectedRoom)[0]?.capacity)
+        }
+    }, [selectedRoom, rooms]);
     
     useEffect(() => {
         if (courseClassType === 0) {
@@ -382,9 +388,18 @@ const CourseClassConfig = () => {
         <div className="space-y-6">
             <Card>
                 <Form>
-                    <CardContent >
+                    <CardContent className={"flex flex-col gap-3"} >
                         <FormInputAntd control={control} name={"subjectCode"} initialValue={subject} label={"Mã môn học"} />
                         <FormInputAntd control={control} name={"semesterCode"} initialValue={semester} label={"Mã kì học"} />
+                        <Controller
+                            name="courseClassCode"
+                            control={control}
+                            render={({ field }) => (
+                                <Form.Item  label={<Typography>Mã lớp học</Typography>} help={"Mã lớp_Mã kì học_Loại lớp_STT lớp"} className={"col-span-2"}>
+                                    <Input  {...field}   />
+                                </Form.Item>
+                            )}
+                        />
                         <Controller
                             name="courseClassName"
                             control={control}
@@ -395,14 +410,15 @@ const CourseClassConfig = () => {
                             )}
                         />
                         <Controller
-                            name="courseClassCode"
+                            name="numberStudentsExpected"
                             control={control}
                             render={({ field }) => (
-                                <Form.Item  label={<Typography>Mã lớp học</Typography>}  className={"col-span-2"}>
-                                    <Input  {...field}   />
+                                <Form.Item  label={<Typography>Số sinh viên</Typography>} help={"Mặc định là sức chứa phòng hoặc có thể điều chỉnh cho phù hợp"} className={"col-span-2"}>
+                                    <Input  {...field} type={"number"}  />
                                 </Form.Item>
                             )}
                         />
+                        
                         <FormItem label={"Loại lớp"}>
                             <Select className={"w-full"} defaultValue={courseClassType} onChange={(e) => {
                                 setCourseClassType(e)

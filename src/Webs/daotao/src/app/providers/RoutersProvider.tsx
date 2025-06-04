@@ -27,7 +27,7 @@ const EducationDashboard = lazy(() => import("../modules/education/pages/educati
 
 
 const RegisterLayout = lazy(() => import("../modules/register/layouts/register_layout.tsx"));
-const RegisterState = lazy(() => import("../modules/register/pages/register_state.tsx"));
+const RegisterWish = lazy(() => import("../modules/register/pages/register_wish.tsx"));
 const RegisterTimeline = lazy(() => import("../modules/register/pages/register_timeline.tsx"));
 const CourseClassConfig = lazy(() => import("../modules/register/pages/course_class_config.tsx"));
 const CourseClassList = lazy(() => import("../modules/register/pages/course_class_list.tsx"));
@@ -128,11 +128,11 @@ const router = createBrowserRouter([
                         element: <Suspense fallback={<ProgressScreen />} key={"RegisterLayout"} ><RegisterLayout /></Suspense>,
                         children: [
                             {
-                                path: RoutePaths.REGISTER_STATE,
-                                element: <Suspense fallback={<TabLoading />} key={"RegisterState"} ><RegisterState /></Suspense>,
+                                path: RoutePaths.REGISTER_WISH,
+                                element: <Suspense fallback={<TabLoading />} key={"RegisterState"} ><RegisterWish /></Suspense>,
                             },
                             {
-                                path: RoutePaths.REGISTER_STATE_TIMELINE,
+                                path: RoutePaths.REGISTER_SUBJECT,
                                 element: <Suspense fallback={<TabLoading />} key={"RegisterTimeline"} ><RegisterTimeline /></Suspense>,
                             },
                             {

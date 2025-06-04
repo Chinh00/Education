@@ -8,7 +8,7 @@ namespace TrainingService.Domain;
 public class CourseClass : AggregateBase
 {
     public void Create(string courseClassCode, string courseClassName, CourseClassType courseClassType,
-        string subjectCode, int sessionLength, int session, int totalSession, string semesterCode,
+        string subjectCode, int sessionLength, int session, int totalSession, string semesterCode, int numberStudentsExpected,
         SubjectTimelineStage stage, IDictionary<string, object> metaData = null)
     {
         CourseClassCode = courseClassCode;
@@ -21,6 +21,7 @@ public class CourseClass : AggregateBase
         TotalSession = totalSession;
         Status = CourseClassStatus.Active;
         Stage = stage;
+        NumberStudentsExpected = numberStudentsExpected;
         AddDomainEvent(version => new CourseClassCreatedDomainEvent(Id.ToString(), courseClassCode,
             courseClassName, (int)courseClassType, subjectCode, sessionLength, session, totalSession, semesterCode, (int)stage)
         {
@@ -77,6 +78,7 @@ public class CourseClass : AggregateBase
     public int Session { get; set; }
     public string SemesterCode { get; set; }
     public int NumberStudents { get; set; }
+    public int NumberStudentsExpected { get; set; }
     public SubjectTimelineStage Stage { get; set; } = SubjectTimelineStage.Stage1;
     public string TeacherName { get; set; }
     public string TeacherCode { get; set; }

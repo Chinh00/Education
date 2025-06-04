@@ -15,12 +15,14 @@ import {
   SidebarMenuItem
 } from "@/app/components/ui/sidebar.tsx";
 import { RoutePaths } from "@/core/route_paths.ts";
-import { useLocation, useNavigate } from "react-router";
+import {useLocation, useNavigate, useParams} from "react-router";
 
 const RegisterSidebar = () => {
 
-
+  const {semester} = useParams()
+  console.log(semester)
   const { pathname } = useLocation()
+  
   const nav = useNavigate()
   return (
     <div className={"h-[250vh] bg-[#0c458d] text-white pl-3"}>
@@ -29,21 +31,21 @@ const RegisterSidebar = () => {
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => nav(RoutePaths.REGISTER_STATE)}>
+              <SidebarMenuButton onClick={() => nav(`/register/${semester}/wish`)}>
                 <CakeSlice color={"white"} />
                 Lấy nguyện vọng sinh viên
               </SidebarMenuButton>
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => nav(RoutePaths.REGISTER_STATE_TIMELINE)}>
+              <SidebarMenuButton onClick={() => nav(`/register/${semester}/subject`)}>
                 <CalendarSync color={"white"} />
                 Lập thời khóa biểu
               </SidebarMenuButton>
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => nav(RoutePaths.REGISTER_STUDENT_CONFIG)}>
+              <SidebarMenuButton onClick={() => nav(`/register/${semester}/course-register-config`)}>
                 <BookUp color={"white"} />
                 Tổ chức đăng ký học
               </SidebarMenuButton>

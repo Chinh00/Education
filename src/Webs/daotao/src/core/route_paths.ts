@@ -30,11 +30,15 @@ export const RoutePaths = {
     LOGIN_PAGE: '/login',
     HISTORY_RECORD: '/history/:aggregateType/:aggregateId',
 
-    REGISTER_STATE: '/register/state/',
-    REGISTER_STATE_TIMELINE: '/register/timeline',
-    REGISTER_STUDENT_CONFIG: '/register/course-register-config',
-    COURSE_CLASS_CONFIG: '/register/state/:semester/timeline/:subject/class/:classCode',
-    SUBJECT_COURSE_CLASS_LIST: '/register/state/timeline/:subject',
+    REGISTER_WISH: '/register/:semester/wish',
+    REGISTER_SUBJECT: '/register/:semester/subject',
+    SUBJECT_COURSE_CLASS_LIST: '/register/:semester/subject/:subject/course-class',
+    
+    
+    
+    REGISTER_STUDENT_CONFIG: '/register/:semester/course-register-config',
+    COURSE_CLASS_CONFIG: '/register/:semester/subject/:subject/course-class/create',
+    
 
 
     TEACHER_SUBJECT_LIST: "/teacher/subjects",

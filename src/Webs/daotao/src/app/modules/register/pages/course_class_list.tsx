@@ -14,17 +14,8 @@ import {Calendar, History} from "lucide-react"
 import { useGetTimeline } from "../../education/hooks/useGetTimeline";
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 const CourseClassList = () => {
-    const {subject} = useParams()
-    const {data: semesters} = useGetSemesters({
-        Filters: [
-            {
-                field: "SemesterStatus",
-                operator: "==",
-                value: "1"
-            }
-        ]
-    })
-    const semester = semesters?.data?.data?.items?.[0]
+    const {subject, semester} = useParams()
+    
     const [query, setQuery] = useState<Query>({
         Filters: [
             {
@@ -35,7 +26,7 @@ const CourseClassList = () => {
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: semester?.semesterCode!
+                value: semester!
             }
         ]
     })
@@ -107,7 +98,7 @@ const CourseClassList = () => {
                 showHeader={true}
                 title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
                     <Typography className={"text-gray-700"}>Danh sách các lớp mở của: {subject}</Typography>
-                    <Button size={"small"} onClick={() => nav(`/register/state/${semester}/timeline/${subject}/class/create`)}>Tạo mới</Button>
+                    <Button size={"small"} onClick={() => nav(`/register/${semester}/subject/${subject}/course-class/create`)}>Tạo mới</Button>
                 </Box>}
                 size={"small"}
                 bordered={true}

@@ -67,7 +67,7 @@ public class
                 subject.NumberOfCredits,
                 @class.TeacherCode,
                 @class.TeacherName,
-                @class.SemesterCode,
+                @class.NumberStudentsExpected,
                 (int)@class.Stage,
                 slotTimelines.Select(e => new SlotTimelineEvent(e.BuildingCode, e.RoomCode, e.DayOfWeek, e.Slots)).ToList()
                 ));    

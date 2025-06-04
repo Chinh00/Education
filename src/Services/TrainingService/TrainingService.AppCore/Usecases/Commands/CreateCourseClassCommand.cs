@@ -15,6 +15,7 @@ public record CreateCourseClassCommand(
     string CourseClassCode, string CourseClassName, int CourseClassType,
     string SubjectCode,
     string SemesterCode,
+    int NumberStudentsExpected,
     List<CreateCourseClassCommand.SlotTimelineModel> SlotTimelines
     ) : ICommand<IResult>
 {
@@ -40,7 +41,7 @@ public record CreateCourseClassCommand(
                 {
                     courseClass.Create(request.CourseClassCode, request.CourseClassName, (CourseClassType) request.CourseClassType, request.SubjectCode,
                         subjectTimeline.LecturePeriod, subjectTimeline.LectureLesson, subjectTimeline.LectureTotal
-                        , request.SemesterCode, subjectTimeline.Stage,
+                        , request.SemesterCode, request.NumberStudentsExpected, subjectTimeline.Stage,
                         new Dictionary<string, object>()
                         {
                             { nameof(KeyMetadata.PerformedBy), userId },
@@ -55,7 +56,7 @@ public record CreateCourseClassCommand(
                 {
                     courseClass.Create(request.CourseClassCode, request.CourseClassName, (CourseClassType) request.CourseClassType, request.SubjectCode,
                         subjectTimeline.LabPeriod, subjectTimeline.LabLesson, subjectTimeline.LabTotal
-                        , request.SemesterCode, subjectTimeline.Stage,
+                        , request.SemesterCode, request.NumberStudentsExpected, subjectTimeline.Stage,
                         new Dictionary<string, object>()
                         {
                             { nameof(KeyMetadata.PerformedBy), userId },

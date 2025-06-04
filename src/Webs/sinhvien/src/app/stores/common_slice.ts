@@ -2,7 +2,7 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export type CommonState = {
     authenticate: boolean,
-    isConfirm?: boolean
+    isConfirm: boolean
 }
 
 const commonState: CommonState = {

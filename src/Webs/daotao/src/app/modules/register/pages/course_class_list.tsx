@@ -12,6 +12,20 @@ import {useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {Calendar, History} from "lucide-react"
 import { useGetTimeline } from "../../education/hooks/useGetTimeline";
+
+export const getStage: Record<number, string> =  {
+    0: "Giai đoạn 1",
+    1: "Giai đoạn 2",
+    2: "Cả 2 giai đoạn",
+    
+}
+export const getCourseClassType: Record<number, string> = {
+    0: "Lý thuyết",
+    1: "Thực hành",
+}
+
+
+
 const CourseClassList = () => {
     const {subject, semester} = useParams()
     
@@ -44,11 +58,23 @@ const CourseClassList = () => {
             dataIndex: "courseClassName",
         },
         {
+            title: "Là lớp thành phần của",
+            dataIndex: "parentCourseClassCode",
+        },
+        
+        {
             title: 'Loại lớp',
             render: (text, record) => (
-                <>{record?.courseClassType === 0 ? "Lý thuyết" : "Thực hành"}</>
+                <>{ getCourseClassType[record?.courseClassType]}</>
             )
         },
+        {
+            title: 'Giai đoạn học',
+            render: (text, record) => (
+                <>{getStage[record.stage]}</>
+            )
+        },
+        
         {
             title: 'Lịch học',
             key: 'action',

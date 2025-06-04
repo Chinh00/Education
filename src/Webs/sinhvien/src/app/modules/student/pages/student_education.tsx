@@ -1,6 +1,6 @@
 import useGetStudentInformation from "@/app/modules/student/hooks/useGetStudentInformation.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
-import { useGetEducations, useGetSubjects } from "@/app/modules/common/hook.ts";
+import {useGetEducations, useGetSubjects} from "@/app/modules/common/hook.ts";
 import { useEffect, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select.tsx";
 import { Subject } from "@/domain/subject.ts";

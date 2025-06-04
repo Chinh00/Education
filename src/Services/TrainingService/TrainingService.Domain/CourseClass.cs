@@ -7,34 +7,7 @@ namespace TrainingService.Domain;
 
 public class CourseClass : BaseEntity
 {
-    public void Create(string courseClassCode, string courseClassName, CourseClassType courseClassType,
-        string subjectCode, int sessionLength, int session, int totalSession, string semesterCode, int numberStudentsExpected,
-        string parentCourseClassCode,
-        SubjectTimelineStage stage)
-    {
-        CourseClassCode = courseClassCode;
-        CourseClassName = courseClassName;
-        CourseClassType = courseClassType;
-        SubjectCode = subjectCode;
-        SessionLength = sessionLength;
-        Session = session;
-        SemesterCode = semesterCode;
-        TotalSession = totalSession;
-        Status = CourseClassStatus.Active;
-        Stage = stage;
-        NumberStudentsExpected = numberStudentsExpected;
-        ParentCourseClassCode = parentCourseClassCode;
-        
-    }
-
-
-    
-
-
-    public int LectureStartWeek { get; set; } = 0;
-
-    public int LabStartWeek { get; set; } = 1;
-    
+    public int WeekStart { get; set; } = 0;
     
     public CourseClassStatus Status { get; set; } =  CourseClassStatus.Active;
 

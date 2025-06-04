@@ -54,7 +54,7 @@ public static class Extensions
                     {
                         t.Connection = mOption.ToString();
                         t.DatabaseName = mOption.Database;
-                        t.CollectionName = "RegisterSaga";
+                        t.CollectionName = "Register";
                     });
                 
                 

@@ -20,8 +20,6 @@ import {useLocation, useNavigate, useParams} from "react-router";
 const RegisterSidebar = () => {
 
   const {semester} = useParams()
-  console.log(semester)
-  const { pathname } = useLocation()
   
   const nav = useNavigate()
   return (

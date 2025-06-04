@@ -8,13 +8,14 @@ import {GraduationCapIcon, Calendar} from "lucide-react"
 import {Button, Modal, Table, Tooltip, Typography} from "antd";
 import React, {useState} from "react";
 import { CourseClass } from "@/domain/course_class";
-import {ColumnsType, useGetSubjects} from "../../common/hook";
+import {ColumnsType} from "../../common/hook";
 import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
 import Subject_time from "@/app/modules/teacher/components/subject_time.tsx";
 import AssignmentTeacher from "@/app/modules/teacher/components/assignment_teacher.tsx";
 import { Badge } from "@/app/components/ui/badge";
 import {useUpdateCourseClassTeacher} from "@/app/modules/teacher/hooks/useUpdateCourseClassTeacher.ts";
 import toast from "react-hot-toast";
+import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 const CourseClassModel = (props: CourseClassModelProps) => {
     const [openModel, setOpenModel] = useState(false)
     
@@ -102,7 +103,7 @@ const CourseClassModel = (props: CourseClassModelProps) => {
                 className={"min-w-[1500px] "}
                 onOk={() => {
                     mutate({
-                        id: selectedCourseClass?.id!,
+                        courseClassCode: courseClass?.data?.data?.items?.filter(e => e.courseClassCode === selectedCourseClass?.courseClassCode)[0]?.courseClassCode ?? "",
                         teacherCode: teacherCourseClasses.teacherCode,
                     }, {
                         onSuccess: () => {

@@ -14,11 +14,12 @@ import {CourseClassModel, SlotTimelineModel} from "../../education/services/cour
 import {Controller, useForm} from "react-hook-form";
 import FormInputAntd from "@/app/components/inputs/FormInputAntd"
 import FormItem from "antd/es/form/FormItem";
-import {useGetSubjectTimelineConfig} from "@/app/modules/education/hooks/useGetSubjectTimelineConfig.ts";
 import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
 import toast from "react-hot-toast";
 import {daysOfWeek, timeSlots } from "@/infrastructure/date"
 import {useAppSelector} from "@/app/stores/hook.ts";
+import { useGetSubjects } from "../../subject/hooks/hook"
+import {getCourseClassType} from "@/app/modules/register/pages/course_class_list.tsx";
 export interface ScheduleItem {
     id: string
     title: string
@@ -34,6 +35,19 @@ export interface ScheduleItem {
 
 const CourseClassConfig = () => {
     const { subject, semester} = useParams()
+    const {data} = useGetSubjects({
+        Filters: [
+            {
+                field: "SubjectCode",
+                operator: "==",
+                value: subject!
+            }
+        ]
+    }, subject !== undefined)
+    
+    const subjectConfig = data?.data?.data?.items?.[0]
+    
+    
     const [courseClassType, setCourseClassType] = useState(0)
     const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([])
 
@@ -254,19 +268,18 @@ const CourseClassConfig = () => {
             slotIndex <= dragPreview.endSlot
         )
     }
-    const {data: subjectTimelineConfig} = useGetSubjectTimelineConfig(subject!, subject !== undefined)
 
     const {data: rooms, isLoading: RoomLoadings} = useGetRooms({
         Filters: [
             {
                 field: "SupportedConditions",
                 operator: "ArrayContains",
-                value: courseClassType === 0 ? subjectTimelineConfig?.data?.data?.lectureRequiredConditions.join(",")! : subjectTimelineConfig?.data?.data?.labRequiredConditions.join(",")!
+                value: courseClassType === 0 ? subjectConfig?.lectureRequiredConditions.join(",")! : subjectConfig?.labRequiredConditions.join(",")!
             }
         ],
         Page: 1,
         PageSize: 1000
-    }, subjectTimelineConfig !== undefined && (subjectTimelineConfig?.data?.data?.lectureRequiredConditions?.length > 0 || subjectTimelineConfig?.data?.data?.labRequiredConditions?.length > 0))
+    }, subjectConfig !== undefined && (subjectConfig.lectureRequiredConditions?.length > 0 || subjectConfig?.labRequiredConditions?.length > 0))
     const columns: ColumnsType<Room> = [
         {
             title: 'Tên phòng ',
@@ -342,7 +355,9 @@ const CourseClassConfig = () => {
         defaultValues: {
             semesterCode: semester,
             subjectCode: subject,
-            courseClassType: 0
+            courseClassType: 0,
+            stage: 0,
+            weekStart: 0
         }
     } )
     const {mutate, isPending: createLoading} = useCreateCourseClass()
@@ -381,9 +396,22 @@ const CourseClassConfig = () => {
             
         }
     }, [courseClassType, courseClasses]);
-    
-    
-    
+
+
+    const {data: courseClassList, isLoading, isSuccess} = useGetCourseClasses({
+        Filters: [
+            {
+                field: "SubjectCode",
+                operator: "==",
+                value: subject!
+            },
+            {
+                field: "SemesterCode",
+                operator: "==",
+                value: semester!
+            },
+        ]
+    }, semester !== undefined)
     return (
         <div className="space-y-6">
             <Card>
@@ -418,26 +446,75 @@ const CourseClassConfig = () => {
                                 </Form.Item>
                             )}
                         />
-                        
-                        <FormItem label={"Loại lớp"}>
-                            <Select className={"w-full"} defaultValue={courseClassType} onChange={(e) => {
-                                setCourseClassType(e)
+                        <FormItem label={"Loại lớp học"}>
+                            <Select
+                                showSearch
+                                className={"w-full"} defaultValue={courseClassType} onChange={(e) => {
+                                    setCourseClassType(e)
                                 setValue("courseClassType", e)
                             }} >
-                                <Select.Option value={0}>Lý thuyết</Select.Option>
-                                <Select.Option value={1} disabled={subjectTimelineConfig?.data?.data === null || subjectTimelineConfig?.data?.data?.labTotal === 0}>Thực hành</Select.Option>
+                                <Select.Option value={0}>Lý thuyết</Select.Option>
+                                <Select.Option value={1}
+                                    disabled={subjectConfig?.labTotal === 0 || subjectConfig?.labRequiredConditions?.length === 0}
+                                
+                                >Thực hành</Select.Option>
                             </Select>
                         </FormItem>
+                        
+                        
+                        <FormItem label={"Là lớp thành phần của"}>
+                            <Select
+                                showSearch
+                                className={"w-full"} defaultValue={""} onChange={(e) => {
+                                setValue("parentCourseClassCode", e)
+                            }} >
+                                <Select.Option value={""}>Là lớp chính</Select.Option>
+                                {
+                                    courseClassList && courseClassList?.data?.data?.items?.map((item) => (
+                                        <Select.Option key={item.id} value={item.courseClassCode}>
+                                            {item.courseClassName} ({getCourseClassType[item.courseClassType]})
+                                        </Select.Option>
+                                    ))
+                                }
+                            </Select>
+                        </FormItem>
+                        <FormItem label={"Giai đoạn học"}>
+                            <Select
+                                showSearch
+                                className={"w-full"} defaultValue={0} onChange={(e) => {
+                                setValue("stage", e)
+                            }} >
+                                <Select.Option value={0}>Giai đoạn 1</Select.Option>
+                                <Select.Option value={1}>Giai đoạn 2</Select.Option>
+                                <Select.Option value={2}>Cả 2 giai đoạn</Select.Option>
+                            </Select>
+                        </FormItem>
+                        
+                        <FormItem label={"Tuần bắt đầu"}>
+                            <Select className={"w-full"} defaultValue={courseClassType} onChange={(e) => {
+                                setValue("weekStart", e)
+                            }} >
+                                <Select.Option value={0}>1</Select.Option>
+                                <Select.Option value={1}>2</Select.Option>
+                                <Select.Option value={2}>3</Select.Option>
+                                <Select.Option value={3}>4</Select.Option>
+                                <Select.Option value={4}>5</Select.Option>
+                                <Select.Option value={5}>6</Select.Option>
+                                <Select.Option value={6}>7</Select.Option>
+                                <Select.Option value={7}>8</Select.Option>
+                            </Select>
+                        </FormItem>
+                        
                     </CardContent>
                 </Form>
 
             </Card>
 
             <div className="grid grid-cols-12 gap-6">
-                <div className=" relative col-span-3">
-                    <div className={"relative  min-h-[350px]"}>
+                <div className=" relative col-span-3 space-y-5">
+                    <Card className={"relative  min-h-[450px]"}>
                         <Table<Room>
-                            className={"absolute top-0"}
+                            className={"absolute top-0 w-full p-5"}
                             rowKey={(c) => c.id}
                             loading={RoomLoadings}
 
@@ -452,17 +529,18 @@ const CourseClassConfig = () => {
                             columns={tableColumns}
                             dataSource={rooms?.data?.data?.items ?? []}
                             scroll={{
-                                y: 300
+                                y: 350,
+                                
                             }}
 
                         />
-                    </div>
+                    </Card>
                     <Card className="h-fit">
                         <CardContent className="p-4 space-y-4">
                             <h3 className="font-bold">Cấu hình lớp {courseClassType === 0 ? "Lý thuyết" : "Thực hành"}</h3>
                             <div className="space-y-2 text-sm">
                                 <div>Phòng: {selectedRoom || "Chưa chọn"}</div>
-                                <div>Tổng tiết đã tạo: {timelineCommit.length}</div>
+                                <div>Số buổi đã tạo: {timelineCommit.length}</div>
                             </div>
 
                             {/* Scheduled Items List */}
@@ -610,6 +688,7 @@ const CourseClassConfig = () => {
                                 toast.success("Lưu thành công")
                             }
                         })
+                        console.log(getValues())
                     }}
                     disabled={timelineCommit.length === 0}
                 >

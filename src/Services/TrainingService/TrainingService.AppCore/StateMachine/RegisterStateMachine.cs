@@ -21,7 +21,6 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
                 {
                     logger.LogInformation($"Register started {context.Message.CorrelationId}");
                     context.Saga.CorrelationId = context.Message.CorrelationId;
-                    context.Saga.EventStoreId = context.Message.EventStoreId;
                     context.Saga.SemesterCode = context.Message.SemesterCode;
                     context.Saga.WishStartDate = context.Message.WishStartDate;
                     context.Saga.WishEndDate = context.Message.WishEndDate;

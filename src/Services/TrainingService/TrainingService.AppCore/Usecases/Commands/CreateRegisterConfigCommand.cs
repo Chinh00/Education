@@ -43,7 +43,8 @@ public record CreateRegisterConfigCommand(
     internal class Handler(
         IClaimContextAccessor claimContextAccessor,
         IMongoRepository<Semester> semesterRepository,
-        IApplicationService<RegisterConfig> application)
+        ITopicProducer<StartRegisterNotificationIntegrationEvent> producerNotification,
+        ITopicProducer<StartRegisterPipelineIntegrationEvent> producer)
         : IRequestHandler<CreateRegisterConfigCommand, IResult>
     {
         public async Task<IResult> Handle(CreateRegisterConfigCommand request, CancellationToken cancellationToken)
@@ -51,17 +52,31 @@ public record CreateRegisterConfigCommand(
             var (minCredit, maxCredit, semesterCode, startDate, endDate) = request;
             var (userId, userName) = (claimContextAccessor.GetUserId(), claimContextAccessor.GetUsername());
             var semester =
-                await semesterRepository.FindOneAsync(new GetSemesterByCodeSpec(request.SemesterCode),
+                await semesterRepository.FindOneAsync(new GetSemesterByCodeAndSemesterParentSpec(semesterCode),
                     cancellationToken);
             semester.SemesterStatus = SemesterStatus.Register;
             await semesterRepository.UpsertOneAsync(new GetSemesterByCodeSpec(request.SemesterCode), semester, cancellationToken);
-            var registerConfig = new RegisterConfig();
-            registerConfig.Create(semesterCode, startDate, endDate, minCredit, maxCredit, new Dictionary<string, object>()
+            
+            await producer.Produce(new StartRegisterPipelineIntegrationEvent()
             {
-                {nameof(KeyMetadata.PerformedBy), userId},
-                {nameof(KeyMetadata.PerformedByName), userName},
-            });
-            await application.SaveEventStore(registerConfig, cancellationToken);
+                CorrelationId = Guid.NewGuid(),
+                SemesterCode = semester.SemesterCode,
+                WishStartDate = startDate,
+                WishEndDate = endDate,
+                MinCredit = minCredit,
+                MaxCredit = maxCredit,
+            }, cancellationToken); 
+            
+            
+            await producerNotification.Produce(new StartRegisterNotificationIntegrationEvent(new NotificationMessage()
+            {
+                Title = $"Đăng ký nguyện vọng học học kỳ {semester?.SemesterCode}",
+                Content = $"Học kỳ {semester?.SemesterCode} đã được mở đăng ký nguyện vọng. " +
+                          $"Thời gian đăng ký từ {semester?.StartDate:dd/MM/yyyy} đến {semester?.EndDate:dd/MM/yyyy}. " +
+                          $"Số tín chỉ tối thiểu là {minCredit}, tối đa là {maxCredit}.",
+                Roles = ["student", "admin", "department-admin"]
+            }), cancellationToken);
+            
             return Results.Created();
         }
     }

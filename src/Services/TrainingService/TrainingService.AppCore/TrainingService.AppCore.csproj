@@ -17,6 +17,10 @@
       <ProjectReference Include="..\TrainingService.Domain\TrainingService.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Usecases\DomainEvents\" />
+    </ItemGroup>
+
    
 
 

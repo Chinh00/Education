@@ -1,23 +1,25 @@
 
 export interface CourseClass {
-    courseClassCode: string,
-    courseClassName: string,
-    studentIds: string[],
-    courseClassType: number,
-    subjectCode: string,
-    sessionLength: number,
-    session: number,
-    correctionId: string,
-    durationInWeeks: number,
-    minDaySpaceLesson: number,
-    semesterCode: string,
-    numberStudents: number,
-    stage: number,
-    id: string,
-    createdAt: string,
-    updatedAt: string | null,
-    teacherCode: string,
-    teacherName: string,
+    weekStart: number;
+    status: number;
+    courseClassCode: string;
+    courseClassName: string;
+    studentIds: string[];
+    courseClassType: number;
+    subjectCode: string;
+    sessionLength: number;
+    totalSession: number;
+    session: number;
+    semesterCode: string | null;
+    numberStudents: number;
+    numberStudentsExpected: number;
+    stage: number;
+    teacherName: string | null;
+    teacherCode: string | null;
+    parentCourseClassCode: string | null;
+    id: string;
+    createdAt: string;
+    updatedAt: string | null;
 }
 
 export interface SlotTimeRegister {

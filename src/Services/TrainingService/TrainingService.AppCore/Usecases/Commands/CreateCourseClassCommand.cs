@@ -18,6 +18,7 @@ public record CreateCourseClassCommand(
     int NumberStudentsExpected,
     string ParentCourseClassCode,
     int Stage,
+    int WeekStart,
     List<CreateCourseClassCommand.SlotTimelineModel> SlotTimelines
     ) : ICommand<IResult>
 {
@@ -53,6 +54,8 @@ public record CreateCourseClassCommand(
                     courseClass.NumberStudentsExpected = request.NumberStudentsExpected;
                     courseClass.ParentCourseClassCode = string.Empty;
                     courseClass.Stage = (SubjectTimelineStage)request.Stage;
+                    courseClass.ParentCourseClassCode = request.ParentCourseClassCode;
+                    courseClass.WeekStart = request.WeekStart;
                     
                     break;
                 }
@@ -69,6 +72,8 @@ public record CreateCourseClassCommand(
                     courseClass.NumberStudentsExpected = request.NumberStudentsExpected;
                     courseClass.ParentCourseClassCode = string.Empty;
                     courseClass.Stage = (SubjectTimelineStage)request.Stage;
+                    courseClass.ParentCourseClassCode = request.ParentCourseClassCode;
+                    courseClass.WeekStart = request.WeekStart;
                     break;
                 }
                 

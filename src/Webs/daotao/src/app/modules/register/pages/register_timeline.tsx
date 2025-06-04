@@ -2,7 +2,7 @@ import {useNavigate, useParams} from "react-router";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect, useState} from "react";
-import {ColumnsType, useGetSubjects} from "@/app/modules/common/hook.ts";
+import {ColumnsType} from "@/app/modules/common/hook.ts";
 import {SubjectRegister} from "@/domain/student_register.ts";
 import { useGetSubjectRegister } from "../../education/hooks/useGetSubjectRegister";
 import { Query } from "@/infrastructure/query";
@@ -11,6 +11,7 @@ import {Table, Typography} from "antd";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Settings} from "lucide-react"
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
+import { useGetSubjects } from "../../subject/hooks/hook";
 const RegisterTimeline = () => {
     const { semester} = useParams()
 

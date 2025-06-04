@@ -2,7 +2,7 @@ import {Link, useNavigate, useParams} from "react-router";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect, useState} from "react";
-import {ColumnsType, useGetSubjects} from "@/app/modules/common/hook.ts";
+import {ColumnsType} from "@/app/modules/common/hook.ts";
 import {SubjectRegister} from "@/domain/student_register.ts";
 import dayjs from "dayjs";
 import {Space, Steps, Table, Typography} from "antd";
@@ -14,6 +14,7 @@ import {Box} from "@mui/material";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 import { Badge } from "@/app/components/ui/badge";
+import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 
 const RegisterWish = () => {
     const { semester} = useParams()

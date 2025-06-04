@@ -4,7 +4,6 @@ namespace Education.Contract.IntegrationEvents;
 
 public class StartRegisterPipelineIntegrationEvent : IIntegrationEvent
 {
-    public string EventStoreId { get; set; }
     public Guid CorrelationId { get; set; }
     public string SemesterCode { get; set; }
     

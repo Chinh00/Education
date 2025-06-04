@@ -25,7 +25,7 @@ public class GetRegistersStateQuery : IListQuery<ListResultModel<RegisterState>>
         {
             _repository = new MongoRepositoryBase<RegisterState>(new MongoClient(mnOptions.Value.ToString())
                 .GetDatabase(mnOptions.Value.Database)
-                .GetCollection<RegisterState>("RegisterSaga"));
+                .GetCollection<RegisterState>("Register"));
 
         }
         public async Task<ResultModel<ListResultModel<RegisterState>>> Handle(GetRegistersStateQuery request, CancellationToken cancellationToken)

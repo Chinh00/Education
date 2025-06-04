@@ -12,50 +12,28 @@ import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect} from "react";
 import dayjs from "dayjs";
+import {useParams} from "react-router";
 const StudentRegisterConfig = () => {
     const dispatch = useAppDispatch()
-
     const {groupFuncName} = useAppSelector<CommonState>(c => c.common)
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: ``}));
     }, []);
     const {mutate, isPending} = useCreateRegisterRegistrationPeriod()
+    const {semester} = useParams()
+    
     const {control, reset, getValues, setValue} = useForm<RegistrationModel>({
         defaultValues: {
-            registerId: "",
+            semesterCode: semester,
             studentRegistrationStartDate: (new Date()).toISOString(),
             studentRegistrationEndDate: new Date().toString(),
         }
     })
 
     
-    const {data: semesters} = useGetSemesters({
-        Filters: [
-            {
-                field: "SemesterStatus",
-                operator: "==",
-                value: "1"
-            }
-        ]
-    })
-    const semester = semesters?.data?.data?.items?.[0]
-    const {data: registers} = useGetRegisters({
-        Filters: [
-            {
-                field: "SemesterCode",
-                operator: "==",
-                value: semester?.semesterCode!
-            }
-        ]
-    }, semester !== undefined)
-    useEffect(() => {
-        if (registers !== undefined && registers?.data?.data?.items?.length > 0) {
-            const register = registers.data.data.items[0]
-            reset({
-                registerId: register.eventStoreId,
-            })
-        }
-    }, [registers]);
+    
+    
+    
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
             <Card>

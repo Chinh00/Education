@@ -25,7 +25,7 @@ const getNotifications = async (query: Query): Promise<AxiosResponse<SuccessResp
 
 
 export interface RegistrationModel {
-    registerId: string;
+    semesterCode: string;
     studentRegistrationStartDate: string; 
     studentRegistrationEndDate: string;   
 }

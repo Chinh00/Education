@@ -22,6 +22,9 @@ export interface CourseClassModel {
     subjectCode: string;
     semesterCode: string;
     numberStudentsExpected: number,
+    parentCourseClassCode: string,
+    stage: number,
+    weekStart: number,
     slotTimelines: SlotTimelineModel[];
 }
 

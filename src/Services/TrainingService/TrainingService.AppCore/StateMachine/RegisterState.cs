@@ -30,7 +30,6 @@ public class RegisterState : SagaStateMachineInstance, ISagaVersion
     public int NumberStudent { get; set; }
     public int NumberSubject { get; set; }
     public int NumberWish { get; set; }
-    public string EventStoreId { get; set; }
     
 }
 

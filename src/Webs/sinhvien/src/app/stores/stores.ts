@@ -7,7 +7,7 @@ const rootReducer = combineReducers({
     common: persistReducer({
         key: "common",
         storage: storage,
-        blacklist: ["isConfirm"]
+        blacklist: []
     }, CommonReducer),
 })
 const rootConfig = {

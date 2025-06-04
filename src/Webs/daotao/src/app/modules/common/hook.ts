@@ -10,11 +10,7 @@ import {
     getRooms,
     getSpecialities, getStaffs
 } from "./service";
-import {AxiosResponse} from "axios";
-import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/success_response.ts";
-import {Speciality} from "@/domain/speciality.ts";
 import {GetProp, TableProps } from "antd";
-import {createCourseClasses} from "@/app/modules/education/services/courseClass.service.ts";
 
 const useGetCourses = (query: Query, enable: boolean = true) => {
     return useQuery({

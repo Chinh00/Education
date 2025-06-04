@@ -25,13 +25,12 @@ public record UpdateCourseTeacherCommand(UpdateCourseTeacherCommand.UpdateCourse
             
             var spec = new GetStaffByCodeSpec(request.Model.TeacherCode);
             var teacher = await staffRepository.FindOneAsync(spec, cancellationToken);
-            
-            var courseClass = await 
-                courseClassRepository.FindOneAsync(new GetCourseClassByCodeSpec(request.Model.CourseClassCode),
-                    cancellationToken);
+            var courseClassSpec = new GetCourseClassByCodeSpec(request.Model.CourseClassCode);
+            var courseClass = await
+                courseClassRepository.FindOneAsync(courseClassSpec, cancellationToken);
             courseClass.TeacherCode = request.Model.TeacherCode;
             courseClass.TeacherName = teacher.FullName;
-            
+            await courseClassRepository.UpsertOneAsync(courseClassSpec, courseClass, cancellationToken);
             return Results.Ok();
         }
     }

@@ -2,7 +2,7 @@ import {Link, useNavigate, useParams} from "react-router";
 import {useGetSubjectRegister} from "@/app/modules/education/hooks/useGetSubjectRegister.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import { Box } from "@mui/material";
-import {ColumnsType, useGetSubjects} from "@/app/modules/common/hook.ts";
+import {ColumnsType} from "@/app/modules/common/hook.ts";
 import {Subject} from "@/domain/subject.ts";
 import {Form, Input, Table, Typography} from "antd";
 import useGetStudents from "@/app/modules/student/hooks/useGetStudents.ts";
@@ -18,6 +18,7 @@ import {Student} from "@/domain/student.ts";
 import FormInputText from "@/app/components/inputs/FormInputText.tsx";
 import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
 import dayjs from "dayjs";
+import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 const RegisterDetail = () => {
     const dispatch = useAppDispatch()
 

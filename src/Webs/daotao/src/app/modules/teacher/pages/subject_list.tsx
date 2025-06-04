@@ -1,22 +1,20 @@
 import { useAppDispatch, useAppSelector } from "@/app/stores/hook.ts";
 import { CommonState, setGroupFuncName } from "@/app/stores/common_slice.ts";
-import { useEffect, useState } from "react";
-import { ColumnsType, useGetSpecialityDepartments, useGetSubjects } from "@/app/modules/common/hook.ts";
+import {useCallback, useEffect, useState} from "react";
+import { ColumnsType, useGetSpecialityDepartments } from "@/app/modules/common/hook.ts";
 import { useGetUserInfo } from "@/app/modules/auth/hooks/useGetUserInfo.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import { Box, IconButton } from "@mui/material";
 import { Subject } from "@/domain/subject.ts";
 import {Button, Table, Tooltip, Typography} from "antd";
-import {Eye, History, RotateCcw} from "lucide-react";
 import { Query } from "@/infrastructure/query.ts";
-import { useGetCourseClasses } from "../../education/hooks/useGetCourseClasses";
+import {debounce} from 'lodash';
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 import {CourseClass} from "@/domain/course_class.ts";
 import CourseClassModel from "@/app/modules/teacher/components/course_class_model.tsx";
 import { Badge } from "@/app/components/ui/badge";
-import {useGetRegisters} from "@/app/modules/education/hooks/useGetRegisters.ts";
-import {useGetSubjectRegister} from "@/app/modules/education/hooks/useGetSubjectRegister.ts";
-
+import { useGetSubjects } from "../../subject/hooks/hook";
+import { Input } from "antd"
 const SubjectList = () => {
   const dispatch = useAppDispatch();
   const { groupFuncName } = useAppSelector<CommonState>(c => c.common)
@@ -96,11 +94,25 @@ const SubjectList = () => {
   
   
   const tableColumns = columns.map((item) => ({ ...item }));
-
-
+  const [searchKeyword, setSearchKeyword] = useState("")
+  const searchTeacher = useCallback(
+      debounce((keyword) => {
+        setQuery({
+          ...query,
+          Filters: [
+            {
+              field: "SubjectName",
+              operator: keyword !== "" ? "Contains" : "!=",
+              value: keyword !== "" ? keyword : "-1"
+            },
+          ]
+        });
+      }, 1200), 
+      [query]
+  );
 
   return (
-    <PredataScreen isLoading={isLoading} isSuccess={isSuccess}>
+    <PredataScreen isLoading={false} isSuccess={true}>
       <Box>
         <Table<Subject>
             rowKey={(c) => c.id}
@@ -109,13 +121,33 @@ const SubjectList = () => {
               height: "500px",
             }}
             showHeader={true}
-            title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
+            title={() => <Box className={"flex flex-col justify-between items-center p-[16px] text-white "}>
               <Typography.Title level={4} className={"flex justify-center items-center gap-3"}>Kì học đăng ký hiện tại:
-                <Badge className={"bg-blue-400 text-xl"} >{semester?.semesterName}</Badge>  
+                <Badge className={"bg-blue-400 text-xl"} >{semester?.semesterName}</Badge>
               </Typography.Title>
+              <Input.Search value={searchKeyword} size={"large"} placeholder={"Tìm theo tên môn học"}
+                onChange={e => {
+                    setSearchKeyword(e.target.value);
+                    searchTeacher(e.target.value);
+                }}
+              
+              />
+              
             </Box>}
             size={"small"}
             bordered={true}
+            pagination={{
+              current: query?.Page ?? 1,
+              pageSize: query?.PageSize ?? 10,
+              total: subjects?.data?.data?.totalItems ?? 0
+            }}
+            onChange={(e) => {
+              setQuery(prevState => ({
+                ...prevState,
+                Page: e?.current ?? 1 - 1,
+                PageSize: e?.pageSize
+              }))
+            }}
             columns={tableColumns}
             dataSource={subjects?.data?.data?.items ?? []}
 

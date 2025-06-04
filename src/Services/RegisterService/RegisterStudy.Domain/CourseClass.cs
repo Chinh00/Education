@@ -10,10 +10,16 @@ public class CourseClass
     public int NumberOfCredits { get; set; }
     public string TeacherCode { get; set; }
     public string TeacherName { get; set; }
+    public DateTime StartDate { get; set; }
+    
+    public DateTime EndDate { get; set; }
     public string SemesterCode { get; set; }
     public int NumberStudentsExpected { get; set; }
     public List<string> Students { get; set; } = [];
     public int Stage { get; set; }
+    
+    public string ParentCourseClassCode { get; set; }
+    public int WeekStart { get; set; } = 0;
     
     public List<SlotTime> SlotTimes { get; set; } = new();
 

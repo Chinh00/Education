@@ -11,7 +11,10 @@ import {
 } from "@/app/modules/student/hooks/useGetRegisterCourseClass.ts";
 import {useState} from "react";
 import CourseClassCard from "@/app/modules/student/components/course_class_card.tsx";
-
+import {Input} from "antd"
+import { groupCourseClassesWithLodash } from "@/domain/course_class";
+import {useCreateStudentRegisterCourseClass} from "@/app/modules/student/hooks/useCreateStudentRegisterCourseClass.ts";
+import toast from "react-hot-toast";
 const RegisterNew = () => {
 
     const {data, isPending, isSuccess} = useGetStudentInformation()
@@ -48,9 +51,21 @@ const RegisterNew = () => {
     ) ?? [];
 
     const [selectedSubject, setSelectedSubject] = useState<string>()
-    const {data: courseClasses} = useGetRegisterCourseClassBySubjectCode(selectedSubject!, selectedSubject !== undefined)
+    const {data: courseClasses, isLoading: courseClassLoading} = useGetRegisterCourseClassBySubjectCode(selectedSubject!, selectedSubject !== undefined)
 
     const {data: registerCourseClass} = useGetRegisterCourseClass()
+    const [searchValue, setSearchValue] = useState<string>("");
+
+    
+    const filteredSubjects = subjects?.data?.data?.items
+        ?.filter(e => !subjectCodes?.includes(e.subjectCode))
+        ?.filter(e =>
+            e.subjectName?.toLowerCase().includes(searchValue.trim().toLowerCase())
+        ) ?? subjects?.data?.data?.items;
+    
+    
+    const {mutate} = useCreateStudentRegisterCourseClass()
+    
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
             <Box className={"grid grid-cols-8 text-sm gap-5"}>
@@ -59,21 +74,59 @@ const RegisterNew = () => {
                         <Badge className={"bg-blue-500 text-xl"}>{registerCourseClass?.data?.data?.semesterCode}</Badge>
                     </Typography.Title>
                 </div>
-                <div className={"col-span-2 border-2 rounded-xl shadow-xl" }>
-                    {subjects && subjects?.data?.data?.items?.filter(e => !subjectCodes?.includes(e.subjectCode))?.map(e => (
-                        <Button type={"text"} onClick={( ) => setSelectedSubject(e?.subjectCode)} key={e.subjectCode} className={"flex w-full items-center justify-between p-2 border-b cursor-pointer"}>
+                
+                <Card className={"col-span-2  max-h-screen overflow-y-scroll relative" }>
+                    <Input.Search
+                        className={"sticky top-5"}
+                        placeholder="Tìm kiếm theo tên môn học..."
+                        value={searchValue}
+                        onChange={e => setSearchValue(e.target.value)}
+                        allowClear
+                    />
+                    {filteredSubjects && filteredSubjects.map(e => (
+                        <div  onClick={( ) => setSelectedSubject(e?.subjectCode)} key={e.subjectCode} className={"flex w-full items-center justify-between p-2 border-b cursor-pointer"}>
                             {e?.subjectName}
-                        </Button>
+                        </div>
                     ))}
                     {subjectsLoading && <Space className={"w-full flex justify-center items-center "}>
                         <Spin size={"large"} />
                     </Space>}
                     
-                </div>
-                <Card className={"col-span-6"}>
-                    {courseClasses && courseClasses?.data?.data?.items?.map(e => (
-                        <CourseClassCard courseClass={e} key={e.courseClassCode} />
-                    ))}
+                </Card>
+                <Card className={"col-span-6 "}>
+                    <div className={"bg-blue-500 text-white  rounded-sm"}>
+                        <Typography.Title style={{color: "white"}} level={4}  className={"text-left px-2 py-3"}>
+                            Các lớp học của môn học: {
+                            subjects?.data?.data?.items?.find(e => e.subjectCode === selectedSubject)?.subjectName
+                        }
+                        </Typography.Title>
+                    </div>
+                    {courseClassLoading && (
+                        <Space className={"w-full flex justify-center items-center mt-5"}>
+                            <Spin size={"large"} />
+                        </Space>
+                    )}
+                    {!courseClassLoading && courseClasses && (
+                        groupCourseClassesWithLodash(courseClasses?.data?.data?.items ?? []).length === 0 ? (
+                            <div className={"flex flex-col items-center justify-center h-full"}>
+                                <Typography.Text className={"text-gray-500"}>Không có lớp học nào được tìm thấy</Typography.Text>
+                            </div>
+                        ) : (
+                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items ?? []).map(e => (
+                                <CourseClassCard onClick={(courseClassCode) => {
+                                    mutate({
+                                        courseClassCode: courseClassCode,
+                                        semesterCode: registerCourseClass?.data?.data?.semesterCode!,
+                                        subjectCode: selectedSubject!
+                                    }, {
+                                        onSuccess: () => {
+                                            toast.success("Đăng ký lớp học thành công lớp học: " + e.courseClassCode);
+                                        }
+                                    })
+                                }} courseClass={e} key={e.courseClassCode} />
+                            ))
+                        )
+                    )}
                 </Card>
             </Box>
         </PredataScreen>

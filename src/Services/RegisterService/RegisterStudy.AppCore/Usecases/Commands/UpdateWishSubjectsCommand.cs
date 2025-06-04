@@ -13,9 +13,9 @@ public record UpdateWishSubjectsCommand(string EducationCode, List<string> Subje
 {
     
     internal class Handler(
-        IApplicationService<StudentRegister> service,
+        IApplicationService<StudentWishRegister> service,
         IClaimContextAccessor claimContextAccessor,
-        IRegisterRepository<StudentRegister> studentRegisterRepository)
+        IRegisterRepository<StudentWishRegister> studentRegisterRepository)
         : IRequestHandler<UpdateWishSubjectsCommand, IResult>
     {
         public async Task<IResult> Handle(UpdateWishSubjectsCommand request, CancellationToken cancellationToken)

@@ -1,4 +1,4 @@
-
+import _ from "lodash";
 export interface CourseClass {
     classIndex: number,
     courseClassCode: string,
@@ -35,8 +35,31 @@ export interface CourseClassRegister {
     numberOfCredits: number;
     teacherCode: string;
     teacherName: string;
+    startDate: string; 
+    endDate: string;   
     semesterCode: string;
-    students: string[] | null;
+    numberStudentsExpected: number;
+    students: string[]; 
     stage: number;
+    parentCourseClassCode: string;
+    weekStart: number;
     slotTimes: SlotTimeRegister[];
+}
+
+
+
+
+export function groupCourseClassesWithLodash(items: CourseClassRegister[]) {
+    // Tách các lớp lý thuyết và các lớp lab
+    const lectures = items.filter(c => c.courseClassType === 0);
+    const labs = items.filter(c => c.courseClassType === 1);
+
+    // Nhóm các lab theo parentCourseClassCode
+    const labsGrouped = _.groupBy(labs, "parentCourseClassCode");
+
+    // Gắn các lab vào các lớp lý thuyết tương ứng
+    return lectures.map(lecture => ({
+        ...lecture,
+        children: labsGrouped[lecture.courseClassCode] || [],
+    }));
 }

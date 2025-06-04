@@ -12,7 +12,7 @@ public record CreateWishSubjectsCommand(string EducationCode, List<string> Subje
 {
     internal class Handler(
         IClaimContextAccessor claimContextAccessor,
-        IApplicationService<StudentRegister> service,
+        IApplicationService<StudentWishRegister> service,
         IHttpContextAccessor httpContextAccessor)
         : IRequestHandler<CreateWishSubjectsCommand, IResult>
     {
@@ -23,7 +23,7 @@ public record CreateWishSubjectsCommand(string EducationCode, List<string> Subje
             var (educationCode, subjectCodes) = request;
             var (userId, studentCode) = (claimContextAccessor.GetUserId(), claimContextAccessor.GetUsername());
 
-            var studentRegister = new StudentRegister();
+            var studentRegister = new StudentWishRegister();
             studentRegister.CreateStudentRegister(studentCode, DateTimeUtils.GetUtcTime(), educationCode, subjectCodes, new Dictionary<string, object>( )
             {
                 { nameof(KeyMetadata.PerformedBy), userId },

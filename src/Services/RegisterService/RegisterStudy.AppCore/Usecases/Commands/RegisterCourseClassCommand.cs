@@ -1,0 +1,39 @@
+﻿using Education.Core.Domain;
+using Education.Infrastructure.Authentication;
+using MediatR;
+using RegisterStudy.AppCore.Usecases.Common;
+using RegisterStudy.Domain;
+using RegisterStudy.Domain.Repository;
+
+namespace RegisterStudy.AppCore.Usecases.Commands;
+
+public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCourseClassModel Model) : ICommand<IResult>
+{
+    public record struct RegisterCourseClassModel(string SemesterCode, string SubjectCode, string CourseClassCode);
+    internal class Handler(
+        IRegisterRepository<CourseClass> repository,
+        IRegisterRepository<StudentRegister> studentRegisterRepository,
+        IClaimContextAccessor claimContextAccessor)
+        : IRequestHandler<RegisterCourseClassCommand, IResult>
+    {
+        public async Task<IResult> Handle(RegisterCourseClassCommand request, CancellationToken cancellationToken)
+        {
+            var (semesterCode, subjectCode, courseClassCode) = request.Model;
+            var studentCode = claimContextAccessor.GetUsername();
+            var courseClass = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, courseClassCode));
+            courseClass.Students.Add(studentCode);
+            await repository.SaveAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, courseClassCode),
+                () => Task.FromResult(courseClass));
+            
+            var studentRegister = await studentRegisterRepository.GetAsync(RedisKey.StudentRegisterCourseClass(studentCode)) ?? new StudentRegister() 
+            {
+                StudentCode = studentCode,
+                CourseClassCode = new List<string>()
+            };;
+            studentRegister.CourseClassCode.Add(courseClassCode);
+            await studentRegisterRepository.SaveAsync(RedisKey.StudentRegisterCourseClass(studentCode),
+                () => Task.FromResult(studentRegister));
+            return Results.Ok();
+        }
+    }
+}

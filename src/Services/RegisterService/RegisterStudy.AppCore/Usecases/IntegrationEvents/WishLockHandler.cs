@@ -8,7 +8,7 @@ namespace RegisterStudy.AppCore.Usecases.IntegrationEvents;
 public class WishLockHandler(
     ITopicProducer<RegisterLockedIntegrationEvent> topicProducer,
     ILogger<WishLockHandler> logger,
-    IRegisterRepository<StudentRegister> registerRepository)
+    IRegisterRepository<StudentWishRegister> registerRepository)
 {
     public async Task Handle(Guid correlationId, string semesterCode, CancellationToken cancellationToken)
     {

@@ -1,4 +1,4 @@
-using Education.Contract.DomainEvents;
+﻿using Education.Contract.DomainEvents;
 using Education.Core.Utils;
 using MediatR;
 using MongoDB.Bson;
@@ -8,7 +8,7 @@ using RegisterStudy.Domain.Repository;
 
 namespace RegisterStudy.AppCore.Usecases.DomainEvents;
 
-public class StudentRegisterCreatedDomainEventHandler(IRegisterRepository<StudentRegister> registerRepository)
+public class StudentRegisterCreatedDomainEventHandler(IRegisterRepository<StudentWishRegister> registerRepository)
     : INotificationHandler<StudentRegisterCreatedDomainEvent>
 {
     public async Task Handle(StudentRegisterCreatedDomainEvent notification, CancellationToken cancellationToken)
@@ -17,7 +17,7 @@ public class StudentRegisterCreatedDomainEventHandler(IRegisterRepository<Studen
         var key = RedisKey.GetKeyWishSubjects(studentCode, educationCode);
         
         
-        var register = await registerRepository.GetAsync(key) ?? new StudentRegister()
+        var register = await registerRepository.GetAsync(key) ?? new StudentWishRegister()
         {
             Id = ObjectId.Parse(notification.AggregateId),
             StudentCode = studentCode ,

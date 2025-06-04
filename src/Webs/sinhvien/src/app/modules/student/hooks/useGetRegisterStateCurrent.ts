@@ -1,10 +1,10 @@
 import {useQuery} from "@tanstack/react-query";
-import { getRegisterStateCurrent } from "../services/register.service";
+import { getRegisterWish } from "../services/register.service";
 
 const useGetRegisterStateCurrent = () => {
     return useQuery({
         queryKey: ["useGetRegisterStateCurrent"],
-        queryFn: () => getRegisterStateCurrent()
+        queryFn: () => getRegisterWish()
     })
 }
 export { useGetRegisterStateCurrent }

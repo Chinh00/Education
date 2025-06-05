@@ -3,7 +3,9 @@ import { Button } from "antd";
 
 export type CourseClassCardProps = {
     courseClass: CourseClassRegister & { children?: CourseClassRegister[] },
-    onClick: (courseClassCode: string) => void
+    onClick: (courseClassCode: string) => void,
+    isLectureRegister?: boolean
+    isLabRegister?: boolean
 }
 
 const getTypeText = (type: number) => {
@@ -36,7 +38,7 @@ const formatDate = (date: string) => {
     return d.toLocaleDateString("vi-VN");
 };
 
-const CourseClassCard = ({courseClass, onClick}: CourseClassCardProps) => {
+const CourseClassCard = ({courseClass, onClick, isLectureRegister, isLabRegister}: CourseClassCardProps) => {
     return (
         <div className="border border-gray-200 bg-white p-4 hover:bg-gray-50 transition-colors mb-4">
             {/* Lớp lý thuyết */}
@@ -63,7 +65,7 @@ const CourseClassCard = ({courseClass, onClick}: CourseClassCardProps) => {
                     </div>
                 </div>
                 <div className="ml-4">
-                    <Button onClick={() => onClick(courseClass?.courseClassCode)}>Đăng ký</Button>
+                    <Button onClick={() => onClick(courseClass?.courseClassCode)} disabled={isLectureRegister}> {isLectureRegister ? "Đã đăng ký" : "Đăng ký" }</Button>
                 </div>
             </div>
 
@@ -95,7 +97,7 @@ const CourseClassCard = ({courseClass, onClick}: CourseClassCardProps) => {
                                 </div>
                             </div>
                             <div className="ml-4">
-                                <Button>Đăng ký</Button>
+                                <Button disabled={isLabRegister} onClick={() => onClick(lab?.courseClassCode)}>Đăng ký</Button>
                             </div>
                         </div>
                     ))}

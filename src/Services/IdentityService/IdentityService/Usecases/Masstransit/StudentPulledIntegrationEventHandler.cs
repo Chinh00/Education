@@ -15,5 +15,7 @@ public class StudentPulledIntegrationEventHandler(UserManager userManager)
             user.IsConfirm = true;
             await userManager.UpdateAsync(user);
         }
+
+        if (user != null) await userManager.AddToRoleAsync(user, "student");
     }
 }

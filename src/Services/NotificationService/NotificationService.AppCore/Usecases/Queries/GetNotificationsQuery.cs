@@ -21,7 +21,8 @@ public class GetNotificationsQuery : IListQuery<ListResultModel<Notification>>
             CancellationToken cancellationToken)
         {
             var role = claimContextAccessor.GetRole();
-            var spec = new GetNotificationsByRoleSpec(request, role);
+            var userName = claimContextAccessor.GetUsername();
+            var spec = new GetNotificationsByRoleSpec(request, role, userName);
             var items = await repository.FindAsync(spec, cancellationToken);
             var totalItems = await repository.CountAsync(spec, cancellationToken);
             return ResultModel<ListResultModel<Notification>>.Create(

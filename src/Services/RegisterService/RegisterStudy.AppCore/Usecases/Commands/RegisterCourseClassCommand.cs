@@ -1,5 +1,7 @@
-﻿using Education.Core.Domain;
+﻿using Education.Contract.IntegrationEvents;
+using Education.Core.Domain;
 using Education.Infrastructure.Authentication;
+using MassTransit;
 using MediatR;
 using RegisterStudy.AppCore.Usecases.Common;
 using RegisterStudy.Domain;
@@ -13,7 +15,8 @@ public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCour
     internal class Handler(
         IRegisterRepository<CourseClass> repository,
         IRegisterRepository<StudentRegister> studentRegisterRepository,
-        IClaimContextAccessor claimContextAccessor)
+        IClaimContextAccessor claimContextAccessor,
+        ITopicProducer<RegisterCourseClassSucceedNotificationIntegrationEvent> topicProducer)
         : IRequestHandler<RegisterCourseClassCommand, IResult>
     {
         public async Task<IResult> Handle(RegisterCourseClassCommand request, CancellationToken cancellationToken)
@@ -33,6 +36,18 @@ public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCour
             studentRegister.CourseClassCode.Add(courseClassCode);
             await studentRegisterRepository.SaveAsync(RedisKey.StudentRegisterCourseClass(studentCode),
                 () => Task.FromResult(studentRegister));
+            await topicProducer.Produce(
+                new RegisterCourseClassSucceedNotificationIntegrationEvent(
+                    new NotificationMessage
+                    {
+                        Recipients = [studentCode],
+                        Roles = ["student"], 
+                        Title = "Đăng ký lớp học phần thành công",
+                        Content = $"Chào {studentCode}, bạn đã đăng ký thành công lớp học phần \"{courseClassCode}\" (Mã: {courseClassCode}) vào lúc {DateTime.UtcNow}.",
+                    }
+                ),
+                cancellationToken
+            );
             return Results.Ok();
         }
     }

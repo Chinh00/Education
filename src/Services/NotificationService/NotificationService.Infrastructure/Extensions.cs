@@ -28,6 +28,15 @@ public static class Extensions
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
                         });
+                    configurator.TopicEndpoint<RegisterCourseClassSucceedNotificationIntegrationEvent>(
+                        nameof(RegisterCourseClassSucceedNotificationIntegrationEvent), "notification-training",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
+                    
                 });
             });
         });

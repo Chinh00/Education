@@ -4,6 +4,7 @@ import {RegisterCourseClass, RegisterState} from "@/domain/register_state.ts";
 import http from "@/infrastructure/http.ts";
 import {RegisterSubject} from "@/domain/register_subject.ts";
 import {CourseClass, CourseClassRegister} from "@/domain/course_class.ts";
+import {StudentRegister} from "@/domain/student_register.ts";
 export interface EducationSubjectModel {
     educationCode: string;
     subjectCodes: string[];
@@ -28,7 +29,7 @@ export interface StudentRegisterCourseClassModel {
     courseClassCode: string
 }
 const createStudentRegisterCourseClass = async (model: StudentRegisterCourseClassModel): Promise<AxiosResponse<SuccessResponse<string>>> => await http.post(`/registerservice/api/Register/RegisterCourseClass`, model) 
-const getStudentRegisterCourseClass = async (): Promise<AxiosResponse<SuccessResponse<string>>> => await http.get(`/registerservice/api/Register/RegisterCourseClass`) 
+const getStudentRegisterCourseClass = async (): Promise<AxiosResponse<SuccessResponse<StudentRegister>>> => await http.get(`/registerservice/api/Register/RegisterCourseClass`) 
 
 export {
     getRegisterWish, createRegisterWish, getRegisterSubjectWish, getRegisterCourseClass, getRegisterCourseClassBySubjectCode, createStudentRegisterCourseClass, getStudentRegisterCourseClass}

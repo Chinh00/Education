@@ -43,6 +43,7 @@ public static class Extensions
             {
                 e.AddProducer<RegisterLockedIntegrationEvent>(nameof(RegisterLockedIntegrationEvent));
                 e.AddProducer<StudentRegisterCreatedDomainEvent>(nameof(StudentRegisterCreatedDomainEvent));
+                e.AddProducer<RegisterCourseClassSucceedNotificationIntegrationEvent>(nameof(RegisterCourseClassSucceedNotificationIntegrationEvent));
                 
                 e.AddConsumer<EventDispatcher>();
                 e.UsingKafka((context, configurator) =>

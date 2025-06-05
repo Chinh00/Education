@@ -5,10 +5,11 @@ using NotificationService.Domain;
 
 namespace NotificationService.AppCore.Usecases.IntegrationEvents;
 
-public class StartRegisterNotificationIntegrationEventHandler(IMongoRepository<Notification> repository)
-    : INotificationHandler<StartRegisterNotificationIntegrationEvent>
+public class
+    RegisterCourseClassSucceedNotificationIntegrationEventHandler(IMongoRepository<Notification> repository) : INotificationHandler<
+    RegisterCourseClassSucceedNotificationIntegrationEvent>
 {
-    public async Task Handle(StartRegisterNotificationIntegrationEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(RegisterCourseClassSucceedNotificationIntegrationEvent notification, CancellationToken cancellationToken)
     {
         await repository.AddAsync(new Notification()
         {

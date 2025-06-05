@@ -7,6 +7,7 @@ import { Education } from "@/domain/education";
 import {Speciality} from "@/domain/speciality.ts";
 import {Subject} from "@/domain/subject.ts";
 import {Semester} from "@/domain/semester.ts";
+import {Notification} from "@/domain/notification.ts";
 
 const getDepartments = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Department>>>> => await http.get(`/trainingservice/api/Department?${GetQuery(query)}`)
 
@@ -14,4 +15,6 @@ const getEducations = async (query: Query): Promise<AxiosResponse<SuccessRespons
 const getSpecialities = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Speciality>>>> => await http.get(`/trainingservice/api/Department/Speciality?${GetQuery(query)}`)
 const getSubjects = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Subject>>>> => await http.get(`/trainingservice/api/Subject?${GetQuery(query)}`)
 const getSemesters = (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Semester>>>> => http.get(`/trainingservice/api/Semester?${GetQuery(query)}`)
-export {getDepartments, getEducations, getSpecialities, getSubjects, getSemesters};
+const getNotifications = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Notification>>>> => await http.get(`/notificationservice/api/Notification?${GetQuery(query)}`)
+
+export {getDepartments, getEducations, getSpecialities, getSubjects, getSemesters, getNotifications};

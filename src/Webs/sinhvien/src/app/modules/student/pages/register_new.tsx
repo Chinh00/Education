@@ -15,6 +15,7 @@ import {Input} from "antd"
 import { groupCourseClassesWithLodash } from "@/domain/course_class";
 import {useCreateStudentRegisterCourseClass} from "@/app/modules/student/hooks/useCreateStudentRegisterCourseClass.ts";
 import toast from "react-hot-toast";
+import {useGetStudentRegisterCourseClass} from "@/app/modules/student/hooks/useGetStudentRegisterCourseClass.ts";
 const RegisterNew = () => {
 
     const {data, isPending, isSuccess} = useGetStudentInformation()
@@ -22,6 +23,7 @@ const RegisterNew = () => {
     const {data: results} = useGetStudentSemesters({
         Includes: ["SubjectResults"]
     })
+    const {data: studentRegister} = useGetStudentRegisterCourseClass()
 
     const {data: educations, isPending: educationsLoading} = useGetEducations({
         Filters: [
@@ -65,7 +67,7 @@ const RegisterNew = () => {
     
     
     const {mutate} = useCreateStudentRegisterCourseClass()
-    
+    const courseClassCodeRegister = studentRegister?.data?.data?.courseClassCode
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
             <Box className={"grid grid-cols-8 text-sm gap-5"}>
@@ -113,7 +115,7 @@ const RegisterNew = () => {
                             </div>
                         ) : (
                             groupCourseClassesWithLodash(courseClasses?.data?.data?.items ?? []).map(e => (
-                                <CourseClassCard onClick={(courseClassCode) => {
+                                <CourseClassCard isLabRegister={courseClassCodeRegister?.includes(e.courseClassCode)} isLectureRegister={courseClassCodeRegister?.includes(e.courseClassCode)} onClick={(courseClassCode) => {
                                     mutate({
                                         courseClassCode: courseClassCode,
                                         semesterCode: registerCourseClass?.data?.data?.semesterCode!,

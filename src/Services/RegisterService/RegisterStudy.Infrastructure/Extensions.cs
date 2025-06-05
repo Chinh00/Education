@@ -42,6 +42,8 @@ public static class Extensions
             {
                 e.AddProducer<RegisterLockedIntegrationEvent>(nameof(RegisterLockedIntegrationEvent));
                 e.AddProducer<RegisterCourseClassSucceedNotificationIntegrationEvent>(nameof(RegisterCourseClassSucceedNotificationIntegrationEvent));
+                e.AddProducer<CourseClassLockedIntegrationEvent>(nameof(CourseClassLockedIntegrationEvent));
+                e.AddProducer<StudentCourseClassLockedIntegrationEvent>(nameof(StudentCourseClassLockedIntegrationEvent));
                 
                 e.AddConsumer<EventDispatcher>();
                 e.UsingKafka((context, configurator) =>

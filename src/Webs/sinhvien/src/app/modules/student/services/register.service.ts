@@ -3,7 +3,7 @@ import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/succe
 import {RegisterCourseClass, RegisterState} from "@/domain/register_state.ts";
 import http from "@/infrastructure/http.ts";
 import {RegisterSubject} from "@/domain/register_subject.ts";
-import {CourseClass, CourseClassRegister} from "@/domain/course_class.ts";
+import { CourseClassRegister} from "@/domain/course_class.ts";
 import {StudentRegister} from "@/domain/student_register.ts";
 export interface EducationSubjectModel {
     educationCode: string;

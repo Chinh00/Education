@@ -5,11 +5,17 @@ export interface Subject {
     subjectDescription: string | null;
     numberOfCredits: number;
     departmentCode: string;
-    defineCode: string | null;
-    examTime: string | null;
     isCalculateMark: boolean;
     status: number;
+    lectureTotal: number;
+    lectureLesson: number;
+    lecturePeriod: number;
+    labTotal: number;
+    labLesson: number;
+    labPeriod: number;
+    lectureRequiredConditions: string[]
+    labRequiredConditions: string[];   
     id: string;
     createdAt: string;
-    updatedAt: string | null;
+    updatedAt: string | null; 
 }

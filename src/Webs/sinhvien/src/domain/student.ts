@@ -1,6 +1,6 @@
-import { InformationBySchool } from "./information_by_school.model";
-import { PersonalInformation } from "./personal_information.model.ts";
 import { StudentEducationProgram } from "@/domain/student_education_program.ts";
+import {PersonalInformation,  } from "./personal_information";
+import { InformationBySchool } from "./information_by_school";
 
 export type Student = {
   personalInformation: PersonalInformation;

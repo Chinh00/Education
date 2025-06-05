@@ -22,9 +22,7 @@ import { useGetUserInfo } from "../hooks/useGetUserInfo";
 import { useLogin } from "../hooks/useLogin";
 import {UserLoginModel} from "@/app/modules/auth/interface.ts";
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+
 const LoginFirst = () => {
   const dispatch = useAppDispatch();
   const { mutate, isPending } = useSyncDataFromDataProvider()
@@ -34,7 +32,6 @@ const LoginFirst = () => {
   useEffect(() => {
     if (reLoginSuccess) {
       const doRedirect = async () => {
-        await delay(3000);
         nav(RoutePaths.HOME);
       };
 

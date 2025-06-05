@@ -6,7 +6,6 @@ import { Box, Typography } from '@mui/material';
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import useGetStudentInformation from "@/app/modules/student/hooks/useGetStudentInformation.ts";
 import {useGetEducations, useGetSubjects} from "@/app/modules/common/hook.ts";
-import { EducationSubject } from '@/domain/education_subject';
 import {useGetRegisterStateCurrent} from "@/app/modules/student/hooks/useGetRegisterStateCurrent.ts";
 import dayjs from "dayjs";
 import {isNowBetweenServerTime} from "@/infrastructure/datetime_format.ts";

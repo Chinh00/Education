@@ -1,3 +1,4 @@
+using Confluent.Kafka;
 using Education.Contract.IntegrationEvents;
 using Education.Infrastructure;
 using MassTransit;
@@ -22,7 +23,13 @@ public static class Extensions
                 e.UsingKafka((context, config) =>
                 {
                     config.Host(configuration.GetValue<string>("Kafka:BootstrapServers"));
-                    
+                    config.TopicEndpoint<StudentCourseClassLockedIntegrationEvent>(nameof(StudentCourseClassLockedIntegrationEvent), "student-register",
+                        endpointConfigurator =>
+                        {
+                            endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
+                            endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
+                            endpointConfigurator.ConfigureConsumer<EventDispatcher>(context);
+                        });
                     
                     
 

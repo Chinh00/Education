@@ -4,8 +4,6 @@ import {Button} from "@/app/components/ui/button.tsx";
 
 import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/app/components/ui/select";
 import {useEffect, useState} from "react";
-import {Education} from "@/domain/education.ts";
-import {Department} from "@/domain/department.ts";
 import {StudentEducationProgram} from "@/domain/student_education_program.ts";
 export type InformationBySchoolProps = {
     educations: StudentEducationProgram[],

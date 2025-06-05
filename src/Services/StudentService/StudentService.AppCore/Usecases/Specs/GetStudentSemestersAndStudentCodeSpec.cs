@@ -16,8 +16,5 @@ public class GetStudentSemestersAndStudentCodeSpec : ListSpecificationBase<Stude
         ApplyInclude(c => c.Id);
         ApplyInclude(c => c.StudentCode);
         ApplyInclude(c => c.SemesterCode);
-        ApplyInclude(c => c.SemesterName);
-        ApplyInclude(c => c.EducationStartDate);
-        ApplyInclude(c => c.EducationEndDate);
     }
 }

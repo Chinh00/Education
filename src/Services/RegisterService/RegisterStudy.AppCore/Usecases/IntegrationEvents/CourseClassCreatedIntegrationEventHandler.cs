@@ -1,4 +1,6 @@
 ﻿using Education.Contract.IntegrationEvents;
+using Education.Core.Utils;
+using Hangfire;
 using MediatR;
 using RegisterStudy.AppCore.Usecases.Common;
 using RegisterStudy.Domain;
@@ -6,7 +8,7 @@ using RegisterStudy.Domain.Repository;
 
 namespace RegisterStudy.AppCore.Usecases.IntegrationEvents;
 
-public class CourseClassCreatedIntegrationEventHandler(IRegisterRepository<RegisterCourseClass> registerRepository,
+public class CourseClassCreatedIntegrationEventHandler(IRegisterRepository<RegisterCourseClass> registerRepository, IBackgroundJobClient jobClient,
     IRegisterRepository<CourseClass> courseClassRepository
     )
     : INotificationHandler<CourseClassesCreatedIntegrationEvent>
@@ -20,7 +22,9 @@ public class CourseClassCreatedIntegrationEventHandler(IRegisterRepository<Regis
             StudentRegisterEnd = notification.StudentRegisterEnd,
             StudentRegisterStart = notification.StudentRegisterStart
         }));
-        
+        var delay = TimeZoneInfo
+            .ConvertTimeFromUtc(notification.StudentRegisterEnd, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")) - DateTimeUtils.GetUtcTime();
+        if (delay <= TimeSpan.Zero) await Task.CompletedTask;
         foreach (var notificationCourseClass in notification.CourseClasses)
         {
             var courseSubjetKey = RedisKey.SubjectCourseClass(notification.SemesterCode,
@@ -52,5 +56,9 @@ public class CourseClassCreatedIntegrationEventHandler(IRegisterRepository<Regis
                 }
                 ));
         }
+        jobClient.Schedule<CourseClassLockHandler>(
+            (x) => x.Handle(notification.SemesterCode, cancellationToken),
+            delay
+        );
     }
 }

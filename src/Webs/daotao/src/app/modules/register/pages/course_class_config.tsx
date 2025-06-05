@@ -46,7 +46,7 @@ const CourseClassConfig = () => {
     }, subject !== undefined)
     
     const subjectConfig = data?.data?.data?.items?.[0]
-    
+    const [selectedCourseClassStage, setSelectedCourseClassStage] = useState(0)
     
     const [courseClassType, setCourseClassType] = useState(0)
     const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([])
@@ -293,9 +293,6 @@ const CourseClassConfig = () => {
                     setSelectedRoom(record.code)
 
                     setScheduledItems([])
-
-
-
                 }}>Chọn</ButtonAntd>
             ),
         },
@@ -305,13 +302,19 @@ const CourseClassConfig = () => {
     const tableColumns = columns.map((item) => ({ ...item }));
     const [selectedRoom, setSelectedRoom] = useState<string>()
 
-    const {data: courseClass} = useGetCourseClasses({
+    const {data: courseClass, refetch: courseClassRefetch} = useGetCourseClasses({
         Filters: [
             {
                 field: "SemesterCode",
                 operator: "==",
                 value: semester!
-            }
+            },
+            {
+                field: "Stage",
+                operator: "In",
+                value: [selectedCourseClassStage, 2].join(",")
+            },
+            
         ]
     }, selectedRoom !== undefined)
     // dữ liệu thời khóa biểu của phòng
@@ -338,7 +341,7 @@ const CourseClassConfig = () => {
                 ...timeLine?.data?.data?.items?.map(c => {
                     return {
                         id: c?.id,
-                        title: "Đã có tiết",
+                        title: `${c?.courseClassCode}`,
                         subject: "",
                         color: "bg-red-100 text-blue-800 border-blue-200",
                         startSlot: +c?.slots[0],
@@ -412,6 +415,8 @@ const CourseClassConfig = () => {
             },
         ]
     }, semester !== undefined)
+    
+    
     return (
         <div className="space-y-6">
             <Card>
@@ -482,6 +487,7 @@ const CourseClassConfig = () => {
                             <Select
                                 showSearch
                                 className={"w-full"} defaultValue={0} onChange={(e) => {
+                                    setSelectedCourseClassStage(e)
                                 setValue("stage", e)
                             }} >
                                 <Select.Option value={0}>Giai đoạn 1</Select.Option>
@@ -641,8 +647,12 @@ const CourseClassConfig = () => {
                                                         >
                                                             <div className="flex items-center gap-1 pointer-events-none">
                                                                 <GripVertical className="w-3 h-3" />
-                                                                <span className="truncate">{item.title}</span>
+                                                                
+                                                                <Typography style={{fontSize: "12px"}} className={""}>
+                                                                    {item.title}
+                                                                </Typography>
                                                             </div>
+                                                            
                                                             <span className="text-xs opacity-75 pointer-events-none">{item.duration} tiết</span>
                                                             <span className="text-xs opacity-75 pointer-events-none">
                                 Tiết {item.startSlot + 1}-{item.endSlot + 1}

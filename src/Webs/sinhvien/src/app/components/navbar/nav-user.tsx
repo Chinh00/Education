@@ -11,7 +11,7 @@ import {
 
 import { useNavigate } from "react-router";
 import { useAppDispatch } from "@/app/stores/hook.ts";
-import {setAuthenticate, setIsConfirm} from "@/app/stores/common_slice.ts";
+import {setAuthenticate} from "@/app/stores/common_slice.ts";
 import { RoutePaths } from "@/cores/route_paths.ts";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "../ui/sidebar";
 import {
@@ -33,7 +33,6 @@ export function NavUser() {
     //     postLogoutRedirectUri: "/login"
     // }).then(r => {
     // });
-    dispatch(setIsConfirm(false))
     dispatch(setAuthenticate(false))
     navigate(RoutePaths.LOGIN)
   };

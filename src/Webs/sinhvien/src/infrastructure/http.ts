@@ -1,7 +1,7 @@
 import axios, {AxiosInstance} from "axios";
 import Auth, {Authenticate} from "./utils/auth.ts";
 import store from "@/app/stores/stores.ts";
-import {setAuthenticate, setIsConfirm} from "@/app/stores/common_slice.ts";
+import {setAuthenticate} from "@/app/stores/common_slice.ts";
 
 
 function sleep(ms = 500): Promise<void> {
@@ -55,7 +55,6 @@ class Http {
         }, error => {
             if (error?.response?.status === 401) {
                 store.dispatch(setAuthenticate(false));
-                store.dispatch(setIsConfirm(false));
             }
 
 

@@ -1,4 +1,3 @@
-using Education.Contract.DomainEvents;
 using Education.Core.Domain;
 
 namespace TrainingService.Domain;

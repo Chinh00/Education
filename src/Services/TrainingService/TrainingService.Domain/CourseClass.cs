@@ -1,4 +1,3 @@
-using Education.Contract.DomainEvents;
 using Education.Core.Domain;
 using MongoDB.Bson;
 using TrainingService.Domain.Enums;
@@ -34,7 +33,7 @@ public class CourseClass : BaseEntity
     
 }
 
-public class SlotTimeline : AggregateBase
+public class SlotTimeline : BaseEntity
 {
     public string CourseClassCode { get; set; }
     public string BuildingCode { get; set; }
@@ -42,18 +41,4 @@ public class SlotTimeline : AggregateBase
     public string RoomCode { get; set; }
     public int DayOfWeek { get; set; }
     public List<string> Slots { get; set; }
-    
-    public void Create(string courseClassCode, string buildingCode, string roomCode, int dayOfWeek, List<string> slot, IDictionary<string, object> metaData = null)
-    {
-        CourseClassCode = courseClassCode;
-        BuildingCode = buildingCode;
-        RoomCode = roomCode;
-        DayOfWeek = dayOfWeek;
-        Slots = slot;
-        AddDomainEvent(version => new SlotTimelineCreatedDomainEvent(Id.ToString(), courseClassCode, buildingCode, roomCode, dayOfWeek, slot)
-        {
-            Version = version,
-            MetaData = metaData
-        });
-    }
 }

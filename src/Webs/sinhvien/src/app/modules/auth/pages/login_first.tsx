@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle, } from "@/app/components/ui/alert"
 import { School, AlertCircle, Database, LogOut } from "lucide-react";
 import { Tooltip, Button, Spin } from "antd";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
-import {CommonState, setAuthenticate, setIsConfirm} from "@/app/stores/common_slice.ts";
+import {CommonState, setAuthenticate} from "@/app/stores/common_slice.ts";
 import { useSyncDataFromDataProvider } from "@/app/modules/student/hooks/useSyncDataFromDataProvider.ts";
 import toast from "react-hot-toast";
 import useGetStudentInformation from "../../student/hooks/useGetStudentInformation";
@@ -22,42 +22,30 @@ import { useGetUserInfo } from "../hooks/useGetUserInfo";
 import { useLogin } from "../hooks/useLogin";
 import {UserLoginModel} from "@/app/modules/auth/interface.ts";
 
-
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 const LoginFirst = () => {
   const dispatch = useAppDispatch();
   const { mutate, isPending } = useSyncDataFromDataProvider()
   const { data: userInfo } = useGetUserInfo()
-  const { mutate: reLogin, isPending: reLoginPending } = useLogin();
-  const { data, isLoading, refetch } = useGetStudentInformation(1500)
-  const hasNavigatedRef = useRef(false);
+  const { mutate: reLogin, isPending: reLoginPending, isSuccess: reLoginSuccess } = useLogin();
   const nav = useNavigate()
   useEffect(() => {
-    if (data?.data?.data?.status === 2 && !hasNavigatedRef.current) {
-      reLogin({
-        userLoginModel: {
-          username: data?.data?.data?.informationBySchool?.studentCode!,
-          password: data?.data?.data?.informationBySchool?.studentCode!
-        } as UserLoginModel
-      }, {
-        onSuccess: async (e) => {
-          // navigate("/");
-          dispatch(setIsConfirm(true))
-          toast.success("Dữ liệu đã được đồng bộ thành công ")
-          
-          // dispatch(setAuthenticate(true))
-        },
-        onError: (err) => {
-          toast.error(err.message)
-        }
-      })
+    if (reLoginSuccess) {
+      const doRedirect = async () => {
+        await delay(3000);
+        nav(RoutePaths.HOME);
+      };
+
+      doRedirect();
     }
-  }, [data]);
-  const {isConfirm} = useAppSelector<CommonState>(e => e.common)
+  }, [reLoginSuccess]);
 
   
   return (
     <div className={"w-full h-full flex justify-center items-center pt-16"}>
-      {isConfirm && <Navigate to={"/"} />}
+      
       <Card className="w-full max-w-lg shadow-lg">
         <CardHeader className="space-y-1">
           <div className={"flex justify-between items-center"}>
@@ -137,10 +125,23 @@ const LoginFirst = () => {
           {/*        Đi đến trang chủ*/}
           {/*    </Button>*/}
           {/*)}*/}
-          <Button type="primary" loading={data?.data?.data?.status === 1} className="w-full" onClick={() => {
+          <Button type="primary" loading={isPending} className="w-full" onClick={() => {
             mutate(undefined, {
               onSuccess: () => {
-                toast.success("Dữ liệu đang được đồng bộ")
+                reLogin({
+                  userLoginModel: {
+                    username: userInfo?.data?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+                    password: userInfo?.data?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]
+                  } as UserLoginModel
+                }, {
+                  onSuccess: async (e) => {
+                    toast.success("Dữ liệu đã được đồng bộ thành công ")
+                    
+                  },
+                  onError: (err) => {
+                    toast.error(err.message)
+                  }
+                })
               }
             })
           }}>

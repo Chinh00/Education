@@ -1,5 +1,4 @@
 
-using Education.Contract.DomainEvents;
 using Education.Core.Domain;
 using MongoDB.Bson;
 using TrainingService.Domain.Enums;

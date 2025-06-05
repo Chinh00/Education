@@ -60,6 +60,9 @@ const CourseClassList = () => {
         {
             title: "Là lớp thành phần của",
             dataIndex: "parentCourseClassCode",
+            render: (_, record) => (
+                <>{record?.parentCourseClassCode ? record?.parentCourseClassCode : "Là lớp chính"}</>
+            )
         },
         
         {
@@ -74,6 +77,13 @@ const CourseClassList = () => {
                 <>{getStage[record.stage]}</>
             )
         },
+        {
+            title: 'Giảng viên',
+            render: (text, record) => (
+                <>{record?.teacherName} - ({record?.teacherCode})</>
+            )
+        },
+        
         
         {
             title: 'Lịch học',

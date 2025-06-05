@@ -19,19 +19,37 @@ import {useEffect, useReducer, useRef} from "react";
 import {data, Navigate, useNavigate} from "react-router";
 import { RoutePaths } from "@/cores/route_paths";
 import { useGetUserInfo } from "../hooks/useGetUserInfo";
+import { useLogin } from "../hooks/useLogin";
+import {UserLoginModel} from "@/app/modules/auth/interface.ts";
 
 
 const LoginFirst = () => {
   const dispatch = useAppDispatch();
   const { mutate, isPending } = useSyncDataFromDataProvider()
   const { data: userInfo } = useGetUserInfo()
-
+  const { mutate: reLogin, isPending: reLoginPending } = useLogin();
   const { data, isLoading, refetch } = useGetStudentInformation(1500)
   const hasNavigatedRef = useRef(false);
   const nav = useNavigate()
   useEffect(() => {
     if (data?.data?.data?.status === 2 && !hasNavigatedRef.current) {
-      dispatch(setIsConfirm(true))
+      reLogin({
+        userLoginModel: {
+          username: data?.data?.data?.informationBySchool?.studentCode!,
+          password: data?.data?.data?.informationBySchool?.studentCode!
+        } as UserLoginModel
+      }, {
+        onSuccess: async (e) => {
+          // navigate("/");
+          dispatch(setIsConfirm(true))
+          toast.success("Dữ liệu đã được đồng bộ thành công ")
+          
+          // dispatch(setAuthenticate(true))
+        },
+        onError: (err) => {
+          toast.error(err.message)
+        }
+      })
     }
   }, [data]);
   const {isConfirm} = useAppSelector<CommonState>(e => e.common)

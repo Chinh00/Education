@@ -6,6 +6,7 @@ using NotificationService.AppCore.Usecases.Queries;
 namespace NotificationService.Api.Controllers;
 
 /// <inheritdoc />
+[Authorize]
 public class NotificationController : BaseController
 {
     /// <summary>

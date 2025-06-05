@@ -86,7 +86,7 @@ export function AppSidebar() {
 
 
               <SidebarMenuItem>
-                <SidebarMenuButton className="text-sidebar-foreground/70" onClick={() => nav(RoutePaths.STUDENT_RESULT)}>
+                <SidebarMenuButton className="text-sidebar-foreground/70" onClick={() => nav(RoutePaths.STUDENT_EDUCATION_RESULT)}>
                   <CakeSlice />
                   Kết quả học tập
                 </SidebarMenuButton>

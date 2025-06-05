@@ -129,27 +129,21 @@ const StudentEducation = () => {
                   <p className="text-slate-500">Trường Đại học Thủy Lợi</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600 mb-1">-1</div>
-                    <div className="text-sm text-slate-600">GPA hiện tại</div>
-                  </div>
-                </div>
               </div>
 
               {/* Progress Overview */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-lg p-4 border border-slate-200">
-                  <div className="flex items-center mb-2">
-                    <Calendar className="h-5 w-5 text-blue-500 mr-2" />
-                    <span className="text-sm text-slate-600">Tiến độ học tập</span>
-                  </div>
-                  <div className="text-2xl font-bold text-slate-900 mb-1">{90}%</div>
-                  <Progress className="h-2" />
-                  <p className="text-xs text-slate-500 mt-1">
-                    Học kỳ 5/8
-                  </p>
-                </div>
+                {/*<div className="bg-white rounded-lg p-4 border border-slate-200">*/}
+                {/*  <div className="flex items-center mb-2">*/}
+                {/*    <Calendar className="h-5 w-5 text-blue-500 mr-2" />*/}
+                {/*    <span className="text-sm text-slate-600">Tiến độ học tập</span>*/}
+                {/*  </div>*/}
+                {/*  <div className="text-2xl font-bold text-slate-900 mb-1">{90}%</div>*/}
+                {/*  <Progress className="h-2" />*/}
+                {/*  <p className="text-xs text-slate-500 mt-1">*/}
+                {/*    Học kỳ 5/8*/}
+                {/*  </p>*/}
+                {/*</div>*/}
 
                 <div className="bg-white rounded-lg p-4 border border-slate-200">
                   <div className="flex items-center mb-2">
@@ -166,9 +160,9 @@ const StudentEducation = () => {
                     <span className="text-sm text-slate-600">Môn học</span>
                   </div>
                   <div className="text-2xl font-bold text-slate-900">
-                    {10}/{educations?.data?.data?.items?.[0]?.educationSubjects.length}
+                    {educations?.data?.data?.items?.[0]?.educationSubjects.length}
                   </div>
-                  <p className="text-xs text-slate-500">hoàn thành</p>
+                  {/*<p className="text-xs text-slate-500">hoàn thành</p>*/}
                 </div>
 
                 <div className="bg-white rounded-lg p-4 border border-slate-200">
@@ -177,7 +171,7 @@ const StudentEducation = () => {
                     <span className="text-sm text-slate-600">Tín chỉ</span>
                   </div>
                   <div className="text-2xl font-bold text-slate-900">
-                    {100}/{140}
+                    {subjects?.data?.data?.items?.reduce((acc, subject) => acc + subject.numberOfCredits, 0)}
                   </div>
                   <p className="text-xs text-slate-500">tín chỉ</p>
                 </div>

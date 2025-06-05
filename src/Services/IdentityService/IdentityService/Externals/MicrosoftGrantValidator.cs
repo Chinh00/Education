@@ -58,7 +58,8 @@ public class MicrosoftGrantValidator(IConfiguration configuration, UserManager u
                 }, studentCode);
                 user = await userManager.FindByNameAsync(studentCode!);
             }
-            
+            await userManager.AddToRoleAsync(await userManager.FindByNameAsync(studentCode!) ?? throw new InvalidOperationException(), "student");
+
             context.Result = new GrantValidationResult(
                 subject: user?.Id,
                 authenticationMethod: GrantType,

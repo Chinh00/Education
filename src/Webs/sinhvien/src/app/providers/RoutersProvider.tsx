@@ -7,7 +7,6 @@ import ProgressScreen from "@/app/components/screens/progress_screen.tsx";
 import {useGetUserInfo} from "@/app/modules/auth/hooks/useGetUserInfo.ts";
 const Home = lazy(() => import("../modules/home/pages/home.tsx"))
 const StudentInformation = lazy(() => import("../modules/student/pages/student_information.tsx"))
-const StudentResult = lazy(() => import("../modules/student/pages/student_result.tsx"))
 const StudentEducation = lazy(() => import("../modules/student/pages/student_education.tsx"))
 const StudentRegister = lazy(() => import("../modules/student/pages/register_education.tsx"))
 const StudentTimeline = lazy(() => import("../modules/student/pages/student_timeline.tsx"))
@@ -62,8 +61,8 @@ const router = createBrowserRouter([
                                 element: <Suspense fallback={<ProgressScreen  />} key={"StudentInformation"}><StudentInformation /></Suspense>,
                             },
                             {
-                                path: RoutePaths.STUDENT_RESULT,
-                                element: <Suspense fallback={<ProgressScreen  />} key={"StudentResult"}><StudentResult /></Suspense>,
+                                path: RoutePaths.STUDENT_EDUCATION_RESULT,
+                                element: <Suspense fallback={<ProgressScreen  />} key={"EducationResult"}><EducationResult /></Suspense>,
                             },
                             {
                                 path: RoutePaths.STUDENT_EDUCATION,
@@ -72,10 +71,6 @@ const router = createBrowserRouter([
                             {
                                 path: RoutePaths.STUDENT_REGISTER,
                                 element: <Suspense fallback={<ProgressScreen  />} key={"StudentRegister"}><StudentRegister /></Suspense>,
-                            },
-                            {
-                                path: RoutePaths.STUDENT_EDUCATION_RESULT,
-                                element: <Suspense fallback={<ProgressScreen  />} key={"EducationResult"}><EducationResult /></Suspense>,
                             },
                             {
                                 path: RoutePaths.STUDENT_TIMELINE,

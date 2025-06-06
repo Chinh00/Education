@@ -29,13 +29,10 @@ const LoginFirst = () => {
   const { data: userInfo } = useGetUserInfo()
   const { mutate: reLogin, isPending: reLoginPending, isSuccess: reLoginSuccess } = useLogin();
   const nav = useNavigate()
+  const {refetch} = useGetUserInfo(false)
   useEffect(() => {
     if (reLoginSuccess) {
-      const doRedirect = async () => {
-        nav(RoutePaths.HOME);
-      };
-
-      doRedirect();
+      refetch()
     }
   }, [reLoginSuccess]);
 

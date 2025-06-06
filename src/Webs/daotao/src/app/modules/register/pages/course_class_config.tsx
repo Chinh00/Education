@@ -19,7 +19,7 @@ import toast from "react-hot-toast";
 import {daysOfWeek, timeSlots } from "@/infrastructure/date"
 import {useAppSelector} from "@/app/stores/hook.ts";
 import { useGetSubjects } from "../../subject/hooks/hook"
-import {getCourseClassType} from "@/app/modules/register/pages/course_class_list.tsx";
+import {getCourseClassType, getStage} from "@/app/modules/register/pages/course_class_list.tsx";
 export interface ScheduleItem {
     id: string
     title: string
@@ -111,39 +111,45 @@ const CourseClassConfig = () => {
         setSelectionStart(null)
         setSelectionEnd(null)
     }
+    const FIXED_DURATION = courseClassType === 0 ? subjectConfig?.lecturePeriod ?? 0 : subjectConfig?.labPeriod ?? 0;
 
     const createScheduleBlock = () => {
         if (!selectionStart || !selectionEnd) return
 
-        const startSlot = Math.min(selectionStart.slotIndex, selectionEnd.slotIndex)
-        const endSlot = Math.max(selectionStart.slotIndex, selectionEnd.slotIndex)
+        const start = selectionStart.slotIndex
+        const end = selectionEnd.slotIndex
         const dayIndex = selectionStart.dayIndex
-        const duration = endSlot - startSlot + 1
+        const isForward = end >= start
+        const startSlot = isForward ? start : start - FIXED_DURATION + 1
+        const validStartSlot = Math.max(0, startSlot)
+        const validEndSlot = validStartSlot + FIXED_DURATION - 1
 
-        // Check for conflicts
-        const hasConflict = scheduledItems.some(
-            (item) => item.dayIndex === dayIndex && !(item.endSlot < startSlot || item.startSlot > endSlot),
+        if (validStartSlot < 0 || validEndSlot >= timeSlots.length) return
+
+
+        const selectionLength = Math.abs(end - start) + 1
+        if (selectionLength < FIXED_DURATION) return
+
+        const hasConflict = scheduledItems.some( (item) => item.dayIndex === dayIndex && !(item.endSlot < validStartSlot || item.startSlot > validEndSlot)
         )
-
-        if (hasConflict) {
-            return
-        }
+        if (hasConflict) return
 
         const newItem: ScheduleItem = {
             id: `schedule-${Date.now()}`,
-            title: `Buổi học ${scheduledItems.length + 1}`,
+            title: `Buổi học ${timelineCommit.length + 1}`,
             subject: courseClassType === 0 ? "Lý thuyết" : "Thực hành",
             color:
                 courseClassType === 0
                     ? "bg-blue-100 text-blue-800 border-blue-200"
                     : "bg-green-100 text-green-800 border-green-200",
-            startSlot,
-            endSlot,
+            startSlot: validStartSlot,
+            endSlot: validEndSlot,
             dayIndex,
-            duration,
+            duration: FIXED_DURATION,
         }
-
         setScheduledItems((prev) => [...prev, newItem])
+
+        setIsDragging(false)
     }
 
     const isSlotOccupied = (dayIndex: number, slotIndex: number) => {
@@ -312,7 +318,7 @@ const CourseClassConfig = () => {
             {
                 field: "Stage",
                 operator: "In",
-                value: [selectedCourseClassStage, 2].join(",")
+                value: selectedCourseClassStage !== 2 ? [selectedCourseClassStage, 2].join(",") : "0,1,2"
             },
             
         ]
@@ -341,7 +347,7 @@ const CourseClassConfig = () => {
                 ...timeLine?.data?.data?.items?.map(c => {
                     return {
                         id: c?.id,
-                        title: `${c?.courseClassCode}`,
+                        title: `${c?.courseClassCode} ${getStage[courseClass?.data?.data?.items?.find(e => e.courseClassCode === c?.courseClassCode)?.stage ?? 0]}`,
                         subject: "",
                         color: "bg-red-100 text-blue-800 border-blue-200",
                         startSlot: +c?.slots[0],

@@ -46,6 +46,7 @@ const StudentRegisterConfig = () => {
             reset({
                 studentRegistrationStartDate: dayjs(register?.studentRegisterStart).toISOString(),
                 studentRegistrationEndDate: register?.studentRegisterEnd,
+                semesterCode: semester,
             })
         }
     }, [register]);

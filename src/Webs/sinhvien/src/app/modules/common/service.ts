@@ -3,7 +3,6 @@ import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/succe
 import {GetQuery, Query} from "@/infrastructure/query.ts";
 import http from "@/infrastructure/http.ts";
 import { Education } from "@/domain/education";
-import {Speciality} from "@/domain/speciality.ts";
 import {Subject} from "@/domain/subject.ts";
 import {Semester} from "@/domain/semester.ts";
 import {Notification} from "@/domain/notification.ts";

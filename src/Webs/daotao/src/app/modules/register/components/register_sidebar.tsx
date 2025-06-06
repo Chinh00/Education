@@ -48,21 +48,6 @@ const RegisterSidebar = () => {
                 Tổ chức đăng ký học
               </SidebarMenuButton>
             </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => nav(RoutePaths.HOME_PATH)}>
-                <UserPen color={"white"} />
-                Sinh viên thay đổi lớp học
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => nav(RoutePaths.HOME_PATH)}>
-                <ListEnd color={"white"} />
-                Kết thúc
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>

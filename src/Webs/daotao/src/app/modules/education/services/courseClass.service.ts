@@ -28,9 +28,22 @@ export interface CourseClassModel {
     slotTimelines: SlotTimelineModel[];
 }
 
+export interface UpdateCourseClassStatusModel {
+    courseClassCode: string,
+    status: number
+}
+
+export interface RemoveStudentFromCourseClassModel {
+    courseClassCode: string,
+    studentCode: string
+}
+
+
 const getCourseClasses = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<CourseClass>>>> => await http.get(`/trainingservice/api/CourseClass?${GetQuery(query)}`)
 const createCourseClasses = async (model: CourseClassModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<CourseClass>>>> => await http.post(`/trainingservice/api/CourseClass`, model)
 const getCourseClassTimeline = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.get(`/trainingservice/api/CourseClass/Schedule?${GetQuery(query)}`)
+const updateCourseClassStatus = async (model: UpdateCourseClassStatusModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.put(`/trainingservice/api/CourseClass/Status`, model)
+const removeStudentFromCourseClass = async (model: RemoveStudentFromCourseClassModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.put(`/trainingservice/api/CourseClass/Student`, model)
 
 
-export {getCourseClasses, getCourseClassTimeline, createCourseClasses}
+export {getCourseClasses, getCourseClassTimeline, createCourseClasses, updateCourseClassStatus, removeStudentFromCourseClass}

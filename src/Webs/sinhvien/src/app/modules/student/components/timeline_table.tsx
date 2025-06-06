@@ -1,31 +1,14 @@
-﻿import {daysOfWeek, timeSlots} from "@/app/modules/student/pages/student_timeline.tsx";
-import {Fragment} from "react";
-import type {SlotTimeline} from "@/domain/slot_timeline";
-
+﻿import { daysOfWeek, timeSlots } from "@/app/modules/student/pages/student_timeline.tsx";
+import { Fragment } from "react";
+import type { SlotTimeline } from "@/domain/slot_timeline";
 
 
 const TimelineTable = () => {
     // Helper to find slot info for a cell
     const getSlot = (dayIndex: number, slotId: string) =>
-        [{
-            dayOfWeek: 0,
-            slots: ["1", "2", "3"],
-            courseClassCode: "CS101",
-            buildingCode: "B1",
-            roomCode: "101",
-            id: "slot1",
-            createdAt: "2023-01-01T00:00:00Z",
-            updatedAt: null
-        } as SlotTimeline, {
-            dayOfWeek: 1,
-            slots: ["4", "5"],
-            courseClassCode: "CS102",
-            buildingCode: "B2",
-            roomCode: "102",
-            id: "slot2",
-            createdAt: "2023-01-02T00:00:00Z",
-            updatedAt: null
-        } as SlotTimeline].find(
+        [
+            {dayOfWeek: 0, slots: ["slot1", "slot2"], courseClassCode: "CS101", buildingCode: "B1", roomCode: "R101", id: "1", createdAt: "2023-10-01T00:00:00Z"},
+        ].find(
             s => s.dayOfWeek === dayIndex && s.slots.includes(slotId)
         );
 
@@ -58,6 +41,11 @@ const TimelineTable = () => {
                                         <div>
                                             <div className="font-semibold">{slotInfo.courseClassCode}</div>
                                             <div className="text-xs">{slotInfo.buildingCode} - {slotInfo.roomCode}</div>
+                                            <div className="text-xs text-gray-500">
+                                                {/* Optionally show thêm thông tin */}
+                                                ID: {slotInfo.id}<br/>
+                                                Ngày: {slotInfo.createdAt && new Date(slotInfo.createdAt).toLocaleDateString()}
+                                            </div>
                                         </div>
                                     )}
                                 </div>

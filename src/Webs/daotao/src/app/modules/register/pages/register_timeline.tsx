@@ -14,8 +14,7 @@ import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts"
 import { useGetSubjects } from "../../subject/hooks/hook";
 const RegisterTimeline = () => {
     const { semester} = useParams()
-
-    const {data, isPending, isSuccess} = useGetSubjectRegister({
+    const [query, setQuery] = useState<Query>({
         Filters: [
             {
                 field: "SemesterCode",
@@ -23,7 +22,8 @@ const RegisterTimeline = () => {
                 value: semester!
             }
         ]
-    }, semester !== undefined)
+    })
+    const {data, isPending, isSuccess} = useGetSubjectRegister(query, semester !== undefined)
     const dispatch = useAppDispatch()
 
     const {groupFuncName} = useAppSelector<CommonState>(c => c.common)
@@ -85,15 +85,7 @@ const RegisterTimeline = () => {
     const nav = useNavigate();
 
 
-    const [query, setQuery] = useState<Query>({
-        Filters: [
-            {
-                field: "SemesterCode",
-                operator: "==",
-                value: semester!
-            }
-        ]
-    })
+    
     
     
 

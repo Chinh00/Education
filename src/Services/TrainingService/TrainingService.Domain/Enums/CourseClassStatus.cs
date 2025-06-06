@@ -2,7 +2,6 @@
 
 public enum CourseClassStatus
 {
-    Pending = 0,
-    Active = 1,
-    Cancelled = 2,
+    Active = 0,
+    InActive = 1,
 }

@@ -65,14 +65,38 @@ public class CourseClassController : BaseController
     /// <summary>
     /// Cập nhật giáo viên cho lớp học
     /// </summary>
-    /// <param name="Model"></param>
+    /// <param name="model"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPut]
-    public async Task<IActionResult> HandleUpdateTeacherCourseClass([FromBody] UpdateCourseTeacherCommand.UpdateCourseTeacherModel Model,
+    public async Task<IActionResult> HandleUpdateTeacherCourseClassAsync([FromBody] UpdateCourseTeacherCommand.UpdateCourseTeacherModel model,
         CancellationToken cancellationToken)
     {
-        return Ok(await Mediator.Send(new UpdateCourseTeacherCommand(Model), cancellationToken));
+        return Ok(await Mediator.Send(new UpdateCourseTeacherCommand(model), cancellationToken));
+    }
+    /// <summary>
+    /// Cập nhật trạng thái của lớp học
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPut("Status")]
+    public async Task<IActionResult> HandleUpdateCourseClassStatusAsync([FromBody] UpdateCourseClassStatusCommand.UpdateCourseClassStatusModel model,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new UpdateCourseClassStatusCommand(model), cancellationToken));
+    }
+    /// <summary>
+    /// Hủy đăng ký học phần của sinh viên
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPut("Student")]
+    public async Task<IActionResult> HandleRemoveStudentFromCourseClassAsync([FromBody] DeleteStudentFromCourseClassCommand.DeleteStudentFromCourseClassModel model,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new DeleteStudentFromCourseClassCommand(model), cancellationToken));
     }
     
     

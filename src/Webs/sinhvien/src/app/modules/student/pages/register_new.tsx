@@ -71,7 +71,9 @@ const RegisterNew = () => {
     
     const {mutate} = useCreateStudentRegisterCourseClass()
     const courseClassCodeRegister = studentRegister?.data?.data?.courseClassCode
-    console.log(groupCourseClassesWithLodash(courseClasses?.data?.data?.items ?? []))
+
+
+    const [selectedStage, setSelectedStage] = useState(0)    
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
             <Box className={"grid grid-cols-8 text-sm gap-5"}>
@@ -106,19 +108,34 @@ const RegisterNew = () => {
                             subjects?.data?.data?.items?.find(e => e.subjectCode === selectedSubject)?.subjectName
                         }
                         </Typography.Title>
+                        
                     </div>
+                    <div className={"flex flex-row gap-3 space-y-3"}>
+                        <Button
+                            onClick={() => setSelectedStage(0)}
+                            size={"small"} type={selectedStage === 0 ? "primary" : "dashed"} color={"geekblue"}>Giai đoạn 1</Button>
+                        <Button
+                            onClick={() => setSelectedStage(1)}
+                            size={"small"} type={selectedStage === 1 ? "primary" : "dashed"}  color={"geekblue"}>Giai đoạn 2</Button>
+                        <Button
+                            onClick={() => setSelectedStage(2)}
+                            size={"small"} type={selectedStage === 2 ? "primary" : "dashed"}  color={"geekblue"}>Cả 2 giai đoạn</Button>
+
+                    </div>
+                    
+                    
                     {courseClassLoading && (
                         <Space className={"w-full flex justify-center items-center mt-5"}>
                             <Spin size={"large"} />
                         </Space>
                     )}
                     {!courseClassLoading && courseClasses && (
-                        groupCourseClassesWithLodash(courseClasses?.data?.data?.items ?? []).length === 0 ? (
+                        groupCourseClassesWithLodash(courseClasses?.data?.data?.items?.filter(e => e.stage === selectedStage) ?? []).length === 0 ? (
                             <div className={"flex flex-col items-center justify-center h-full"}>
                                 <Typography.Text className={"text-gray-500"}>Không có lớp học nào được tìm thấy</Typography.Text>
                             </div>
                         ) : (
-                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items ?? []).map(e => (
+                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items.filter(e => e.stage === selectedStage) ?? []).map(e => (
                                 <CourseClassCard isLabRegister={courseClassCodeRegister?.includes(e.courseClassCode)} isLectureRegister={courseClassCodeRegister?.includes(e.courseClassCode)} onClick={(courseClassCode) => {
                                     mutate({
                                         courseClassCode: courseClassCode,

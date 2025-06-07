@@ -19,7 +19,7 @@ import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 import {getStage} from "@/app/modules/register/pages/course_class_list.tsx";
 const CourseClassModel = (props: CourseClassModelProps) => {
     const [openModel, setOpenModel] = useState(false)
-    
+    const [courseClassStage, setCourseClassStage] = useState(0)
     const { data: subjects, isLoading } = useGetSubjects({
         Filters: [
             {
@@ -48,7 +48,14 @@ const CourseClassModel = (props: CourseClassModelProps) => {
                 field: "CourseClassType",
                 operator: "==",
                 value: `${courseClassType}`
-            }
+            },
+            {
+                field: "Stage",
+                operator: "==",
+                value: `${courseClassStage}`
+            },
+            
+            
             
         ]
 
@@ -133,13 +140,27 @@ const CourseClassModel = (props: CourseClassModelProps) => {
                                 height: "300px",
                             }}
                             showHeader={true}
-                            title={() => <Box className={"flex flex-row justify-start gap-5 items-center p-[16px] text-white "}>
-                                <Button
-                                    onClick={() => setCourseClassType(0)}
-                                    size={"small"} type={courseClassType === 0 ? "primary" : "dashed"}>Lý thuyết</Button>
-                                <Button
-                                    onClick={() => setCourseClassType(1)}
-                                    size={"small"} type={courseClassType === 1 ? "primary" : "dashed"}>Thực hành</Button>
+                            title={() => <Box className={"flex flex-col justify-start gap-5 items-start p-[16px] text-white "}>
+                                <div className={"flex flex-row justify-start gap-5 items-center"}>
+                                    <Button
+                                        onClick={() => setCourseClassStage(0)}
+                                        size={"small"} type={courseClassStage === 0 ? "primary" : "dashed"}>Giai đoạn 1</Button>
+                                    <Button
+                                        onClick={() => setCourseClassStage(1)}
+                                        size={"small"} type={courseClassStage === 1 ? "primary" : "dashed"}>Giai đoạn 2</Button>
+                                    <Button
+                                        onClick={() => setCourseClassStage(2)}
+                                        size={"small"} type={courseClassStage === 2 ? "primary" : "dashed"}>Cả 2 giai đoạn</Button>
+                                    
+                                </div>
+                                <div className={"flex flex-row justify-start gap-5 items-center"}>
+                                    <Button
+                                        onClick={() => setCourseClassType(0)}
+                                        size={"small"} type={courseClassType === 0 ? "primary" : "dashed"}>Lý thuyết</Button>
+                                    <Button
+                                        onClick={() => setCourseClassType(1)}
+                                        size={"small"} type={courseClassType === 1 ? "primary" : "dashed"}>Thực hành</Button>
+                                </div>
                             </Box>}
                             size={"small"}
                             bordered={true}
@@ -169,6 +190,7 @@ const CourseClassModel = (props: CourseClassModelProps) => {
                     
                     <div className={"col-span-2 max-h-[800px]"}>
                         <AssignmentTeacher
+                            courseClassStage={courseClassStage ?? 0}
                             courseClass={courseClass?.data?.data?.items?.filter(e => e.courseClassCode === selectedCourseClass?.courseClassCode)[0]}
                             departmentCode={subjects?.data?.data?.items[0]?.departmentCode}
                             onClick={function (selectedTeacher: string, teacherName: string, list: string[]): void {

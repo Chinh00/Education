@@ -17,7 +17,8 @@ export type AssignmentTeacherProps = {
     courseClass?: CourseClass
     refetch?: any,
     onClick: (selectedTeacher: string, teacherName: string, list: string[]) => void,
-    departmentCode?: string
+    departmentCode?: string,
+    courseClassStage?: number
 }
 
 const AssignmentTeacher = (props: AssignmentTeacherProps) => {
@@ -55,13 +56,6 @@ const AssignmentTeacher = (props: AssignmentTeacherProps) => {
     
     const [searchKeyword, setSearchKeyword] = useState("");
 
-    const handleSearch = useCallback(
-        debounce((value: string) => {
-            console.log("Searching for:", value);
-            setSearchKeyword(value);
-        }, 500),
-        []
-    );
     
 
     const [query, setQuery] = useState({
@@ -85,11 +79,17 @@ const AssignmentTeacher = (props: AssignmentTeacherProps) => {
                 field: "TeacherCode",
                 operator: '==',
                 value: selectedStaff!,
-            }
+            },
+            {
+                field: "Stage",
+                operator: 'In',
+                value: props?.courseClassStage !== 2 ? [props?.courseClassStage, 2].join(",") : "0,1,2"
+            },
+            
         ],
         Page: 1,
         PageSize: 100
-    }, selectedStaff !== undefined && selectedStaff !== "")
+    }, selectedStaff !== undefined && selectedStaff !== "" && props?.courseClassStage !== undefined && props?.courseClassStage !== null);
 
 
     useEffect(() => {

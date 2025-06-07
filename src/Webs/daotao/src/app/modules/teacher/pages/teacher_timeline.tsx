@@ -35,8 +35,8 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
         Filters: [
             {
                 field: "DepartmentCode",
-                operator: "Contains",
-                value: userInfo?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]!
+                operator: userInfo?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]! !== "admin" ? "Contains" : "!=",
+                value: userInfo?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]! !== "admin" ? userInfo?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]! : ""
             }
         ],
     })

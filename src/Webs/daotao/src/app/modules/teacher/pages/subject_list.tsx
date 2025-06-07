@@ -27,8 +27,8 @@ const SubjectList = () => {
     Filters: [
       {
         field: "DepartmentCode",
-        operator: "Contains",
-        value: userInfo?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]!
+        operator: userInfo?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]! !== "admin" ? "Contains" : "!=",
+        value: userInfo?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]! !== "admin" ? userInfo?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]! : ""
       }
     ],
     Includes: ["DepartmentCode", "NumberOfCredits",]
@@ -51,15 +51,6 @@ const SubjectList = () => {
   })
   const semester = semesters?.data?.data?.items?.[0]
   const { data: subjects, isLoading, isSuccess } = useGetSubjects(query, userInfo !== undefined)
-  // const {data: subjectRegister, isPending: subjectLoading, isSuccess: subjectSuccess} = useGetSubjectRegister({
-  //   Filters: [
-  //     {
-  //       field: "CorrelationId",
-  //       operator: "==",
-  //       value: RegisterState?.data?.data?.items[0]?.correlationId!
-  //     }
-  //   ]
-  // }, RegisterState !== undefined && RegisterState?.data?.data?.items?.length > 0)
   const columns: ColumnsType<Subject> = [
 
     {

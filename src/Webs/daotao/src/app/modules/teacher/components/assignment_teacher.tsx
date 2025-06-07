@@ -1,6 +1,6 @@
 ﻿import {Button, Card, Form, Input, Modal, Table, Tooltip, Typography} from "antd";
 import {CourseClass} from "@/domain/course_class.ts";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {Box, Divider} from "@mui/material";
 import {debounce} from "lodash";
 import {Query} from "@/infrastructure/query.ts";
@@ -16,7 +16,8 @@ import _ from "lodash";
 export type AssignmentTeacherProps = {
     courseClass?: CourseClass
     refetch?: any,
-    onClick: (selectedTeacher: string, teacherName: string, list: string[]) => void
+    onClick: (selectedTeacher: string, teacherName: string, list: string[]) => void,
+    departmentCode?: string
 }
 
 const AssignmentTeacher = (props: AssignmentTeacherProps) => {
@@ -61,23 +62,21 @@ const AssignmentTeacher = (props: AssignmentTeacherProps) => {
         }, 500),
         []
     );
-    const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        handleSearch(e.target.value);
-    };
     
-    const {data} = useGetUserInfo()
-    const {data: staffs, isLoading} = useGetStaffs({
+
+    const [query, setQuery] = useState({
         Filters: [
             {
                 field: "DepartmentCode",
                 operator: "Contains",
-                value: data?.data?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]!
+                value: props?.departmentCode!
             },
         ],
         Includes: ["Code"],
         Page: 1,
         PageSize: 100
     })
+    const {data: staffs, isLoading} = useGetStaffs(query, props?.departmentCode !== undefined )
  
 
     const {data: courseClasses} = useGetCourseClasses({
@@ -100,20 +99,42 @@ const AssignmentTeacher = (props: AssignmentTeacherProps) => {
         props.onClick(selectedStaff!, staffs?.data?.data?.items?.filter(e => e.code === selectedStaff)[0]?.fullName ?? "", courseClassCodes ?? []);
         
     }, [selectedStaff, courseClasses]);
+
+
+
+
+    const debouncedSearch = useRef(
+        debounce((keyword: string) => {
+            setQuery(prev => ({
+                ...prev,
+                Filters: [
+                    {
+                        field: "FullName",
+                        operator: keyword !== "" ? "Contains" : "!=",
+                        value: keyword !== "" ? keyword : "-1"
+                    },
+                ]
+            }));
+        }, 500)
+    ).current;
+
+    useEffect(() => {
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
     
     
     return (
         <>
-            <Card className={"w-full p-5"}>
-                <Form
-                    layout={"vertical"}
-                >
-                    <Form.Item label={<Typography>Tìm giáo viên phù hợp</Typography>}>
-                        <Input.Search size={"large"} placeholder={"Tìm theo tên giảng viên"} onChange={onSearchChange} />
-                    </Form.Item>
-
-                </Form>
-                <Divider />
+            <Card className={"w-full p-5 space-y-5"}>
+                <Input.Search value={searchKeyword} size={"large"} placeholder={"Tìm theo tên giảng viên"}
+                              onChange={e => {
+                                  setSearchKeyword(e.target.value);
+                                  debouncedSearch(e.target.value);
+                              }}
+                />
+                <Divider className={"py-3"} />
                 <Box className={"w-full"}>
                     <div className={"relative w-full min-h-[500px]"}>
                         <Table<Staff>

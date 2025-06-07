@@ -16,6 +16,7 @@ import { Badge } from "@/app/components/ui/badge";
 import {useUpdateCourseClassTeacher} from "@/app/modules/teacher/hooks/useUpdateCourseClassTeacher.ts";
 import toast from "react-hot-toast";
 import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
+import {getStage} from "@/app/modules/register/pages/course_class_list.tsx";
 const CourseClassModel = (props: CourseClassModelProps) => {
     const [openModel, setOpenModel] = useState(false)
     
@@ -69,6 +70,14 @@ const CourseClassModel = (props: CourseClassModelProps) => {
                 <>{record?.courseClassType === 0 ? "Lý thuyết" : "Thực hành"}</>
             )
         },
+        {
+            title: 'Giai đoạn',
+            render: (text, record) => (
+                <>{getStage[record?.stage]}</>
+            )
+        },
+        
+        
         {
             title: 'Giáo viên',
             render: (text, record) => (
@@ -161,6 +170,7 @@ const CourseClassModel = (props: CourseClassModelProps) => {
                     <div className={"col-span-2 max-h-[800px]"}>
                         <AssignmentTeacher
                             courseClass={courseClass?.data?.data?.items?.filter(e => e.courseClassCode === selectedCourseClass?.courseClassCode)[0]}
+                            departmentCode={subjects?.data?.data?.items[0]?.departmentCode}
                             onClick={function (selectedTeacher: string, teacherName: string, list: string[]): void {
                                 setTeacherCourseClasses(prevState => ({
                                     ...prevState,

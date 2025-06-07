@@ -56,7 +56,7 @@ export function groupCourseClassesWithLodash(items: CourseClassRegister[]) {
     // Tách các lớp lý thuyết và các lớp lab
     const lectures = items.filter(c => c.courseClassType === 0);
     const labs = items.filter(c => c.courseClassType === 1);
-
+    console.log(lectures, labs)
     // Nhóm các lab theo parentCourseClassCode
     const labsGrouped = _.groupBy(labs, "parentCourseClassCode");
 

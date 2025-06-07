@@ -337,7 +337,9 @@ const CourseClassConfig = () => {
                 operator: "==",
                 value: selectedRoom!
             }
-        ]
+        ],
+        Page: 1,
+        PageSize: 1000
     }, courseClass?.data?.data?.items?.length !== undefined && courseClass?.data?.data?.items?.length > 0 && selectedRoom !== undefined)
 
     useEffect(() => {

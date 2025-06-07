@@ -23,19 +23,31 @@ public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCour
         {
             var (semesterCode, subjectCode, courseClassCode) = request.Model;
             var studentCode = claimContextAccessor.GetUsername();
-            var courseClass = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, courseClassCode));
-            courseClass.Students.Add(studentCode);
-            await repository.SaveAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, courseClassCode),
-                () => Task.FromResult(courseClass));
             
             var studentRegister = await studentRegisterRepository.GetAsync(RedisKey.StudentRegisterCourseClass(studentCode)) ?? new StudentRegister() 
             {
                 StudentCode = studentCode,
                 CourseClassCode = new List<string>()
-            };;
+            };
+            var registered = studentRegister.CourseClassCode.Where(c => c.Contains(subjectCode)).ToList();
+            studentRegister.CourseClassCode.RemoveAll(c => c.Contains(subjectCode));
             studentRegister.CourseClassCode.Add(courseClassCode);
             await studentRegisterRepository.SaveAsync(RedisKey.StudentRegisterCourseClass(studentCode),
                 () => Task.FromResult(studentRegister));
+            
+            
+            var courseClass = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, courseClassCode));
+            courseClass.Students.Add(studentCode);
+            await repository.SaveAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, courseClassCode),
+                () => Task.FromResult(courseClass));
+            foreach (var se in registered)
+            {
+                var courseClassRegistered = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se));
+                courseClassRegistered.Students.Remove(subjectCode);
+                await repository.SaveAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se),
+                    () => Task.FromResult(courseClass));
+            }
+            
             await topicProducer.Produce(
                 new RegisterCourseClassSucceedNotificationIntegrationEvent(
                     new NotificationMessage

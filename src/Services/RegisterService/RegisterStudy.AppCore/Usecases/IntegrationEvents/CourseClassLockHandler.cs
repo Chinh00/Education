@@ -6,7 +6,10 @@ using RegisterStudy.Domain.Repository;
 
 namespace RegisterStudy.AppCore.Usecases.IntegrationEvents;
 
-public class CourseClassLockHandler(IRegisterRepository<CourseClass> registerRepository, ITopicProducer<CourseClassLockedIntegrationEvent> producer)
+public class CourseClassLockHandler(
+    IRegisterRepository<CourseClass> registerRepository,
+    ITopicProducer<CourseClassLockedIntegrationEvent> producer,
+    ITopicProducer<StudentCourseClassLockedIntegrationEvent> studentProducer)
 {
     public async Task Handle(string semesterCode, CancellationToken cancellationToken)
     {
@@ -22,7 +25,13 @@ public class CourseClassLockHandler(IRegisterRepository<CourseClass> registerRep
             ));
         }
         var res = await GetStudentSubjects(semesterCode);
-        // await producer.Produce(new CourseClassLockedIntegrationEvent(listCourseClass), cancellationToken);
+        await producer.Produce(new CourseClassLockedIntegrationEvent(listCourseClass), cancellationToken);
+        foreach (var keyValuePair in res)
+        {
+            await studentProducer.Produce(
+                new StudentCourseClassLockedIntegrationEvent(keyValuePair.Key, "1_2024_2025", keyValuePair.Value),
+                CancellationToken.None);
+        }
     }
     public async Task<Dictionary<string, List<string>>> GetStudentSubjects(string semesterCode)
     {
@@ -38,7 +47,6 @@ public class CourseClassLockHandler(IRegisterRepository<CourseClass> registerRep
                 if (!studentSubjects.ContainsKey(studentCode))
                     studentSubjects[studentCode] = new List<string>();
 
-                // Tránh thêm trùng môn nếu sinh viên đăng ký nhiều lớp cùng môn
                 if (!studentSubjects[studentCode].Contains(courseClass.SubjectCode))
                     studentSubjects[studentCode].Add(courseClass.SubjectCode);
             }

@@ -3,7 +3,7 @@ import {Box} from "@mui/material";
 import {useGetEducations, useGetSubjects} from "@/app/modules/common/hook.ts";
 import useGetStudentInformation from "../hooks/useGetStudentInformation";
 import useGetStudentSemesters from "@/app/modules/student/hooks/useGetStudentSemesters.ts";
-import {Button, Card, Space, Spin, Typography} from "antd"
+import {Button, Card, Space, Spin, Tooltip, Typography} from "antd"
 import { Badge } from "@/app/components/ui/badge";
 import {
     useGetRegisterCourseClass,
@@ -16,6 +16,9 @@ import { groupCourseClassesWithLodash } from "@/domain/course_class";
 import {useCreateStudentRegisterCourseClass} from "@/app/modules/student/hooks/useCreateStudentRegisterCourseClass.ts";
 import toast from "react-hot-toast";
 import {useGetStudentRegisterCourseClass} from "@/app/modules/student/hooks/useGetStudentRegisterCourseClass.ts";
+import {Eye} from "lucide-react"
+import {IconButton} from "@mui/material"
+
 const RegisterNew = () => {
 
     const {data, isPending, isSuccess} = useGetStudentInformation()
@@ -68,6 +71,7 @@ const RegisterNew = () => {
     
     const {mutate} = useCreateStudentRegisterCourseClass()
     const courseClassCodeRegister = studentRegister?.data?.data?.courseClassCode
+    console.log(groupCourseClassesWithLodash(courseClasses?.data?.data?.items ?? []))
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
             <Box className={"grid grid-cols-8 text-sm gap-5"}>

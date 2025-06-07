@@ -15,7 +15,6 @@ public class CourseClassCreatedIntegrationEventHandler(IRegisterRepository<Regis
 {
     public async Task Handle(CourseClassesCreatedIntegrationEvent notification, CancellationToken cancellationToken)
     {
-        var key = RedisKey.StudentRegister;
         await registerRepository.SaveAsync(nameof(RegisterCourseClass), () => Task.FromResult(new RegisterCourseClass()
         {
             SemesterCode = notification.SemesterCode,
@@ -24,6 +23,7 @@ public class CourseClassCreatedIntegrationEventHandler(IRegisterRepository<Regis
         }));
         var delay = TimeZoneInfo
             .ConvertTimeFromUtc(notification.StudentRegisterEnd, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")) - DateTimeUtils.GetUtcTime();
+        Console.WriteLine("Delay for CourseClassCreatedIntegrationEvent: " + delay);
         if (delay <= TimeSpan.Zero) await Task.CompletedTask;
         foreach (var notificationCourseClass in notification.CourseClasses)
         {

@@ -1,5 +1,8 @@
 ﻿import {CourseClassRegister} from "@/domain/course_class.ts";
-import { Button } from "antd";
+import {Button, Tooltip} from "antd";
+import {IconButton} from "@mui/material";
+import {Eye} from "lucide-react";
+import RegisterNewPreview from "@/app/modules/student/components/register_new_preview.tsx";
 
 export type CourseClassCardProps = {
     courseClass: CourseClassRegister & { children?: CourseClassRegister[] },
@@ -44,8 +47,11 @@ const CourseClassCard = ({courseClass, onClick, isLectureRegister, isLabRegister
             {/* Lớp lý thuyết */}
             <div className="flex items-center justify-between">
                 <div className="flex-1 grid grid-cols-6 gap-4 text-sm">
-                    <div className="col-span-2">
-                        <p className="font-medium text-gray-900">{courseClass.subjectName}</p>
+                    <div className="col-span-3 space-y-2">
+                        <p className="font-medium text-gray-900">
+                            <RegisterNewPreview courseClassCodeSelected={courseClass?.courseClassCode} isRegistered={isLectureRegister} />
+                            {courseClass.subjectName}
+                        </p>
                         <p className="text-xs text-blue-500">{getTypeText(courseClass.courseClassType)}</p>
                         <p className="text-xs text-gray-400">{courseClass.courseClassCode}</p>
                         <p className="text-xs text-purple-600">{getStageText(courseClass.stage)}</p>
@@ -65,7 +71,12 @@ const CourseClassCard = ({courseClass, onClick, isLectureRegister, isLabRegister
                     </div>
                 </div>
                 <div className="ml-4">
-                    <Button onClick={() => onClick(courseClass?.courseClassCode)} disabled={isLectureRegister}> {isLectureRegister ? "Đã đăng ký" : "Đăng ký" }</Button>
+                    <Button onClick={() => onClick(courseClass?.courseClassCode)} disabled={isLectureRegister}
+                            color="cyan"
+                            variant="solid"
+                    >
+                        {isLectureRegister ? "Hủy đăng ký" : "Đăng ký" }
+                    </Button>
                 </div>
             </div>
 

@@ -1,6 +1,6 @@
 ﻿export interface Staff {
     fullName: string;
-    code: string | null;
+    code: string;
     departmentCode: string;
     id: string;
     createdAt: string;   

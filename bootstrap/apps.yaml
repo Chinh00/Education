@@ -1,42 +1,69 @@
-﻿apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: education
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: 'https://github.com/Chinh00/Education'
-    targetRevision: HEAD
-    path: 'bootstrap/apps'
-    directory:
-      recurse: true
-  destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: education
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+﻿#apiVersion: argoproj.io/v1alpha1
+#kind: Application
+#metadata:
+#  name: education
+#  namespace: argocd
+#spec:
+#  project: default
+#  source:
+#    repoURL: 'https://github.com/Chinh00/Education'
+#    targetRevision: HEAD
+#    path: 'bootstrap/apps'
+#    directory:
+#      recurse: true
+#  destination:
+#    server: 'https://kubernetes.default.svc'
+#    namespace: education
+#  syncPolicy:
+#    automated:
+#      prune: true
+#      selfHeal: true
+#---
+#apiVersion: argoproj.io/v1alpha1
+#kind: Application
+#metadata:
+#  name: infra
+#  namespace: argocd
+#spec:
+#  project: default
+#  destination:
+#    server: https://kubernetes.default.svc
+#    namespace: education
+#  sources:
+#    - repoURL: https://charts.bitnami.com/bitnami
+#      targetRevision: 32.2.11
+#      chart: kafka
+#      helm:
+#        releaseName: kafka
+#        valueFiles:
+#          - $values/bootstrap/helms/values.yaml
+#    - repoURL: https://github.com/Chinh00/Education
+#      targetRevision: main
+#      ref: values
+#  syncPolicy:
+#    syncOptions:
+#      - CreateNamespace=true
+#    automated:
+#      prune: true
+#      selfHeal: true
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: infra
-  namespace: argocd
+  name: ingress-nginx
 spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: education
+    namespace: ingress-nginx
   sources:
-    - repoURL: https://charts.bitnami.com/bitnami
-      targetRevision: 32.2.11
-      chart: kafka
+    - repoURL: https://kubernetes.github.io/ingress-nginx/
+      targetRevision: 4.12.3
+      chart: ingress-nginx
       helm:
-        releaseName: kafka
+        releaseName: ingress-nginx
         valueFiles:
-          - $values/bootstrap/helms/values.yaml
+          - $values/bootstrap/helms/ingress-nginx-values.yaml
     - repoURL: https://github.com/Chinh00/Education
       targetRevision: main
       ref: values

@@ -50,6 +50,16 @@ spec:
                 secretKeyRef:
                   key: oltp_endpoint
                   name: monitor
+            - name: Microsoft__ClientId
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: client_id
+            - name: Microsoft__TenantId
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: tenant_id
       
       
       

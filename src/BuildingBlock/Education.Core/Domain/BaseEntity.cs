@@ -1,15 +1,15 @@
+using System.Text.Json.Serialization;
 using Education.Core.Utils;
 using MediatR;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Newtonsoft.Json;
 
 namespace Education.Core.Domain;
 
 public class EventStore : BaseEntity, IVersion
 {
     public string AggregateType { get; set; }
-    [JsonConverter(typeof(ObjectIdJsonNewtonsoftConverter))]
+    [Newtonsoft.Json.JsonConverter(typeof(ObjectIdJsonNewtonsoftConverter))]
     public ObjectId AggregateId { get; set; }
     public string EventType { get; set; }
     public string EventData { get; set; }
@@ -20,7 +20,8 @@ public class EventStore : BaseEntity, IVersion
 
 public class BaseEntity
 {
-    [JsonConverter(typeof(ObjectIdJsonNewtonsoftConverter))]
+    [Newtonsoft.Json.JsonConverter(typeof(ObjectIdJsonNewtonsoftConverter))]
+    [JsonIgnore]
     [BsonId]
     public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
     public DateTime CreatedAt { get; set; } = DateTimeUtils.GetUtcTime();
@@ -48,10 +49,10 @@ public class AggregateBase : BaseEntity, IVersion
 {
     
     [BsonIgnore]
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     public IList<IDomainEvent> _domainEvents { get; set; }
     [BsonIgnore]
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents?.AsReadOnly();
 
     public void AddDomainEvent(Func<long, IDomainEvent> func)

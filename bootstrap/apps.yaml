@@ -46,3 +46,27 @@ spec:
     automated:
       prune: true
       selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sealed-secrets
+  namespace: default
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: education
+  sources:
+    - repoURL: https://bitnami-labs.github.io/sealed-secrets
+      targetRevision: 2.17.2
+      chart: sealed-secrets
+      helm:
+        releaseName: sealed-secrets-controller
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
+

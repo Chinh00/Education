@@ -121,3 +121,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+.ant-table {
+  border: 1px solid #bdbdbd; /* Đổi #FF5722 thành màu bạn muốn */
+  border-radius: 0 !important;
+}
+
+.ant-table-thead > tr > th,
+.ant-table-tbody > tr > td {
+  border-color: #bdbdbd !important; /* Đổi màu viền các ô */
+  border-radius: 0 !important;
+  /*border-top: 1px solid #bdbdbd !important; !* Đổi màu viền trên cùng *!*/
+}
+.room-separator > td {
+  border-top: 2px solid #1976d2 !important; /* Màu xanh dương, có thể đổi tuỳ ý */
+}

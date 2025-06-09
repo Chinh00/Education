@@ -30,29 +30,12 @@ export const getCourseClassType: Record<number, string> = {
 
 const CourseClassList = () => {
     const {subject, semester} = useParams()
-    const {data: semesters} = useGetSemesters({
-        Filters: [
-            {
-                field: "SemesterCode",
-                operator: "Contains",
-                value: semester!
-            }
-        ]
-    }, semester !== undefined && semester !== null && semester !== "");
+    
     
     
 
     const getSemester = (stage: number) => semesters?.data?.data?.items?.find(e => +e?.semesterCode?.split("_")[3] === (stage + 1)) ?? undefined;
-    const {data: subjects} = useGetSubjects({
-        Filters: [
-            {
-                field: "SubjectCode",
-                operator: "==",
-                value: subject!
-            }
-        ]
-    }, subject !== undefined)
-    const getSubject = subjects?.data?.data?.items?.[0]
+    
     
     const [query, setQuery] = useState<Query>({
         Filters: [
@@ -74,69 +57,13 @@ const CourseClassList = () => {
             
         ]
     })
-    const {data, isLoading, isSuccess} = useGetCourseClasses(query, semester !== undefined)
     const nav = useNavigate()
 
 
 
-    const columns: ColumnsType<CourseClass> = [
-        
-        {
-            title: 'Tên lớp',
-            dataIndex: "courseClassName",
-            width: 451.5,
-            render: (_, record) => (
-                <div className={"flex flex-col"}>
-                    <span className={"font-bold"}>
-                        Lớp chính: 
-                        <span className={"font-normal"}> {record?.courseClassName} </span>
-                    </span>
-                    
-                    <span className={"font-bold"}>({getSubject?.subjectName})</span>
-                </div>
-            )
-        },
-        {
-            title: 'Thời gian',
-            dataIndex: "courseClassName",
-            width: 200,
-            render: (_, record) => (
-                <div className={"flex flex-row items-center gap-1 justify-start"}>
-                    {DateTimeFormat(getSemester(record?.stage)?.startDate, "DD/MM/YYYY")}
-                    <ArrowRight size={18}/>
-                    {DateTimeFormat(getSemester(record?.stage)?.startDate, "DD/MM/YYYY")}
-                </div>
-            )
-        },
-        {
-            title: 'Lịch học',
-            key: 'action',
-            width: 251.5,
-            render: (_, record) => (
-                <div>
-                    {timeLine?.data?.data?.items?.filter(c => c.courseClassCode === record?.courseClassCode)?.map(e => {
-                        return <div key={e.id}>Phòng {e?.roomCode} Thứ {e?.dayOfWeek + 2}  ( Tiết {e?.slots?.join(",")})</div>
-                    })}
-                </div>
-            ),
-        },
-        {
-            title: 'Giảng viên',
-            render: (text, record) => (
-                <>{record?.teacherName}</>
-            )
-        },
-    ];
+    
 
-    const {data: timeLine} = useGetTimeline({
-        Filters: [
-            {
-                field: "CourseClassCode",
-                operator: "In",
-                value: data?.data?.data?.items?.map(c => c.courseClassCode)?.join(",")!
-            },
-        ]
-    }, data !== undefined && data?.data?.data?.items?.map(c => c.courseClassCode)?.length > 0)
+    
 
     const {data: childrenCourseClasses} = useGetCourseClasses({
         Filters: [
@@ -209,46 +136,7 @@ const CourseClassList = () => {
         <PredataScreen isLoading={isLoading} isSuccess={isSuccess} >
             <div className={"space-y-5"}>
                 <Button type={"primary"} size={"middle"} onClick={() => nav(`/register/${semester}/subject/${subject}/course-class/create`)}>Tạo mới lớp học phần</Button>
-                <Table<CourseClass>
-                    rowKey={(c) => c.id}
-                    loading={isLoading}
-                    style={{
-                        height: "500px",
-                    }}
-                    size={"small"}
-                    bordered={true}
-                    pagination={{
-                        current: query?.Page ?? 1,
-                        pageSize: query?.PageSize ?? 10,
-                        total: data?.data?.data?.totalItems ?? 0
-                    }}
-                    onChange={(e) => {
-                        setQuery(prevState => ({
-                            ...prevState,
-                            Page: e?.current ?? 1 - 1,
-                            PageSize: e?.pageSize
-                        }))
-                    }}
-                    expandable={{
-                        defaultExpandAllRows: true,
-                        expandRowByClick: true,
-                        expandedRowRender: (record) => childrenCourseClasses?.data?.data?.items?.filter(e => e?.parentCourseClassCode === record?.courseClassCode)?.length !== 0 ? (
-                            <>
-                                <Table<CourseClass>
-                                    columns={childrenColumns}
-                                    rowKey={c => c.id}
-                                    bordered={true}
-                                    pagination={false}
-
-                                    dataSource={childrenCourseClasses?.data?.data?.items?.filter(e => e?.parentCourseClassCode === record?.courseClassCode) ?? []}
-                                />
-                            </>
-                        ) : <Typography className={"text-center"}>Là lớp chính</Typography>
-                    }}
-                    columns={columns}
-                    dataSource={data?.data?.data?.items ?? []}
-
-                />
+                
             </div>
         </PredataScreen>
     )

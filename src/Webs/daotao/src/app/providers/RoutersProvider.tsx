@@ -25,10 +25,10 @@ const SubjectDetail = lazy(() => import("../modules/subject/pages/subject_detail
 const MainLayout = lazy(() => import("../components/layouts/main_layout.tsx"));
 const EducationLayout = lazy(() => import("../modules/education/layouts/education_layout.tsx"));
 const EducationDashboard = lazy(() => import("../modules/education/pages/education_dashboard.tsx"));
+const SubjectStudySection = lazy(() => import("../modules/education/pages/subject_study_section.tsx"));
 
 
 const RegisterLayout = lazy(() => import("../modules/register/layouts/register_layout.tsx"));
-const RegisterWish = lazy(() => import("../modules/register/pages/register_wish.tsx"));
 const RegisterTimeline = lazy(() => import("../modules/register/pages/register_timeline.tsx"));
 const CourseClassConfig = lazy(() => import("../modules/register/pages/course_class_config.tsx"));
 const CourseClassList = lazy(() => import("../modules/register/pages/course_class_list.tsx"));
@@ -113,8 +113,8 @@ const router = createBrowserRouter([
                                 element: <Suspense fallback={<TabLoading />} key={"CourseClassDetail"}><CourseClassDetail /></Suspense>,
                             },
                             {
-                                path: RoutePaths.HISTORY_RECORD,
-                                element: <Suspense fallback={<TabLoading />} key={"HistoryRecord"}><HistoryRecord /></Suspense>,
+                                path: RoutePaths.SUBJECT_STUDY_SECTION,
+                                element: <Suspense fallback={<TabLoading />} key={"SubjectStudySection"} ><SubjectStudySection /></Suspense>,
                             },
                         ],
                     },
@@ -133,10 +133,7 @@ const router = createBrowserRouter([
                         path: "",
                         element: <Suspense fallback={<ProgressScreen />} key={"RegisterLayout"} ><RegisterLayout /></Suspense>,
                         children: [
-                            {
-                                path: RoutePaths.REGISTER_WISH,
-                                element: <Suspense fallback={<TabLoading />} key={"RegisterState"} ><RegisterWish /></Suspense>,
-                            },
+                            
                             {
                                 path: RoutePaths.REGISTER_SUBJECT,
                                 element: <Suspense fallback={<TabLoading />} key={"RegisterTimeline"} ><RegisterTimeline /></Suspense>,

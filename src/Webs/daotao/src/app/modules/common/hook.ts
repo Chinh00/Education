@@ -116,4 +116,19 @@ export {
 };
 
 
-export type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
+export type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'> & {
+    editable?: boolean;
+}
+
+
+export const getStageText = (semesterCode?: string) => {
+    const stage = +(semesterCode ?? "0").split("_")[3];
+    switch (stage) {
+        case 1:
+            return "Giai đoạn 1";
+        case 2:
+            return "Giai đoạn 2";
+        default:
+            return "Cả 2 giai đoạn";
+    }
+}

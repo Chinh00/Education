@@ -69,7 +69,6 @@ const RegisterWish = () => {
         }
     ];
     
-    const tableColumns = columns.map((item) => ({ ...item }));
     const nav = useNavigate();
 
 
@@ -92,7 +91,7 @@ const RegisterWish = () => {
                 field: "SemesterCode",
                 operator: "==",
                 value: semester!
-            }
+            },
         ]
     }, semester !== undefined)
     const { data: subjects} = useGetSubjects({
@@ -135,7 +134,7 @@ const RegisterWish = () => {
                         }))
                     }}
                     bordered={true}
-                    columns={tableColumns}
+                    columns={columns}
                     dataSource={data?.data?.data?.items ?? []}
 
                 />

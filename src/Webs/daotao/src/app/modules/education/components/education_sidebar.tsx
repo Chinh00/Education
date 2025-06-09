@@ -9,7 +9,7 @@ import {
     SidebarMenu,
     SidebarMenuButton, SidebarMenuItem
 } from "@/app/components/ui/sidebar.tsx";
-import {List, LayoutDashboard, ChartGantt, Replace} from "lucide-react"
+import {List, LayoutDashboard, ChartGantt, GraduationCap} from "lucide-react"
 import {useNavigate} from "react-router";
 import { RoutePaths } from "@/core/route_paths";
 const EducationSidebar = () => {
@@ -20,7 +20,7 @@ const EducationSidebar = () => {
     }, []);
     const nav = useNavigate()
     return (
-        <div className={"h-[250vh] bg-[#0c458d] text-white pl-3"}>
+        <div className={"h-[250vh] bg-[#0c458d] text-white pl-3 sticky top-0"}>
 
             <SidebarGroup>
                 <SidebarGroupLabel  className={"text-white"}>Học kì</SidebarGroupLabel>
@@ -44,6 +44,13 @@ const EducationSidebar = () => {
                             <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER)}>
                                 <List />
                                 Danh sách đăng ký học
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+
+                        <SidebarMenuItem>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.SUBJECT_STUDY_SECTION)}>
+                                <GraduationCap />
+                                Lớp học phần
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>

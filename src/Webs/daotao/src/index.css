@@ -136,3 +136,32 @@
 .room-separator > td {
   border-top: 2px solid #1976d2 !important; /* Màu xanh dương, có thể đổi tuỳ ý */
 }
+.table-row:hover {
+  background: #e6f7ff !important;
+}
+.ant-table-thead > tr > th {
+  background: #f0f5ff !important;
+  font-weight: 600;
+}
+.ant-modal-body {
+  background: #f7f9fb !important;
+}
+
+.ant-table-thead > tr > th {
+  background: #f0f5ff !important;
+  font-weight: 600 !important;
+}
+
+.ant-table-row-selected > td, .ant-table-row:hover > td {
+  background: #e6f7ff !important;
+}
+
+.ant-btn-primary {
+  background: #1677ff !important;
+  border-radius: 6px;
+}
+.table-row-odd td { background: #f7faff !important; }
+.table-row-even td { background: #fff !important; }
+.ant-table-row:hover > td { background: #e6f7ff !important; }
+.ant-modal .ant-modal-content { border-radius: 16px !important; }
+.ant-card { border-radius: 16px !important; }

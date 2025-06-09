@@ -21,7 +21,7 @@ export const RoutePaths = {
     SUBJECT_DETAIL: '/subjects/:id',
     EDUCATION_SUBJECT_TIMELINE_CREATE: '/educations/subjects/timeline/create',
 
-
+    
 
 
 
@@ -30,8 +30,10 @@ export const RoutePaths = {
     CLASS_LIST: '/classes',
     LOGIN_PAGE: '/login',
     HISTORY_RECORD: '/history/:aggregateType/:aggregateId',
-
-    REGISTER_WISH: '/register/:semester/wish',
+    
+    
+    
+    SUBJECT_STUDY_SECTION: '/register/subject-study-section',
     REGISTER_SUBJECT: '/register/:semester/subject',
     SUBJECT_COURSE_CLASS_LIST: '/register/:semester/subject/:subject/course-class',
     

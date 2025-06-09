@@ -1,93 +1,88 @@
 ﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: register
+  name: training
   namespace: education
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: register
+      app.kubernetes.io/name: training
   replicas: 1
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: register
+        app.kubernetes.io/name: training
     spec:
       containers:
-        - image: chinhval/educationregisterservice
+        - image: chinhval/educationtrainingservice
           imagePullPolicy: Always
-          name: register
+          name: training
           ports:
             - containerPort: 8080
           env:
-            - name: Redis__Server
+            - name: IdentityServer__Url
               valueFrom:
                 secretKeyRef:
-                  key: server
-                  name: redis-secret
-            - name: Redis__Port
-              valueFrom:
-                secretKeyRef:
-                  key: port
-                  name: redis-secret
+                  key: connect_server
+                  name: postgres-secret
             
             - name: Kafka__BootstrapServers
-              valueFrom:
+              valueFrom: 
                 secretKeyRef:
                   key: boostrap_servers
                   name: kafka-secret
             - name: MongoOptions__Username
-              valueFrom:
+              valueFrom: 
                 secretKeyRef:
                   key: username
                   name: mongo-secret
             - name: MongoOptions__Password
-              valueFrom:
+              valueFrom: 
                 secretKeyRef:
                   key: password
                   name: mongo-secret
             - name: MongoOptions__Database
-              valueFrom:
+              valueFrom: 
                 secretKeyRef:
                   key: database
                   name: mongo-secret
             - name: MongoOptions__Host
-              valueFrom:
+              valueFrom: 
                 secretKeyRef:
                   key: host
                   name: mongo-secret
             - name: Jaeger__Protocol
-              valueFrom:
+              valueFrom: 
                 secretKeyRef:
                   key: jaeger_protocol
                   name: monitor
             - name: Jaeger__Host
-              valueFrom:
+              valueFrom: 
                 secretKeyRef:
                   key: jaeger_host
                   name: monitor
             - name: Jaeger__Port
-              valueFrom:
+              valueFrom: 
                 secretKeyRef:
                   key: jaeger_port
                   name: monitor
             - name: Oltp__Endpoint
-              valueFrom:
+              valueFrom: 
                 secretKeyRef:
                   key: oltp_endpoint
                   name: monitor
-      
-      
-      
-      
-      
-      
+            
+            
+            
+            
+            
+            
       restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: register
+  name: training
   namespace: education
 spec:
   ports:
@@ -96,4 +91,4 @@ spec:
       protocol: TCP
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: register
+    app.kubernetes.io/name: training

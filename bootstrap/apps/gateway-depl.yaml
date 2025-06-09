@@ -55,6 +55,18 @@ spec:
               value: /registerservice
             - name: ReverseProxy__Routes__registerservice__Transforms_1__PathPrefix
               value: /
+              
+            - name: ReverseProxy__Routes__notificationservice__ClusterId
+              value: notificationservice
+            - name: ReverseProxy__Routes__notificationservice__Match__Path
+              value: /notificationservice/{**catch-all}
+            - name: ReverseProxy__Routes__notificationservice__Transforms_0__PathRemovePrefix
+              value: /notificationservice
+            - name: ReverseProxy__Routes__notificationservice__Transforms_1__PathPrefix
+              value: /
+              
+              
+            
 
             - name: ReverseProxy__Clusters__identityservice__ClusterId
               value: identityservice
@@ -75,8 +87,13 @@ spec:
               value: registerservice
             - name: ReverseProxy__Clusters__registerservice__Destinations__destination1__Address
               value: http://register       
-              
-        
+
+            - name: ReverseProxy__Clusters__notificationservice__ClusterId
+              value: notificationservice
+            - name: ReverseProxy__Clusters__notificationservice__Destinations__destination1__Address
+              value: http://notification
+
+
 ---
 apiVersion: v1
 kind: Service

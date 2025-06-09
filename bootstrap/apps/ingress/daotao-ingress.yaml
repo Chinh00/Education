@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: daotao.tlu.my
+    - host: daotaok8s.tlu.my
       http:
         paths:
           - backend:

@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: sinhvien.tlu.my
+    - host: sinhvienk8s.tlu.my
       http:
         paths:
           - backend:

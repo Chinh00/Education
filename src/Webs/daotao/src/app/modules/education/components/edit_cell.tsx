@@ -1,4 +1,4 @@
-﻿import {Button, Form, Input, Select} from "antd";
+﻿import { Button, Form, Input, Select } from "antd";
 
 const EditableCell = ({
                           editing,
@@ -10,26 +10,19 @@ const EditableCell = ({
                           children,
                           semesterOptions = [],
                           onShowSchedule,
-                          ...restProps
+                          name,
+                          ...tdProps
                       }: any) => {
     if (!editing) {
-        if (inputType === "button") {
-            return (
-                <td {...restProps}>
-                    <Button size="small" onClick={() => onShowSchedule(record)}>
-                        Xem lịch
-                    </Button>
-                </td>
-            );
-        }
-        return <td {...restProps}>{children}</td>;
+        return <td {...tdProps}>{children}</td>;
     }
 
+    
     if (inputType === "select") {
         return (
-            <td {...restProps}>
+            <td {...tdProps}>
                 <Form.Item
-                    name={dataIndex}
+                    name={name ?? dataIndex}
                     style={{ margin: 0 }}
                     rules={[
                         {
@@ -38,9 +31,9 @@ const EditableCell = ({
                         },
                     ]}
                 >
-                    <Select style={{ maxWidth: 125 }}>
+                    <Select style={{ maxWidth: 125, fontSize: 13 }} dropdownStyle={{ minWidth: 300 }}>
                         {semesterOptions.map((option: any) => (
-                            <Select.Option key={option.value} value={option.value}>
+                            <Select.Option key={option.value} value={option.value} className={"text-[13px]"}>
                                 {option.label}
                             </Select.Option>
                         ))}
@@ -51,9 +44,9 @@ const EditableCell = ({
     }
 
     return (
-        <td {...restProps}>
+        <td {...tdProps}>
             <Form.Item
-                name={dataIndex}
+                name={name ?? dataIndex}
                 style={{ margin: 0 }}
                 rules={[
                     {
@@ -68,4 +61,4 @@ const EditableCell = ({
     );
 };
 
-export default EditableCell
+export default EditableCell;

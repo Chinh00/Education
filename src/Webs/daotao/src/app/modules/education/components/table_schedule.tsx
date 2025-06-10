@@ -1,15 +1,17 @@
 ﻿import {Card, CardContent} from "@/app/components/ui/card.tsx";
 import {daysOfWeek, timeSlots} from "@/infrastructure/date.ts";
 import {CalendarRange, GripVertical, Plus} from "lucide-react";
-import {Button as ButtonAntd, Table, Typography} from "antd";
-import React, {useEffect, useState} from "react";
+import {Button, Button as ButtonAntd, List, Modal, Table, Tooltip, Typography} from "antd";
+import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
 import {ScheduleItem} from "@/app/modules/register/pages/course_class_config.tsx";
-import {Box, CardHeader} from "@mui/material";
 import {ColumnsType, useGetRooms} from "@/app/modules/common/hook.ts";
 import {Room} from "@/domain/room.ts";
-import {UserOutlined} from "@ant-design/icons";
 import {Subject} from "@/domain/subject.ts";
+import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
+import SelectedClassModal from "@/app/modules/education/components/selected_class_modal.tsx";
+import {setScheduleItem, SubjectStudySectionState} from "@/app/modules/education/stores/subject_study_section.ts";
+import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 
 export type TableScheduleProps = {
     subject?: Subject,
@@ -20,7 +22,6 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
 
 
     const [courseClassType, setCourseClassType] = useState(0)
-    const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([])
 
     const [isSelecting, setIsSelecting] = useState(false)
     const [selectionStart, setSelectionStart] = useState<{ dayIndex: number; slotIndex: number } | null>(null)
@@ -28,8 +29,12 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
     const [draggedItem, setDraggedItem] = useState<ScheduleItem | null>(null)
     const [dragPreview, setDragPreview] = useState<{ dayIndex: number; startSlot: number; endSlot: number } | null>(null)
     const [isDragging, setIsDragging] = useState(false)
+    const { courseClassesNew } = useAppSelector<SubjectStudySectionState>(c => c.subjectStudySectionReducer);
 
+    const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([])
 
+    const dispatch = useAppDispatch();
+    
     useEffect(() => {
         if (scheduledItems?.length > 0) {
             onChange?.(scheduledItems)
@@ -61,7 +66,7 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
     }
 
     const handleMouseUp = () => {
-        if (isSelecting && selectionStart && selectionEnd && !isDragging) {
+        if (isSelecting && selectionStart && selectionEnd && !isDragging ) {
             createScheduleBlock()
         }
 
@@ -108,6 +113,8 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
         setScheduledItems((prev) => [...prev, newItem])
 
         setIsDragging(false)
+        setOpen(true)
+        dispatch(setScheduleItem(newItem))
     }
 
     const isSlotOccupied = (dayIndex: number, slotIndex: number) => {
@@ -227,9 +234,7 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
         )
     }
     
-    const {data: rooms, isLoading: roomsLoading} = useGetRooms({
-        
-    })
+    
 
     const columns: ColumnsType<Room> = [
         {
@@ -240,28 +245,25 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
     ];
     
     
+    const { } = useGetCourseClasses({
+        Filters: [
+            {
+                field: "SubjectCode",
+                operator: "==",
+                value: subject?.subjectCode ?? "",
+            }            
+        ]
+    }, subject?.subjectCode !== "")
+    const [open, setOpen] = useState(false)
+
     return (
-        <Card className={"p-0 border-none"}>
+        <Card className={"h-fit p-0"}>
+            
+            
             
             <CardContent className="grid grid-cols-8 p-0">
-                <div className={"col-span-2 w-full relative"}>
-                    <Table<Room>
-                        className={"absolute top-0 w-full p-5"}
-                        rowKey={(c) => c.id}
-                        loading={roomsLoading}
-                        size={"small"}
-                        bordered={true}
-                        rowSelection={{
-                            type: "radio",
-                            columnTitle: <span className={"text-[12px]"}>Chọn</span>,
-                        }}
-                        // pagination={true}
-                        columns={columns}
-                        dataSource={rooms?.data?.data?.items ?? []}
-                    />
-                </div>
                 <div
-                    className="grid grid-cols-8 gap-0 select-none col-span-6"
+                    className="grid grid-cols-8 gap-0 select-none col-span-8"
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseUp}
                 >
@@ -277,7 +279,7 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
                     {timeSlots.map((slot, slotIndex) => (
                         <div key={slot.id} className="contents">
                             <div className="border-b border-r bg-gray-50">
-                                <div className="p-[3px] text-[13px] font-medium">{slot.period}</div>
+                                <div className="p-[15px] text-[13px] font-medium">{slot.period}</div>
                             </div>
 
                             {daysOfWeek.map((day, dayIndex) => {
@@ -318,7 +320,7 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
                                 ${draggedItem?.id === item.id ? "opacity-50" : ""}
                               `}
                                                 style={{
-                                                    height: `${(item.endSlot - item.startSlot + 1) * 24}px`,
+                                                    height: `${(item.endSlot - item.startSlot + 1) * 48}px`,
                                                 }}
                                             >
                                                 <div className="flex items-center gap-1 pointer-events-none">
@@ -346,6 +348,7 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
                                         {!isOccupied && !inSelection && !isPreview && (
                                             <div className="absolute inset-2 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                                 <Plus className="w-4 h-4 text-gray-400" />
+                                                
                                             </div>
                                         )}
                                     </div>

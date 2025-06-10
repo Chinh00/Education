@@ -165,3 +165,4 @@
 .ant-table-row:hover > td { background: #e6f7ff !important; }
 .ant-modal .ant-modal-content { border-radius: 16px !important; }
 .ant-card { border-radius: 16px !important; }
+.ant-table-expanded-row-fixed {padding: 0 !important; }

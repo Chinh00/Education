@@ -1,7 +1,10 @@
-﻿import { ArrowRight, Settings } from "lucide-react";
+﻿import { ArrowRight, CircleCheck, CircleX, Settings, Trash2, Plus } from "lucide-react";
 import { Box, IconButton } from "@mui/material";
-import { Button, Form, Input, Modal, Table, Typography, Tag, Tooltip, Space, Avatar, Empty, Badge, Card, Spin } from "antd";
-import { useEffect, useState } from "react";
+import {
+    Button, Form, Input, Modal, Table, Typography, Tag, Tooltip, Space,
+    Avatar, Empty, Badge, Card, Spin, Select
+} from "antd";
+import React, { useEffect, useState } from "react";
 import { ColumnType } from "antd/es/table";
 import { CourseClass } from "@/domain/course_class.ts";
 import { DateTimeFormat } from "@/infrastructure/date.ts";
@@ -10,26 +13,63 @@ import { useGetSubjects } from "@/app/modules/subject/hooks/hook.ts";
 import { useGetCourseClasses } from "@/app/modules/education/hooks/useGetCourseClasses.ts";
 import { Query } from "@/infrastructure/query.ts";
 import { useGetTimeline } from "@/app/modules/education/hooks/useGetTimeline.ts";
-import { getStageText } from "@/app/modules/common/hook.ts";
+import {getStageText, useGetRooms} from "@/app/modules/common/hook.ts";
 import EditableCell from "@/app/modules/education/components/edit_cell.tsx";
 import TableSchedule from "@/app/modules/education/components/table_schedule.tsx";
-import { BookOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined, UserOutlined, PlusOutlined } from "@ant-design/icons";
+import _ from "lodash"
+import {
+    BookOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    InfoCircleOutlined,
+    UserOutlined,
+    PlusOutlined
+} from "@ant-design/icons";
+import { SlotTimeline } from "@/domain/slot_timeline.ts";
+import { ScheduleItem } from "../../register/pages/course_class_config";
+import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
+import toast from "react-hot-toast";
+import {SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
+import SelectedClassModal from "@/app/modules/education/components/selected_class_modal.tsx";
+import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
+import {
+    setCourseClassesNew,
+    setSubject,
+    SubjectStudySectionState
+} from "@/app/modules/education/stores/subject_study_section.ts";
+import {Subject} from "@/domain/subject.ts";
 
 type EditableColumnType<T> = ColumnType<T> & {
     editable?: boolean;
-    inputType?: 'text' | 'select' | 'button';
+    inputType?: 'text' | 'select' | 'button' | 'list';
 };
 
 export type StudySectionCourseClassesProps = {
-    subjectCode?: string;
-};
+    subject: Subject
+}
+const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) => {
+    const {courseClassesNew, scheduleItem} = useAppSelector<SubjectStudySectionState>(c => c.subjectStudySectionReducer);
+    const dispatch = useAppDispatch()
+    const subjectCode = subject?.subjectCode;
 
-const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesProps) => {
+    useEffect(() => {
+        if (subject) {
+            dispatch(setSubject(subject));
+        }
+    }, [subject]);
+
     const [openModal, setOpenModal] = useState(false);
     const [showScheduleRecord, setShowScheduleRecord] = useState<CourseClass | null>(null);
+    // --- SỬA: Tách selectedRowKeys cho từng bảng ---
+    const [selectedRowKeysParent, setSelectedRowKeysParent] = useState<React.Key[]>([]);
+    const [selectedRowKeysChildren, setSelectedRowKeysChildren] = useState<Record<string, React.Key[]>>({});
 
+    const [timelinesById, setTimelinesById] = useState<Record<string, SlotTimeline[]>>({});
+
+    
+    // ------------------------------------------------
     const { data: semesters, isLoading: semesterLoading } = useGetSemesters(
-        { Filters: [{ field: "SemesterStatus", operator: "==", value: "0" }] },
+        { Filters: [{ field: "SemesterStatus", operator: "In", value: "0,1" }] },
         openModal
     );
     const getSemester = (stage: number) =>
@@ -43,11 +83,15 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
     const semesterOptions =
         semesters?.data?.data?.items?.map((s) => ({
             value: s?.semesterCode,
-            label: <>
-                {getStageText(s?.semesterCode ?? 0)}
-                {" "}
-                <span style={{ color: "#888" }}>({DateTimeFormat(s?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(s?.endDate, "DD/MM/YYYY")})</span>
-            </>,
+            label: (
+                <>
+                    {getStageText(s?.semesterCode)}
+                    {" "}
+                    <span style={{ color: "#888" }}>
+                        ({DateTimeFormat(s?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(s?.endDate, "DD/MM/YYYY")})
+                    </span>
+                </>
+            ),
         })) ?? [];
 
     const { data: subjects } = useGetSubjects(
@@ -64,7 +108,7 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
         ],
     });
 
-    const { data, isLoading } = useGetCourseClasses(
+    const { data: courseClasses, isLoading } = useGetCourseClasses(
         query,
         semesterParent !== undefined && openModal && subjectCode !== undefined
     );
@@ -74,63 +118,105 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
                 {
                     field: "CourseClassCode",
                     operator: "In",
-                    value: data?.data?.data?.items?.map((c) => c.courseClassCode)?.join(",")!,
+                    value: courseClasses?.data?.data?.items?.map((c) => c.courseClassCode)?.join(",")!,
                 },
             ],
         },
-        data !== undefined &&
-        data?.data?.data?.items?.map((c) => c.courseClassCode)?.length > 0 &&
+        courseClasses !== undefined &&
+        courseClasses?.data?.data?.items?.map((c) => c.courseClassCode)?.length > 0 &&
         openModal &&
         subjectCode !== undefined
     );
-
-    // Editable Table state
     const [form] = Form.useForm();
-    const [editingKey, setEditingKey] = useState<string>("");
-    const [customDataSource, setCustomDataSource] = useState<CourseClass[]>([]);
 
     useEffect(() => {
-        if (data?.data?.data?.items) {
-            setCustomDataSource(data.data.data.items);
+        if (courseClasses?.data?.data?.items) {
+            const list = courseClasses.data.data.items;
+            setCourseClassesView(list);
+            form.setFieldsValue(
+                list.reduce((acc, r) => {
+                    acc[r.id] = r; // chỉ gán các field sẵn có
+                    return acc;
+                }, {} as Record<string, any>)
+            );
         }
-    }, [data]);
+    }, [courseClasses, form]);
+    
 
-    const isEditing = (record: CourseClass) => record.id === editingKey;
+    
+    
+    
+    useEffect(() => {
+        if (courseClasses && courseClasses.data && courseClasses.data.data && courseClasses.data.data.items) {
+            setCourseClassesView(courseClasses.data.data.items);
+        }
+    }, [courseClasses]);
 
-    const edit = (record: Partial<CourseClass> & { id: React.Key }) => {
-        form.setFieldsValue({ ...record });
-        setEditingKey(record.id as string);
-    };
+    const [selectedTimeline, setSelectedTimeline] = useState<SlotTimeline[]>([])
+    const [editingKeys, setEditingKeys] = useState<string[]>([])
+    const [courseClassesView, setCourseClassesView] = useState<CourseClass[]>([]);
 
-    const cancel = () => setEditingKey("");
-
-    const save = async (key: React.Key) => {
+    const isEditing = (record: CourseClass) => editingKeys.includes(record.id as string);
+    const cancelParent = () => setEditingKeys([]);
+    const saveParent = async (key: React.Key) => {
         try {
             const row = (await form.validateFields()) as CourseClass;
-            const newData = [...customDataSource];
+            const newData = [...courseClassesView];
             const index = newData.findIndex((item) => key === item.id);
             if (index > -1) {
                 const item = newData[index];
                 newData.splice(index, 1, { ...item, ...row });
-                setCustomDataSource(newData);
-                setEditingKey("");
+                setEditingKeys([]);
             }
-        } catch {}
+        } catch { }
     };
 
-    const handleAddRow = () => {
+    const handleAddParentRow = () => {
         const newRow = {
-            id: `${Date.now()}`,
+            id: `new_${Date.now()}`,
             courseClassName: "",
             teacherName: "",
             stage: semesterOptions[0]?.value ?? 0,
             parentCourseClassCode: "",
         } as unknown as CourseClass;
-        setCustomDataSource((prev) => [newRow, ...prev]);
-        setTimeout(() => edit(newRow), 20);
+        dispatch(setCourseClassesNew([...courseClassesNew ?? [], newRow]));
+        setCourseClassesView((prev) => [newRow, ...prev]);
+        setSelectedRowKeysParent((prev) => [newRow.id, ...prev]);
+        form.setFieldsValue({ [newRow.id]: { ...newRow } });
+        setEditingKeys(prevState => [...prevState, newRow.id as string]);
     };
 
-    // Columns
+    const handleAddChildrenRow = (parentId: string) => {
+        const newRow = {
+            id: `new_${Date.now()}`,
+            courseClassName: "",
+            teacherName: "",
+            stage: semesterOptions[0]?.value ?? 0,
+            parentCourseClassCode: parentId,
+        } as unknown as CourseClass;
+        dispatch(setCourseClassesNew([...courseClassesNew ?? [], newRow]));
+        setCourseClassesView((prev) => {
+            const parentIdx = prev.findIndex((p) => p.id === parentId);
+            if (parentIdx === -1) return [newRow, ...prev];
+            const newArr = [...prev];
+            newArr.splice(parentIdx + 1, 0, newRow);
+            return newArr;
+        });
+        // SỬA: Tách selectedRowKeys cho từng bảng con
+        setSelectedRowKeysChildren(prev => ({
+            ...prev,
+            [parentId]: [newRow.id, ...(prev[parentId] ?? [])]
+        }));
+        form.setFieldsValue({ [newRow.id]: { ...newRow } });
+        setEditingKeys((prevState) => [...prevState, newRow.id as string]);
+    };
+
+    const getChildrenRows = (parentId: string) =>
+        (courseClassesView ?? []).filter(
+            (c) => c.parentCourseClassCode === parentId
+        );
+
+    // Cấu hình column: Thêm name cho từng dòng (theo [record.id, dataIndex])
     const columns: EditableColumnType<CourseClass>[] = [
         {
             title: "Tên lớp",
@@ -139,6 +225,16 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
             editable: true,
             inputType: "text",
             className: "text-[12px]",
+            onCell: (record: CourseClass) => ({
+                record,
+                inputType: "text",
+                dataIndex: "courseClassName",
+                title: "Tên lớp",
+                editing: isEditing(record),
+                semesterOptions,
+                onShowSchedule: setShowScheduleRecord,
+                name: [record.id, "courseClassName"]
+            }),
             render: (text, record) => (
                 <Space direction="vertical" size={2}>
                     <Space>
@@ -149,7 +245,8 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
                                     : "default"
                             }
                         />
-                        <span className="font-bold">{record?.courseClassName || <span className="text-gray-400">[Chưa đặt tên]</span>}</span>
+                        <span className="font-bold">{record?.courseClassName ||
+                            <span className="text-gray-400">[Chưa đặt tên]</span>}</span>
                     </Space>
                     <span className="text-gray-500 text-xs">{getSubject?.subjectName}</span>
                 </Space>
@@ -162,37 +259,180 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
             editable: true,
             inputType: "select",
             className: "text-[12px]",
+            onCell: (record: CourseClass) => ({
+                record,
+                inputType: "select",
+                dataIndex: "stage",
+                title: "Thời gian",
+                editing: isEditing(record),
+                semesterOptions,
+                onShowSchedule: setShowScheduleRecord,
+                name: [record.id, "stage"]
+            }),
             render: (_, record) => {
                 const semester = getSemester(record?.stage);
                 return (
                     <Tag color="blue" style={{ fontWeight: 500 }}>
-                        {getStageText(semester?.semesterCode)}
+                        {getStageText(semester?.semesterCode ?? "1")}
                         <span style={{ color: "#888" }}> ({DateTimeFormat(semester?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(semester?.endDate, "DD/MM/YYYY")})</span>
                     </Tag>
                 );
             },
         },
         {
+            title: "Lịch học",
+            key: "timeline",
+            width: 170,
+            render: (_: any, record: CourseClass) => {
+                // chỉ đọc từ map, không fallback record.timeline
+                const items = timelinesById[record.id] ?? []
+                if (items.length === 0) {
+                    return <Tag color="default">Chưa xếp</Tag>
+                }
+                return (
+                    <div className="whitespace-nowrap">
+                        {items.map(e => (
+                            <div key={`${record.id}-${e.id}`} className="flex items-center gap-1">
+                                <span className="text-blue-600 font-medium">Phòng {e.roomCode}</span>
+                                Thứ {e.dayOfWeek + 2} (Tiết {e.slots.join(",")})
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
+        },
+        {
+            title: "Giảng viên",
+            dataIndex: "teacherName",
+            className: "text-[12px]",
+            width: 150,
+            render: (text, record) =>
+                record?.teacherName
+                    ? (
+                        <Space>
+                            <Avatar size={22} icon={<UserOutlined />} />
+                            {record.teacherName}
+                        </Space>
+                    )
+                    : <Tag color="orange">Chưa xếp</Tag>
+        },
+        {
+            title: <span className={"text-[12px]"}>Thao tác</span>,
+            dataIndex: "operation",
+            width: 50,
+            fixed: "right",
+            align: "center" as const,
+            render: (_, record) => {
+                const editable = isEditing(record);
+                return (
+                    <>
+                        <Tooltip title={"Xóa"}>
+                            <Button type="link" size="small" onClick={() => {
+                                setEditingKeys(prevState => prevState.filter(key => key !== record.id));
+                                form.resetFields([record.id]);
+                                setCourseClassesView(prev => prev.filter(item => item.id !== record.id));
+                            }}>
+                                <CircleX size={18} color={"red"} />
+                            </Button>
+                        </Tooltip>
+                    </>
+                );
+            },
+        },
+    ];
+
+    const childrenColumns: EditableColumnType<CourseClass>[] = [
+        {
+            title: "Các lớp thành phần",
+            dataIndex: "courseClassName",
+            width: 130,
+            editable: true,
+            inputType: "text",
+            className: "text-[12px]",
+            onCell: (record: CourseClass) => ({
+                record,
+                inputType: "text",
+                dataIndex: "courseClassName",
+                title: "Tên lớp thành phần",
+                editing: isEditing(record),
+                semesterOptions,
+                onShowSchedule: setShowScheduleRecord,
+                name: [record.id, "courseClassName"]
+            }),
+            render: (text, record) => (
+                <Space direction="vertical" size={2}>
+                    <Space>
+                        <Badge
+                            status={
+                                timeLine?.data?.data?.items?.some(c => c.courseClassCode === record?.courseClassCode)
+                                    ? "success"
+                                    : "default"
+                            }
+                        />
+                        <span className="font-bold">{record?.courseClassName ||
+                            <span className="text-gray-400">[Chưa đặt tên]</span>}</span>
+                    </Space>
+                    <span className="text-gray-500 text-xs">{getSubject?.subjectName}</span>
+                </Space>
+            ),
+        },
+        {
+            title: "Thời gian",
+            dataIndex: "stage",
+            width: 150,
+            editable: true,
+            inputType: "select",
+            className: "text-[12px]",
+            onCell: (record: CourseClass) => ({
+                record,
+                inputType: "select",
+                dataIndex: "stage",
+                title: "Thời gian",
+                editing: isEditing(record),
+                semesterOptions,
+                onShowSchedule: setShowScheduleRecord,
+                name: [record.id, "stage"]
+            }),
+            render: (_, record) => {
+                const semester = getSemester(record?.stage);
+                return (
+                    <Tag color="blue" style={{ fontWeight: 500 }}>
+                        {getStageText(semester?.semesterCode ?? "1")}
+                        <span style={{ color: "#888" }}> ({DateTimeFormat(semester?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(semester?.endDate, "DD/MM/YYYY")})</span>
+                    </Tag>
+                );
+            },
+        },
+        // Các cột còn lại giữ nguyên, không cần onCell
+        {
             title: "Lịch học",
             key: "timeline",
             className: "text-[12px]",
             width: 170,
             render: (_, record) => {
-                const items = timeLine?.data?.data?.items?.filter(
+                const items = selectedTimeline?.filter(
                     (c) => c.courseClassCode === record?.courseClassCode
                 );
                 return items && items.length > 0 ? (
-                    <Tooltip
-                        title={<>
-                            {items.map(e =>
-                                <div key={e.id}>
-                                    <span className="font-medium text-blue-600">Phòng {e.roomCode}</span> Thứ {e.dayOfWeek + 2} (Tiết {e.slots?.join(",")})
-                                </div>
-                            )}
-                        </>}
-                    >
-                        <Tag color="green" style={{ cursor: "pointer", fontWeight: 500 }}>Đã xếp ({items.length} lịch)</Tag>
-                    </Tooltip>
+                    <div className={"whitespace-nowrap"}>
+                        {items.map(e =>
+                            <div key={e.id} className={"flex justify-start items-center gap-1"}>
+                                <span className="font-medium whitespace-nowrap text-blue-600">Phòng {e.roomCode}</span> Thứ {e.dayOfWeek + 2} (Tiết {e.slots?.join(",")})
+                                <IconButton
+                                    onClick={() => {
+                                        // setScheduledItems(prevState => [
+                                        //     ...prevState?.filter(c => e.dayOfWeek !== c.dayIndex),
+                                        // ])
+                                        // setSelectedTimeline(prevState => prevState.filter(item => item.id !== e.id));
+                                    }}
+                                >
+                                    <Tooltip title="Xóa">
+                                        <Trash2 size={15} />
+                                    </Tooltip>
+                                </IconButton>
+                            </div>
+                        )}
+                    </div>
                 ) : (
                     <Tag color="default">Chưa xếp</Tag>
                 );
@@ -214,164 +454,97 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
                     : <Tag color="orange">Chưa xếp</Tag>
         },
         {
-            title: "Thao tác",
+            title: <span className={"text-[12px]"}>Thao tác</span>,
             dataIndex: "operation",
-            width: 110,
+            width: 50,
+            fixed: "right",
             align: "center" as const,
             render: (_, record) => {
                 const editable = isEditing(record);
-                return editable ? (
-                    <Space>
-                        <Button type="link" size="small" onClick={() => save(record.id)}>
-                            Lưu
-                        </Button>
-                        <Button type="link" size="small" onClick={cancel}>
-                            Huỷ
-                        </Button>
-                    </Space>
-                ) : (
-                    <Space>
-                        <Tooltip title="Sửa">
-                            <Button shape="circle" icon={<EditOutlined />} size="small" onClick={() => edit(record)} />
+                return  (
+                    <>
+                        <Tooltip title={"Xóa"}>
+                            <Button type="link" size="small" onClick={() => {
+                                setEditingKeys(prevState => prevState.filter(key => key !== record.id));
+                                form.resetFields([record.id]);
+                                setCourseClassesView(prev => prev.filter(item => item.id !== record.id));
+                            }}>
+                                <CircleX size={18} color={"red"} />
+                            </Button>
                         </Tooltip>
-                        <Tooltip title="Xoá">
-                            <Button shape="circle" icon={<DeleteOutlined />} size="small" danger />
-                        </Tooltip>
-                        <Tooltip title="Xem chi tiết">
-                            <Button shape="circle" icon={<InfoCircleOutlined />} size="small" />
-                        </Tooltip>
-                    </Space>
-                );
+                    </>
+                )
             },
         },
     ];
 
-    // Merge column for editable
-    const mergedColumns = columns.map((col) => {
-        if (!col.editable) return col;
+    // Hàm lưu toàn bộ form
+    const handleSaveAll = async () => {
+        const values = await form.validateFields();
+        const data = Object.entries(values).map(([id, fields]) => ({
+            id,
+            //@ts-ignore
+            ...fields,
+        }));
+        const parents = data.filter(row => !row.parentCourseClassCode);
+        const children = data.filter(row => !!row.parentCourseClassCode);
+        toast.success("Đã lưu tất cả dữ liệu!");
+        console.log({ all: data, parents, children });
+    };
+
+
+    
+    
+    
+    
+    const {data: rooms, isLoading: roomsLoading} = useGetRooms({
+        Page: 1,
+        PageSize: 1000
+    }, openModal)
+    const groupRooms = _.groupBy(rooms?.data?.data?.items ?? [], "buildingCode");
+    const options = Object.entries(groupRooms)?.map(([e, rooms]) => {
         return {
-            ...col,
-            onCell: (record: CourseClass) => ({
-                record,
-                inputType: col.inputType,
-                dataIndex: col.dataIndex,
-                title: col.title,
-                editing: isEditing(record),
-                semesterOptions,
-                onShowSchedule: setShowScheduleRecord,
-            }),
-        };
-    });
-
-    // Children table and timeline as before
-    const { data: childrenCourseClasses } = useGetCourseClasses(
-        {
-            Filters: [
-                {
-                    field: "ParentCourseClassCode",
-                    operator: "In",
-                    value: data?.data?.data?.items?.map((e) => e.courseClassCode)?.join(",")!,
-                },
-            ],
-        },
-        data !== undefined && data?.data?.data?.items?.length > 0
-    );
-
-    const { data: childrenTimeLine } = useGetTimeline(
-        {
-            Filters: [
-                {
-                    field: "CourseClassCode",
-                    operator: "In",
-                    value: childrenCourseClasses?.data?.data?.items
-                        ?.map((c) => c.courseClassCode)
-                        ?.join(",")!,
-                },
-            ],
-        },
-        childrenCourseClasses !== undefined &&
-        childrenCourseClasses?.data?.data?.items?.map((c) => c.courseClassCode)?.length > 0
-    );
-
-    const childrenColumns: EditableColumnType<CourseClass>[] = [
-        {
-            title: <span className="font-bold text-cyan-700">Các lớp thành phần</span>,
-            dataIndex: "courseClassName",
-            width: 200,
-            className: "text-[12px]",
-            render: (_, record) => (
-                <Space direction="vertical" size={0} style={{ paddingLeft: 12 }}>
-                    <span className="font-medium">{record?.courseClassName}</span>
-                    <span className="text-gray-500 text-xs">{getSubject?.subjectName}</span>
-                </Space>
-            ),
-        },
-        {
-            title: "Thời gian",
-            dataIndex: "courseClassName",
-            className: "text-[12px]",
-            width: 120,
-            render: (_, record) => (
-                <Tag color="blue" style={{ fontWeight: 500 }}>
-                    {DateTimeFormat(getSemester(record?.stage)?.startDate, "DD/MM/YYYY")}
-                    <ArrowRight size={14} />
-                    {DateTimeFormat(getSemester(record?.stage)?.endDate, "DD/MM/YYYY")}
-                </Tag>
-            ),
-        },
-        {
-            title: "Lịch học",
-            key: "action",
-            className: "text-[12px]",
-            width: 160,
-            render: (_, record) => {
-                const items = childrenTimeLine?.data?.data?.items?.filter(
-                    (c) => c.courseClassCode === record?.courseClassCode
-                );
-                return items && items.length > 0 ? (
-                    <Tooltip
-                        title={<>
-                            {items.map(e =>
-                                <div key={e.id}>
-                                    <span className="font-medium text-blue-600">Phòng {e.roomCode}</span> Thứ {e.dayOfWeek + 2} (Tiết {e.slots?.join(",")})
-                                </div>
-                            )}
-                        </>}
-                    >
-                        <Tag color="green" style={{ cursor: "pointer", fontWeight: 500 }}>Đã xếp ({items.length} lịch)</Tag>
-                    </Tooltip>
-                ) : (
-                    <Tag color="default">Chưa xếp</Tag>
-                );
-            },
-        },
-        {
-            title: "Giảng viên",
-            className: "text-[12px]",
-            render: (text, record) =>
-                record?.teacherCode
-                    ? (
-                        <Space>
-                            <Avatar size={20} icon={<UserOutlined />} />
-                            {record.teacherName}
-                        </Space>
-                    )
-                    : <Tag color="orange">Chưa xếp</Tag>
-        },
-    ];
-
+            label: <span>{e}</span>,
+            title: e,
+            options: rooms?.map(e => ({ label: <span>{e?.name}</span>, value: e?.code ?? "" }))  ?? []
+        }
+    })
+    useEffect(() => {
+        if (scheduleItem && selectedRowKeysParent.length) {
+            setTimelinesById(prev => {
+                const next = { ...prev };
+                selectedRowKeysParent.forEach(id => {
+                    const exist = next[id as string] ?? [];
+                    next[id as string] = [
+                        ...exist,
+                        {
+                            id: scheduleItem.id,
+                            roomCode: scheduleItem?.roomCode ?? "",
+                            dayOfWeek: scheduleItem.dayIndex,
+                            slots: [],
+                            courseClassCode: id as string,
+                        } as unknown as SlotTimeline
+                    ];
+                });
+                return next;
+            });
+        }
+    }, [scheduleItem, selectedRowKeysParent]);
+    
     return (
         <>
             <IconButton size="small" onClick={() => setOpenModal(true)}>
                 <Settings size={15} />
             </IconButton>
             <Modal
-                loading={semesterLoading}
                 open={openModal}
-                onClose={() => setOpenModal(false)}
                 onCancel={() => setOpenModal(false)}
-                footer={null}
-                className={"study-modal min-w-[1500px]"}
+                footer={
+                    <Button type="primary" onClick={handleSaveAll}>
+                        Lưu tất cả
+                    </Button>
+                }
+                className={" min-w-[1650px]"}
                 title={
                     <Box
                         display="flex"
@@ -404,39 +577,27 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
                                 Mã môn: {getSubject?.subjectCode}
                             </Typography.Text>
                         </div>
-                        <Tag color="green" style={{ marginLeft: "auto", fontSize: 16, padding: "6px 16px", borderRadius: 8 }}>
-                            <UserOutlined /> Đã tạo: {data?.data?.data?.totalItems ?? 0} lớp
+                        <Tag color="green"
+                             style={{ marginLeft: "auto", fontSize: 16, padding: "6px 16px", borderRadius: 8 }}>
+                            <UserOutlined /> Đã tạo: {courseClasses?.data?.data?.totalItems ?? 0} lớp
                         </Tag>
                     </Box>
                 }
             >
-                <div
-                    
-                    className={"grid grid-cols-12 w-full gap-3"}
-                >
-                    {/* LEFT: Lớp học */}
+                <div className={"grid grid-cols-12 w-full gap-3"}>
                     <Card
                         className={"col-span-6"}
                         style={{
                             background: "#fff",
                             borderRadius: 16,
                             boxShadow: "0 4px 16px #dbeafe",
-                            display: "flex",
-                            flexDirection: "column",
-                            minHeight: 540,
+                            width: "100%",
                         }}
                     >
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="space-between"
-                            px={2}
-                            pt={2}
-                            pb={1}
-                        >
-                            <Typography.Title level={5} style={{ margin: 0 }}>Tổng quan lớp học</Typography.Title>
+                        <Box display="flex" alignItems="center" justifyContent="space-between" pt={2} pb={1}>
+                            <Typography.Title level={5} style={{ margin: 0 }}>Tổng quan lớp học <span className={"font-normal"}>{subject?.subjectName}</span></Typography.Title>
                             <Button
-                                onClick={handleAddRow}
+                                onClick={handleAddParentRow}
                                 type="primary"
                                 icon={<PlusOutlined />}
                                 style={{ borderRadius: 6, fontWeight: 500 }}
@@ -444,56 +605,93 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
                                 Thêm lớp mới
                             </Button>
                         </Box>
-                        <Box px={2} pb={2}>
+                        <Box  pb={2}>
                             <Form form={form} component={false}>
                                 <Spin spinning={isLoading}>
                                     <Table<CourseClass>
                                         rowKey={c => c.id}
                                         size="small"
                                         bordered
+                                        scroll={{x: 1200}}
                                         style={{
                                             borderRadius: 10,
                                             background: "#fff",
-                                            marginBottom: 0,
+                                            height: "1200px"
                                         }}
                                         pagination={{
                                             current: query?.Page ?? 1,
                                             pageSize: query?.PageSize ?? 10,
-                                            total: data?.data?.data?.totalItems ?? 0,
+                                            total: courseClasses?.data?.data?.totalItems ?? 0,
                                             showSizeChanger: true,
+                                        }}
+                                        expandable={{
+                                            showExpandColumn: true,
+                                            defaultExpandAllRows: true,
+                                            fixed: "left",
+                                            columnWidth: 20,
+                                            expandedRowRender: (record) => (
+                                                <div className={"inset-0 pl-15"}>
+                                                    <Button
+                                                        size="small"
+                                                        icon={<PlusOutlined />}
+                                                        style={{borderRadius: 6, fontWeight: 500, padding: "4px 8px"}}
+                                                        onClick={() => handleAddChildrenRow(record.id)}
+                                                    >
+                                                        Thêm lớp thành phần
+                                                    </Button>
+                                                    <Table<CourseClass>
+                                                        components={{
+                                                            body: {
+                                                                cell: (props: any) => (
+                                                                    <EditableCell
+                                                                        {...props}
+                                                                        semesterOptions={semesterOptions}
+                                                                        onShowSchedule={setShowScheduleRecord}
+                                                                    />
+                                                                ),
+                                                            },
+                                                        }}
+                                                        rowKey={c => c.id}
+                                                        size={"small"}
+                                                        scroll={{x: 1200}}
+                                                        bordered
+                                                        columns={childrenColumns as ColumnType<CourseClass>[]}
+                                                        rowSelection={{
+                                                            type: "checkbox",
+                                                            selectedRowKeys: selectedRowKeysChildren[record.id] || [],
+                                                            onChange: keys => setSelectedRowKeysChildren(prev => ({
+                                                                ...prev,
+                                                                [record.id]: keys
+                                                            })),
+                                                            fixed: "left",
+                                                            columnWidth: 20,
+                                                        }}
+                                                        dataSource={getChildrenRows(record.id)}
+                                                        pagination={false}
+                                                        locale={{
+                                                            emptyText: (
+                                                                <Empty
+                                                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                                    description={
+                                                                        <span>
+                                                                            Chưa có lớp thành phần.<br />Hãy nhấn <b>Thêm lớp thành phần</b>
+                                                                        </span>
+                                                                    }
+                                                                />
+                                                            ),
+                                                        }}
+                                                        rowClassName={(_, idx) =>
+                                                            idx % 2 === 0 ? "table-row-odd" : "table-row-even"
+                                                        }
+                                                    />
+                                                </div>
+                                            )
                                         }}
                                         onChange={e => setQuery(prevState => ({
                                             ...prevState,
                                             Page: e?.current ?? 1 - 1,
                                             PageSize: e?.pageSize,
                                         }))}
-                                        expandable={{
-                                            defaultExpandAllRows: false,
-                                            expandedRowRender: (record) =>
-                                                childrenCourseClasses?.data?.data?.items?.filter(
-                                                    (e) => e?.parentCourseClassCode === record?.courseClassCode
-                                                )?.length !== 0 ? (
-                                                    <Table<CourseClass>
-                                                        columns={childrenColumns}
-                                                        rowKey={c => c.id}
-                                                        bordered
-                                                        pagination={false}
-                                                        dataSource={
-                                                            childrenCourseClasses?.data?.data?.items?.filter(
-                                                                (e) => e?.parentCourseClassCode === record?.courseClassCode
-                                                            ) ?? []
-                                                        }
-                                                        size="small"
-                                                        showHeader
-                                                        style={{ background: "#f4faff", borderRadius: 8, margin: 0 }}
-                                                    />
-                                                ) : (
-                                                    <Empty
-                                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                                        description={<span style={{ color: "#aaa" }}>Không có lớp thành phần</span>}
-                                                    />
-                                                ),
-                                        }}
                                         components={{
                                             body: {
                                                 cell: (props: any) => (
@@ -505,16 +703,16 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
                                                 ),
                                             },
                                         }}
-                                        columns={mergedColumns as ColumnType<CourseClass>[]}
-                                        dataSource={customDataSource ?? []}
+                                        columns={columns as ColumnType<CourseClass>[]}
+                                        dataSource={courseClassesView?.filter(e => e.parentCourseClassCode === "") ?? []}
                                         locale={{
                                             emptyText: (
                                                 <Empty
                                                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                                                     description={
                                                         <span>
-                                                        Chưa có lớp học nào. <br /> Hãy nhấn <b>Thêm lớp mới</b>
-                                                    </span>
+                                                            Chưa có lớp học nào. <br /> Hãy nhấn <b>Thêm lớp mới</b>
+                                                        </span>
                                                     }
                                                 />
                                             ),
@@ -522,39 +720,18 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
                                         rowClassName={(_, idx) =>
                                             idx % 2 === 0 ? "table-row-odd" : "table-row-even"
                                         }
+                                        rowSelection={{
+                                            type: "checkbox",
+                                            columnWidth: 20,
+                                            fixed: "left",
+                                            selectedRowKeys: selectedRowKeysParent,
+                                            onChange: setSelectedRowKeysParent,
+                                        }}
                                     />
                                 </Spin>
                             </Form>
                         </Box>
-                        {/* Modal chi tiết lịch học */}
-                        <Modal
-                            open={!!showScheduleRecord}
-                            onCancel={() => setShowScheduleRecord(null)}
-                            footer={null}
-                            centered
-                            bodyStyle={{ borderRadius: 12, padding: 32, background: "#f6faff" }}
-                        >
-                            <Typography.Title level={5}>Lịch học của lớp <Tag color="blue">{showScheduleRecord?.courseClassName}</Tag></Typography.Title>
-                            <Box mt={2}>
-                                {timeLine?.data?.data?.items
-                                    ?.filter((c) => c.courseClassCode === showScheduleRecord?.courseClassCode)
-                                    ?.map((e) => (
-                                        <Card key={e.id} size="small" style={{ marginBottom: 8, borderLeft: "5px solid #1677ff" }}>
-                                            <Space>
-                                                <Tag color="blue">Phòng {e?.roomCode}</Tag>
-                                                <Tag color="purple">Thứ {e?.dayOfWeek + 2}</Tag>
-                                                <Tag color="geekblue">Tiết {e?.slots?.join(",")}</Tag>
-                                            </Space>
-                                        </Card>
-                                    ))
-                                }
-                                {timeLine?.data?.data?.items?.filter((c) => c.courseClassCode === showScheduleRecord?.courseClassCode)?.length === 0 && (
-                                    <Empty description="Chưa có lịch học" />
-                                )}
-                            </Box>
-                        </Modal>
                     </Card>
-                    {/* RIGHT: Lịch/phòng học */}
                     <Card
                         className={"col-span-6"}
                         style={{
@@ -567,26 +744,32 @@ const StudySectionCourseClasses = ({ subjectCode }: StudySectionCourseClassesPro
                             flexDirection: "column",
                         }}
                     >
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            px={3}
-                            pt={3}
-                            pb={1}
-                            style={{
-                                borderBottom: "1px solid #f0f0f0",
-                                marginBottom: 0,
-                            }}
-                        >
+                        <Box display="flex" alignItems="center" gap={3} px={3} pt={3} pb={1} style={{
+                            borderBottom: "1px solid #f0f0f0",
+                            marginBottom: 0,
+                        }}>
                             <BookOutlined style={{ marginRight: 10, color: "#1677ff", fontSize: 24 }} />
                             <Typography.Title level={5} style={{ margin: 0 }}>
                                 Sắp xếp lịch học & phòng học
                             </Typography.Title>
+                            <Select showSearch className={"min-w-[200px]"} options={options} placeholder={"Chọn phòng học"} />
                         </Box>
                         <Box px={2} py={2} style={{ minHeight: 350 }}>
-                            <TableSchedule subject={getSubject} onChange={(scheduleItems) => {
-                                console.log(scheduleItems)
-                            }} />
+                            <TableSchedule subject={getSubject} onChange={( scheduleItems) => {
+                                // const newTimelines = scheduleItems.map(item => ({
+                                //     roomCode: "",
+                                //     dayOfWeek: item?.dayIndex,
+                                //     slots: Array.from(
+                                //         { length: item?.endSlot - item?.startSlot + 1 },
+                                //         (_, i) => item?.startSlot + i
+                                //     ) ?? [],
+                                // } as unknown as SlotTimeline));
+
+                                // setSelectedTimeline(prevState => {
+                                //     const filtered = prevState.filter(item => item.roomCode !== (""));
+                                //     return [...filtered, ...newTimelines];
+                                // });
+                            }}  />
                         </Box>
                     </Card>
                 </div>

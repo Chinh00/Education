@@ -28,7 +28,9 @@ export interface ScheduleItem {
     startSlot: number
     endSlot: number
     dayIndex: number
-    duration: number
+    duration: number,
+    courseClassId?: string;
+    roomCode?: string;
 }
 
 

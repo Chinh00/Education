@@ -122,7 +122,7 @@ export type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'> & 
 
 
 export const getStageText = (semesterCode?: string) => {
-    const stage = +(semesterCode ?? "0").split("_")[3];
+    const stage = +(semesterCode ?? "1_1_1_1").split("_")[3];
     switch (stage) {
         case 1:
             return "Giai đoạn 1";
@@ -130,5 +130,17 @@ export const getStageText = (semesterCode?: string) => {
             return "Giai đoạn 2";
         default:
             return "Cả 2 giai đoạn";
+    }
+}
+
+export const getStageValue = (semesterCode?: string) => {
+    const stage = +(semesterCode ?? "1_1_1_1").split("_")[3];
+    switch (stage) {
+        case 1:
+            return 0;
+        case 2:
+            return 1;
+        default:
+            return 2;
     }
 }

@@ -77,7 +77,7 @@ const SubjectStudySection = () => {
             title: 'Hành động',
             key: "action",
             render: (text, record) => (
-                <StudySectionCourseClasses subjectCode={record?.subjectCode} />
+                <StudySectionCourseClasses subject={record}  />
                 
             )
         },

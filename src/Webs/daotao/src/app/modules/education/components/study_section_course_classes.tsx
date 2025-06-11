@@ -26,14 +26,10 @@ import {
     PlusOutlined
 } from "@ant-design/icons";
 import { SlotTimeline } from "@/domain/slot_timeline.ts";
-import { ScheduleItem } from "../../register/pages/course_class_config";
-import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
 import toast from "react-hot-toast";
-import {SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
-import SelectedClassModal from "@/app/modules/education/components/selected_class_modal.tsx";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {
-    setCourseClassesNew,
+    setCourseClassesNew, setCurrentStageConfig, setScheduleItem,
     setSubject,
     SubjectStudySectionState
 } from "@/app/modules/education/stores/subject_study_section.ts";
@@ -48,7 +44,7 @@ export type StudySectionCourseClassesProps = {
     subject: Subject
 }
 const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) => {
-    const {courseClassesNew, scheduleItem} = useAppSelector<SubjectStudySectionState>(c => c.subjectStudySectionReducer);
+    const {courseClassesNew, currentStageConfig, scheduleItems} = useAppSelector<SubjectStudySectionState>(c => c.subjectStudySectionReducer);
     const dispatch = useAppDispatch()
     const subjectCode = subject?.subjectCode;
 
@@ -102,30 +98,74 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
 
     const [query, setQuery] = useState<Query>({
         Filters: [
-            { field: "SubjectCode", operator: "==", value: subjectCode! },
-            { field: "SemesterCode", operator: "==", value: semesterParent?.semesterCode! },
+            // { field: "SubjectCode", operator: "==", value: subjectCode! },
             { field: "ParentCourseClassCode", operator: "==", value: "" },
         ],
     });
 
+    useEffect(() => {
+        if (currentStageConfig !== null) {
+            setQuery(prevState => ({
+                ...prevState,
+                Filters: [
+                    ...prevState?.Filters?.filter(e => e?.field !== "Stage") ?? [],
+                    { field: "Stage", operator: "==", value: `${currentStageConfig}` },
+                ],
+            }))
+        }
+    }, [currentStageConfig]);
     const { data: courseClasses, isLoading } = useGetCourseClasses(
         query,
-        semesterParent !== undefined && openModal && subjectCode !== undefined
+        subjectCode !== undefined && openModal && subjectCode !== ""
     );
-    const { data: timeLine } = useGetTimeline(
+    
+    
+    
+
+    useEffect(() => {
+        if (subjectCode && subjectCode !== "") {
+            setQuery(prevState => ({
+                ...prevState,
+                Filters: [
+                    ...prevState?.Filters ?? [],
+                    { field: "SubjectCode", operator: "==", value: subjectCode! },
+                    // { field: "SemesterCode", operator: "==", value: semesterParent?.semesterCode! },
+                ],
+            }))
+        }
+    }, [subjectCode]);
+    
+    const { data: courseClassesChild } = useGetCourseClasses({
+        Filters: [
+            { field: "ParentCourseClassCode", operator: "In", value: courseClasses?.data?.data?.items?.map(e => e.courseClassCode)?.join(",")! },
+            { field: "Stage", operator: "==", value: `${currentStageConfig}` },
+        ],
+    }, courseClasses !== undefined && courseClasses?.data?.data?.items?.length > 0 && openModal);
+
+    const getChildrenCourseClasses = (courseClassCode: string): CourseClass[] => 
+        courseClassesChild?.data?.data?.items?.filter(
+        (c) => c.parentCourseClassCode === courseClassCode
+    ) ?? [];
+    
+    
+    const { data: timeLines } = useGetTimeline(
         {
             Filters: [
                 {
                     field: "CourseClassCode",
                     operator: "In",
-                    value: courseClasses?.data?.data?.items?.map((c) => c.courseClassCode)?.join(",")!,
+                    value: [
+                        ...courseClasses?.data?.data?.items?.map((c) => c.courseClassCode) ?? [],
+                        ...courseClassesChild?.data?.data?.items?.map((c) => c.courseClassCode) ?? [],
+                    ]?.join(",")!,
                 },
             ],
         },
         courseClasses !== undefined &&
         courseClasses?.data?.data?.items?.map((c) => c.courseClassCode)?.length > 0 &&
         openModal &&
-        subjectCode !== undefined
+        subjectCode !== undefined && 
+        courseClassesChild !== undefined
     );
     const [form] = Form.useForm();
 
@@ -155,8 +195,8 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
     const [selectedTimeline, setSelectedTimeline] = useState<SlotTimeline[]>([])
     const [editingKeys, setEditingKeys] = useState<string[]>([])
     const [courseClassesView, setCourseClassesView] = useState<CourseClass[]>([]);
-
     const isEditing = (record: CourseClass) => editingKeys.includes(record.id as string);
+
     const cancelParent = () => setEditingKeys([]);
     const saveParent = async (key: React.Key) => {
         try {
@@ -172,12 +212,13 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
     };
 
     const handleAddParentRow = () => {
+        dispatch(setScheduleItem([]))
         const newRow = {
             id: `new_${Date.now()}`,
             courseClassName: "",
             teacherName: "",
             stage: semesterOptions[0]?.value ?? 0,
-            parentCourseClassCode: "",
+            parentCourseClassCode: null,
         } as unknown as CourseClass;
         dispatch(setCourseClassesNew([...courseClassesNew ?? [], newRow]));
         setCourseClassesView((prev) => [newRow, ...prev]);
@@ -187,6 +228,7 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
     };
 
     const handleAddChildrenRow = (parentId: string) => {
+        dispatch(setScheduleItem([]))
         const newRow = {
             id: `new_${Date.now()}`,
             courseClassName: "",
@@ -215,13 +257,15 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
         (courseClassesView ?? []).filter(
             (c) => c.parentCourseClassCode === parentId
         );
+    
+    
 
     // Cấu hình column: Thêm name cho từng dòng (theo [record.id, dataIndex])
     const columns: EditableColumnType<CourseClass>[] = [
         {
             title: "Tên lớp",
             dataIndex: "courseClassName",
-            width: 130,
+            width: 50,
             editable: true,
             inputType: "text",
             className: "text-[12px]",
@@ -240,7 +284,7 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
                     <Space>
                         <Badge
                             status={
-                                timeLine?.data?.data?.items?.some(c => c.courseClassCode === record?.courseClassCode)
+                                timeLines?.data?.data?.items?.some(c => c.courseClassCode === record?.courseClassCode)
                                     ? "success"
                                     : "default"
                             }
@@ -253,9 +297,34 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
             ),
         },
         {
+            title: "Lịch học",
+            key: "timeline",
+            className: "text-[12px]",
+
+            width: 60,
+            render: (_: any, record: CourseClass) => {
+                // chỉ đọc từ map, không fallback record.timeline
+                const items = timelinesById[record.id] ?? timeLines?.data?.data?.items?.filter(e => e.courseClassCode === record?.courseClassCode) ?? [];
+                if (items.length === 0) {
+                    return <Tag color="default">Chưa xếp</Tag>
+                }
+                return (
+                    <div className="whitespace-nowrap">
+                        {items.map((e, index) => (
+                            <div key={`${record.id}-${e.id}`} className="flex items-center gap-1">
+                                <span className={"font-bold"}>Buổi {index + 1}: </span>
+                                <span className={` ${e?.roomCode ? "text-blue-600" : "text-red-600"} font-medium`}>Phòng {e?.roomCode || "?"}</span>
+                                Thứ {e.dayOfWeek + 2} (Tiết {e.slots?.map(e => +e + 1).join(",")})
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
+        },
+        {
             title: "Thời gian",
             dataIndex: "stage",
-            width: 150,
+            width: 50,
             editable: true,
             inputType: "select",
             className: "text-[12px]",
@@ -272,40 +341,46 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
             render: (_, record) => {
                 const semester = getSemester(record?.stage);
                 return (
-                    <Tag color="blue" style={{ fontWeight: 500 }}>
-                        {getStageText(semester?.semesterCode ?? "1")}
+                    <Tag color="blue" style={{ fontWeight: 500, display: "flex", flexDirection: "column"}}>
+                        <span>
+                            {getStageText(semester?.semesterCode ?? "1")}
+                        </span>
                         <span style={{ color: "#888" }}> ({DateTimeFormat(semester?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(semester?.endDate, "DD/MM/YYYY")})</span>
                     </Tag>
                 );
             },
         },
         {
-            title: "Lịch học",
-            key: "timeline",
-            width: 170,
-            render: (_: any, record: CourseClass) => {
-                // chỉ đọc từ map, không fallback record.timeline
-                const items = timelinesById[record.id] ?? []
-                if (items.length === 0) {
-                    return <Tag color="default">Chưa xếp</Tag>
-                }
-                return (
-                    <div className="whitespace-nowrap">
-                        {items.map(e => (
-                            <div key={`${record.id}-${e.id}`} className="flex items-center gap-1">
-                                <span className="text-blue-600 font-medium">Phòng {e.roomCode}</span>
-                                Thứ {e.dayOfWeek + 2} (Tiết {e.slots.join(",")})
-                            </div>
-                        ))}
-                    </div>
-                )
-            }
+            title: "Số SV dự kiến",
+            className: "text-[12px]",
+            editable: true,
+            inputType: "text",
+            width: 40,
+            onCell: (record: CourseClass) => ({
+                record,
+                inputType: "text",
+                dataIndex: "numberStudents",
+                title: "Tên lớp",
+                editing: isEditing(record),
+                semesterOptions,
+                onShowSchedule: setShowScheduleRecord,
+                name: [record.id, "numberStudents"]
+            }),
+            render: (text, record) =>
+                record?.numberStudentsExpected
+                    ? (
+                        <Space>
+                            <Avatar size={22} icon={<UserOutlined />} />
+                            {record.numberStudentsExpected} (SV)
+                        </Space>
+                    )
+                    : <Tag color="orange">Chưa xếp</Tag>
         },
         {
             title: "Giảng viên",
             dataIndex: "teacherName",
             className: "text-[12px]",
-            width: 150,
+            width: 50,
             render: (text, record) =>
                 record?.teacherName
                     ? (
@@ -319,12 +394,12 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
         {
             title: <span className={"text-[12px]"}>Thao tác</span>,
             dataIndex: "operation",
-            width: 50,
+            width: 20,
             fixed: "right",
             align: "center" as const,
             render: (_, record) => {
                 const editable = isEditing(record);
-                return (
+                return record?.id?.startsWith("new_") ? (
                     <>
                         <Tooltip title={"Xóa"}>
                             <Button type="link" size="small" onClick={() => {
@@ -336,7 +411,7 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
                             </Button>
                         </Tooltip>
                     </>
-                );
+                ) : null;
             },
         },
     ];
@@ -345,7 +420,7 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
         {
             title: "Các lớp thành phần",
             dataIndex: "courseClassName",
-            width: 130,
+            width: 80,
             editable: true,
             inputType: "text",
             className: "text-[12px]",
@@ -364,7 +439,7 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
                     <Space>
                         <Badge
                             status={
-                                timeLine?.data?.data?.items?.some(c => c.courseClassCode === record?.courseClassCode)
+                                timeLines?.data?.data?.items?.some(c => c.courseClassCode === record?.courseClassCode)
                                     ? "success"
                                     : "default"
                             }
@@ -377,9 +452,33 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
             ),
         },
         {
+            title: "Lịch học",
+            key: "timeline",
+            className: "text-[12px]",
+            width: 90,
+            render: (_: any, record: CourseClass) => {
+                // chỉ đọc từ map, không fallback record.timeline
+                const items = timelinesById[record.id] ?? timeLines?.data?.data?.items?.filter(e => e.courseClassCode === record?.courseClassCode) ?? [];
+                if (items.length === 0) {
+                    return <Tag color="default">Chưa xếp</Tag>
+                }
+                return (
+                    <div className="whitespace-nowrap">
+                        {items.map((e, index) => (
+                            <div key={`${record.id}-${e.id}`} className="flex items-center gap-1">
+                                <span className={"font-bold"}>Buổi {index + 1}: </span>
+                                <span className={` ${e?.roomCode ? "text-blue-600" : "text-red-600"} font-medium`}>Phòng {e?.roomCode || "?"}</span>
+                                Thứ {e.dayOfWeek + 2} (Tiết {e.slots?.map(e => +e + 1).join(",")})
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
+        },
+        {
             title: "Thời gian",
             dataIndex: "stage",
-            width: 150,
+            width: 70,
             editable: true,
             inputType: "select",
             className: "text-[12px]",
@@ -396,53 +495,46 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
             render: (_, record) => {
                 const semester = getSemester(record?.stage);
                 return (
-                    <Tag color="blue" style={{ fontWeight: 500 }}>
-                        {getStageText(semester?.semesterCode ?? "1")}
+                    <Tag color="blue" style={{ fontWeight: 500, display: "flex", flexDirection: "column"}}>
+                        <span>
+                            {getStageText(semester?.semesterCode ?? "1")}
+                        </span>
                         <span style={{ color: "#888" }}> ({DateTimeFormat(semester?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(semester?.endDate, "DD/MM/YYYY")})</span>
                     </Tag>
                 );
             },
         },
-        // Các cột còn lại giữ nguyên, không cần onCell
         {
-            title: "Lịch học",
-            key: "timeline",
+            title: "Số SV",
             className: "text-[12px]",
-            width: 170,
-            render: (_, record) => {
-                const items = selectedTimeline?.filter(
-                    (c) => c.courseClassCode === record?.courseClassCode
-                );
-                return items && items.length > 0 ? (
-                    <div className={"whitespace-nowrap"}>
-                        {items.map(e =>
-                            <div key={e.id} className={"flex justify-start items-center gap-1"}>
-                                <span className="font-medium whitespace-nowrap text-blue-600">Phòng {e.roomCode}</span> Thứ {e.dayOfWeek + 2} (Tiết {e.slots?.join(",")})
-                                <IconButton
-                                    onClick={() => {
-                                        // setScheduledItems(prevState => [
-                                        //     ...prevState?.filter(c => e.dayOfWeek !== c.dayIndex),
-                                        // ])
-                                        // setSelectedTimeline(prevState => prevState.filter(item => item.id !== e.id));
-                                    }}
-                                >
-                                    <Tooltip title="Xóa">
-                                        <Trash2 size={15} />
-                                    </Tooltip>
-                                </IconButton>
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <Tag color="default">Chưa xếp</Tag>
-                );
-            },
+            editable: true,
+            inputType: "text",
+            width: 40,
+            onCell: (record: CourseClass) => ({
+                record,
+                inputType: "text",
+                dataIndex: "numberStudents",
+                title: "Tên lớp",
+                editing: isEditing(record),
+                semesterOptions,
+                onShowSchedule: setShowScheduleRecord,
+                name: [record.id, "numberStudents"]
+            }),
+            render: (text, record) =>
+                record?.numberStudentsExpected
+                    ? (
+                        <Space>
+                            <Avatar size={22} icon={<UserOutlined />} />
+                            {record.numberStudentsExpected} (SV)
+                        </Space>
+                    )
+                    : <Tag color="orange">Chưa xếp</Tag>
         },
         {
             title: "Giảng viên",
             dataIndex: "teacherName",
             className: "text-[12px]",
-            width: 150,
+            width: 50,
             render: (text, record) =>
                 record?.teacherName
                     ? (
@@ -456,12 +548,12 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
         {
             title: <span className={"text-[12px]"}>Thao tác</span>,
             dataIndex: "operation",
-            width: 50,
+            width: 20,
             fixed: "right",
             align: "center" as const,
             render: (_, record) => {
                 const editable = isEditing(record);
-                return  (
+                return record?.id?.startsWith("new_") ? (
                     <>
                         <Tooltip title={"Xóa"}>
                             <Button type="link" size="small" onClick={() => {
@@ -473,7 +565,7 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
                             </Button>
                         </Tooltip>
                     </>
-                )
+                ) : null;
             },
         },
     ];
@@ -493,43 +585,49 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
     };
 
 
-    
-    
-    
-    
-    const {data: rooms, isLoading: roomsLoading} = useGetRooms({
-        Page: 1,
-        PageSize: 1000
-    }, openModal)
-    const groupRooms = _.groupBy(rooms?.data?.data?.items ?? [], "buildingCode");
-    const options = Object.entries(groupRooms)?.map(([e, rooms]) => {
-        return {
-            label: <span>{e}</span>,
-            title: e,
-            options: rooms?.map(e => ({ label: <span>{e?.name}</span>, value: e?.code ?? "" }))  ?? []
-        }
-    })
+
+
+
+    const allSelectedChildIds = Object.values(selectedRowKeysChildren).flat();
+
     useEffect(() => {
-        if (scheduleItem && selectedRowKeysParent.length) {
+        if (scheduleItems && scheduleItems.length && (selectedRowKeysParent.length || allSelectedChildIds.length)) {
             setTimelinesById(prev => {
                 const next = { ...prev };
-                selectedRowKeysParent.forEach(id => {
-                    const exist = next[id as string] ?? [];
-                    next[id as string] = [
-                        ...exist,
-                        {
-                            id: scheduleItem.id,
-                            roomCode: scheduleItem?.roomCode ?? "",
-                            dayOfWeek: scheduleItem.dayIndex,
-                            slots: [],
+                selectedRowKeysParent
+                    ?.filter(e => e?.toString()?.startsWith("new_"))
+                    .forEach(id => {
+                        next[id as string] = scheduleItems.map(item => ({
+                            id: item.id,
+                            roomCode: item.roomCode ?? "",
+                            dayOfWeek: item.dayIndex,
+                            slots: Array.from(
+                                { length: item.endSlot - item.startSlot + 1 },
+                                (_, index) => item.startSlot + index
+                            ),
                             courseClassCode: id as string,
-                        } as unknown as SlotTimeline
-                    ];
-                });
+                        } as unknown as SlotTimeline));
+                    });
+                // Cập nhật cho child
+                allSelectedChildIds
+                    ?.filter(e => e?.toString()?.startsWith("new_"))
+                    .forEach(id => {
+                        next[id as string] = scheduleItems.map(item => ({
+                            id: item.id,
+                            roomCode: item.roomCode ?? "",
+                            dayOfWeek: item.dayIndex,
+                            slots: Array.from(
+                                { length: item.endSlot - item.startSlot + 1 },
+                                (_, index) => item.startSlot + index
+                            ),
+                            courseClassCode: id as string,
+                        } as unknown as SlotTimeline));
+                    });
                 return next;
             });
         }
-    }, [scheduleItem, selectedRowKeysParent]);
+    }, [scheduleItems, selectedRowKeysParent, selectedRowKeysChildren]);
+    
     
     return (
         <>
@@ -544,7 +642,7 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
                         Lưu tất cả
                     </Button>
                 }
-                className={" min-w-[1650px]"}
+                className={" min-w-[1500px]"}
                 title={
                     <Box
                         display="flex"
@@ -605,130 +703,162 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
                                 Thêm lớp mới
                             </Button>
                         </Box>
+                        <Box className={"py-5 flex flex-row justify-start items-center gap-5"}>
+                            <Typography.Title level={5} style={{ margin: 0 }}>Chọn giai đoạn</Typography.Title>
+                            <Button size={"small"} 
+                                    color={currentStageConfig == 0 ? "primary" : "default"} 
+                                    onClick={() => {dispatch(setCurrentStageConfig(0))}}
+                                    variant={"filled"} >
+                                Giai đoạn 1
+                            </Button>
+                            
+                            <Button size={"small"}
+                                    color={currentStageConfig == 1 ? "primary" : "default"}
+                                    onClick={() => {dispatch(setCurrentStageConfig(1))}}
+                                    variant={"filled"}
+                            >
+                                Giai đoạn 2
+                            </Button>
+                            <Button 
+                                size={"small"}
+                                color={currentStageConfig == 2 ? "primary" : "default"}
+                                onClick={() => {dispatch(setCurrentStageConfig(2))}}
+                                variant={"filled"}
+                                
+                            >
+                                Cả 2 giai đoạn
+                            </Button>
+                        </Box>
                         <Box  pb={2}>
                             <Form form={form} component={false}>
-                                <Spin spinning={isLoading}>
-                                    <Table<CourseClass>
-                                        rowKey={c => c.id}
-                                        size="small"
-                                        bordered
-                                        scroll={{x: 1200}}
-                                        style={{
-                                            borderRadius: 10,
-                                            background: "#fff",
-                                            height: "1200px"
-                                        }}
-                                        pagination={{
-                                            current: query?.Page ?? 1,
-                                            pageSize: query?.PageSize ?? 10,
-                                            total: courseClasses?.data?.data?.totalItems ?? 0,
-                                            showSizeChanger: true,
-                                        }}
-                                        expandable={{
-                                            showExpandColumn: true,
-                                            defaultExpandAllRows: true,
-                                            fixed: "left",
-                                            columnWidth: 20,
-                                            expandedRowRender: (record) => (
-                                                <div className={"inset-0 pl-15"}>
-                                                    <Button
-                                                        size="small"
-                                                        icon={<PlusOutlined />}
-                                                        style={{borderRadius: 6, fontWeight: 500, padding: "4px 8px"}}
-                                                        onClick={() => handleAddChildrenRow(record.id)}
-                                                    >
-                                                        Thêm lớp thành phần
-                                                    </Button>
-                                                    <Table<CourseClass>
-                                                        components={{
-                                                            body: {
-                                                                cell: (props: any) => (
-                                                                    <EditableCell
-                                                                        {...props}
-                                                                        semesterOptions={semesterOptions}
-                                                                        onShowSchedule={setShowScheduleRecord}
-                                                                    />
-                                                                ),
-                                                            },
-                                                        }}
-                                                        rowKey={c => c.id}
-                                                        size={"small"}
-                                                        scroll={{x: 1200}}
-                                                        bordered
-                                                        columns={childrenColumns as ColumnType<CourseClass>[]}
-                                                        rowSelection={{
-                                                            type: "checkbox",
-                                                            selectedRowKeys: selectedRowKeysChildren[record.id] || [],
-                                                            onChange: keys => setSelectedRowKeysChildren(prev => ({
-                                                                ...prev,
-                                                                [record.id]: keys
-                                                            })),
-                                                            fixed: "left",
-                                                            columnWidth: 20,
-                                                        }}
-                                                        dataSource={getChildrenRows(record.id)}
-                                                        pagination={false}
-                                                        locale={{
-                                                            emptyText: (
-                                                                <Empty
-                                                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                                                    description={
-                                                                        <span>
-                                                                            Chưa có lớp thành phần.<br />Hãy nhấn <b>Thêm lớp thành phần</b>
-                                                                        </span>
-                                                                    }
+                                <Table<CourseClass>
+                                    rowKey={c => c.id}
+                                    size="small"
+                                    bordered
+                                    loading={isLoading}
+                                    scroll={{x: 1200}}
+                                    style={{
+                                        borderRadius: 10,
+                                        background: "#fff",
+                                        height: "1200px"
+                                    }}
+                                    pagination={{
+                                        current: query?.Page ?? 1,
+                                        pageSize: query?.PageSize ?? 10,
+                                        total: courseClasses?.data?.data?.totalItems ?? 0,
+                                        showSizeChanger: true,
+                                        showTotal: (total, range) => `Hiển thị ${range[0]}-${range[1]} trong tổng số ${total} bản ghi`
+                                    }}
+                                    expandable={{
+                                        showExpandColumn: true,
+                                        defaultExpandAllRows: true,
+                                        fixed: "left",
+                                        columnWidth: 10,
+                                        expandedRowRender: (record) => (
+                                            <div className={"inset-0 pl-15"}>
+                                                <Button
+                                                    size="small"
+                                                    icon={<PlusOutlined />}
+                                                    style={{borderRadius: 6, fontWeight: 500, padding: "4px 8px", margin: "1px"}}
+                                                    onClick={() => {
+                                                        handleAddChildrenRow(record.id)
+                                                    }}
+                                                >
+                                                    Thêm lớp thành phần
+                                                </Button>
+                                                <Table<CourseClass>
+                                                    components={{
+                                                        body: {
+                                                            cell: (props: any) => (
+                                                                <EditableCell
+                                                                    {...props}
+                                                                    semesterOptions={semesterOptions}
+                                                                    onShowSchedule={setShowScheduleRecord}
                                                                 />
                                                             ),
-                                                        }}
-                                                        rowClassName={(_, idx) =>
-                                                            idx % 2 === 0 ? "table-row-odd" : "table-row-even"
-                                                        }
-                                                    />
-                                                </div>
-                                            )
-                                        }}
-                                        onChange={e => setQuery(prevState => ({
-                                            ...prevState,
-                                            Page: e?.current ?? 1 - 1,
-                                            PageSize: e?.pageSize,
-                                        }))}
-                                        components={{
-                                            body: {
-                                                cell: (props: any) => (
-                                                    <EditableCell
-                                                        {...props}
-                                                        semesterOptions={semesterOptions}
-                                                        onShowSchedule={setShowScheduleRecord}
-                                                    />
-                                                ),
-                                            },
-                                        }}
-                                        columns={columns as ColumnType<CourseClass>[]}
-                                        dataSource={courseClassesView?.filter(e => e.parentCourseClassCode === "") ?? []}
-                                        locale={{
-                                            emptyText: (
-                                                <Empty
-                                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                                    description={
-                                                        <span>
-                                                            Chưa có lớp học nào. <br /> Hãy nhấn <b>Thêm lớp mới</b>
-                                                        </span>
+                                                        },
+                                                    }}
+                                                    rowKey={c => c.id}
+                                                    size={"small"}
+                                                    scroll={{x: 1200}}
+                                                    bordered
+                                                    columns={childrenColumns as ColumnType<CourseClass>[]}
+                                                    rowSelection={{
+                                                        type: "checkbox",
+                                                        selectedRowKeys: selectedRowKeysChildren[record.id] || [],
+                                                        onChange: keys => setSelectedRowKeysChildren(prev => ({
+                                                            ...prev,
+                                                            [record.id]: keys
+                                                        })),
+                                                        fixed: "left",
+                                                        columnWidth: 20,
+                                                    }}
+                                                    // dataSource={getChildrenRows(record.id)}
+                                                    dataSource={[...(getChildrenCourseClasses(record.courseClassCode) ?? []), ...getChildrenRows(record.id)]}
+                                                    pagination={false}
+                                                    locale={{
+                                                        emptyText: (
+                                                            <Empty
+                                                                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                                description={
+                                                                    <span>
+                                                                            Chưa có lớp thành phần.<br />Hãy nhấn <b>Thêm lớp thành phần</b>
+                                                                        </span>
+                                                                }
+                                                            />
+                                                        ),
+                                                    }}
+                                                    rowClassName={(_, idx) =>
+                                                        idx % 2 === 0 ? "table-row-odd" : "table-row-even"
                                                     }
                                                 />
+                                            </div>
+                                        )
+                                    }}
+                                    onChange={e => setQuery(prevState => ({
+                                        ...prevState,
+                                        Page: e?.current ?? 1 - 1,
+                                        PageSize: e?.pageSize,
+                                    }))}
+                                    components={{
+                                        body: {
+                                            cell: (props: any) => (
+                                                <EditableCell
+                                                    {...props}
+                                                    semesterOptions={semesterOptions}
+                                                    onShowSchedule={setShowScheduleRecord}
+                                                />
                                             ),
-                                        }}
-                                        rowClassName={(_, idx) =>
-                                            idx % 2 === 0 ? "table-row-odd" : "table-row-even"
-                                        }
-                                        rowSelection={{
-                                            type: "checkbox",
-                                            columnWidth: 20,
-                                            fixed: "left",
-                                            selectedRowKeys: selectedRowKeysParent,
-                                            onChange: setSelectedRowKeysParent,
-                                        }}
-                                    />
-                                </Spin>
+                                        },
+                                    }}
+                                    columns={columns as ColumnType<CourseClass>[]}
+                                    dataSource={courseClassesView?.filter(e => e.parentCourseClassCode === null) ?? []}
+                                    // dataSource={courseClasses?.data?.data?.items ?? []}
+                                    locale={{
+                                        emptyText: (
+                                            <Empty
+                                                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                description={
+                                                    <span>
+                                                            Chưa có lớp học nào. <br /> Hãy nhấn <b>Thêm lớp mới</b>
+                                                        </span>
+                                                }
+                                            />
+                                        ),
+                                    }}
+                                    rowClassName={(_, idx) =>
+                                        idx % 2 === 0 ? "table-row-odd" : "table-row-even"
+                                    }
+                                    rowSelection={{
+                                        type: "checkbox",
+                                        columnWidth: 10,
+                                        fixed: "left",
+                                        selectedRowKeys: selectedRowKeysParent,
+                                        onChange: (selectedKeys) => {
+                                            setSelectedRowKeysParent(selectedKeys);
+                                        },
+                                    }}
+                                />
                             </Form>
                         </Box>
                     </Card>
@@ -752,24 +882,10 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
                             <Typography.Title level={5} style={{ margin: 0 }}>
                                 Sắp xếp lịch học & phòng học
                             </Typography.Title>
-                            <Select showSearch className={"min-w-[200px]"} options={options} placeholder={"Chọn phòng học"} />
+                            
                         </Box>
-                        <Box px={2} py={2} style={{ minHeight: 350 }}>
-                            <TableSchedule subject={getSubject} onChange={( scheduleItems) => {
-                                // const newTimelines = scheduleItems.map(item => ({
-                                //     roomCode: "",
-                                //     dayOfWeek: item?.dayIndex,
-                                //     slots: Array.from(
-                                //         { length: item?.endSlot - item?.startSlot + 1 },
-                                //         (_, i) => item?.startSlot + i
-                                //     ) ?? [],
-                                // } as unknown as SlotTimeline));
-
-                                // setSelectedTimeline(prevState => {
-                                //     const filtered = prevState.filter(item => item.roomCode !== (""));
-                                //     return [...filtered, ...newTimelines];
-                                // });
-                            }}  />
+                        <Box  py={2} style={{ minHeight: 350 }}>
+                            <TableSchedule   />
                         </Box>
                     </Card>
                 </div>

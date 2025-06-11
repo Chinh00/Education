@@ -8,19 +8,12 @@ import {Student} from "@/domain/student.ts";
 import loadable from "@loadable/component";
 import {StudentState} from "@/app/modules/student/stores/student_slice.ts";
 import {Badge, Button, Form, GetProp, Table, TableProps} from "antd";
-import DepartmentSearch from "@/app/modules/student/components/department_search.tsx";
-import {useGetEducations} from "@/app/modules/education/hooks/useGetEducations.ts";
 import {Query} from "@/infrastructure/query.ts";
-import BranchSearch from "@/app/modules/student/components/branch_search.tsx";
-import {useGetClasses} from "@/app/modules/class/hooks/useGetClasses.ts";
-import ClassSearch from "@/app/modules/student/components/class_search.tsx";
 import {useForm} from "react-hook-form";
 import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
 import {RotateCcw} from "lucide-react";
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
-const CourseSearch = loadable(() => import('../components/course_search.tsx'), {
-    fallback: <div>Loading...</div>,
-})
+
 const columns: ColumnsType<Student> = [
     {
         title: 'Tên sinh viên',
@@ -120,12 +113,6 @@ const StudentList = () => {
                         }))
                     }}>Tìm kiếm</Button>
                 </Form>
-                <Box className={"flex gap-5 flex-wrap py-10"}>
-                    <CourseSearch />
-                    <DepartmentSearch />
-                    <BranchSearch />
-                    <ClassSearch />
-                </Box>
                 <Box >
                     <Table<Student>
                         rowKey={(c) => c.id}

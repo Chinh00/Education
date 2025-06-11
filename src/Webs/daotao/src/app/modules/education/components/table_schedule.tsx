@@ -1,24 +1,21 @@
 ﻿import {Card, CardContent} from "@/app/components/ui/card.tsx";
 import {daysOfWeek, timeSlots} from "@/infrastructure/date.ts";
 import {CalendarRange, GripVertical, Plus} from "lucide-react";
-import {Button, Button as ButtonAntd, List, Modal, Table, Tooltip, Typography} from "antd";
+import {Button, Button as ButtonAntd, Dropdown, List, Modal, Select, Spin, Table, Tooltip, Typography} from "antd";
 import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
-import {SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
 import {ScheduleItem} from "@/app/modules/register/pages/course_class_config.tsx";
 import {ColumnsType, useGetRooms} from "@/app/modules/common/hook.ts";
-import {Room} from "@/domain/room.ts";
-import {Subject} from "@/domain/subject.ts";
 import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
-import SelectedClassModal from "@/app/modules/education/components/selected_class_modal.tsx";
 import {setScheduleItem, SubjectStudySectionState} from "@/app/modules/education/stores/subject_study_section.ts";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
+import {Box} from "@mui/material";
+import _ from "lodash";
+import {Query} from "@/infrastructure/query.ts";
+import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
 
-export type TableScheduleProps = {
-    subject?: Subject,
-    onChange?: (scheduleItems: ScheduleItem[]) => void,
-}
 
-const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
+
+const TableSchedule = () => {
 
 
     const [courseClassType, setCourseClassType] = useState(0)
@@ -29,17 +26,12 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
     const [draggedItem, setDraggedItem] = useState<ScheduleItem | null>(null)
     const [dragPreview, setDragPreview] = useState<{ dayIndex: number; startSlot: number; endSlot: number } | null>(null)
     const [isDragging, setIsDragging] = useState(false)
-    const { courseClassesNew } = useAppSelector<SubjectStudySectionState>(c => c.subjectStudySectionReducer);
 
     const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([])
 
     const dispatch = useAppDispatch();
     
-    useEffect(() => {
-        if (scheduledItems?.length > 0) {
-            onChange?.(scheduledItems)
-        }
-    }, [scheduledItems]);
+    
     
     
     const handleMouseDown = (dayIndex: number, slotIndex: number, e: React.MouseEvent) => {
@@ -99,7 +91,7 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
 
         const newItem: ScheduleItem = {
             id: `schedule-${Date.now()}`,
-            title: `${scheduledItems.length + 1}`,
+            title: `${(scheduleItems?.length ?? 0) + 1}`,
             subject: courseClassType === 0 ? "Lý thuyết" : "Thực hành",
             color:
                 courseClassType === 0
@@ -110,11 +102,10 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
             dayIndex,
             duration: FIXED_DURATION,
         }
+        dispatch(setScheduleItem([...scheduledItems?.filter(e => e.id?.startsWith("schedule")), newItem]))
         setScheduledItems((prev) => [...prev, newItem])
 
         setIsDragging(false)
-        setOpen(true)
-        dispatch(setScheduleItem(newItem))
     }
 
     const isSlotOccupied = (dayIndex: number, slotIndex: number) => {
@@ -139,8 +130,6 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
 
         return slotIndex >= startSlot && slotIndex <= endSlot
     }
-
-    
 
     const handleDragStart = (e: React.DragEvent, item: ScheduleItem) => {
         setDraggedItem(item)
@@ -219,6 +208,7 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
             prev.map((item) => (item.id === draggedItem.id ? { ...item, dayIndex, startSlot: slotIndex, endSlot } : item)),
         )
 
+        
 
         setDragPreview(null)
         setDraggedItem(null)
@@ -236,32 +226,100 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
     
     
 
-    const columns: ColumnsType<Room> = [
-        {
-            title: <span className={"whitespace-nowrap"}>Tên phòng</span>,
-            dataIndex: "code",
-            className: "text-[12px]",
-        },
-    ];
+    const [query, setQuery] = useState<Query>({
+        
+    })
     
     
-    const { } = useGetCourseClasses({
+    // const {data: courseClassesOfRooms} = useGetCourseClasses(query,)
+
+    const {scheduleItems, currentStageConfig} = useAppSelector<SubjectStudySectionState>(c => c.subjectStudySectionReducer);
+
+    useEffect(() => {
+        if (scheduleItems && scheduleItems?.length > 0 && scheduleItems?.map(e => e.roomCode)?.filter(e => e !== undefined && e !== "")?.length > 0) {
+            setQuery(prevState => ({
+                ...prevState,
+                Filters: [
+                    {
+                        field: "RoomCode",
+                        operator: "In",
+                        value: scheduleItems?.map(e => e.roomCode)?.filter(e => e !== "" && e !== null)?.join(","),
+                    }
+                ]
+            }))
+        }
+    }, [scheduleItems]);
+
+
+    useEffect(() => {
+        if (scheduledItems?.length > 0) {
+            dispatch(setScheduleItem([
+                ...scheduleItems?.filter(e => e) ?? [],
+                
+            ]))
+        }
+    }, [scheduledItems]);
+    
+    const {data: timelines, isLoading: timeLineLoading} = useGetTimeline(query, query?.Filters?.filter(e => e.field === "RoomCode") !== undefined)
+    const {data: courseClasses, isLoading: courseClassLoading} = useGetCourseClasses({
         Filters: [
             {
-                field: "SubjectCode",
+                field: "CourseClassCode",
+                operator: "In",
+                value: timelines?.data?.data?.items?.map(e => e?.courseClassCode)?.filter(e => e !== undefined && e !== "")?.join(",") ?? ""
+            },
+            {
+                field: "Stage",
                 operator: "==",
-                value: subject?.subjectCode ?? "",
-            }            
+                value: currentStageConfig?.toString() ?? ""
+            }
         ]
-    }, subject?.subjectCode !== "")
-    const [open, setOpen] = useState(false)
-
+    }, timelines !== undefined && timelines?.data?.data?.items?.length > 0)
+    useEffect(() => {
+        if (timelines && timelines?.data?.data?.items && courseClasses) {
+            setScheduledItems(prevState => [...prevState, ...timelines?.data?.data?.items?.filter(e => courseClasses?.data?.data?.items?.map(t => t.courseClassCode)?.includes(e?.courseClassCode)).map(e => ({
+                id: e?.id ?? `schedule-${Date.now()}`,
+                title: "",
+                subject: "",
+                color: "bg-red-100 text-black-800 border-blue-200",
+                startSlot: e?.slots?.map(Number)[0] ?? 0,
+                endSlot: e?.slots?.map(Number)[e?.slots?.length - 1] ?? 0,
+                dayIndex: e?.dayOfWeek ?? 0,
+                duration: e?.slots?.length ?? 3,
+                roomCode: e?.roomCode ?? ""
+            } as unknown as ScheduleItem))])
+        }
+        if (timelines && timelines?.data?.data?.items?.length === 0){
+            setScheduledItems([
+                ...scheduleItems ?? []
+            ])
+        }
+    }, [timelines, courseClasses]);
+    
+    const {data: rooms, isLoading: roomsLoading} = useGetRooms({
+        Page: 1,
+        PageSize: 1000
+    })
+    const groupRooms = _.groupBy(rooms?.data?.data?.items ?? [], "buildingCode");
+    const options = Object.entries(groupRooms)?.map(([e, rooms]) => {
+        return {
+            label: <span>{e}</span>,
+            title: e,
+            options: rooms?.map(e => ({ label: <span>{e?.name}</span>, value: e?.code ?? "" }))  ?? []
+        }
+    })
+    
+    
+    
     return (
         <Card className={"h-fit p-0"}>
             
             
             
             <CardContent className="grid grid-cols-8 p-0">
+                <div className={"absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2"}>
+                    <Spin spinning={courseClassLoading || timeLineLoading} size={"large"} />
+                </div>
                 <div
                     className="grid grid-cols-8 gap-0 select-none col-span-8"
                     onMouseUp={handleMouseUp}
@@ -306,7 +364,7 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
                                     >
                                         {isOccupied && isItemStart && item && (
                                             <div
-                                                draggable={true}
+                                                draggable={item?.id?.startsWith("schedule")}
                                                 onDragStart={(e) => handleDragStart(e, item)}
                                                 onDragEnd={handleDragEnd}
                                                 onMouseDown={(e) => {
@@ -330,18 +388,39 @@ const TableSchedule = ({subject, onChange}: TableScheduleProps) => {
                                                         {item.title}
                                                     </Typography>
                                                 </div>
+                                                <Dropdown disabled={!item?.id?.startsWith("schedule")} placement={"bottomRight"} className={"z-50 absolute top-0 right-0 w-full h-full"} trigger={["click"]} dropdownRender={() => (<Box>
+                                                    <Select showSearch className={"min-w-[200px]"} options={options} placeholder={"Chọn phòng học"}
 
-                                                <span className="text-xs opacity-75 pointer-events-none">
-                                                    Tiết {item.startSlot + 1}-{item.endSlot + 1}
+                                                            onChange={e => {
+                                                                setScheduledItems(prevState => [
+                                                                    ...prevState?.filter(e => e.id !== item.id),
+                                                                    {
+                                                                        ...item,
+                                                                        roomCode: e,
+                                                                    } as ScheduleItem
+                                                                ])
+                                                                
+                                                                dispatch(setScheduleItem([...scheduleItems?.filter(e => e.id !== item.id) ?? [], {
+                                                                    ...item,
+                                                                    roomCode: e
+                                                                } as ScheduleItem]))
+                                                            }}
+                                                    />
+                                                </Box>)}/>
+
+                                                <span className={`opacity-75 ${!item?.roomCode && "text-red-500 font-bold"} pointer-events-none whitespace-nowrap text-[10px]`}>
+                                                    {/*Tiết {item.startSlot + 1}-{item.endSlot + 1}*/}
+                                                    {item?.roomCode ? `Phòng: ${item?.roomCode}` : "Chưa chọn"}
                                                 </span>
+                                                
                                             </div>
                                         )}
 
                                         {isPreview && (
                                             <div className="absolute inset-1 bg-green-300 border-2 border-dashed border-green-500 rounded flex items-center justify-center z-5">
-                              <span className="text-green-700 text-xs font-medium">
-                                {dragPreview && dragPreview.endSlot - dragPreview.startSlot + 1} tiết
-                              </span>
+                                              <span className="text-green-700 text-xs font-medium">
+                                                {dragPreview && dragPreview.endSlot - dragPreview.startSlot + 1} tiết
+                                              </span>
                                             </div>
                                         )}
 

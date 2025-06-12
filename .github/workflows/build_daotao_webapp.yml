@@ -25,9 +25,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Create .env
         run: |
           echo "VITE_URL=${{ secrets.VITE_URL }}" > src/Webs/daotao/.env.production
+
       - name: 🏗️ Build and push Docker image daotao client service
         uses: docker/build-push-action@v5
         with:
@@ -35,10 +37,11 @@ jobs:
           file: src/Webs/daotao/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_DAOTAO_WEBAPP}}:latest
+
       - name: 🔍 Get image digest
         id: get_digest
         run: |
-          DIGEST=$(docker buildx imagetools inspect ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_DAOTAO_WEBAPP }}:latest --format '{{.Digest}}')
+          DIGEST=$(docker buildx imagetools inspect ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_DAOTAO_WEBAPP }}:latest --format '{{ (index .Manifest.Manifests 0).Digest }}')
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 
       - name: 📝 Update deployment.yaml with image digest

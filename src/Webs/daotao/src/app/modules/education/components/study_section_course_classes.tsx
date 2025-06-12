@@ -9,7 +9,7 @@ import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
 import {Query} from "@/infrastructure/query.ts";
 import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
-import {ColumnsType, getStageText} from "@/app/modules/common/hook.ts";
+import {ColumnsType, getStageText, useGetRooms} from "@/app/modules/common/hook.ts";
 import TableSchedule from "@/app/modules/education/components/table_schedule.tsx";
 import {BookOutlined, PlusOutlined, UserOutlined} from "@ant-design/icons";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
@@ -39,7 +39,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
     } = useAppSelector<SubjectStudySectionState>(c => c.subjectStudySectionReducer);
     const courseClassDataSourceParent = Object.values(courseClasses).filter(c => c?.parentCourseClassCode === null);
     const courseClassDataSourceChild = (courseClassParentId: string) => Object.values(courseClasses).filter(c => c?.parentCourseClassCode === courseClassParentId);
-    
+    const { data: rooms } = useGetRooms({ Page: 1, PageSize: 1000 });
     
     const dispatch = useAppDispatch()
     const [openModal, setOpenModal] = useState(false);
@@ -246,7 +246,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             className: "text-[12px]",
             width: 60,
             render: (text, record) => {
-                return  <div className={"flex flex-col gap-1 justify-start items-center"}>
+                return  <div className={"flex flex-col gap-1 justify-start items-start"}>
                     {courseClassesTimelines[record.id]?.map(e => (
                         <div className={"flex flex-row flex-nowrap gap-1"}>
                             <span key={e} className={"font-bold text-blue-500"}>Thứ: {timelines[e]?.dayOfWeek + 2}</span>
@@ -452,14 +452,19 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
         },
     ];
 
-
+    const getRoomCapacity = (roomCode: string) => rooms?.data?.data?.items?.find(r => r.code === roomCode)?.capacity ?? 0;
     useEffect(() => {
         const timelinesArr = Object.values(timelines);
         const newCourseClassesTimelines: Record<string, string[]> = {  };
+        const updateCourseClasses: Record<string, CourseClass> = {  };
         selectedRowKeysParents.map(courseClassId => {
+            const courseClass = courseClasses[courseClassId as string];
             newCourseClassesTimelines[courseClassId as string] = (courseClassesTimelines[courseClassId as string]?.length || 0) < (subject?.lectureLesson ?? 0) ? timelinesArr
                 .map(t => t.id) : courseClassesTimelines[courseClassId as string]
-            
+            updateCourseClasses[courseClassId as string] = {
+                ...courseClass,
+                numberStudentsExpected: getRoomCapacity() ?? 0,
+            }
         });
         
         selectedRowKeysChildren.map(courseClassId => {
@@ -471,11 +476,13 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
         dispatch(setCourseClassesTimelines({
             ...newCourseClassesTimelines
         }));
+        // dispatch(setCourseClasses)
         
         
         
     }, [timelines]);
 
+    
     
     return (
         <>
@@ -551,13 +558,16 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                 Thêm lớp mới
                             </Button>
                         </Box>
-                        <Box className={"py-5 flex flex-row justify-start items-center gap-5"}>
-                            <Typography.Title level={5} style={{ margin: 0 }}>Chọn giai đoạn</Typography.Title>
+                        <Box className={"py-5 grid grid-cols-3 gap-5"}>
+                            <Typography.Title className={"col-span-3"} level={5} style={{ margin: 0 }}>Chọn giai đoạn</Typography.Title>
                             <Button size={"small"} 
                                     color={currentStageConfig == 0 ? "primary" : "default"} 
                                     onClick={() => {dispatch(setCurrentStageConfig(0))}}
-                                    variant={"filled"} >
-                                Giai đoạn 1
+                                    variant={"filled"} 
+                                    
+                            >
+                                <span className={"font-bold  text-[12px]"}>GĐ1:</span>
+                                <span className={" text-[12px]"}>{DateTimeFormat(getSemester(0)?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(getSemester(0)?.endDate, "DD/MM/YYYY")}</span>
                             </Button>
                             
                             <Button size={"small"}
@@ -565,7 +575,8 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                     onClick={() => {dispatch(setCurrentStageConfig(1))}}
                                     variant={"filled"}
                             >
-                                Giai đoạn 2
+                                <span className={"font-bold  text-[12px]"}>GĐ1:</span>
+                                <span className={" text-[12px]"}>{DateTimeFormat(getSemester(1)?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(getSemester(1)?.endDate, "DD/MM/YYYY")}</span>
                             </Button>
                             <Button 
                                 size={"small"}
@@ -574,7 +585,8 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                 variant={"filled"}
                                 
                             >
-                                Cả 2 giai đoạn
+                                <span className={"font-bold  text-[12px]"}>Cả 2 GĐ:</span>
+                                <span className={" text-[12px]"}>{DateTimeFormat(getSemester(0)?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(getSemester(0)?.endDate, "DD/MM/YYYY")}</span>
                             </Button>
                         </Box>
                         <Box  pb={2}>

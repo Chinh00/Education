@@ -53,5 +53,4 @@ jobs:
         with:
           commit_message: "ci: update daotao webapp image digest to ${{ steps.get_digest.outputs.digest }}"
           file_pattern: bootstrap/apps/depl/daotao-depl.yaml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}

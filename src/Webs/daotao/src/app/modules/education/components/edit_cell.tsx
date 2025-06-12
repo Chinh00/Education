@@ -1,4 +1,4 @@
-﻿import { Button, Form, Input, Select } from "antd";
+﻿import { Form, Input, InputNumber } from "antd";
 
 const EditableCell = ({
                           editing,
@@ -8,55 +8,41 @@ const EditableCell = ({
                           record,
                           index,
                           children,
-                          semesterOptions = [],
-                          onShowSchedule,
-                          name,
-                          ...tdProps
+                          placeholder,
+                          onChange,
+                          ...restProps
                       }: any) => {
-    if (!editing) {
-        return <td {...tdProps}>{children}</td>;
-    }
+    const inputNode = inputType === 'number'
+        ? <InputNumber
+            placeholder={placeholder}
+            
+            size="small"
+        />
+        : <Input
+            size="small"
+            placeholder={placeholder}
+            
+        />;
 
-    
-    if (inputType === "select") {
-        return (
-            <td {...tdProps}>
+    return (
+        <td {...restProps}>
+            {editing ? (
                 <Form.Item
-                    name={name ?? dataIndex}
+                    name={dataIndex}
+                    id={dataIndex}
                     style={{ margin: 0 }}
                     rules={[
                         {
                             required: true,
-                            message: `Vui lòng chọn ${title}!`,
+                            message: `Please Input ${title}!`,
                         },
                     ]}
                 >
-                    <Select style={{ maxWidth: 125, fontSize: 13 }} dropdownStyle={{ minWidth: 300 }}>
-                        {semesterOptions.map((option: any) => (
-                            <Select.Option key={option.value} value={option.value} className={"text-[13px]"}>
-                                {option.label}
-                            </Select.Option>
-                        ))}
-                    </Select>
+                    {inputNode}
                 </Form.Item>
-            </td>
-        );
-    }
-
-    return (
-        <td {...tdProps}>
-            <Form.Item
-                name={name ?? dataIndex}
-                style={{ margin: 0 }}
-                rules={[
-                    {
-                        required: dataIndex === "courseClassName",
-                        message: `Vui lòng nhập ${title}!`,
-                    },
-                ]}
-            >
-                <Input size="small" />
-            </Form.Item>
+            ) : (
+                children
+            )}
         </td>
     );
 };

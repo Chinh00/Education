@@ -16,7 +16,7 @@ spec:
       containers:
         - image: chinhval/educationdaotaowebapp
           imagePullPolicy: Always
-          name: daotao-client
+          name: daotao
           ports:
             - containerPort: 80
 ---

@@ -597,7 +597,7 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
                 selectedRowKeysParent
                     ?.filter(e => e?.toString()?.startsWith("new_"))
                     .forEach(id => {
-                        next[id as string] = scheduleItems.map(item => ({
+                        next[id as string] = scheduleItems?.filter(e => e?.courseClassType === 0).map(item => ({
                             id: item.id,
                             roomCode: item.roomCode ?? "",
                             dayOfWeek: item.dayIndex,
@@ -612,7 +612,7 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
                 allSelectedChildIds
                     ?.filter(e => e?.toString()?.startsWith("new_"))
                     .forEach(id => {
-                        next[id as string] = scheduleItems.map(item => ({
+                        next[id as string] = scheduleItems?.filter(e => e?.courseClassType === 1).map(item => ({
                             id: item.id,
                             roomCode: item.roomCode ?? "",
                             dayOfWeek: item.dayIndex,
@@ -622,6 +622,7 @@ const StudySectionCourseClasses = ({subject}: StudySectionCourseClassesProps) =>
                             ),
                             courseClassCode: id as string,
                         } as unknown as SlotTimeline));
+                        if (scheduleItems?.filter(e => e?.courseClassType === 1)?.length === 1) return
                     });
                 return next;
             });

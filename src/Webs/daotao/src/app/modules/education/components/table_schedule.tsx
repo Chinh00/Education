@@ -101,12 +101,14 @@ const TableSchedule = () => {
             endSlot: validEndSlot,
             dayIndex,
             duration: FIXED_DURATION,
+            courseClassType: count >= 2 ? 1 : 0,
         }
         dispatch(setScheduleItem([...scheduledItems?.filter(e => e.id?.startsWith("schedule")), newItem]))
         setScheduledItems((prev) => [...prev, newItem])
-
+        setCount(e => e + 1)
         setIsDragging(false)
     }
+    const [count, setCount] = useState(0)
 
     const isSlotOccupied = (dayIndex: number, slotIndex: number) => {
         return scheduledItems.some(

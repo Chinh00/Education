@@ -7,7 +7,8 @@ import { Box } from "@mui/material";
 import {Register} from "@/domain/register_state.ts";
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
 import {Table, Typography, type GetProp, type RadioChangeEvent, type TableProps } from 'antd';
-import {IconButton, Button} from "@mui/material";
+import {IconButton} from "@mui/material";
+import {Button} from "antd"
 import { useNavigate } from "react-router";
 import {RoutePaths} from "@/core/route_paths.ts";
 import dayjs from "dayjs";
@@ -70,17 +71,13 @@ const RegisterEducation = () => {
 
     return (
         <PredataScreen isLoading={isLoading} isSuccess={isSuccess}>
-            <Box>
+            <Box className={"flex flex-col gap-2"}>
+                <Button color={"primary"} type={"primary"} className={"w-min"} onClick={() => {nav(RoutePaths.EDUCATION_REGISTER_CONFIG)}} >Tạo mới</Button>
+                
                 <Table<Register>
                     rowKey={(c) => c.correlationId}
                     loading={isLoading}
-                    style={{
-                        height: "500px",
-                    }}
-                    showHeader={true}
-                    title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
-                        <Button onClick={() => {nav(RoutePaths.EDUCATION_REGISTER_CONFIG)}} className={"bg-green-600 cursor-pointer"}>Tạo mới</Button>
-                    </Box>}
+                    
                     size={"small"}
                     bordered={true}
                     // pagination={true}

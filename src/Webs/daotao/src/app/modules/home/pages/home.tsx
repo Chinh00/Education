@@ -12,8 +12,6 @@ import {
   CardTitle,
   CardContent
 } from "@/app/components/ui/card.tsx"
-import {Button} from "@/app/components/ui/button.tsx";
-import {Activity, BookOpen, Calendar, LayoutDashboard, UserPlus } from "lucide-react";
 import {Typography} from "antd";
 import {useGetUserInfo} from "@/app/modules/auth/hooks/useGetUserInfo.ts";
 import {useGetNotifications} from "@/app/modules/common/hook.ts";
@@ -40,7 +38,7 @@ const Home = () => {
     <div className={"col-span-10 h-screen"}>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         
-        <Card className="col-span-1">
+        <Card className="col-span-1 bg-gray-50">
           <CardHeader className={"flex justify-start items-center"} >
             
             <Bell size={18} className={"animate-bounce transition-all"} />

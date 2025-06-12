@@ -20,10 +20,10 @@ const EducationSidebar = () => {
     }, []);
     const nav = useNavigate()
     return (
-        <div className={"h-[250vh] bg-[#0c458d] text-white pl-3 sticky top-0"}>
+        <div className={"border-t-2 border-r-2 h-screen text-black pl-3 sticky top-0"}>
 
             <SidebarGroup>
-                <SidebarGroupLabel  className={"text-white"}>Học kì</SidebarGroupLabel>
+                <SidebarGroupLabel  className={""}>Học kì</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem>
@@ -37,7 +37,7 @@ const EducationSidebar = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-                <SidebarGroupLabel className={"text-white"}>Đăng ký học</SidebarGroupLabel>
+                <SidebarGroupLabel className={""}>Đăng ký học</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem>
@@ -58,7 +58,7 @@ const EducationSidebar = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-                <SidebarGroupLabel className={"text-white"}>Môn học</SidebarGroupLabel>
+                <SidebarGroupLabel className={""}>Môn học</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem>

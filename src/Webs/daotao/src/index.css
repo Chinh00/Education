@@ -166,3 +166,26 @@
 .ant-modal .ant-modal-content { border-radius: 16px !important; }
 .ant-card { border-radius: 16px !important; }
 .ant-table-expanded-row-fixed {padding: 0 !important; }
+
+.ant-table,
+.ant-table-container,
+.ant-table-content,
+.ant-table-thead > tr > th,
+.ant-table-tbody > tr > td {
+  background: rgba(255, 255, 255, 0.1) !important;
+
+}
+
+/* styles.css */
+.ant-card,
+.ant-card-body {
+  background: rgba(255,255,255,0.4) !important; /* 0.6 là mức opacity, chỉnh theo ý bạn */
+  
+}
+
+.ant-form,
+.ant-form-item,
+.ant-form-item-control-input,
+.ant-form-item-control {
+  background: rgba(255,255,255,0.1) !important;
+}

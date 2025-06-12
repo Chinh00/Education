@@ -50,18 +50,18 @@ export function AppSidebar() {
     
 
     return (
-        <Sidebar variant={"inset"} collapsible="icon"  style={{backgroundColor: "#0c458d", width: "75px"}} >
-            <SidebarContent className={"bg-[#0c458d] pt-4"}>
-                <SidebarMenu className={"flex flex-col gap-2 bg-[#0c458d]"}>
-                    <SidebarMenuItem className={""}>
+        <Sidebar variant={"sidebar"} collapsible="icon"  style={{backgroundColor: "transparent"}} >
+            <SidebarContent className={" pt-4" }  style={{backgroundColor: "transparent"}}>
+                <SidebarMenu className={"flex flex-col gap-2 "}  style={{backgroundColor: "transparent"}}>
+                    <SidebarMenuItem className={""}  style={{backgroundColor: "transparent"}}>
 
-                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.HOME_PATH)} tooltip="Trang chủ"  className={"inset-0 cursor-pointer mx-auto bg-white"} >
+                        <SidebarMenuButton  style={{backgroundColor: "transparent"}} size={"lg"} onClick={() => nav(RoutePaths.HOME_PATH)} tooltip="Trang chủ"  className={"inset-0 cursor-pointer mx-auto bg-white"} >
                             <Image src={TluIcon} />
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem  className={""}>
                         <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.HOME_PATH)} tooltip="Trang chủ"  className={"cursor-pointer mx-auto "} >
-                            <Home  className="scale-150 mx-auto hover:text-black text-white transition-all" />
+                            <Home  className="scale-150 mx-auto hover:text-black  transition-all" />
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     {data?.data?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] === "admin" && (
@@ -69,12 +69,12 @@ export function AppSidebar() {
                             
                             <SidebarMenuItem  className={""}>
                                 <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.EDUCATION_DASHBOARD)} tooltip="Đào tạo"  className={"inset-0 cursor-pointer mx-auto "} >
-                                    <GraduationCap  className="scale-150 mx-auto hover:text-black text-white transition-all" />
+                                    <GraduationCap  className="scale-150 mx-auto hover:text-black transition-all" />
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem  className={""}>
                                 <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.STUDENT_LIST)} tooltip="Sinh viên"  className={"inset-0 cursor-pointer mx-auto "} >
-                                    <Users  className="scale-150 mx-auto hover:text-black text-white transition-all" />
+                                    <Users  className="scale-150 mx-auto hover:text-black  transition-all" />
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </>
@@ -83,7 +83,7 @@ export function AppSidebar() {
 
                     <SidebarMenuItem  className={""}>
                         <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.TEACHER_SUBJECT_LIST)} tooltip="Môn học"  className={"cursor-pointer mx-auto "} >
-                            <AtSign  className="scale-150 mx-auto hover:text-black text-white transition-all" />
+                            <AtSign  className="scale-150 mx-auto hover:text-black  transition-all" />
                         </SidebarMenuButton>
                     </SidebarMenuItem>
 
@@ -92,7 +92,7 @@ export function AppSidebar() {
 
                 </SidebarMenu>
             </SidebarContent>
-            <SidebarFooter className={"bg-[#124485]"}>
+            <SidebarFooter className={""}>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton onClick={() => {

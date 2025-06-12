@@ -21,9 +21,9 @@ const EducationSidebar = () => {
     const nav = useNavigate()
 
     return (
-        <div className={"h-[250vh] bg-[#0c458d] text-white pl-3"}>
+        <div className={" pl-3 border-t-2"}>
             <SidebarGroup>
-                <SidebarGroupLabel className={"text-white"}>Lớp học</SidebarGroupLabel>
+                <SidebarGroupLabel className={""}>Lớp học</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem>

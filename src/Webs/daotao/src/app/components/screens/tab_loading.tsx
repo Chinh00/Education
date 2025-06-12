@@ -20,7 +20,7 @@ const TabLoading = () => {
 
     return (
         <>
-            <div className="absolute top-0 left-0 inset-0 flex flex-col items-center justify-center bg-white dark:bg-gray-900 w-full h-full">
+            <div className="fixed z-50 top-0 left-0 inset-0 flex flex-col items-center justify-center bg-white dark:bg-gray-900 w-full h-full">
                 <img src={TluIcon} alt="tlu" className={"scale-50"}/>
                 <div className="w-64 mb-8">
                     <Progress value={progress} className="h-2" />

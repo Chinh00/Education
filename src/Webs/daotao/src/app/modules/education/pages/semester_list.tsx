@@ -8,7 +8,6 @@ import {ColumnsType} from "@/app/modules/common/hook.ts";
 import {Button, Space, Table, Tooltip} from "antd";
 import {Semester} from "@/domain/semester.ts";
 import {DateTimeFormat} from "@/infrastructure/date.ts";
-import SemesterModal from "@/app/modules/education/components/semester_modal.tsx";
 import {Query} from "@/infrastructure/query.ts";
 import {Badge} from "@/app/components/ui/badge.tsx"
 import {RoutePaths} from "@/core/route_paths.ts";
@@ -72,33 +71,21 @@ const SemesterList = () => {
                 labelMap[Math.floor(record?.semesterStatus ?? 0)]
             )
         },
-        {
-            title: 'Hành động',
-            key: 'action',
-            render: (_, record) => (
-                <HistoryModal aggregationId={record.id} aggregateType={"Semester"} />
-            ),
-        },
-
     ];
 
     const tableColumns = columns.map((item) => ({ ...item }));
     const nav = useNavigate()
     return (
         <PredataScreen isLoading={isLoading} isSuccess={isSuccess}>
-            <Box>
+            <Box className={"flex flex-col gap-5 justify-start"}>
+                <Button type={"primary"} className={"w-min"} onClick={() => nav(RoutePaths.SEMESTER_CREATE)}>Tạo mới</Button>
                 <Table<Semester>
                     rowKey={(c) => c.id}
                     loading={isLoading}
                     style={{
                         height: "500px",
                     }}
-                    showHeader={true}
-                    title={() => <Box className={"flex flex-row justify-between items-center p-[16px] text-white "}>
-                        {/*<Button onClick={() => {nav(RoutePaths.EDUCATION_REGISTER_CONFIG)}} className={"bg-green-600 cursor-pointer"}>Tạo mới</Button>*/}
-                        {/*<SemesterModal refetch={refetch} />*/}
-                        <Button type={"primary"} onClick={() => nav(RoutePaths.SEMESTER_CREATE)}>Tạo mới</Button>
-                    </Box>}
+                    
                     size={"small"}
                     bordered={true}
                     pagination={{

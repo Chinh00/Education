@@ -100,7 +100,6 @@ const TableSchedule = () => {
         setSelectionEnd(null);
     };
 
-    // Create a schedule block (always allow overlap)
     const FIXED_DURATION = 3;
     const createScheduleBlock = () => {
         if (!selectionStart || !selectionEnd) return;

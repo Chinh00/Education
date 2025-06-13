@@ -15,6 +15,7 @@ import CourseClassModel from "@/app/modules/teacher/components/course_class_mode
 import { Badge } from "@/app/components/ui/badge";
 import { useGetSubjects } from "../../subject/hooks/hook";
 import { Input } from "antd"
+import CourseClassAssignTeacherModal from "@/app/modules/teacher/components/course_class_assign_teacher_modal.tsx";
 const SubjectList = () => {
   const dispatch = useAppDispatch();
   const { groupFuncName } = useAppSelector<CommonState>(c => c.common)
@@ -73,7 +74,7 @@ const SubjectList = () => {
       title: 'Tình trạng',
       render: (text, record) => (
           <>
-            <CourseClassModel subjectCode={record?.subjectCode} semesterCode={semesters?.data?.data?.items?.[0]?.semesterCode!} />
+            <CourseClassAssignTeacherModal subjectCode={record.subjectCode} />
           </>
       )
     },
@@ -103,26 +104,22 @@ const SubjectList = () => {
   return (
     <PredataScreen isLoading={false} isSuccess={true}>
       <Box>
+        <Typography.Title level={4} className={"flex justify-center items-center gap-3"}>Kì học đăng ký hiện tại:
+          <Badge className={"bg-blue-400 text-xl"} >{semester?.semesterName}</Badge>
+        </Typography.Title>
+        <Input.Search value={searchKeyword} size={"large"} placeholder={"Tìm theo tên môn học"}
+                      onChange={e => {
+                        setSearchKeyword(e.target.value);
+                        searchTeacher(e.target.value);
+                      }}
+
+        />
         <Table<Subject>
             rowKey={(c) => c.id}
             loading={isLoading}
             style={{
               height: "500px",
             }}
-            showHeader={true}
-            title={() => <Box className={"flex flex-col justify-between items-center p-[16px] text-white "}>
-              <Typography.Title level={4} className={"flex justify-center items-center gap-3"}>Kì học đăng ký hiện tại:
-                <Badge className={"bg-blue-400 text-xl"} >{semester?.semesterName}</Badge>
-              </Typography.Title>
-              <Input.Search value={searchKeyword} size={"large"} placeholder={"Tìm theo tên môn học"}
-                onChange={e => {
-                    setSearchKeyword(e.target.value);
-                    searchTeacher(e.target.value);
-                }}
-              
-              />
-              
-            </Box>}
             size={"small"}
             bordered={true}
             pagination={{

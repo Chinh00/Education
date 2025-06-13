@@ -21,7 +21,7 @@ const EducationSidebar = () => {
     const nav = useNavigate()
 
     return (
-        <div className={" pl-3 border-t-2"}>
+        <div className={" pl-3 border-t-2 h-full border-r-2"}>
             <SidebarGroup>
                 <SidebarGroupLabel className={""}>Lớp học</SidebarGroupLabel>
                 <SidebarGroupContent>

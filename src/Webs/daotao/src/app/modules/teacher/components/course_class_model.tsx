@@ -108,7 +108,7 @@ const CourseClassModel = (props: CourseClassModelProps) => {
         <>
             <Tooltip title={"Danh sách lớp học"}>
                 <IconButton size={"small"} onClick={() => setOpenModel(true)}>
-                    <GraduationCapIcon />
+                    <GraduationCapIcon size={18} />
                 </IconButton>
             </Tooltip>
             <Modal

@@ -1,7 +1,7 @@
 ﻿apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: daotao-ingress
+  name: prometheus-ingress
   namespace: education
 spec:
   ingressClassName: nginx

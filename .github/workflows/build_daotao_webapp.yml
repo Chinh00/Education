@@ -38,21 +38,4 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_DAOTAO_WEBAPP}}:latest
 
-      - name: 🔍 Get image digest
-        id: get_digest
-        run: |
-          DIGEST=$(docker buildx imagetools inspect ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_DAOTAO_WEBAPP }}:latest --format '{{ (index .Manifest.Manifests 0).Digest }}')
-          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
-
-      - name: 📝 Update deployment.yaml with image digest
-        run: |
-          sed -i "s|image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_DAOTAO_WEBAPP }}.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_EDUCATION_DAOTAO_WEBAPP }}@${{ steps.get_digest.outputs.digest }}|" bootstrap/apps/depl/daotao-depl.yaml
-
-      - name: 🔀 Commit image latest version
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "ci: update daotao webapp image digest to ${{ steps.get_digest.outputs.digest }}"
-          file_pattern: bootstrap/apps/depl/daotao-depl.yaml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-        
+      

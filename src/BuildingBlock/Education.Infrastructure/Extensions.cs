@@ -1,7 +1,4 @@
 using Education.Core.Repository;
-using Education.Core.Services;
-using Education.Infrastructure.Application;
-using Education.Infrastructure.EventStore;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -15,8 +12,6 @@ public static class Extensions
         Action<IServiceCollection> action = null)
     {
         services.AddScoped<IEventBus, EventBus.EventBus>();
-        services.AddScoped(typeof(IEventStoreRepository<>), typeof(EventStoreRepositoryBase<>));
-        services.AddScoped(typeof(IApplicationService<>), typeof(ApplicationServiceBase<>));
         action?.Invoke(services);
         return services;
     }

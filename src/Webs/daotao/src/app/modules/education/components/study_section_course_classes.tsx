@@ -22,6 +22,9 @@ import {
 } from "@/app/modules/education/stores/subject_study_section.ts";
 import EditableCell from "@/app/modules/education/components/edit_cell.tsx";
 import {Badge} from "@/app/components/ui/badge";
+import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
+import {CourseClassModel, SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
+import toast from "react-hot-toast";
 
 
 export type StudySectionCourseClassesProps = {
@@ -68,8 +71,8 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             dispatch(setSubject(getSubject));
         }
     }, [subjects]);
-    
 
+    console.log(courseClasses)
     
     
 
@@ -106,6 +109,16 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
         query,
         subjectCode !== undefined && openModal && subjectCode !== ""
     );
+
+    useEffect(() => {
+        if (courseClassesParent?.data?.data?.items?.length === 0) {
+            dispatch(setCourseClasses({}));
+            dispatch(setSelectedRowKeysParents([]));
+            dispatch(setSelectedRowKeysChildren([]));
+        }
+    }, [courseClassesParent]);
+    
+    
     
     // Thay đổi giai đoạn học
     useEffect(() => {
@@ -129,7 +142,13 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             { field: "Stage", operator: "==", value: `${currentStageConfig}` },
         ],
     }, courseClassesParent !== undefined && courseClassesParent?.data?.data?.items?.length > 0 && openModal);
-
+    useEffect(() => {
+        if (courseClassesChild?.data?.data?.items?.length === 0) {
+            dispatch(setCourseClasses({}));
+            dispatch(setSelectedRowKeysParents([]));
+            dispatch(setSelectedRowKeysChildren([]));
+        }
+    }, [courseClassesChild]);
     
     
     // Lấy thời khóa biểu của các lớp học
@@ -203,18 +222,40 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
 
     useEffect(() => {
         dispatch(setCourseClasses({
+            ...courseClasses,
             ...courseClassesParent?.data?.data?.items?.reduce(
                 (acc, cur) => {
-                    acc[cur.id] = cur;
+                    acc[cur.courseClassCode] = cur;
+                    return acc;
+                },
+                {} as Record<string, CourseClass>
+            ),
+        }))
+        
+    }, [courseClassesParent]);
+
+    useEffect(() => {
+        if (courseClassesParent === undefined) {
+            dispatch(setCourseClasses({}));
+            dispatch(setSelectedRowKeysParents([]));
+            dispatch(setSelectedRowKeysChildren([]));
+        }
+    }, [courseClassesParent]);
+    
+    useEffect(() => {
+        dispatch(setCourseClasses({
+            ...courseClasses,
+            ...courseClassesChild?.data?.data?.items?.reduce(
+                (acc, cur) => {
+                    acc[cur.courseClassCode] = cur;
                     return acc;
                 },
                 {} as Record<string, CourseClass>
             ),
         
         }))
-    }, [courseClassesParent]);
+    }, [courseClassesChild]);
 
-    
 
     const columns: ColumnsType<CourseClass> = [
         {
@@ -225,7 +266,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             onCell: (record) => ({
                 record,
                 editing: isEditing(record),
-                dataIndex: `courseClassName_${record.id}`,
+                dataIndex: record.id,
                 title: "Tên lớp",
                 inputType: "text",
                 children: <span className="font-bold">{record?.courseClassName ||
@@ -247,16 +288,28 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             width: 60,
             render: (text, record) => {
                 return  <div className={"flex flex-col gap-1 justify-start items-start"}>
-                    {courseClassesTimelines[record.id]?.map(e => (
-                        <div key={e} className={"flex flex-row flex-nowrap gap-1"}>
-                            <span  className={"font-bold text-blue-500"}>Thứ: {timelines[e]?.dayOfWeek + 2}</span>
-                            <span  className={"text-green-600"}>Phòng: {timelines[e]?.roomCode + 2}</span>
-                            <span  className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {timelines[e]?.slots[0] + 1}
+                    {timeLines?.data?.data?.items?.filter(e => e?.courseClassCode === record?.courseClassCode)?.map(e => (
+                        <div key={e.id} className={"flex flex-row flex-nowrap gap-1"}>
+                            <span  className={"font-bold text-blue-500"}>Thứ: {e.dayOfWeek + 2}</span>
+                            <span  className={"text-green-600"}>Phòng: {e.roomCode + 2}</span>
+                            <span className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {(+e.slots[0]) + 1}
                                 <ArrowRight size={10} />
-                                {timelines[e]?.slots?.[timelines[e]?.slots?.length - 1] + 1}
+                                {+e.slots?.[e.slots?.length - 1] + 1}
                             </span>
                         </div>
                     ))}
+                    {courseClassesTimelines[record.id]?.map(e => timelines[e])?.map(e => {
+                        return (
+                            <div key={e?.id} className={"flex flex-row flex-nowrap gap-1"}>
+                                <span  className={"font-bold text-blue-500"}>Thứ: {e.dayOfWeek + 2}</span>
+                                <span  className={"text-green-600"}>Phòng: {e.roomCode + 2}</span>
+                                <span  className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {e?.slots[0] + 1}
+                                    <ArrowRight size={10} />
+                                    {e.slots?.[e.slots?.length - 1] + 1}
+                            </span>
+                            </div>
+                        )
+                    })}
                 </div>
             }
             
@@ -274,18 +327,41 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
 
         },
         {
+            title: "Tuần bắt đầu",
+            className: "text-[12px]",
+            dataIndex: "weekStart",
+            width: "15%",
+            onCell: (record) => ({
+                record,
+                editing: isEditing(record),
+                dataIndex: record.id,
+                title: "Tuần bắt đầu",
+                inputType: "weeknumber",
+                placeholder: "Tuần bắt đầu",
+                children: <Space>
+                    <Avatar size={22} icon={<UserOutlined />} />
+                    Tuần thứ: {record?.weekStart ?? "[Chưa nhập]"} 
+                </Space>,
+            }),
+
+        },
+        {
             title: "Số SV dự kiến",
+            dataIndex: "numberStudentsExpected",
             className: "text-[12px]",
             width: 40,
-            render: (_, record) => (
-                <Space>
+            onCell: (record) => ({
+                record,
+                editing: isEditing(record),
+                dataIndex: record.id,
+                title: "Số SV dự kiến",
+                inputType: "number",
+                placeholder: "Số SV dự kiến",
+                children: <Space>
                     <Avatar size={22} icon={<UserOutlined />} />
-                    {courseClasses[record.id]?.numberStudentsExpected} (SV)
-                    {/*50 (SV)*/}
-                </Space>
-            )
-            
-                
+                    {record?.numberStudentsExpected ?? "[Chưa nhập]"} (SV)
+                </Space>,
+            }),
         },
         {
             title: "Giảng viên",
@@ -311,7 +387,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             render: (_, record) => {
                 const editable = isEditing(record);
                 return <Tooltip title={"Xóa"}>
-                    <Button type="link" size="small" onClick={() => {
+                    <Button disabled={!record?.id?.startsWith("courseClass")} type="link" size="small" onClick={() => {
                         setEditingKeys(prevState => prevState.filter(key => key !== record.id));
                         const {[record?.id as string]: _, ...rest} = courseClasses
                         dispatch(setCourseClasses({
@@ -334,7 +410,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             onCell: (record) => ({
                 record,
                 editing: isEditing(record),
-                dataIndex: `courseClassName_${record.id}`,
+                dataIndex: record.id,
                 title: "Tên lớp",
                 inputType: "text",
                 children: <span className="font-bold">{record?.courseClassName ||
@@ -356,11 +432,21 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             width: 60,
             render: (text, record) => {
                 return  <div className={"flex flex-col gap-1 justify-start items-center"}>
+                    {timeLines?.data?.data?.items?.filter(e => e?.courseClassCode === record?.courseClassCode)?.map(e => (
+                        <div key={e.id} className={"flex flex-row flex-nowrap gap-1"}>
+                            <span  className={"font-bold text-blue-500"}>Thứ: {e.dayOfWeek + 2}</span>
+                            <span  className={"text-green-600"}>Phòng: {e.roomCode + 2}</span>
+                            <span className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {(+e.slots[0]) + 1}
+                                <ArrowRight size={10} />
+                                {+e.slots?.[e.slots?.length - 1] + 1}
+                            </span>
+                        </div>
+                    ))}
                     {courseClassesTimelines[record.id]?.map(e => (
-                        <div className={"flex flex-row flex-nowrap gap-1"}>
-                            <span key={e} className={"font-bold text-blue-500"}>Thứ: {timelines[e]?.dayOfWeek + 2}</span>
-                            <span key={e} className={"text-green-600"}>Phòng: {timelines[e]?.roomCode + 2}</span>
-                            <span key={e} className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {timelines[e]?.slots[0] + 1}
+                        <div key={e} className={"flex flex-row flex-nowrap gap-1"}>
+                            <span  className={"font-bold text-blue-500"}>Thứ: {timelines[e]?.dayOfWeek + 2}</span>
+                            <span  className={"text-green-600"}>Phòng: {timelines[e]?.roomCode + 2}</span>
+                            <span className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {timelines[e]?.slots[0] + 1}
                                 <ArrowRight size={10} />
                                 {timelines[e]?.slots?.[timelines[e]?.slots?.length - 1] + 1}
                             </span>
@@ -383,23 +469,41 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
 
         },
         {
+            title: "Tuần bắt đầu",
+            className: "text-[12px]",
+            dataIndex: "weekStart",
+            width: "15%",
+            onCell: (record) => ({
+                record,
+                editing: isEditing(record),
+                dataIndex: record.id,
+                title: "Tuần bắt đầu",
+                inputType: "weeknumber",
+                placeholder: "Tuần bắt đầu",
+                children: <Space>
+                    <Avatar size={22} icon={<UserOutlined />} />
+                    Tuần thứ: {record?.weekStart ?? "[Chưa nhập]"}
+                </Space>,
+            }),
+
+        },
+        {
             title: "Số SV dự kiến",
+            dataIndex: "numberStudentsExpected",
             className: "text-[12px]",
             width: 40,
             onCell: (record) => ({
                 record,
-                editing: isEditing(record),
-                dataIndex: `numberStudentsExpected_${record?.id}`,
-                title: "Tên lớp",
+                editing: isEditing(record),                
+                dataIndex: record.id,
+                title: "Số SV dự kiến",
                 inputType: "number",
+                placeholder: "Số SV dự kiến",
                 children: <Space>
                     <Avatar size={22} icon={<UserOutlined />} />
-                    {courseClasses[record.id]?.numberStudentsExpected} (SV)
+                    {record?.numberStudentsExpected ?? "[Chưa nhập]"} (SV)
                 </Space>,
-                placeholder: "Số sinh viên dự kiến"
             }),
-
-
         },
         {
             title: "Giảng viên",
@@ -443,48 +547,137 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
     useEffect(() => {
         const timelinesArr = Object.values(timelines);
         const newCourseClassesTimelines: Record<string, string[]> = {  };
-        const updateCourseClasses: Record<string, CourseClass> = {   };
+        const updateCourseClasses: Record<string, CourseClass> = { ...courseClasses  };
         selectedRowKeysParents.map(courseClassId => {
+            const timelineOfCourseClass = timelinesArr?.filter(e => e?.id?.endsWith(courseClassId as string))
+            
+            
             const courseClass = courseClasses[courseClassId as string];
-            newCourseClassesTimelines[courseClassId as string] = (courseClassesTimelines[courseClassId as string]?.length || 0) < (subject?.lectureLesson ?? 0) ? timelinesArr
-                .map(t => t.id) : courseClassesTimelines[courseClassId as string]
+            newCourseClassesTimelines[courseClassId as string] = timelineOfCourseClass
+                .map(t => t.id)
             updateCourseClasses[courseClassId as string] = {
                 ...courseClass, 
                 numberStudentsExpected: getRoomCapacity(timelinesArr?.[0]?.roomCode) ?? 0,
+                // id: courseClassId as string
             } as CourseClass;
             
         });
         
         selectedRowKeysChildren.map(courseClassId => {
-            
-            newCourseClassesTimelines[courseClassId as string] = ((newCourseClassesTimelines[courseClasses[courseClassId as string].parentCourseClassCode as string]?.length ?? 0) === (subject?.lectureLesson ?? 0)) ? timelinesArr?.slice(subject?.lectureLesson, timelinesArr?.length)
-                .map(t => t.id) : [];
+            const courseClass = courseClasses[courseClassId as string];
+            const timelineOfCourseClass = timelinesArr?.filter(e => e?.id?.endsWith(courseClassId as string))
+            newCourseClassesTimelines[courseClassId as string] = timelineOfCourseClass?.map(e => e.id);
+            updateCourseClasses[courseClassId as string] = {
+                ...courseClass,
+                numberStudentsExpected: (timelinesArr?.map(t => getRoomCapacity(t?.roomCode) ?? 0))?.reduce((acc, cur) => acc + cur, 0),
+            } as CourseClass;
         });
         
         dispatch(setCourseClassesTimelines({
             ...newCourseClassesTimelines
         }));
-        console.log(updateCourseClasses)
         dispatch(setCourseClasses({
             ...updateCourseClasses
         }))
         // dispatch(setCourseClasses)
-        
-        
+
         
     }, [timelines]);
-    
-    
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        dispatch(setCourseClasses({}));
+        dispatch(setSelectedRowKeysParents([]));
+        dispatch(setSelectedRowKeysChildren([]));
+    };
+    const {mutate, isPending, isSuccess} = useCreateCourseClass()
     return (
         <>
             <IconButton size="small" onClick={() => setOpenModal(true)}>
                 <Settings size={15} />
             </IconButton>
+            {/*{*/}
+            {/*    "courseClassCode": "string",*/}
+            {/*    "courseClassName": "string",*/}
+            {/*    "courseClassType": 0,*/}
+            {/*    "subjectCode": "string",*/}
+            {/*    "semesterCode": "string",*/}
+            {/*    "numberStudentsExpected": 0,*/}
+            {/*    "parentCourseClassCode": "string",*/}
+            {/*    "stage": 0,*/}
+            {/*    "weekStart": 0,*/}
+            {/*    "slotTimelines": [*/}
+            {/*{*/}
+            {/*    "roomCode": "string",*/}
+            {/*    "dayOfWeek": 0,*/}
+            {/*    "slot": [*/}
+            {/*    "string"*/}
+            {/*    ]*/}
+            {/*}*/}
+            {/*    ]*/}
+            {/*}*/}
             <Modal
+                loading={isPending}
                 open={openModal}
-                onCancel={() => setOpenModal(false)}
+                onCancel={() => {
+                    setOpenModal(false)
+                    handleCloseModal()
+                }}
                 footer={
-                    <Button type="primary" onClick={() => {}}>
+                    <Button type="primary" onClick={() => {
+                        
+                        
+
+                        Object.values(courseClasses)?.filter(e => e.parentCourseClassCode === null).map(e => {
+                            return {
+                                courseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lecture_${e.id}`,
+                                courseClassName: `${e.courseClassName}`,
+                                courseClassType: 0,
+                                subjectCode: subjectCode!,
+                                numberStudentsExpected: e.numberStudentsExpected ?? 0,
+                                parentCourseClassCode: null,
+                                stage: currentStageConfig ?? 0,
+                                weekStart: e.weekStart ?? 0,
+                                slotTimelines: Object.keys(timelines).filter(key => key.includes(e.id as string))?.map(e => timelines[e]).map(t => ({
+                                    roomCode: t.roomCode,
+                                    dayOfWeek: t.dayOfWeek,
+                                    slot: t.slots,
+                                } as SlotTimelineModel))
+                            } as unknown as CourseClassModel
+                        }).forEach(e => {
+                            mutate({
+                                ...e
+                            }, {
+                                onSuccess: () => {toast.success("Tạo lớp học thành công!");},
+                            })
+                        })
+
+                        Object.values(courseClasses)?.filter(e => e.parentCourseClassCode !== null).map(e => {
+                            return {
+                                courseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lab_${e.id}`,
+                                courseClassName: `${e.courseClassName}`,
+                                courseClassType: 0,
+                                subjectCode: subjectCode!,
+                                numberStudentsExpected: e.numberStudentsExpected ?? 0,
+                                parentCourseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lecture_${e.parentCourseClassCode}`,
+                                stage: currentStageConfig ?? 0,
+                                weekStart: e.weekStart ?? 0,
+                                slotTimelines: Object.keys(timelines).filter(key => key.includes(e.id as string))?.map(e => timelines[e]).map(t => ({
+                                    roomCode: t.roomCode,
+                                    dayOfWeek: t.dayOfWeek,
+                                    slot: t.slots,
+                                } as SlotTimelineModel))
+                            } as unknown as CourseClassModel
+                        }).forEach(e => {
+                            mutate({
+                                ...e
+                            }, {
+                                onSuccess: () => {toast.success("Tạo lớp học phần thành công!");},
+                            })
+                        })
+                       
+                        
+                    }}>
                         Lưu tất cả
                     </Button>
                 }
@@ -566,7 +759,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                     onClick={() => {dispatch(setCurrentStageConfig(1))}}
                                     variant={"filled"}
                             >
-                                <span className={"font-bold  text-[12px]"}>GĐ1:</span>
+                                <span className={"font-bold  text-[12px]"}>GĐ2:</span>
                                 <span className={" text-[12px]"}>{DateTimeFormat(getSemester(1)?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(getSemester(1)?.endDate, "DD/MM/YYYY")}</span>
                             </Button>
                             <Button 
@@ -582,7 +775,6 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                         </Box>
                         <Box  pb={2}>
                             <Form onChange={e => {  
-                                console.log(e?.currentTarget?.name)
                             }}>
                                 <Table<CourseClass>
                                     rowKey={c => c.id}
@@ -611,7 +803,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                                     components={{
                                                         body: { cell: (props) => <EditableCell {...props} /> },
                                                     }}
-                                                    dataSource={courseClassDataSourceChild(record?.id)}
+                                                    dataSource={courseClassDataSourceChild(record?.id.startsWith("courseClass") ? record?.id : record?.courseClassCode)}
                                                     rowSelection={{
                                                         type: "checkbox",
                                                         columnWidth: "3%",

@@ -3,7 +3,6 @@ using Education.Core.Domain;
 using Education.Core.Repository;
 using Education.Core.Services;
 using Education.Infrastructure.Authentication;
-using Education.Infrastructure.EventStore;
 using Education.Infrastructure.Mongodb;
 using MassTransit;
 using MediatR;

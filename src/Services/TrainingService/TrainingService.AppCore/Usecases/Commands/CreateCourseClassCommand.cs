@@ -2,7 +2,6 @@ using Education.Core.Domain;
 using Education.Core.Repository;
 using Education.Core.Services;
 using Education.Infrastructure.Authentication;
-using Education.Infrastructure.EventStore;
 using MediatR;
 using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;

@@ -25,7 +25,7 @@ const TableSchedule = () => {
     const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([]);
     const dispatch = useAppDispatch();
     const [count, setCount] = useState(0);
-    const { courseClasses, currentStageConfig, subject, timelines } = useAppSelector<SubjectStudySectionState>(c => c.subjectStudySectionReducer);
+    const { courseClasses, currentStageConfig, subject, timelines, courseClassesTimelines, selectedRowKeysChildren, selectedRowKeysParents } = useAppSelector<SubjectStudySectionState>(c => c.subjectStudySectionReducer);
 
 
     useEffect(() => {
@@ -33,7 +33,7 @@ const TableSchedule = () => {
         dispatch(setTimelines({
             ...scheduledItems.reduce((acc, item) => {
                 const { dayIndex, startSlot, endSlot, ...rest } = item;
-                const slots = timeSlots.slice(startSlot, endSlot + 1).map((slot, index) => index);
+                const slots = timeSlots.slice(startSlot, endSlot + 1).map((slot, index) => startSlot + index);
                 // @ts-ignore
                 acc[item?.id as string] = {
                     id: item.id,
@@ -128,15 +128,28 @@ const TableSchedule = () => {
             duration: FIXED_DURATION,
             courseClassType: count,
         };
-        setScheduledItems((prev) => [...prev, newItem])
-        dispatch(setTimelines({
-            ...timelines,
-            [newItem.id]: {
-                id: newItem.id,
-                dayOfWeek: newItem?.dayIndex,
-                slots: timeSlots.slice(newItem.startSlot, newItem.endSlot + 1).map((slot, index) => index),
-            } as unknown as SlotTimeline
-        }))
+        setScheduledItems((prev) => {
+            if (prev?.map(e => e.id?.includes("Parent"))?.length === (selectedRowKeysParents?.length * (subject?.lectureLesson ?? 1))) {
+                return [...prev, ...selectedRowKeysChildren?.map(e => ({
+                    ...newItem,
+                    id: newItem.id + `-${e}`,
+                } as unknown as ScheduleItem))]
+            }
+            return [...prev, ...selectedRowKeysParents?.map(e => ({
+                ...newItem,
+                id: newItem.id + `-${e}`,
+            } as unknown as ScheduleItem))] 
+        })
+        
+        
+        // dispatch(setTimelines({
+        //     ...timelines,
+        //     [newItem.id]: {
+        //         id: newItem.id,
+        //         dayOfWeek: newItem?.dayIndex,
+        //         slots: timeSlots.slice(newItem.startSlot, newItem.endSlot + 1).map((slot, index) => index),
+        //     } as unknown as SlotTimeline
+        // }))
         setCount(e => e + 1);
         setIsDragging(false);
     };
@@ -198,15 +211,24 @@ const TableSchedule = () => {
             )
         );
         const {[draggedItem.id]: _, ...restTimelines} = timelines;
+        // dispatch(setTimelines({
+        //     ...restTimelines,
+        //     [draggedItem.id]: {
+        //         id: draggedItem.id,
+        //         dayOfWeek: dayIndex,
+        //         slots: timeSlots.slice(slotIndex, endSlot + 1).map((slot, index) => index),
+        //     } as unknown as SlotTimeline
+        //    
+        // }))
         dispatch(setTimelines({
-            ...restTimelines,
+            ...timelines,
             [draggedItem.id]: {
                 id: draggedItem.id,
                 dayOfWeek: dayIndex,
-                slots: timeSlots.slice(slotIndex, endSlot + 1).map((slot, index) => index),
+                slots: Array.from({ length: duration }, (_, i) => slotIndex + i),
+                roomCode: draggedItem.roomCode
             } as unknown as SlotTimeline
-            
-        }))
+        }));
         setDragPreview(null);
         setDraggedItem(null);
         setIsDragging(false);
@@ -216,8 +238,25 @@ const TableSchedule = () => {
     const handleDelete = (itemId: string) => {
         setScheduledItems(prev => prev.filter(i => i.id !== itemId));
     };
-    
-    
+
+
+    // useEffect(() => {
+    //     const courseClassTimelines = Object.entries(courseClassesTimelines)
+    //     scheduledItems.map(e => {
+    //         const filterTimelines = courseClassTimelines?.filter(([key, values]) => values?.includes(e?.id)) 
+    //        
+    //        
+    //         setScheduledItems(prevState => [
+    //             ...prevState?.filter(e2 => e2.id !== e.id),
+    //             ...filterTimelines?.map(([key, values]) => ({
+    //                 ...e,
+    //                 id: e.id + `-${key}`,
+    //             } as ScheduleItem))
+    //            
+    //         ])
+    //     })
+    // }, [courseClassesTimelines]);
+    //
     
     return (
         <Card className={"h-fit p-0"}>

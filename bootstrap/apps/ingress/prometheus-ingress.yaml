@@ -9,9 +9,10 @@ spec:
     - host: prometheus.tlu.my
       http:
         paths:
-          - backend:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
               service:
                 name: prometheus
                 port:
-                  number: 80
-            pathType: ImplementationSpecific
+                  number: 9090

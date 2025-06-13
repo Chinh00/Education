@@ -1,0 +1,67 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: education
+data:
+  prometheus.yml: |
+    # Nội dung file prometheus.yml của bạn đặt ở đây
+    # Ví dụ:
+    global:
+      scrape_interval: 1s
+
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      - job_name: 'otel-collector'
+        scrape_interval: 1s
+        metrics_path: /metrics
+        static_configs:
+          - targets: ['otel-collector:9464']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: education
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:latest
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config-vol
+              mountPath: /etc/prometheus
+      volumes:
+        - name: prometheus-config-vol
+          configMap:
+            name: prometheus-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: education
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - name: web
+      port: 80
+      targetPort: 9090
+  type: ClusterIP

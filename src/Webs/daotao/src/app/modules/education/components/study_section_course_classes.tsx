@@ -248,10 +248,10 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             render: (text, record) => {
                 return  <div className={"flex flex-col gap-1 justify-start items-start"}>
                     {courseClassesTimelines[record.id]?.map(e => (
-                        <div className={"flex flex-row flex-nowrap gap-1"}>
-                            <span key={e} className={"font-bold text-blue-500"}>Thứ: {timelines[e]?.dayOfWeek + 2}</span>
-                            <span key={e} className={"text-green-600"}>Phòng: {timelines[e]?.roomCode + 2}</span>
-                            <span key={e} className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {timelines[e]?.slots[0] + 1}
+                        <div key={e} className={"flex flex-row flex-nowrap gap-1"}>
+                            <span  className={"font-bold text-blue-500"}>Thứ: {timelines[e]?.dayOfWeek + 2}</span>
+                            <span  className={"text-green-600"}>Phòng: {timelines[e]?.roomCode + 2}</span>
+                            <span  className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {timelines[e]?.slots[0] + 1}
                                 <ArrowRight size={10} />
                                 {timelines[e]?.slots?.[timelines[e]?.slots?.length - 1] + 1}
                             </span>
@@ -277,22 +277,13 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             title: "Số SV dự kiến",
             className: "text-[12px]",
             width: 40,
-            onCell: (record) => ({
-                record,
-                editing: isEditing(record),
-                dataIndex: `numberStudentsExpected_${record?.id}`,
-                title: "Tên lớp",
-                inputType: "number",
-                children: record?.numberStudentsExpected
-                    ? (
-                        <Space>
-                            <Avatar size={22} icon={<UserOutlined />} />
-                            {record.numberStudentsExpected} (SV)
-                        </Space>
-                    )
-                    : <Tag color="orange">Chưa xếp</Tag>,
-                placeholder: "Số sinh viên dự kiến"
-            }),
+            render: (_, record) => (
+                <Space>
+                    <Avatar size={22} icon={<UserOutlined />} />
+                    {courseClasses[record.id]?.numberStudentsExpected} (SV)
+                    {/*50 (SV)*/}
+                </Space>
+            )
             
                 
         },
@@ -401,14 +392,10 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                 dataIndex: `numberStudentsExpected_${record?.id}`,
                 title: "Tên lớp",
                 inputType: "number",
-                children: record?.numberStudentsExpected
-                    ? (
-                        <Space>
-                            <Avatar size={22} icon={<UserOutlined />} />
-                            {record.numberStudentsExpected} (SV)
-                        </Space>
-                    )
-                    : <Tag color="orange">Chưa xếp</Tag>,
+                children: <Space>
+                    <Avatar size={22} icon={<UserOutlined />} />
+                    {courseClasses[record.id]?.numberStudentsExpected} (SV)
+                </Space>,
                 placeholder: "Số sinh viên dự kiến"
             }),
 
@@ -456,15 +443,16 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
     useEffect(() => {
         const timelinesArr = Object.values(timelines);
         const newCourseClassesTimelines: Record<string, string[]> = {  };
-        const updateCourseClasses: Record<string, CourseClass> = {  };
+        const updateCourseClasses: Record<string, CourseClass> = {   };
         selectedRowKeysParents.map(courseClassId => {
             const courseClass = courseClasses[courseClassId as string];
             newCourseClassesTimelines[courseClassId as string] = (courseClassesTimelines[courseClassId as string]?.length || 0) < (subject?.lectureLesson ?? 0) ? timelinesArr
                 .map(t => t.id) : courseClassesTimelines[courseClassId as string]
             updateCourseClasses[courseClassId as string] = {
-                ...courseClass,
-                numberStudentsExpected: getRoomCapacity() ?? 0,
-            }
+                ...courseClass, 
+                numberStudentsExpected: getRoomCapacity(timelinesArr?.[0]?.roomCode) ?? 0,
+            } as CourseClass;
+            
         });
         
         selectedRowKeysChildren.map(courseClassId => {
@@ -476,12 +464,15 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
         dispatch(setCourseClassesTimelines({
             ...newCourseClassesTimelines
         }));
+        console.log(updateCourseClasses)
+        dispatch(setCourseClasses({
+            ...updateCourseClasses
+        }))
         // dispatch(setCourseClasses)
         
         
         
     }, [timelines]);
-
     
     
     return (

@@ -5,13 +5,17 @@ import {daysOfWeek, timeSlots} from "@/infrastructure/date.ts";
 import {SlotTimeline} from "@/domain/slot_timeline.ts";
 import {Query} from "@/infrastructure/query.ts";
 import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
-import {useGetRooms} from "@/app/modules/common/hook.ts";
+import {ColumnsType, useGetRooms, useGetStaffs} from "@/app/modules/common/hook.ts";
 import _ from "lodash";
 import {Card, CardContent} from "@/app/components/ui/card.tsx";
-import {Dropdown, Select, Spin, Tooltip} from "antd";
+import {Button, Dropdown, Select, Spin, Tooltip, Typography} from "antd";
 import {Box, IconButton} from "@mui/material";
-import {Plus, Trash2} from "lucide-react";
-import {CourseClassAssignTeacherState} from "@/app/modules/teacher/stores/course_class_assign_teacher_slice.tsx";
+import {Plus, PlusCircle, Trash2} from "lucide-react";
+import {
+    CourseClassAssignTeacherState,
+    setTeacherAssignments, setTeacherSelected, setTimelines
+} from "@/app/modules/teacher/stores/course_class_assign_teacher_slice.tsx";
+import {Staff} from "@/domain/staff.ts";
 
 const Table_course_class_timeline_view = () => {
     const [courseClassType, setCourseClassType] = useState(0);
@@ -24,12 +28,54 @@ const Table_course_class_timeline_view = () => {
     const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([]);
     const dispatch = useAppDispatch();
     const [count, setCount] = useState(0);
+    const [selectedTimeline, setSelectedTimeline] = useState<string[]>([])
+    const [teacherCodeCurrentView, setTeacherCodeCurrentView] = useState<string[]>([])
+
+    const { subject, timelines, teacherSelected, courseClasses, teacherAssignments, selectedRowKeysChildren, selectedRowKeysParents } = useAppSelector<CourseClassAssignTeacherState>(c => c.courseClassAssignTeacherSliceReducer);
 
 
-    const { subject, courseClasses, selectedRowKeysChildren, selectedRowKeysParents } = useAppSelector<CourseClassAssignTeacherState>(c => c.courseClassAssignTeacherSliceReducer);
+    const teacherCodesInSchedule = [
+        ...new Set(
+            scheduledItems
+                .map(item => teacherAssignments[item.id])
+                .filter(code => !!code)
+        )
+    ];
     
 
-    // const { data, isLoading: timeLineLoading } = useGetTimeline({}, query?.Filters?.filter(e => e.field === "RoomCode") !== undefined);
+    useEffect(() => {
+        if (!courseClasses || !scheduledItems.length) return;
+
+        const newAssignments: Record<string, string> = { ...teacherAssignments };
+
+        for (const item of scheduledItems) {
+            const courseClass = courseClasses[item?.courseClassCode ?? ""];
+
+            const teacherCode = courseClass?.teacherCode 
+
+            if (!newAssignments[item.id] && teacherCode) {
+                newAssignments[item.id] = teacherCode;
+            }
+        }
+
+        if (JSON.stringify(teacherAssignments) !== JSON.stringify(newAssignments)) {
+            dispatch(setTeacherAssignments(newAssignments));
+        }
+    }, [courseClasses, scheduledItems]);
+
+
+    useEffect(() => {
+        const rest = {...teacherAssignments}
+        scheduledItems.map(e => {
+            const courseClass = Object.values(courseClasses).find(c => c.courseClassCode === e.courseClassCode);
+            rest[`${e.id}`] = courseClass?.teacherCode ?? "";
+        })
+        dispatch(setTeacherAssignments(rest));
+    }, [scheduledItems]);
+    
+    
+    
+    
     const { data: rooms } = useGetRooms({ Page: 1, PageSize: 1000 });
     const groupRooms = _.groupBy(rooms?.data?.data?.items ?? [], "buildingCode");
     const options = Object.entries(groupRooms)?.map(([e, rooms]) => ({
@@ -54,42 +100,36 @@ const Table_course_class_timeline_view = () => {
             }))
         }
     }, [selectedRowKeysParents, selectedRowKeysChildren]);
-    const {data: timelines} = useGetTimeline(query);
+    const {data: timelineFromApis, isLoading: timelineLoading} = useGetTimeline(query, subject !== undefined && query?.Filters?.filter(c => c.field !== "CourseClassCode") !== undefined);
 
     useEffect(() => {
         setScheduledItems(prevState => [
-            ...prevState,
-            ...(timelines?.data?.data?.items?.map((item: SlotTimeline) => ({
+            ...(timelineFromApis?.data?.data?.items?.map((item: SlotTimeline) => ({
                 id: `schedule-${item.id}`,
-                title: item.roomCode,
-                subject: "item.subject",
+                title: `${Object.values(courseClasses).find(e => e.courseClassCode === item.courseClassCode)?.parentCourseClassCode === null ? "LC" : "LTP"}: ${Object.values(courseClasses).find(e => e.courseClassCode === item.courseClassCode)?.courseClassName} (P.${item.roomCode})`,
+                subject: subject?.subjectName,
                 color: "bg-blue-100  border-blue-200 text-green-800 border-green-200",
-                startSlot: +item?.slots[0] ?? 0,
+                startSlot: +item?.slots[0],
                 endSlot: +item?.slots[item?.slots?.length - 1],
                 dayIndex: +item?.dayOfWeek,
                 duration: item?.slots?.length,
-                courseClassType: item.courseClassCode ?? 0, 
+                courseClassCode: item.courseClassCode ?? 0,
+                roomCode: item.roomCode ?? 0,
             } as unknown as ScheduleItem)) ?? []),
         ])
-        setScheduledItems(prevState => [
-            ...prevState,
-            {
-                id: `schedule-${Date.now()}-${Math.random()}`,
-                title: "LC",
-                subject: courseClassType === 0 ? "Lý thuyết" : "Thực hành",
-                color:
-                    courseClassType === 0
-                        ? "bg-blue-100 text-blue-800 border-blue-200"
-                        : "bg-green-100 text-green-800 border-green-200",
-                startSlot: 0,
-                endSlot: 2,
-                dayIndex: 0,
-                duration: 3,
-                courseClassType: count,
-            }
-        ])
-    }, [timelines]);
-    console.log(timelines?.data?.data?.items);
+    }, [timelineFromApis]);
+
+    useEffect(() => {
+        if (timelineFromApis) {
+            dispatch(setTimelines({
+                ...timelines,
+                ...Object.fromEntries(timelineFromApis?.data?.data?.items?.map((item: SlotTimeline) => [item.id, item]))
+            }))
+        }
+    }, [timelineFromApis]);
+    
+    
+    
 
     const isInSelection = (dayIndex: number, slotIndex: number) => {
         if (!isSelecting || !selectionStart || !selectionEnd || isDragging) return false;
@@ -99,7 +139,6 @@ const Table_course_class_timeline_view = () => {
         return slotIndex >= startSlot && slotIndex <= endSlot;
     };
 
-    // Utility: is this cell part of a drag preview
     const isPreviewSlot = (dayIndex: number, slotIndex: number) => {
         return (
             dragPreview &&
@@ -109,7 +148,6 @@ const Table_course_class_timeline_view = () => {
         );
     };
 
-    // Mouse events for selection
     const handleMouseDown = (dayIndex: number, slotIndex: number, e: React.MouseEvent) => {
         e.preventDefault();
         setIsSelecting(true);
@@ -160,12 +198,8 @@ const Table_course_class_timeline_view = () => {
             endSlot: validEndSlot,
             dayIndex,
             duration: FIXED_DURATION,
-            courseClassType: count,
         };
         setScheduledItems((prev) => [...prev, newItem]);
-
-
-        
         setCount(e => e + 1);
         setIsDragging(false);
     };
@@ -208,7 +242,6 @@ const Table_course_class_timeline_view = () => {
         }, 50);
     };
 
-    // Drop (allow overlap)
     const handleDrop = (e: React.DragEvent, dayIndex: number, slotIndex: number) => {
         e.preventDefault();
         if (!draggedItem) return;
@@ -220,202 +253,289 @@ const Table_course_class_timeline_view = () => {
             setIsDragging(false);
             return;
         }
-        // Allow overlap, just update the item's position
         setScheduledItems((prev) =>
             prev.map((item) =>
                 item.id === draggedItem.id ? { ...item, dayIndex, startSlot: slotIndex, endSlot } : item
             )
         );
-        
         setDragPreview(null);
         setDraggedItem(null);
         setIsDragging(false);
     };
 
-    // Delete block
-    const handleDelete = (itemId: string) => {
-        setScheduledItems(prev => prev.filter(i => i.id !== itemId));
+    const handleClickScheduleItem = (item: ScheduleItem) => {
+        let parentCode: string;
+        if (item?.courseClassCode?.includes("Parent")) {
+            parentCode = item.courseClassCode;
+        } else {
+            parentCode = Object.values(courseClasses)?.find(t => t?.courseClassCode === item?.courseClassCode)?.parentCourseClassCode || "";
+        }
+        const relatedCodes = [
+            parentCode,
+            ...Object.values(courseClasses)
+                .filter(e => e.parentCourseClassCode === parentCode)
+                .map(e => e.courseClassCode),
+        ].filter(Boolean);
+        const relatedItemIds = scheduledItems
+            .filter(e => relatedCodes.includes(e?.courseClassCode!))
+            .map(e => e.id);
+        const isSelected = relatedItemIds.some(id => selectedTimeline.includes(id));
+        if (isSelected) {
+            setSelectedTimeline(prev => prev.filter(id => !relatedItemIds.includes(id)));
+        } else {
+            setSelectedTimeline(prev => [...prev, ...relatedItemIds.filter(id => !prev.includes(id))]);
+        }
+    };
+    useEffect(() => {
+        const selectedCodes = [...selectedRowKeysChildren, ...selectedRowKeysParents];
+        setScheduledItems(prev =>
+            prev.filter(item => selectedCodes.includes(item?.courseClassCode!))
+        );
+    }, [selectedRowKeysChildren, selectedRowKeysParents]);
+
+    // Lấy danh sách giáo viên
+    const {data: staffs, isLoading: isLoadingStaffs} = useGetStaffs({});
+
+
+    const staffsInSchedule = (staffs?.data?.data?.items ?? []).filter(staff =>
+        teacherCodesInSchedule.includes(staff.code)
+    );
+    const handleSelectTeacher = (itemId: string, teacherCode: string) => {
+        const courseClassCode = timelineFromApis?.data?.data?.items?.find(e => e.id?.includes(itemId.split('-')[1]))?.courseClassCode;
+        if (courseClassCode?.includes("Parent")) {
+            const courseClassParent = Object.values(courseClasses)?.find(e => e.courseClassCode === courseClassCode)
+            const courseClassChildren = Object.values(courseClasses)?.filter(e => e.parentCourseClassCode === courseClassCode);
+
+            const timelineIds = timelineFromApis?.data?.data?.items?.filter(e => [courseClassParent?.courseClassCode, ...courseClassChildren.map(c => c.courseClassCode)]?.includes(e?.courseClassCode!))?.map(e => e.id) || [];
+            dispatch(setTeacherAssignments({
+                ...teacherAssignments,
+                ...Object.fromEntries(timelineIds.map(id => [`schedule-${id}`, teacherCode]))
+            }));
+        } else {
+            dispatch(setTeacherAssignments({
+                ...teacherAssignments,
+                [itemId]: teacherCode
+            }));
+        }
+        if (staffs?.data?.data?.items?.find((s: Staff) => s.code === teacherCode) !== undefined) {
+            dispatch(setTeacherSelected({
+                ...teacherSelected,
+                [itemId]: staffs?.data?.data?.items?.find((s: Staff) => s.code === teacherCode)!
+            }))
+        }
+        
+        
+        
     };
 
+    const roomCodesInSchedule = [
+        ...new Set(
+            scheduledItems
+                .map(item => item.roomCode)
+                .filter(code => !!code)
+        )
+    ];
+    console.log(scheduledItems)
 
-    // useEffect(() => {
-    //     const courseClassTimelines = Object.entries(courseClassesTimelines)
-    //     scheduledItems.map(e => {
-    //         const filterTimelines = courseClassTimelines?.filter(([key, values]) => values?.includes(e?.id)) 
-    //        
-    //        
-    //         setScheduledItems(prevState => [
-    //             ...prevState?.filter(e2 => e2.id !== e.id),
-    //             ...filterTimelines?.map(([key, values]) => ({
-    //                 ...e,
-    //                 id: e.id + `-${key}`,
-    //             } as ScheduleItem))
-    //            
-    //         ])
-    //     })
-    // }, [courseClassesTimelines]);
-    //
+    const roomsInSchedule = (rooms?.data?.data?.items ?? []).filter(room =>
+        roomCodesInSchedule.includes(room.code)
+    );
+    
 
+    const columns: ColumnsType<Staff> = [
+        {
+            title: 'Họ và tên',
+            dataIndex: "fullName",
+        },
+        {
+            title: 'Mã nhân viên',
+            dataIndex: "code",
+        },
+    ];
+    
     return (
-        <Card className={"h-fit p-0"}>
-            <CardContent className="grid grid-cols-8 p-0">
-                <div className={"absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2"}>
-                    <Spin spinning={false} size={"large"} />
+        <>
+            <div>
+                <div>
+                    <span className="text-[12px]">Hiển thị lịch của phòng: </span>
+                    <div className="flex flex-row gap-2 justify-start items-center">
+                        {roomsInSchedule.map(room => (
+                            <Button size="small" color="primary" key={room.code}>
+                                {room.name} ({room.code})
+                            </Button>
+                        ))}
+                    </div>
                 </div>
-                <div
-                    className="grid grid-cols-8 gap-0 select-none col-span-8"
-                    onMouseUp={handleMouseUp}
-                    onMouseLeave={handleMouseUp}
-                >
-                    {/* Header */}
-                    <div className="bg-gray-50 p-3 border-b border-r font-medium text-center text-[13px]">Tiết học</div>
-                    {daysOfWeek.map((day) => (
-                        <div key={day} className="bg-gray-50 p-3 border-b border-r font-medium text-center text-[12px]">
-                            {day}
-                        </div>
-                    ))}
+                <div>
+                    <span className={"text-[12px]"}>Hiển thị lịch của giáo viên: </span>
+                    <div className={"flex flex-row gap-2 justify-start items-center"}>
+                        { staffsInSchedule.map(e => (
+                            <Button size={"small"} color={"primary"} key={e.id}>{e.fullName}</Button>
+                        ))}
+                    </div>
+                </div>
+                
+            </div>
+            <Card className={"h-fit p-0"}>
 
-                    {/* Time slots */}
-                    {timeSlots.map((slot, slotIndex) => (
-                        <div key={slot.id} className="contents">
-                            <div className="border-b border-r bg-gray-50">
-                                <div className="p-[15px] text-[13px] font-medium">{slot.period}</div>
+                <CardContent className="grid grid-cols-8 p-0">
+                    <div className={"absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2"}>
+                        <Spin spinning={timelineLoading} size={"large"} />
+                    </div>
+
+                    <div
+                        className="grid grid-cols-8 gap-0 select-none col-span-8"
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseUp}
+                    >
+                        {/* Header */}
+                        <div className="bg-gray-50 p-3 border-b border-r font-medium text-center text-[13px]">Tiết học</div>
+                        {daysOfWeek.map((day) => (
+                            <div key={day} className="bg-gray-50 p-3 border-b border-r font-medium text-center text-[12px]">
+                                {day}
                             </div>
-                            {daysOfWeek.map((day, dayIndex) => {
-                                const inSelection = isInSelection(dayIndex, slotIndex);
-                                const isPreview = isPreviewSlot(dayIndex, slotIndex);
+                        ))}
 
-                                // Get all blocks that start at this slot on this day
-                                const items = scheduledItems.filter(
-                                    item => item.dayIndex === dayIndex && item.startSlot === slotIndex
-                                );
-                                // All blocks on this day (for overlap calculation)
-                                const itemsOfDay = scheduledItems.filter(i => i.dayIndex === dayIndex);
+                        {/* Time slots */}
+                        {timeSlots.map((slot, slotIndex) => (
+                            <div key={slot.id} className="contents">
+                                <div className="border-b border-r bg-gray-50">
+                                    <div className="p-[15px] text-[13px] font-medium">{slot.period}</div>
+                                </div>
+                                {daysOfWeek.map((day, dayIndex) => {
+                                    const inSelection = isInSelection(dayIndex, slotIndex);
+                                    const isPreview = isPreviewSlot(dayIndex, slotIndex);
+                                    const items = scheduledItems.filter(
+                                        item => item.dayIndex === dayIndex && item.startSlot === slotIndex
+                                    );
+                                    const itemsOfDay = scheduledItems.filter(i => i.dayIndex === dayIndex);
 
-                                return (
-                                    <div
-                                        key={`${dayIndex}-${slotIndex}`}
-                                        className={`
+                                    return (
+                                        <div
+                                            key={`${dayIndex}-${slotIndex}`}
+                                            className={`
                       p-1 border-b border-r relative min-h-[48px]
                       transition-all duration-200
                       ${inSelection ? "bg-blue-200 border-blue-400" : ""}
                       ${isPreview ? "bg-green-200 border-green-400 border-2 border-dashed" : ""}
                       ${!inSelection && !isPreview ? "hover:bg-gray-50 cursor-pointer" : ""}
                     `}
-                                        style={{ position: "relative" }}
-                                        onMouseDown={(e) => handleMouseDown(dayIndex, slotIndex, e)}
-                                        onMouseEnter={() => handleMouseEnter(dayIndex, slotIndex)}
-                                        onDragOver={(e) => handleCellDragOver(e, dayIndex, slotIndex)}
-                                        onDragLeave={handleDragLeave}
-                                        onDrop={(e) => handleDrop(e, dayIndex, slotIndex)}
-                                    >
-                                        {/* Render all items that start at this slot */}
-                                        {items.map((item) => {
-                                            // Find all overlapping blocks with this item
-                                            const overlaps = itemsOfDay.filter(
-                                                i => !(i.endSlot < item.startSlot || i.startSlot > item.endSlot)
-                                            ).sort((a, b) => a.startSlot - b.startSlot || a.id.localeCompare(b.id));
-                                            const overlapIndex = overlaps.findIndex(i => i.id === item.id);
-                                            // Ensure block does not overflow out of cell
-                                            const overlapOffset = 20;
-                                            const width = `calc(100% - ${overlapOffset * (overlaps.length - 1)}px)`;
-                                            const left = `${overlapIndex * overlapOffset}px`;
+                                            style={{ position: "relative" }}
+                                            onMouseDown={(e) => handleMouseDown(dayIndex, slotIndex, e)}
+                                            onMouseEnter={() => handleMouseEnter(dayIndex, slotIndex)}
+                                            onDragOver={(e) => handleCellDragOver(e, dayIndex, slotIndex)}
+                                            onDragLeave={handleDragLeave}
+                                            onDrop={(e) => handleDrop(e, dayIndex, slotIndex)}
+                                        >
+                                            {items.map((item) => {
+                                                const overlaps = itemsOfDay.filter(
+                                                    i => !(i.endSlot < item.startSlot || i.startSlot > item.endSlot)
+                                                ).sort((a, b) => a.startSlot - b.startSlot || a.id.localeCompare(b.id));
+                                                const overlapIndex = overlaps.findIndex(i => i.id === item.id);
+                                                const overlapOffset = 20;
+                                                const width = `calc(100% - ${overlapOffset * (overlaps.length - 1)}px)`;
+                                                const left = `${overlapIndex * overlapOffset}px`;
 
-                                            return (
-                                                <div
-                                                    key={item.id}
-                                                    draggable={item?.id?.startsWith("schedule")}
-                                                    onDragStart={(e) => handleDragStart(e, item)}
-                                                    onDragEnd={handleDragEnd}
-                                                    onMouseDown={e => e.stopPropagation()}
-                                                    style={{
-                                                        height: `${(item.endSlot - item.startSlot + 1) * 48}px`,
-                                                        width,
-                                                        left,
-                                                        zIndex: 10 + overlapIndex,
-                                                        top: 0,
-                                                        pointerEvents: isDragging && draggedItem?.id !== item.id ? 'none' : 'auto',
-                                                        position: 'absolute',
-                                                        border: '1.5px solid #1976d2',
-                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.13)',
-                                                        background: '#42a5f5',
-                                                        color: '#222',
-                                                        borderRadius: 8,
-                                                        padding: 8,
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        gap: 4,
-                                                        transition: 'all 0.2s'
-                                                    }}
-                                                >
-                                                    <div style={{ fontWeight: 600, fontSize: 13 }}>{item.title}</div>
-                                                    <div style={{ fontSize: 12 }}>{/* Thời gian, phòng ... */}</div>
-                                                    <Dropdown
-                                                        disabled={!item?.id?.startsWith("schedule")}
-                                                        placement={"bottomRight"}
-                                                        className={"z-50 absolute top-0 right-0 w-full h-full"}
-                                                        trigger={["click"]}
-                                                        dropdownRender={() => (
-                                                            <Box className={" p-5 rounded-md shadow-xl bg-white"}>
-
-                                                                <Select
-                                                                    showSearch
-                                                                    className={"min-w-[400px] "}
-                                                                    options={options}
-                                                                    placeholder={"Chọn phòng học"}
-                                                                    onChange={e => {
-                                                                        setScheduledItems(prevState => [
-                                                                            ...prevState?.filter(e2 => e2.id !== item.id),
-                                                                            {
-                                                                                ...item,
-                                                                                roomCode: e,
-                                                                            } as ScheduleItem
-                                                                        ]);
-                                                                    }}
-                                                                />
-                                                                <Tooltip title={"Xoá tiết học"}>
-                                                                    <IconButton onClick={() => handleDelete(item.id)}>
-                                                                        <Trash2 size={18} />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            </Box>
-                                                        )}
-                                                    />
-                                                    <span style={{
-                                                        opacity: 0.75,
-                                                        color: !item?.roomCode ? '#ff5252' : '#222',
-                                                        fontWeight: !item?.roomCode ? 700 : 400,
-                                                        pointerEvents: 'none',
-                                                        whiteSpace: 'nowrap',
-                                                        fontSize: 10
-                                                    }}>
-                                                        {item?.roomCode ? `Phòng: ${item?.roomCode}` : "Chưa chọn"}
-                                                    </span>
-                                                </div>
-                                            );
-                                        })}
-                                        {/* Drag preview */}
-                                        {isPreview && (
-                                            <div className="absolute inset-1 bg-green-300 border-2 border-dashed border-green-500 rounded flex items-center justify-center z-5">
+                                                return (
+                                                    <div
+                                                        key={item.id}
+                                                        draggable={false}
+                                                        onClick={() => handleClickScheduleItem(item)}
+                                                        onDragStart={(e) => handleDragStart(e, item)}
+                                                        onDragEnd={handleDragEnd}
+                                                        onMouseDown={e => e.stopPropagation()}
+                                                        style={{
+                                                            height: `${(item.endSlot - item.startSlot + 1) * 48}px`,
+                                                            width,
+                                                            left,
+                                                            zIndex:  (selectedTimeline?.includes(item?.id) ? 50 : 10) + overlapIndex,
+                                                            top: 0,
+                                                            pointerEvents: isDragging && draggedItem?.id !== item.id ? 'none' : 'auto',
+                                                            position: 'absolute',
+                                                            border: selectedTimeline?.includes(item?.id) ? "2px solid #B22222" : 'none',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.13)',
+                                                            background: '#4B99D2',
+                                                            color: '#222',
+                                                            borderRadius: 8,
+                                                            padding: 8,
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            gap: 4,
+                                                            transition: 'all 0.2s',
+                                                            transform: selectedTimeline?.includes(item?.id) ? "scale(1.05)" : "scale(1)",
+                                                        }}
+                                                    >
+                                                        <div style={{ fontSize: 10 }}>{item.title}</div>
+                                                        <div style={{ fontSize: 10 }}>{item.subject}</div>
+                                                        <Dropdown
+                                                            disabled={!item?.id?.startsWith("schedule")}
+                                                            placement={"bottomRight"}
+                                                            className={"z-50 absolute top-0 right-0 w-full h-full "}
+                                                            trigger={["click"]}
+                                                            dropdownRender={() => (
+                                                                <Box
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                    className={"p-5 rounded-md shadow-xl bg-white min-w-[220px]"}>
+                                                                    <div style={{marginBottom: 8, fontWeight: 500}}>Chọn giáo viên</div>
+                                                                    <Select
+                                                                        loading={isLoadingStaffs}
+                                                                        showSearch
+                                                                        style={{ width: "100%" }}
+                                                                        value={teacherAssignments[item.id] || undefined}
+                                                                        placeholder="Chọn giáo viên"
+                                                                        optionFilterProp="children"
+                                                                        onChange={value => handleSelectTeacher(item.id, value)}
+                                                                        filterOption={(input, option) =>
+                                                                            (option?.label as string ?? "").toLowerCase().includes(input.toLowerCase())
+                                                                        }
+                                                                        options={
+                                                                            (staffs?.data?.data?.items ?? []).map((staff: Staff) => ({
+                                                                                value: staff.code,
+                                                                                label: staff.fullName + (staff.code ? ` (${staff.code})` : "")
+                                                                            }))
+                                                                        }
+                                                                    />
+                                                                </Box>
+                                                            )}
+                                                        />
+                                                        
+                                                        {/* Giáo viên hiện tại */}
+                                                        {(teacherAssignments[item.id] ) &&
+                                                            <span style={{
+                                                                opacity: 0.85,
+                                                                color: '#006000',
+                                                                fontWeight: 500,
+                                                                fontSize: 10,
+                                                                marginTop: 3
+                                                            }}>
+                                                            GV: {(staffs?.data?.data?.items ?? []).find((s: Staff) => s.code === teacherAssignments[item.id])?.fullName}
+                                                        </span>
+                                                        }
+                                                    </div>
+                                                );
+                                            })}
+                                            {/* Drag preview */}
+                                            {isPreview && (
+                                                <div className="absolute inset-1 bg-green-300 border-2 border-dashed border-green-500 rounded flex items-center justify-center z-5">
                                                 <span className="text-green-700 text-xs font-medium">
                                                     {dragPreview && dragPreview.endSlot - dragPreview.startSlot + 1} tiết
                                                 </span>
-                                            </div>
-                                        )}
-                                        {/* Plus icon */}
-                                        {!inSelection && !isPreview && items.length === 0 && (
-                                            <div className="absolute inset-2 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                                <Plus className="w-4 h-4 text-gray-400" />
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
+                                                </div>
+                                            )}
+                                            {!inSelection && !isPreview && items.length === 0 && (
+                                                <div className="absolute inset-2 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                                    <Plus className="w-4 h-4 text-gray-400" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+        </>
     );
 }
 export default Table_course_class_timeline_view

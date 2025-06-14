@@ -126,7 +126,6 @@ const TableSchedule = () => {
             endSlot: validEndSlot,
             dayIndex,
             duration: FIXED_DURATION,
-            courseClassType: count,
         };
         setScheduledItems((prev) => {
             if (prev?.map(e => e.id?.includes("Parent"))?.length === (selectedRowKeysParents?.length * (subject?.lectureLesson ?? 1))) {

@@ -4,12 +4,15 @@ import {Subject} from "@/domain/subject.ts";
 import {Key} from "react";
 import {CourseClass} from "@/domain/course_class.ts";
 import {SlotTimeline} from "@/domain/slot_timeline.ts";
+import {Staff} from "@/domain/staff.ts";
 export type CourseClassAssignTeacherState = {
     subject: Subject | undefined,
     selectedRowKeysChildren: Key[],
     selectedRowKeysParents: Key[],
     courseClasses: Record<string, CourseClass>,
     timelines: Record<string, SlotTimeline>,
+    teacherSelected: Record<string, Staff>,
+    teacherAssignments: Record<string, string>
 }
 
 const courseClassAssignTeacherSlice: CourseClassAssignTeacherState = {
@@ -17,7 +20,9 @@ const courseClassAssignTeacherSlice: CourseClassAssignTeacherState = {
     selectedRowKeysChildren: [],
     selectedRowKeysParents: [],
     courseClasses: {},
-    timelines: {}
+    timelines: {},
+    teacherSelected: {},
+    teacherAssignments: {}
 }
 
 
@@ -40,6 +45,12 @@ const CourseClassAssignTeacherSlice = createSlice({
         setTimelines: (state, action: PayloadAction<Record<string, SlotTimeline>>) => {
             state.timelines = action.payload;
         },
+        setTeacherSelected: (state, action: PayloadAction<Record<string, Staff>>) => {
+            state.teacherSelected = action.payload;
+        },
+        setTeacherAssignments: (state, action: PayloadAction<Record<string, string>>) => {
+            state.teacherAssignments = action.payload;
+        }
     }
 })
 
@@ -48,5 +59,8 @@ export const {
     setSubject,
     setCourseClasses,
     setSelectedRowKeysChildren,
-    setSelectedRowKeysParents
+    setSelectedRowKeysParents,
+    setTeacherSelected,
+    setTeacherAssignments,
+    setTimelines
 } = CourseClassAssignTeacherSlice.actions

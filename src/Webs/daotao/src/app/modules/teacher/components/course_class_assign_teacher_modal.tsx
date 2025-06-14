@@ -14,6 +14,8 @@ import Table_course_class_timeline_view from "@/app/modules/teacher/components/t
 import {ColumnsType} from "@/app/modules/common/hook.ts";
 import {Subject} from "@/domain/subject.ts";
 import {CourseClass} from "@/domain/course_class.ts";
+import {updateCourseClassTeacher} from "@/app/modules/teacher/services/teacher.service.ts";
+import {useUpdateCourseClassTeacher} from "@/app/modules/teacher/hooks/useUpdateCourseClassTeacher.ts";
 
 
 export type CourseClassAssignTeacherModalProps = {
@@ -23,7 +25,7 @@ export type CourseClassAssignTeacherModalProps = {
 const CourseClassAssignTeacherModal = ({subjectCode}: CourseClassAssignTeacherModalProps) => {
     const [openModel, setOpenModel] = useState(false)
     const dispatch = useAppDispatch();
-    const { subject, courseClasses, selectedRowKeysChildren, selectedRowKeysParents } = useAppSelector<CourseClassAssignTeacherState>(c => c.courseClassAssignTeacherSliceReducer);
+    const { subject, courseClasses, selectedRowKeysChildren, selectedRowKeysParents, teacherAssignments, timelines } = useAppSelector<CourseClassAssignTeacherState>(c => c.courseClassAssignTeacherSliceReducer);
     const courseClassDataSourceParent = Object.values(courseClasses).filter(c => c?.parentCourseClassCode === null);
     const courseClassDataSourceChild = (courseClassParentId: string) => Object.values(courseClasses).filter(c => c?.parentCourseClassCode === courseClassParentId);
     const { data: subjects, isLoading: subjectsLoading } = useGetSubjects({
@@ -34,7 +36,7 @@ const CourseClassAssignTeacherModal = ({subjectCode}: CourseClassAssignTeacherMo
                 value: subjectCode
             }
         ]
-    })
+    }, openModel)
 
     useEffect(() => {
         if (subjects && subjects?.data?.data?.items?.length > 0) {
@@ -114,16 +116,9 @@ const CourseClassAssignTeacherModal = ({subjectCode}: CourseClassAssignTeacherMo
             title: 'Môn tính điểm',
             dataIndex: "isCalculateMark",
         },
-        {
-            title: 'Tình trạng',
-            render: (text, record) => (
-                <>
-                    <CourseClassAssignTeacherModal subjectCode={record.subjectCode} />
-                </>
-            )
-        },
+        
     ];
-    
+    const {mutate, isPending} = useUpdateCourseClassTeacher()
     return (
         <>
             <Tooltip title={"Danh sách lớp học"}>
@@ -132,6 +127,25 @@ const CourseClassAssignTeacherModal = ({subjectCode}: CourseClassAssignTeacherMo
                 </IconButton>
             </Tooltip>
             <Modal loading={subjectsLoading} open={openModel}
+                   okText={"Lưu lại"}
+                   onOk={() => {
+                          const assignments = Object.entries(teacherAssignments).map(([scheduleId, teacherCode]) => ({
+                            courseClassCode: Object.values(timelines)?.find(e => e.id?.includes(scheduleId.split('-')[1]))?.courseClassCode,
+                            teacherCode
+                          }));
+                       Object.entries(assignments).forEach(([courseClassCode, node]) => {
+                            mutate({
+                                 courseClassCode: node?.courseClassCode as string,
+                                 teacherCode: node?.teacherCode ?? ""
+                            }, {
+                                 onSuccess: () => {
+                                      dispatch(setSelectedRowKeysParents([]));
+                                      dispatch(setSelectedRowKeysChildren([]));
+                                      setOpenModel(false);
+                                 }
+                            });
+                       })
+                   }}
                    className={"min-w-[1500px]"}
                    onCancel={() => setOpenModel(false)}>
                     <Box className={""}>
@@ -150,9 +164,20 @@ const CourseClassAssignTeacherModal = ({subjectCode}: CourseClassAssignTeacherMo
                             columnWidth: "3%",
                             fixed: "left",
                             selectedRowKeys: selectedRowKeysParents,
-                            onChange: (selectedKeys) => {
-                                dispatch(setSelectedRowKeysParents(selectedKeys));
-                            },
+                            onChange: (selectedKeys, selectedRows) => {
+                                // Lấy danh sách các lớp cha được chọn
+                                const parents = selectedKeys;
+
+                                // Lấy tất cả các lớp con của các lớp cha đó
+                                const allChildren = parents
+                                    .map(parentCode => courseClassDataSourceChild(parentCode as string))
+                                    .flat()
+                                    .map(child => child.courseClassCode);
+
+                                // Set lại: parents và children đều theo các lớp cha được chọn
+                                dispatch(setSelectedRowKeysParents(parents));
+                                dispatch(setSelectedRowKeysChildren(allChildren));
+                            }
                         }}
                         expandable={{
                             defaultExpandAllRows: true,

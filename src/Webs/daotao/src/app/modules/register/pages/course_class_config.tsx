@@ -31,7 +31,9 @@ export interface ScheduleItem {
     duration: number,
     courseClassId?: string;
     roomCode?: string;
-    courseClassType?: number;
+    courseClassCode?: string;
+    teacherCode?: string,
+    teacherName?: string
 }
 
 

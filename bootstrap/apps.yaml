@@ -60,7 +60,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/Chinh00/Education'
-    path: bootstrap/apps/depl/gateway-depl.yaml
+    path: bootstrap/apps/depl
     targetRevision: main
   destination:
     server: 'https://kubernetes.default.svc'
@@ -83,7 +83,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/Chinh00/Education'
-    path: bootstrap/apps/depl/daotao-depl.yaml
+    path: bootstrap/apps/depl
     targetRevision: main
   destination:
     server: 'https://kubernetes.default.svc'

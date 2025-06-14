@@ -86,7 +86,7 @@ const Table_course_class_timeline_view = () => {
     const [query, setQuery] = useState<Query>({});
 
     useEffect(() => {
-        if (selectedRowKeysChildren?.length > 0 || selectedRowKeysChildren?.length > 0) {
+        if (selectedRowKeysParents?.length > 0 || selectedRowKeysChildren?.length > 0) {
             setQuery(prevState => ({
                 ...prevState,
                 Filters: [
@@ -165,7 +165,6 @@ const Table_course_class_timeline_view = () => {
 
     const handleMouseUp = () => {
         if (isSelecting && selectionStart && selectionEnd && !isDragging) {
-            createScheduleBlock();
         }
         setIsSelecting(false);
         setSelectionStart(null);
@@ -354,29 +353,42 @@ const Table_course_class_timeline_view = () => {
     ];
     
     return (
-        <>
+        <div className={"space-y-5"}>
             <div>
                 <div>
                     <span className="text-[12px]">Hiển thị lịch của phòng: </span>
                     <div className="flex flex-row gap-2 justify-start items-center">
+                        <Button variant={'filled'} type={"primary"} size={'small'}
+
+                        >Tất cả</Button>
                         {roomsInSchedule.map(room => (
                             <Button size="small" color="primary" key={room.code}>
                                 {room.name} ({room.code})
                             </Button>
                         ))}
+                        <Button variant={'filled'} color={"geekblue"} size={'small'}
+                        >Bỏ chọn</Button>
                     </div>
+                   
                 </div>
                 <div>
                     <span className={"text-[12px]"}>Hiển thị lịch của giáo viên: </span>
+                    
                     <div className={"flex flex-row gap-2 justify-start items-center"}>
+                        <Button variant={'filled'} type={"primary"} size={'small'}
+
+                        >Tất cả</Button>
                         { staffsInSchedule.map(e => (
                             <Button size={"small"} color={"primary"} key={e.id}>{e.fullName}</Button>
                         ))}
+                        <Button variant={'filled'} color={"geekblue"} size={'small'}
+                        >Bỏ chọn</Button>
                     </div>
+                    
                 </div>
                 
             </div>
-            <Card className={"h-fit p-0"}>
+            <Card className={"h-fit"}>
 
                 <CardContent className="grid grid-cols-8 p-0">
                     <div className={"absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2"}>
@@ -535,7 +547,7 @@ const Table_course_class_timeline_view = () => {
                     </div>
                 </CardContent>
             </Card>
-        </>
+        </div>
     );
 }
 export default Table_course_class_timeline_view

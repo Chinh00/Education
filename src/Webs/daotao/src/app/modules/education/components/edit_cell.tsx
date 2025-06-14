@@ -41,21 +41,16 @@ const EditableCell = ({
             <InputNumber
                 placeholder={placeholder}
                 size="small"
-                value={localValue}
-                onChange={setLocalValue}
-                onBlur={() => handleSave(localValue)}
-                onPressEnter={() => handleSave(localValue)}
+                
             />
         ) : (
             <Input
                 size="small"
                 placeholder={placeholder}
-                value={localValue}
-                onChange={e => setLocalValue(e.target.value)}
-                onBlur={() => handleSave(localValue)}
-                onPressEnter={() => handleSave(localValue)}
             />
         );
+    
+    
 
     return (
         <td {...restProps}>

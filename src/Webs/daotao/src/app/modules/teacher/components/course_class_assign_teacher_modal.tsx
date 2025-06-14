@@ -1,6 +1,6 @@
 ﻿import {Box, IconButton} from "@mui/material";
 import {GraduationCapIcon} from "lucide-react";
-import {Modal, Table, Tooltip} from "antd";
+import {Modal, Table, Tooltip, Typography} from "antd";
 import React, {useEffect, useState} from "react";
 import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
@@ -16,6 +16,7 @@ import {Subject} from "@/domain/subject.ts";
 import {CourseClass} from "@/domain/course_class.ts";
 import {updateCourseClassTeacher} from "@/app/modules/teacher/services/teacher.service.ts";
 import {useUpdateCourseClassTeacher} from "@/app/modules/teacher/hooks/useUpdateCourseClassTeacher.ts";
+import {getStage} from "@/app/modules/register/pages/course_class_list.tsx";
 
 
 export type CourseClassAssignTeacherModalProps = {
@@ -102,10 +103,30 @@ const CourseClassAssignTeacherModal = ({subjectCode}: CourseClassAssignTeacherMo
 
 
     const columns: ColumnsType<CourseClass> = [
-
+        {
+            title: 'Mã lớp học',
+            dataIndex: "courseClassCode",
+        },
         {
             title: 'Tên lớp học',
-            dataIndex: "courseClassCode",
+            dataIndex: "courseClassName",
+            render: (_, record) => (
+                <Tooltip title={record?.courseClassName}>
+                    <Typography.Text className={"text-ellipsis"}> {subject?.subjectName} - {record?.courseClassName} </Typography.Text>
+                </Tooltip>
+            )
+        },
+        {
+            title: 'Giai đoạn học',
+            render: (_, record) => getStage[record?.stage],
+        },
+        {
+            title: 'Số lượng sinh viên',
+            dataIndex: "numberStudentsExpected",
+        },
+        {
+            title: 'Tuần bắt đầu',
+            dataIndex: "weekStart",
         },
         {
             title: 'STC',
@@ -148,9 +169,10 @@ const CourseClassAssignTeacherModal = ({subjectCode}: CourseClassAssignTeacherMo
                    }}
                    className={"min-w-[1500px]"}
                    onCancel={() => setOpenModel(false)}>
-                    <Box className={""}>
+                    <Box className={"mb-5"}>
                         <Table_course_class_timeline_view />
                     </Box>
+                    <Typography.Title level={4} className={"text-center"}>Danh sách lớp học phần</Typography.Title>
                     <Table
                         size={"small"}
                         rowKey={"courseClassCode"}

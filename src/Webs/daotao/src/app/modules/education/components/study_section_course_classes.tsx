@@ -72,7 +72,6 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
         }
     }, [subjects]);
 
-    console.log(courseClasses)
     
     
 
@@ -290,8 +289,8 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                 return  <div className={"flex flex-col gap-1 justify-start items-start"}>
                     {timeLines?.data?.data?.items?.filter(e => e?.courseClassCode === record?.courseClassCode)?.map(e => (
                         <div key={e.id} className={"flex flex-row flex-nowrap gap-1"}>
-                            <span  className={"font-bold text-blue-500"}>Thứ: {e.dayOfWeek + 2}</span>
-                            <span  className={"text-green-600"}>Phòng: {e.roomCode + 2}</span>
+                            <span  className={"font-bold text-blue-500"}>Thứ: {e?.dayOfWeek + 2}</span>
+                            <span  className={"text-green-600"}>Phòng: {e?.roomCode + 2}</span>
                             <span className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {(+e.slots[0]) + 1}
                                 <ArrowRight size={10} />
                                 {+e.slots?.[e.slots?.length - 1] + 1}
@@ -301,8 +300,8 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                     {courseClassesTimelines[record.id]?.map(e => timelines[e])?.map(e => {
                         return (
                             <div key={e?.id} className={"flex flex-row flex-nowrap gap-1"}>
-                                <span  className={"font-bold text-blue-500"}>Thứ: {e.dayOfWeek + 2}</span>
-                                <span  className={"text-green-600"}>Phòng: {e.roomCode + 2}</span>
+                                <span  className={"font-bold text-blue-500"}>Thứ: {e?.dayOfWeek + 2}</span>
+                                <span  className={"text-green-600"}>Phòng: {e?.roomCode + 2}</span>
                                 <span  className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {e?.slots[0] + 1}
                                     <ArrowRight size={10} />
                                     {e.slots?.[e.slots?.length - 1] + 1}
@@ -591,53 +590,34 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
         dispatch(setSelectedRowKeysChildren([]));
     };
     const {mutate, isPending, isSuccess} = useCreateCourseClass()
+    const [form] = Form.useForm();
     return (
         <>
             <IconButton size="small" onClick={() => setOpenModal(true)}>
                 <Settings size={15} />
             </IconButton>
-            {/*{*/}
-            {/*    "courseClassCode": "string",*/}
-            {/*    "courseClassName": "string",*/}
-            {/*    "courseClassType": 0,*/}
-            {/*    "subjectCode": "string",*/}
-            {/*    "semesterCode": "string",*/}
-            {/*    "numberStudentsExpected": 0,*/}
-            {/*    "parentCourseClassCode": "string",*/}
-            {/*    "stage": 0,*/}
-            {/*    "weekStart": 0,*/}
-            {/*    "slotTimelines": [*/}
-            {/*{*/}
-            {/*    "roomCode": "string",*/}
-            {/*    "dayOfWeek": 0,*/}
-            {/*    "slot": [*/}
-            {/*    "string"*/}
-            {/*    ]*/}
-            {/*}*/}
-            {/*    ]*/}
-            {/*}*/}
             <Modal
-                loading={isPending}
                 open={openModal}
+                okButtonProps={{loading: isPending}}
                 onCancel={() => {
                     setOpenModal(false)
                     handleCloseModal()
                 }}
                 footer={
-                    <Button type="primary" onClick={() => {
-                        
-                        
-
-                        Object.values(courseClasses)?.filter(e => e.parentCourseClassCode === null).map(e => {
+                    <Button loading={isPending} type="primary" onClick={() => {
+                        Object.values(courseClasses)?.filter(t => t.id?.startsWith("courseClass"))?.filter(e => e.parentCourseClassCode === null).map(e => {
+                            const nameOfCourseClassParent = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("text_courseClassParent"))?.[1] ?? "";
+                            const weekOfCourseClassParent = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("weeknumber_courseClassParent"))?.[1] ?? "";
+                            const studentExceptOfCourseClassParent = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("number_courseClassParent"))?.[1] ?? "";
                             return {
                                 courseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lecture_${e.id}`,
-                                courseClassName: `${e.courseClassName}`,
+                                courseClassName: `${nameOfCourseClassParent}`,
                                 courseClassType: 0,
                                 subjectCode: subjectCode!,
-                                numberStudentsExpected: e.numberStudentsExpected ?? 0,
+                                numberStudentsExpected: +studentExceptOfCourseClassParent,
                                 parentCourseClassCode: null,
                                 stage: currentStageConfig ?? 0,
-                                weekStart: e.weekStart ?? 0,
+                                weekStart: +weekOfCourseClassParent as number,
                                 slotTimelines: Object.keys(timelines).filter(key => key.includes(e.id as string))?.map(e => timelines[e]).map(t => ({
                                     roomCode: t.roomCode,
                                     dayOfWeek: t.dayOfWeek,
@@ -652,16 +632,19 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                             })
                         })
 
-                        Object.values(courseClasses)?.filter(e => e.parentCourseClassCode !== null).map(e => {
+                        Object.values(courseClasses)?.filter(t => t.id?.startsWith("courseClass"))?.filter(e => e.parentCourseClassCode !== null).map(e => {
+                            const nameOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("text_courseClassChild"))?.[1] ?? "";
+                            const weekOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("weeknumber_courseClassChild"))?.[1] ?? "";
+                            const studentExceptOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("number_courseClassChild"))?.[1] ?? "";
                             return {
                                 courseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lab_${e.id}`,
-                                courseClassName: `${e.courseClassName}`,
+                                courseClassName: nameOfCourseClassChildren,
                                 courseClassType: 0,
                                 subjectCode: subjectCode!,
-                                numberStudentsExpected: e.numberStudentsExpected ?? 0,
+                                numberStudentsExpected: +studentExceptOfCourseClassChildren,
                                 parentCourseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lecture_${e.parentCourseClassCode}`,
                                 stage: currentStageConfig ?? 0,
-                                weekStart: e.weekStart ?? 0,
+                                weekStart: +weekOfCourseClassChildren,
                                 slotTimelines: Object.keys(timelines).filter(key => key.includes(e.id as string))?.map(e => timelines[e]).map(t => ({
                                     roomCode: t.roomCode,
                                     dayOfWeek: t.dayOfWeek,
@@ -774,7 +757,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                             </Button>
                         </Box>
                         <Box  pb={2}>
-                            <Form onChange={e => {  
+                            <Form form={form} onChange={e => {  
                             }}>
                                 <Table<CourseClass>
                                     rowKey={c => c.id}

@@ -82,7 +82,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/your-username/your-repo.git'
+    repoURL: 'https://github.com/Chinh00/Education'
     path: bootstrap/apps/depl/daotao-depl.yaml
     targetRevision: main
   destination:

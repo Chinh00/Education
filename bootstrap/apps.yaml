@@ -46,3 +46,49 @@ spec:
     automated:
       prune: true
       selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: gateway=chinhval/educationgatewayservice
+    argocd-image-updater.argoproj.io/gateway.update-strategy: latest
+    argocd-image-updater.argoproj.io/write-back-method: git
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/Chinh00/Education'
+    path: bootstrap/apps/depl/gateway-depl.yaml
+    targetRevision: main
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: education
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: daotao
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: daotao=chinhval/educationdaotaowebapp
+    argocd-image-updater.argoproj.io/daotao.update-strategy: latest
+    argocd-image-updater.argoproj.io/write-back-method: git
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/your-username/your-repo.git'
+    path: bootstrap/apps/depl/daotao-depl.yaml
+    targetRevision: main
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: education
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

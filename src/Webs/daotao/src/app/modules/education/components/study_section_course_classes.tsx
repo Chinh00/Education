@@ -290,7 +290,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                     {timeLines?.data?.data?.items?.filter(e => e?.courseClassCode === record?.courseClassCode)?.map(e => (
                         <div key={e.id} className={"flex flex-row flex-nowrap gap-1"}>
                             <span  className={"font-bold text-blue-500"}>Thứ: {e?.dayOfWeek + 2}</span>
-                            <span  className={"text-green-600"}>Phòng: {e?.roomCode + 2}</span>
+                            <span  className={"text-green-600"}>Phòng: {e?.roomCode }</span>
                             <span className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {(+e.slots[0]) + 1}
                                 <ArrowRight size={10} />
                                 {+e.slots?.[e.slots?.length - 1] + 1}
@@ -301,7 +301,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                         return (
                             <div key={e?.id} className={"flex flex-row flex-nowrap gap-1"}>
                                 <span  className={"font-bold text-blue-500"}>Thứ: {e?.dayOfWeek + 2}</span>
-                                <span  className={"text-green-600"}>Phòng: {e?.roomCode + 2}</span>
+                                <span  className={"text-green-600"}>Phòng: {e?.roomCode}</span>
                                 <span  className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {e?.slots[0] + 1}
                                     <ArrowRight size={10} />
                                     {e.slots?.[e.slots?.length - 1] + 1}
@@ -633,9 +633,9 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                         })
 
                         Object.values(courseClasses)?.filter(t => t.id?.startsWith("courseClass"))?.filter(e => e.parentCourseClassCode !== null).map(e => {
-                            const nameOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("text_courseClassChild"))?.[1] ?? "";
-                            const weekOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("weeknumber_courseClassChild"))?.[1] ?? "";
-                            const studentExceptOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("number_courseClassChild"))?.[1] ?? "";
+                            const nameOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key === `text_courseClassChild_${e?.id?.split('_')?.[1]}`)?.[1] ?? "";
+                            const weekOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes(`weeknumber_courseClassChild_${e?.id?.split('_')?.[1]}`))?.[1] ?? "";
+                            const studentExceptOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes(`number_courseClassChild_${e?.id?.split('_')?.[1]}`))?.[1] ?? "";
                             return {
                                 courseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lab_${e.id}`,
                                 courseClassName: nameOfCourseClassChildren,
@@ -658,7 +658,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                 onSuccess: () => {toast.success("Tạo lớp học phần thành công!");},
                             })
                         })
-                       
+
                         
                     }}>
                         Lưu tất cả

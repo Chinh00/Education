@@ -13,6 +13,7 @@ import { useGetTimeline } from "@/app/modules/education/hooks/useGetTimeline.ts"
 import {setTimelines, SubjectStudySectionState} from "@/app/modules/education/stores/subject_study_section.ts";
 import {SlotTimeline} from "@/domain/slot_timeline.ts";
 import {CourseClass} from "@/domain/course_class.ts";
+import {getOverlappingPairs} from "@/app/modules/education/components/overlapUtils.ts";
 
 const TableSchedule = () => {
     const [courseClassType, setCourseClassType] = useState(0);
@@ -377,6 +378,10 @@ const TableSchedule = () => {
                                     );
                                     // All blocks on this day (for overlap calculation)
                                     const itemsOfDay = scheduledItems.filter(i => i.dayIndex === dayIndex);
+                                    const overlapPairs = getOverlappingPairs(itemsOfDay);
+
+                                    // Kiểm tra slot hiện tại có overlap không
+                                    const overlapsInSlot = overlapPairs.filter(pair => pair.overlapSlots.includes(slotIndex));
 
                                     return (
                                         <div
@@ -480,6 +485,23 @@ const TableSchedule = () => {
                                                     </div>
                                                 );
                                             })}
+
+                                            {overlapsInSlot.length > 0 && (
+                                                <div
+                                                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 px-2 py-1 rounded bg-red-100 border border-red-300 text-xs text-red-700"
+                                                    style={{
+                                                        pointerEvents: 'none',
+                                                    }}
+                                                >
+                                                    {overlapsInSlot.map((pair, idx) => (
+                                                        <div key={idx}>
+                                                            Trùng: {pair.itemA.title} & {pair.itemB.title}
+                                                            {/* Hoặc hiển thị thông tin bạn muốn */}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            
                                             {/* Drag preview */}
                                             {isPreview && (
                                                 <div className="absolute inset-1 bg-green-300 border-2 border-dashed border-green-500 rounded flex items-center justify-center z-5">

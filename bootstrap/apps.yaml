@@ -3,6 +3,12 @@ kind: Application
 metadata:
   name: education
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: |
+      chinhval/educationdaotaowebapp
+      chinhval/educationtrainingservice
+    argocd-image-updater.argoproj.io/my-service.update-strategy: latest
+    argocd-image-updater.argoproj.io/another-service.update-strategy: latest
 spec:
   project: default
   source:

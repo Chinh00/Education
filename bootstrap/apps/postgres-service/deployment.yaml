@@ -29,8 +29,8 @@ spec:
                 secretKeyRef:
                   key: database
                   name: postgres-secret
-            
-                  
+
+
 ---
 apiVersion: v1
 kind: Service

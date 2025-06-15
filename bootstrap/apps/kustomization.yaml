@@ -1,2 +1,30 @@
 ﻿resources:
+  - daotao-service
   - gateway-service
+  - grafana-service
+  - identity-service
+  - jaeger-service
+  - kafka-ui
+  - mongo-service
+  - notification-service
+  - otel-collector-service
+  - postgres-service
+  - prometheus-service
+  - redis-service
+  - register-service
+  - sinhvien-service
+  - student-service
+  - training-service
+    
+    
+    
+    
+    
+  - ingress/daotao-ingress.yaml
+  - ingress/gateway-ingress.yaml
+  - ingress/prometheus-ingress.yaml
+  - ingress/sinhvien-ingress.yaml
+  - ingress/grafana-ingress.yaml
+  - ingress/jaeger-ingress.yaml
+  - secrets/sealedsecret.yaml
+  - secrets/secrets.yaml

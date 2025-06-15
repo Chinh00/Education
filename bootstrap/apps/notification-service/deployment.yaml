@@ -70,7 +70,7 @@ spec:
                 secretKeyRef:
                   key: connect_server
                   name: postgres-secret
-            
+
 ---
 apiVersion: v1
 kind: Service

@@ -42,11 +42,11 @@ spec:
     spec:
       containers:
         - name: otel-collector
-          image: otel/opentelemetry-collector:latest
+          image: otel/opentelemetry-collector
           args: ["--config=/conf/otel-collector-config.yaml"]
           ports:
             - containerPort: 4321
-            - containerPort: 9464 
+            - containerPort: 9464
           volumeMounts:
             - name: otel-config-vol
               mountPath: /conf

@@ -4,9 +4,23 @@ metadata:
   name: education
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: chinhval/educationgatewayservice
-    argocd-image-updater.argoproj.io/my-service.update-strategy: latest
-    argocd-image-updater.argoproj.io/another-service.update-strategy: latest
+    argocd-image-updater.argoproj.io/image-list: |
+      chinhval/educationdaotaowebapp,
+      chinhval/educationgatewayservice,
+      chinhval/educationidentityservice,
+      chinhval/educationnotificationservice,
+      chinhval/educationregisterservice,
+      chinhval/educationsinhvienwebapp,
+      chinhval/educationstudentservice,
+      chinhval/educationtrainingservice
+    argocd-image-updater.argoproj.io/educationdaotaowebapp.update-strategy: latest
+    argocd-image-updater.argoproj.io/educationgatewayservice.update-strategy: latest
+    argocd-image-updater.argoproj.io/educationidentityservice.update-strategy: latest
+    argocd-image-updater.argoproj.io/educationnotificationservice.update-strategy: latest
+    argocd-image-updater.argoproj.io/educationregisterservice.update-strategy: latest
+    argocd-image-updater.argoproj.io/educationsinhvienwebapp.update-strategy: latest
+    argocd-image-updater.argoproj.io/educationstudentservice.update-strategy: latest
+    argocd-image-updater.argoproj.io/educationtrainingservice.update-strategy: latest
 spec:
   project: default
   source:

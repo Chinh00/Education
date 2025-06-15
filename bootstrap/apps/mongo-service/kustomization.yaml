@@ -1,0 +1,5 @@
+﻿resources:
+  - deployment.yaml
+images:
+  - name: mongo
+    newTag: latest

@@ -1,31 +1,36 @@
 ﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: student
+  name: register
   namespace: education
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: student
+      app.kubernetes.io/name: register
   replicas: 1
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: student
+        app.kubernetes.io/name: register
     spec:
       containers:
-        - image: chinhval/educationstudentservice
+        - image: chinhval/educationregisterservice
           imagePullPolicy: Always
-          name: student
+          name: register
           ports:
             - containerPort: 8080
           env:
-            - name: IdentityServer__Url
+            - name: Redis__Server
               valueFrom:
                 secretKeyRef:
-                  key: connect_server
-                  name: postgres-secret
-            
+                  key: server
+                  name: redis-secret
+            - name: Redis__Port
+              valueFrom:
+                secretKeyRef:
+                  key: port
+                  name: redis-secret
+
             - name: Kafka__BootstrapServers
               valueFrom:
                 secretKeyRef:
@@ -71,7 +76,12 @@ spec:
                 secretKeyRef:
                   key: oltp_endpoint
                   name: monitor
-      
+
+            - name: IdentityServer__Url
+              valueFrom:
+                secretKeyRef:
+                  key: connect_server
+                  name: postgres-secret
       
       
       
@@ -82,7 +92,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: student
+  name: register
   namespace: education
 spec:
   ports:
@@ -91,4 +101,4 @@ spec:
       protocol: TCP
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: student
+    app.kubernetes.io/name: register

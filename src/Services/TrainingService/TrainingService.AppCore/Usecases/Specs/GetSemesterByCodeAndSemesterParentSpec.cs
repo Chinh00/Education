@@ -6,5 +6,5 @@ namespace TrainingService.AppCore.Usecases.Specs;
 
 public class GetSemesterByCodeAndSemesterParentSpec(string code) : SpecificationBase<Semester>
 {
-    public override Expression<Func<Semester, bool>> Predicate => semester => semester.SemesterCode == code && semester.ParentSemesterCode == string.Empty;
+    public override Expression<Func<Semester, bool>> Predicate => semester => semester.SemesterCode.Contains(code);
 }

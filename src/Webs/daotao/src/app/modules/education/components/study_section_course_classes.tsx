@@ -618,6 +618,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                 parentCourseClassCode: null,
                                 stage: currentStageConfig ?? 0,
                                 weekStart: +weekOfCourseClassParent as number,
+                                semesterCode: getSemester((currentStageConfig ?? 0))?.semesterCode ?? "",
                                 slotTimelines: Object.keys(timelines).filter(key => key.includes(e.id as string))?.map(e => timelines[e]).map(t => ({
                                     roomCode: t.roomCode,
                                     dayOfWeek: t.dayOfWeek,
@@ -645,6 +646,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                 parentCourseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lecture_${e.parentCourseClassCode}`,
                                 stage: currentStageConfig ?? 0,
                                 weekStart: +weekOfCourseClassChildren,
+                                semesterCode: getSemester((currentStageConfig ?? 0))?.semesterCode ?? "",
                                 slotTimelines: Object.keys(timelines).filter(key => key.includes(e.id as string))?.map(e => timelines[e]).map(t => ({
                                     roomCode: t.roomCode,
                                     dayOfWeek: t.dayOfWeek,

@@ -48,8 +48,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentService.Infrastructu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "__", "__", "{8E760615-7E82-435C-9EE9-FAA7F4F00DC6}"
 	ProjectSection(SolutionItems) = preProject
-		deployments\docker-compose.debug.yml = deployments\docker-compose.debug.yml
-		deployments\docker-compose.local.yml = deployments\docker-compose.local.yml
+		__dev\docker-compose.dev.yml = __dev\docker-compose.dev.yml
+		__dev\docker-compose.local.yml = __dev\docker-compose.local.yml
+		__dev\docker-compose.yml = __dev\docker-compose.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegisterStudy.Infrastructure", "src\Services\RegisterService\RegisterStudy.Infrastructure\RegisterStudy.Infrastructure.csproj", "{3A47A822-80A7-4818-B208-823D85530D50}"

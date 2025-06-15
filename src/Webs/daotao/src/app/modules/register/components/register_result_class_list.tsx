@@ -47,21 +47,53 @@ const RegisterResultClassList = ({semesterCode, subjectCode}: RegisterResultClas
         {
             title: 'Mã lớp',
             dataIndex: "courseClassCode",
+            className: "text-[12px]",
+        },
+        {
+            title: 'Tên lớp',
+            dataIndex: "courseClassName",
+            className: "text-[12px]",
+            
+        },
+        {
+            title: 'Tuần bắt đầu học',
+            dataIndex: "weekStart",
+            className: "text-[12px]",
+            width: "5%",
+            
+        },
+        {
+            title: 'Số sinh viên dự kiến',
+            dataIndex: "numberStudentsExpected",
+            className: "text-[12px]",
+            width: "5%"
+        },
+        {
+            title: 'Số sinh viên thực tế',
+            render: (text, record) => (record?.studentIds?.length ?? 0),
+            className: "text-[12px]",
+            width: "5%"
         },
         
+        
+        
+        
         {
+            className: "text-[12px]",
             title: 'Loại lớp',
             render: (text, record) => (
-                <>{record?.courseClassType === 0 ? "Lý thuyết" : "Thực hành"}</>
+                <>{record?.courseClassType === 0 ? "Lớp chính" : "Thực hành"}</>
             )
         },
         {
+            className: "text-[12px]",
             title: "Giai đoạn học",
             render: (text, record) => (
                 <>{getStage[record?.stage]}</>
             )
         },
         {
+            className: "text-[12px]",
             title: "Trạng thái",
             render: (text, record) => (
                 <>{CourseClassStatus[record?.status]}</>
@@ -70,6 +102,7 @@ const RegisterResultClassList = ({semesterCode, subjectCode}: RegisterResultClas
         
         
         {
+            className: "text-[12px]",
             title: 'Giáo viên',
             render: (text, record) => (
                 <>
@@ -78,7 +111,6 @@ const RegisterResultClassList = ({semesterCode, subjectCode}: RegisterResultClas
             )
         },
     ];
-    const tableColumns = columns.map((item) => ({ ...item }));
 
     const studentColumns: ColumnsType<Student> = [
         {
@@ -153,6 +185,7 @@ const RegisterResultClassList = ({semesterCode, subjectCode}: RegisterResultClas
                     pageSize: query?.PageSize ?? 10,
                     total: students?.data?.data?.totalItems ?? 0
                 }}
+                
                 onChange={(e) => {
                     setQuery(prevState => ({
                         ...prevState,
@@ -179,55 +212,56 @@ const RegisterResultClassList = ({semesterCode, subjectCode}: RegisterResultClas
                 }}><Eye size={18} /></IconButton>
             </Tooltip>
             <Modal className={"min-w-[1300px]"} onCancel={() => setOpenModel(false)} open={openModel} onClose={() => setOpenModel(false)}>
-                <Box >
-                    <Table<CourseClass>
-                        rowKey={(c) => c.id}
-                        loading={courseLoading}
-                        className={""}
-                        style={{
-                            height: "300px",
-                        }}
-                        showHeader={true}
-                        title={() => <Box className={"text-white "}>
-                           <Typography.Title level={5} className={"text-center"}>Danh sách lớp</Typography.Title>
-                        </Box>}
-                        size={"small"}
-                        bordered={true}
-                        rowSelection={{
-                            type: "radio",
-                            onChange: (rowSelection, value) => {
-                                setSelectedCourseClass(value[0])
-                                if (value[0]?.studentIds?.length > 0) {
-                                    setQuery(prevState => ({
-                                        ...prevState,
-                                        Filters: [
-                                            {
-                                                field: "InformationBySchool.StudentCode",
-                                                operator: "In",
-                                                value: value[0]?.studentIds?.join(",") ?? ""
-                                            }
-                                        ]
-                                    }))
-                                } else {
-                                    setQuery(prevState => ({
-                                        ...prevState,
-                                        Filters: [
-                                            {
-                                                field: "InformationBySchool.StudentCode",
-                                                operator: "In",
-                                                value: ","
-                                            }
-                                        ]
-                                    }))
-                                }
-                            },
+                <Box className={"flex flex-col gap-16"}>
+                    <Typography.Title level={5} className={"text-center"}>Danh sách lớp</Typography.Title>
+                    <div className={"relative w-full min-h-[500px]"}>
+                        <Table<CourseClass>
+                            rowKey={(c) => c.id}
+                            
+                            loading={courseLoading}
+                            rowClassName={"text-[12px]"}
+                            className={"absolute top-0 left-0 w-full "}
+                            size={"small"}
+                            bordered={true}
+                            rowSelection={{
+                                type: "radio",
+                                onChange: (rowSelection, value) => {
+                                    setSelectedCourseClass(value[0])
+                                    if (value[0]?.studentIds?.length > 0) {
+                                        setQuery(prevState => ({
+                                            ...prevState,
+                                            Filters: [
+                                                {
+                                                    field: "InformationBySchool.StudentCode",
+                                                    operator: "In",
+                                                    value: value[0]?.studentIds?.join(",") ?? ""
+                                                }
+                                            ]
+                                        }))
+                                    } else {
+                                        setQuery(prevState => ({
+                                            ...prevState,
+                                            Filters: [
+                                                {
+                                                    field: "InformationBySchool.StudentCode",
+                                                    operator: "In",
+                                                    value: ","
+                                                }
+                                            ]
+                                        }))
+                                    }
+                                },
+                                columnWidth: "5%"
 
-                        }}
-                        pagination={false}
-                        columns={tableColumns}
-                        dataSource={courseClass?.data?.data?.items ?? []}
+                            }}
+                            pagination={false}
+                            columns={columns}
+                            virtual
+                            scroll={{ x: 1500, y: 900 }}
+                            dataSource={courseClass?.data?.data?.items ?? []}
 
-                    />
+                        />
+                    </div>
                     
 
                     <Tabs defaultActiveKey={"0"} items={items} />

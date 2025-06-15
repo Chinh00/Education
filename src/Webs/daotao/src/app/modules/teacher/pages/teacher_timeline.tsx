@@ -94,45 +94,43 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
     }, [debouncedSearch]);
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
-            <Box className={"space-y-5"}>
-                <Table<Staff>
-                    rowKey={(c) => c.id}
-                    loading={isLoading}
-                    style={{
-                        height: "500px",
-                    }}
-                    showHeader={true}
-                    title={() => <Box className={"flex flex-col justify-between items-center p-[16px] text-white "}>
-                        <Input.Search value={searchKeyword} size={"large"} placeholder={"Tìm theo giáo viên"}
-                                      onChange={e => {
-                                          setSearchKeyword(e.target.value);
-                                          debouncedSearch(e.target.value);
-                                      }}
-
-                        />
-                        
-
-                    </Box>}
-                    size={"small"}
-                    bordered={true}
-                    pagination={{
-                        current: query?.Page ?? 1,
-                        pageSize: query?.PageSize ?? 10,
-                        total: staff?.data?.data?.totalItems ?? 0
-                    }}
-                    onChange={(e) => {
-                        setQuery(prevState => ({
-                            ...prevState,
-                            Page: e?.current ?? 1 - 1,
-                            PageSize: e?.pageSize
-                        }))
-                    }}
-                    columns={tableColumns}
-                    dataSource={staff?.data?.data?.items ?? []}
+            <div className={"flex flex-col gap-5"}>
+                <Input.Search value={searchKeyword} size={"large"} placeholder={"Tìm theo giáo viên"}
+                              onChange={e => {
+                                  setSearchKeyword(e.target.value);
+                                  debouncedSearch(e.target.value);
+                              }}
 
                 />
-                
-            </Box>
+                <Box className={"space-y-5"}>
+                    <Table<Staff>
+                        rowKey={(c) => c.id}
+                        loading={isLoading}
+                        style={{
+                            height: "500px",
+                        }}
+
+                        size={"small"}
+                        bordered={true}
+                        pagination={{
+                            current: query?.Page ?? 1,
+                            pageSize: query?.PageSize ?? 10,
+                            total: staff?.data?.data?.totalItems ?? 0
+                        }}
+                        onChange={(e) => {
+                            setQuery(prevState => ({
+                                ...prevState,
+                                Page: e?.current ?? 1 - 1,
+                                PageSize: e?.pageSize
+                            }))
+                        }}
+                        columns={tableColumns}
+                        dataSource={staff?.data?.data?.items ?? []}
+
+                    />
+
+                </Box>
+            </div>
         </PredataScreen>
     )
 }

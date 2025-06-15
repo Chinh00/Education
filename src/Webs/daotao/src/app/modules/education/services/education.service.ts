@@ -21,7 +21,7 @@ export type CreateRegisterStateModel = {
 const getEducations = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Education>>>> => await http.get(`/trainingservice/api/Education?${GetQuery(query)}`)
 const getRegisters = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Register>>>> => await http.get(`/trainingservice/api/Register?${GetQuery(query)}`)
 const createRegisterState = async (model: CreateRegisterStateModel): Promise<AxiosResponse<SuccessResponse<Register>>> => await http.post(`/trainingservice/api/Register`, model)
-const getSubjectRegister = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SubjectRegister>>>> => await http.get(`/trainingservice/api/Register/subject-register?${GetQuery(query)}`);
+const getSubjectRegister = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SubjectRegister>>>> => await http.get(`/trainingservice/api/Register/SubjectRegister?${GetQuery(query)}`);
 export {
     getEducations,
     getRegisters,

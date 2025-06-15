@@ -37,26 +37,46 @@ const EducationSidebar = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-                <SidebarGroupLabel className={""}>Đăng ký học</SidebarGroupLabel>
+                <SidebarGroupLabel className={""}>Đăng nguyện vọng học</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton onClick={() => nav(RoutePaths.EDUCATION_REGISTER)}>
                                 <List />
-                                Danh sách đăng ký học
+                                Cấu hình đăng ký
                             </SidebarMenuButton>
                         </SidebarMenuItem>
 
+                        
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarGroup>
+                <SidebarGroupLabel className={""}>Đăng ký học</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton onClick={() => nav(RoutePaths.SUBJECT_STUDY_SECTION)}>
                                 <GraduationCap />
                                 Lớp học phần
                             </SidebarMenuButton>
                         </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.CREATE_REGISTER_PERIOD)}>
+                                <List />
+                                Cấu hình đăng ký
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+
+                        <SidebarMenuItem>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.REGISTER_PERIOD_RESULT)}>
+                                <GraduationCap />
+                                Kết quả đăng ký
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
-
             <SidebarGroup>
                 <SidebarGroupLabel className={""}>Môn học</SidebarGroupLabel>
                 <SidebarGroupContent>

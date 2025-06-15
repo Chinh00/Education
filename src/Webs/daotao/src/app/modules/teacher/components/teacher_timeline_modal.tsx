@@ -267,7 +267,7 @@ const TeacherTimelineModal = ({staffCode}: TeacherTimelineModalProps) => {
     
     return (
         <>
-            <Tooltip title={"Chi tiết thời khóa biểu"}><IconButton onClick={() => setOpenModel(true)}><Eye size={18} /></IconButton></Tooltip>
+            <Tooltip title={"Chi tiết thời khóa biểu"}><IconButton onClick={() => setOpenModel(true)}><Eye size={15} /></IconButton></Tooltip>
             <Modal open={openModel} className={"min-w-[1200px] "} onCancel={() => setOpenModel(false)}>
                 <Card>
                     <CardContent className="flex justify-between items-center">
@@ -280,7 +280,6 @@ const TeacherTimelineModal = ({staffCode}: TeacherTimelineModalProps) => {
                         <Select.Option value={0}>Giai đoạn 1</Select.Option>
                         <Select.Option value={1}>Giai đoạn 2</Select.Option>
                         <Select.Option value={2}>Cả 2 giai đoạn</Select.Option>
-                        <Select.Option value={3}>Tất cả</Select.Option>
                     </Select>
 
                     <Select onChange={(e) => {

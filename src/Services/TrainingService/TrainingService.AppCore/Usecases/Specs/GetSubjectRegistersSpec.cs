@@ -15,5 +15,6 @@ public class GetSubjectRegistersSpec : ListSpecificationBase<SubjectRegister>
         ApplyInclude(c => c.Id);
         ApplyInclude(c => c.StudentCodes);
         ApplyInclude(c => c.SubjectCode);
+        ApplySortDesc(e => e.StudentCodes.Count);
     }
 }

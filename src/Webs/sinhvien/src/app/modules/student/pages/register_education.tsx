@@ -8,7 +8,7 @@ import useGetStudentInformation from "@/app/modules/student/hooks/useGetStudentI
 import {useGetEducations, useGetSubjects} from "@/app/modules/common/hook.ts";
 import {useGetRegisterStateCurrent} from "@/app/modules/student/hooks/useGetRegisterStateCurrent.ts";
 import dayjs from "dayjs";
-import {isNowBetweenServerTime} from "@/infrastructure/datetime_format.ts";
+import {DateTimeFormat, isNowBetweenServerTime} from "@/infrastructure/datetime_format.ts";
 import {Button} from "antd";
 import {AlertCircle, BookOpen, Calendar, CheckCircle, Clock, GraduationCap, MapPin, RefreshCcw} from "lucide-react"
 type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'>;
@@ -81,7 +81,7 @@ const RegisterEducation= () => {
             title: 'Nguyện vọng',
             key: 'action',
             render: (_, record) => (
-                <Checkbox disabled={!isNowBetweenServerTime(registerCurrentState?.data?.data?.staDate, registerCurrentState?.data?.data?.endDate)} checked={dataAdd?.filter(c => c.subjectCode === record?.subjectCode)?.length > 0} onChange={(e) => {
+                <Checkbox disabled={!isNowBetweenServerTime(registerCurrentState?.data?.data?.startDate, registerCurrentState?.data?.data?.endDate)} checked={dataAdd?.filter(c => c.subjectCode === record?.subjectCode)?.length > 0} onChange={(e) => {
 
                     if (dataAdd?.filter(c => c.subjectCode === record?.subjectCode)?.length > 0) {
                         setDataAdd(prevState => [
@@ -141,6 +141,7 @@ const RegisterEducation= () => {
     const subjectCodes = results?.data?.data?.items?.flatMap(c =>
         c.subjectResults?.map(e => e.subjectCode) ?? []
     ) ?? [];
+    
 
     return (
         <PredataScreen isLoading={isPending } isSuccess={isSuccess }>
@@ -161,11 +162,12 @@ const RegisterEducation= () => {
 
 
 
-                <Box className={"flex flex-row justify-between w-full"}>
-                    <RegistrationTimer startTime={''} endTime={''} timeSlot={`${registerCurrentState?.data?.data?.minCredit} - ${registerCurrentState?.data?.data?.maxCredit}`} />
-                </Box>
+                <div className={"w-full flex flex-col"}>
+                    <span>Thời gian bắt đầu đăng ký nguyện vọng: <Badge className={"bg-red-500"} >{DateTimeFormat(registerCurrentState?.data?.data?.startDate, "HH:mm:ss DD/MM/YYYY")}</Badge> </span>
+                    <span>Thời gian kết thúc đăng ký nguyện vọng: <Badge className={"bg-red-500"} >{DateTimeFormat(registerCurrentState?.data?.data?.endDate, "HH:mm:ss DD/MM/YYYY")}</Badge></span>
+                </div>
                 <div className={"relative w-full inset-0 min-h-[450px]"}>
-                    {!isNowBetweenServerTime(registerCurrentState?.data?.data?.staDate, registerCurrentState?.data?.data?.endDate) &&
+                    {!isNowBetweenServerTime(registerCurrentState?.data?.data?.startDate, registerCurrentState?.data?.data?.endDate) &&
                         <div className={"absolute left-1/2 top-1/2 z-50 -translate-y-1/2 -translate-x-1/2"}>
                             <Badge
                                 variant="outline"

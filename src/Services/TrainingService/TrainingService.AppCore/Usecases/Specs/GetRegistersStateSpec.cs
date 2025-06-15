@@ -16,6 +16,8 @@ public class GetRegistersStateSpec : ListSpecificationBase<RegisterState>
         ApplyInclude(c => c.CorrelationId);
         ApplyInclude(c => c.CurrentState);
         ApplyInclude(c => c.WishStartDate);
+        ApplyInclude(c => c.StudentRegisterStart);
+        ApplyInclude(c => c.StudentRegisterEnd);
         ApplyInclude(c => c.WishEndDate);
         ApplyInclude(c => c.MinCredit);
         ApplyInclude(c => c.MaxCredit);

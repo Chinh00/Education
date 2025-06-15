@@ -103,7 +103,7 @@ const SubjectList = () => {
 
   return (
     <PredataScreen isLoading={false} isSuccess={true}>
-      <Box>
+      <Box className={"flex flex-col gap-5"}>
         <Typography.Title level={4} className={"flex justify-center items-center gap-3"}>Kì học đăng ký hiện tại:
           <Badge className={"bg-blue-400 text-xl"} >{semester?.semesterName}</Badge>
         </Typography.Title>
@@ -112,7 +112,6 @@ const SubjectList = () => {
                         setSearchKeyword(e.target.value);
                         searchTeacher(e.target.value);
                       }}
-
         />
         <Table<Subject>
             rowKey={(c) => c.id}

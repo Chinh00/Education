@@ -41,7 +41,7 @@ public record CreateSemesterCommand(CreateSemesterCommand.CreateSemesterModel Mo
                 SemesterCode = request.Model.SemesterCode,
                 StartDate = request.Model.StartDate,
                 EndDate = request.Model.EndDate,
-                ParentSemesterCode = request.Model.ParentSemesterCode ?? "",
+                ParentSemesterCode = request.Model.ParentSemesterCode ?? string.Empty,
             }, cancellationToken);
 
             if (semester.ParentSemesterCode != "")

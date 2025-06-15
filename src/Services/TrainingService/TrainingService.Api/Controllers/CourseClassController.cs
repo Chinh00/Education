@@ -6,6 +6,7 @@ using TrainingService.AppCore.Usecases.Queries;
 namespace TrainingService.Api.Controllers;
 
 /// <inheritdoc />
+[Authorize]
 public class CourseClassController : BaseController
 {
     /// <summary>

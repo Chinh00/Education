@@ -1,9 +1,9 @@
 ﻿import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 import {Box, IconButton} from "@mui/material";
-import {Table} from "antd";
+import {Input, Table} from "antd";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Subject} from "@/domain/subject.ts";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {ColumnsType} from "@/app/modules/common/hook.ts";
 import {useNavigate} from "react-router";
@@ -14,22 +14,15 @@ import {useGetSubjectRegister} from "@/app/modules/education/hooks/useGetSubject
 import {Settings} from "lucide-react";
 import StudySectionCourseClasses from "@/app/modules/education/components/study_section_course_classes.tsx";
 const SubjectStudySection = () => {
-    const [query, setQuery] = useState<Query>({})
-    const {data: subjects, isLoading: subjectsLoading} = useGetSubjects(query)
+    
     
     const {data: semesters} = useGetSemesters({
         Filters: [
             {
                 field: "SemesterStatus",
                 operator: "==",
-                value: "0"
+                value: "1"
             },
-            {
-                field: "ParentSemesterCode",
-                operator: "In",
-                value: ","
-            },
-            
         ]
     })
     
@@ -42,8 +35,16 @@ const SubjectStudySection = () => {
                 value: semesters?.data?.data?.items?.[0]?.semesterCode ?? ""
             }
         ]
-    })
+    },semesters !== undefined && semesters?.data?.data?.items?.[0]?.semesterCode !== null)
     const getSubjectRegister = (subjectCode: string) => subjectsRegister?.data?.data?.items?.find(e => e.subjectCode === subjectCode) ?? undefined;
+
+    
+    
+    
+    const [query, setQuery] = useState<Query>({})
+    const {data: subjects, isLoading: subjectsLoading} = useGetSubjects(query)
+
+    
     
     const columns: ColumnsType<Subject> = [
         {
@@ -85,13 +86,22 @@ const SubjectStudySection = () => {
 
     const nav = useNavigate();
     
-    
-    
-    
-    
     return (
         <PredataScreen isLoading={false} isSuccess={true} >
             <Box className={"flex gap-5 flex-col"}>
+                <Input.Search loading={subjectsLoading} size={"large"} onSearch={e => {
+                    setQuery(prevState => ({
+                        ...prevState,
+                        Filters: [
+                            {
+                                field: "SubjectName",
+                                operator: "Contains",
+                                value: e
+                            }
+                        ],
+                        Page: 1
+                    }))
+                }} />
                 <Table<Subject>
                     rowKey={(c) => c.id}
                     loading={subjectsLoading}
@@ -110,7 +120,9 @@ const SubjectStudySection = () => {
                     }}
                     bordered={true}
                     columns={columns}
-                    dataSource={subjects?.data?.data?.items ?? []}
+                    dataSource={
+                        subjects?.data?.data?.items ?? []
+                    }
 
                 />
             </Box>

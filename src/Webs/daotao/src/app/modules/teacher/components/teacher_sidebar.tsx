@@ -29,7 +29,7 @@ const EducationSidebar = () => {
                         <SidebarMenuItem>
                             <SidebarMenuButton onClick={() => nav(RoutePaths.TEACHER_SUBJECT_LIST)}>
                                 <List />
-                                Danh sách lớp mở
+                                Phân công giáo viên
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>

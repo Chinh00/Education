@@ -8,6 +8,7 @@ using TrainingService.AppCore.Usecases.Specs;
 namespace TrainingService.Api.Controllers;
 
 /// <inheritdoc />
+[Authorize]
 public class RegisterController : BaseController
 {
     /// <summary>
@@ -48,7 +49,7 @@ public class RegisterController : BaseController
     /// <param name="query">Truy vấn thông tin đăng ký của sinh viên</param>
     /// <param name="cancellationToken">Token để hủy thao tác không đồng bộ nếu cần</param>
     /// <returns>Kết quả thông tin đăng ký của sinh viên</returns>
-    [HttpGet("subject-register")]
+    [HttpGet("SubjectRegister")]
     public async Task<IActionResult> HandleGetStudentRegisterAsync([FromQuery] GetSubjectRegisterQuery query,
         CancellationToken cancellationToken = default)
     {

@@ -1,7 +1,9 @@
 ﻿using System.Text.Json;
+using Education.Contract.IntegrationEvents;
 using Education.Core.Domain;
 using Education.Core.Repository;
 using Education.Core.Specification;
+using MassTransit;
 using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;
 using TrainingService.Domain.Enums;
@@ -19,6 +21,8 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         var subjectProgramRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Subject>>();
         var semesterProgramRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Semester>>();
         var staffRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Staff>>();
+        var departmentRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Department>>();
+        var producer = scope.ServiceProvider.GetService<ITopicProducer<InitDepartmentAdminAccountIntegrationEvent>>();
         foreach (var courseClassCondition in _courseClassConditions)
         {
             var spec = new GetCourseClassConditionByCodeSpec(courseClassCondition.ConditionCode);
@@ -54,9 +58,36 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
                 cancellationToken)) == 0)
         await PullStaffs(staffRepository, cancellationToken);
         
+        if ((await departmentRepository.CountAsync(new TrueListSpecification<Department>(),
+                cancellationToken)) == 0)
+        await PullDepartments(departmentRepository, producer, cancellationToken);
+        
+        
+        
         
     }
 
+    
+    async Task PullDepartments(IMongoRepository<Department> education,
+        ITopicProducer<InitDepartmentAdminAccountIntegrationEvent> producer, CancellationToken cancellation)
+    {
+        var url = $"https://api5.tlu.edu.vn/api/Department?Page=1&PageSize=9999";
+        
+        var response = await httpClient.GetAsync(url, cancellation);
+        var json = await response.Content.ReadAsStringAsync(cancellation);
+        var result = JsonSerializer.Deserialize<ResultModel<ListResultModel<Department>>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        foreach (var educationProgram in result.Data.Items)
+        {
+            await education.AddAsync(educationProgram, cancellation);
+            await producer.Produce(new InitDepartmentAdminAccountIntegrationEvent(
+                educationProgram.DepartmentCode,
+                educationProgram.DepartmentName), cancellation);
+        }
+    }
+    
     async Task PullEducationPrograms(IMongoRepository<EducationProgram> education, CancellationToken cancellation)
     {
         var url = $"https://api5.tlu.edu.vn/api/EducationProgram?Includes=Code&Includes=Name&Sorts=IdDesc&Includes=TrainingTime&Includes=CourseCode&Includes=SpecialityCode&Includes=EducationSubjects&Page=1&PageSize=9999";

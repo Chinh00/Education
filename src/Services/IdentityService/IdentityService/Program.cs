@@ -93,6 +93,13 @@ builder.Services.AddMassTransit(c =>
                     config.AutoOffsetReset = AutoOffsetReset.Earliest;
                     config.ConfigureConsumer<EventDispatcher>(context);
                 });
+            configurator.TopicEndpoint<InitDepartmentAdminAccountIntegrationEvent>(nameof(InitDepartmentAdminAccountIntegrationEvent), "identity-student",
+                config =>
+                {
+                    config.CreateIfMissing(n => n.NumPartitions = 1);
+                    config.AutoOffsetReset = AutoOffsetReset.Earliest;
+                    config.ConfigureConsumer<EventDispatcher>(context);
+                });
 
         });
     });

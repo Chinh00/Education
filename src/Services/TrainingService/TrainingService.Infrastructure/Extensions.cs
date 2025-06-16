@@ -16,7 +16,6 @@ public static class Extensions
         Action<IServiceCollection> action = null)
     {
         services.AddHttpClient();
-        services.AddHostedService<SeedDataHostedService>();
         services.AddApplicationService();
         BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         services.AddMassTransit(c =>
@@ -34,6 +33,7 @@ public static class Extensions
                 e.AddProducer<StudentRegistrationStartedIntegrationEvent>(nameof(StudentRegistrationStartedIntegrationEvent));
                 e.AddProducer<CourseClassesCreatedIntegrationEvent>(nameof(CourseClassesCreatedIntegrationEvent));
                 e.AddProducer<SemesterCreatedNotificationIntegrationEvent>(nameof(SemesterCreatedNotificationIntegrationEvent));
+                e.AddProducer<InitDepartmentAdminAccountIntegrationEvent>(nameof(InitDepartmentAdminAccountIntegrationEvent));
                 
                 
                
@@ -106,6 +106,8 @@ public static class Extensions
                 });
             });
         });
+        services.AddHostedService<SeedDataHostedService>();
+        
         action?.Invoke(services);
         return services;
     }

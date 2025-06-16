@@ -111,11 +111,11 @@ export type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'> & 
 }
 
 
-export const getStageText = (semesterCode?: string) => {
-    switch (semesterCode?.split("_")?.[3]) {
-        case "1":
+export const getStageText = (stage: number) => {
+    switch (stage) {
+        case 0:
             return "Giai đoạn 1";
-        case "2":
+        case 1:
             return "Giai đoạn 2";
         default:
             return "Cả 2 giai đoạn";

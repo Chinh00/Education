@@ -289,7 +289,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             width: 60,
             render: (text, record) => {
                 return <Badge variant={"outline"} className={"bg-blue-100 flex flex-col justify-start items-start"} >
-                    <span>{getStageText(currentParentSemester?.semesterCode)}</span>
+                    <span>{getStageText(currentStageConfig)}</span>
                     <span>{DateTimeFormat(currentParentSemester?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(currentParentSemester?.endDate, "DD/MM/YYYY")}</span>
                 </Badge>
             }
@@ -431,7 +431,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             width: 60,
             render: (text, record) => {
                 return <Badge variant={"outline"} className={"bg-blue-100 flex flex-col justify-start items-start"} >
-                    <span>{getStageText(currentParentSemester?.semesterCode)}</span>
+                    <span>{getStageText(currentStageConfig)}</span>
                     <span>{DateTimeFormat(currentParentSemester?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(currentParentSemester?.endDate, "DD/MM/YYYY")}</span>
                 </Badge>
             }

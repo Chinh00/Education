@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {UserInfo} from "@/domain/user_info.ts";
+import {Semester} from "@/domain/semester.ts";
 export type GroupFuncName = {
     groupName?: string,
     itemName?: string,
@@ -9,7 +10,8 @@ export type CommonState = {
     groupFuncName?: GroupFuncName
     roleName?: string,
     userInfo?: UserInfo,
-
+    currentParentSemester: Semester | undefined,
+    currentChildSemester: Semester[] | undefined,
 }
 
 const commonState: CommonState = {
@@ -18,7 +20,8 @@ const commonState: CommonState = {
         groupName: "default",
         itemName: "default",
     },
-    
+    currentParentSemester: undefined,
+    currentChildSemester: undefined,
 }
 
 const CommonSlice = createSlice({
@@ -39,11 +42,16 @@ const CommonSlice = createSlice({
         },
         setUserInfo: (state, action: PayloadAction<UserInfo>) => {
             state.userInfo = action.payload;
-        }
+        },
+        setCurrentSemester: (state, action: PayloadAction<{ parentSemester?: Semester, childSemesters?: Semester[] }>) => {
+            state.currentParentSemester = action.payload.parentSemester;
+            state.currentChildSemester = action.payload.childSemesters;
+        },
+       
         
 
     }
 })
 
 export default CommonSlice.reducer
-export const {setAuthenticate, setGroupFuncName, setRoleName, setUserInfo} = CommonSlice.actions
+export const {setAuthenticate, setGroupFuncName, setRoleName, setUserInfo, setCurrentSemester} = CommonSlice.actions

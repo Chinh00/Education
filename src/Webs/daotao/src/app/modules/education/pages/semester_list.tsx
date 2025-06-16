@@ -30,13 +30,6 @@ const SemesterList = () => {
     }, []);
     const [query, setQuery] = useState<Query>({
         Sorts: ["IdDesc"],
-        Filters: [
-            {
-                field: "ParentSemesterCode",
-                operator: "In",
-                value: ","
-            }
-        ]
     })
 
     const {data, isLoading, isSuccess, refetch} = useGetSemesters(query)
@@ -72,8 +65,7 @@ const SemesterList = () => {
             )
         },
     ];
-
-    const tableColumns = columns.map((item) => ({ ...item }));
+    console.log(data?.data?.data?.items)
     const nav = useNavigate()
     return (
         <PredataScreen isLoading={isLoading} isSuccess={isSuccess}>
@@ -88,21 +80,24 @@ const SemesterList = () => {
                     
                     size={"small"}
                     bordered={true}
-                    pagination={{
-                        current: query?.Page ?? 1,
-                        pageSize: query?.PageSize ?? 10,
-                        total: data?.data?.data?.totalItems ?? 0
+                    pagination={false}
+                    columns={columns}
+                    expandable={{
+                        
+                        expandedRowRender: (record) => (
+                            <Box>
+                                <Table
+                                    size={"small"}
+                                    rowKey={e => e.id}
+                                    bordered={true}
+                                    pagination={false}
+                                    columns={columns}
+                                    dataSource={data?.data?.data?.items?.filter(e => e.parentSemesterCode === record?.semesterCode)?.sort((a, b) => a.semesterName > b.semesterName ? 1: 0) ?? []}
+                                />
+                            </Box>
+                        )
                     }}
-                    onChange={(e) => {
-                        setQuery(prevState => ({
-                            ...prevState,
-                            Page: e?.current ?? 1 - 1,
-                            PageSize: e?.pageSize
-                        }))
-                    }}
-                    columns={tableColumns}
-                    dataSource={data?.data?.data?.items ?? []}
-
+                    dataSource={data?.data?.data?.items?.filter(e => e.parentSemesterCode === null) ?? []}
                 />
             </Box>
         </PredataScreen>

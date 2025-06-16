@@ -12,7 +12,7 @@ const rootReducer = combineReducers({
     common: persistReducer({
         key: "common",
         storage: storage,
-        blacklist: ["groupFuncName"]
+        blacklist: ["currentChildSemester", "currentParentSemester"]
     }, CommonReducer),
     education: EducationReducer,
     subjectStudySectionReducer: SubjectStudySectionReducer,
@@ -26,7 +26,7 @@ const rootConfig = {
     blacklist: ["education", "student", "subjectStudySectionReducer", "courseClassAssignTeacherSliceReducer"]
 }
 const store = configureStore({
-    reducer: persistReducer(rootConfig, rootReducer),
+    reducer: rootReducer,
     middleware: getDefaultMiddleware => getDefaultMiddleware({
         serializableCheck: false
     })

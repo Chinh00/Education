@@ -25,6 +25,7 @@ import {Badge} from "@/app/components/ui/badge";
 import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
 import {CourseClassModel, SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
 import toast from "react-hot-toast";
+import {CommonState} from "@/app/stores/common_slice.ts";
 
 
 export type StudySectionCourseClassesProps = {
@@ -46,20 +47,10 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
     
     const dispatch = useAppDispatch()
     const [openModal, setOpenModal] = useState(false);
+    const {currentParentSemester, currentChildSemester} = useAppSelector<CommonState>(e => e.common);
 
-
-    const { data: semesters, isLoading: semesterLoading } = useGetSemesters(
-        { Filters: [{ field: "SemesterStatus", operator: "In", value: "0,1" }] },
-        openModal
-    );
-    const getSemester = (stage: number) =>
-        semesters?.data?.data?.items?.find(
-            (e) => +e?.semesterCode?.split("_")[3] === stage + 1
-        ) ?? undefined;
-    const semesterParent = semesters?.data?.data?.items?.find(
-        (e) => e?.semesterCode === semesters?.data?.data?.items?.[0]?.parentSemesterCode
-    );
-
+    
+    
     const { data: subjects } = useGetSubjects(
         { Filters: [{ field: "SubjectCode", operator: "==", value: subjectCode! }] },
         subjectCode !== undefined && openModal && subjectCode !== ""
@@ -73,27 +64,6 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
     }, [subjects]);
 
     
-    
-
-    
-    
-    
-    
-
-    const semesterOptions =
-        semesters?.data?.data?.items?.map((s) => ({
-            value: s?.semesterCode,
-            label: (
-                <>
-                    {getStageText(s?.semesterCode)}
-                    {" "}
-                    <span style={{ color: "#888" }}>
-                        ({DateTimeFormat(s?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(s?.endDate, "DD/MM/YYYY")})
-                    </span>
-                </>
-            ),
-        })) ?? [];
-
     
 
     const [query, setQuery] = useState<Query>({
@@ -319,8 +289,8 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             width: 60,
             render: (text, record) => {
                 return <Badge variant={"outline"} className={"bg-blue-100 flex flex-col justify-start items-start"} >
-                    <span>{getStageText(semesterParent?.semesterCode)}</span>
-                    <span>{DateTimeFormat(getSemester(currentStageConfig ?? 0)?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(getSemester(currentStageConfig ?? 0)?.endDate, "DD/MM/YYYY")}</span>
+                    <span>{getStageText(currentParentSemester?.semesterCode)}</span>
+                    <span>{DateTimeFormat(currentParentSemester?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(currentParentSemester?.endDate, "DD/MM/YYYY")}</span>
                 </Badge>
             }
 
@@ -461,8 +431,8 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
             width: 60,
             render: (text, record) => {
                 return <Badge variant={"outline"} className={"bg-blue-100 flex flex-col justify-start items-start"} >
-                    <span>{getStageText(semesterParent?.semesterCode)}</span>
-                    <span>{DateTimeFormat(getSemester(currentStageConfig ?? 0)?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(getSemester(currentStageConfig ?? 0)?.endDate, "DD/MM/YYYY")}</span>
+                    <span>{getStageText(currentParentSemester?.semesterCode)}</span>
+                    <span>{DateTimeFormat(currentParentSemester?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(currentParentSemester?.endDate, "DD/MM/YYYY")}</span>
                 </Badge>
             }
 
@@ -591,6 +561,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
     };
     const {mutate, isPending, isSuccess} = useCreateCourseClass()
     const [form] = Form.useForm();
+    console.log(currentChildSemester)
     return (
         <>
             <IconButton size="small" onClick={() => setOpenModal(true)}>
@@ -610,7 +581,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                             const weekOfCourseClassParent = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("weeknumber_courseClassParent"))?.[1] ?? "";
                             const studentExceptOfCourseClassParent = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes("number_courseClassParent"))?.[1] ?? "";
                             return {
-                                courseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lecture_${e.id}`,
+                                courseClassCode: `${subjectCode}_${currentParentSemester?.semesterCode}_Lecture_${e.id}`,
                                 courseClassName: `${nameOfCourseClassParent}`,
                                 courseClassType: 0,
                                 subjectCode: subjectCode!,
@@ -618,7 +589,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                 parentCourseClassCode: null,
                                 stage: currentStageConfig ?? 0,
                                 weekStart: +weekOfCourseClassParent as number,
-                                semesterCode: getSemester((currentStageConfig ?? 0))?.semesterCode ?? "",
+                                semesterCode: currentParentSemester?.semesterCode,
                                 slotTimelines: Object.keys(timelines).filter(key => key.includes(e.id as string))?.map(e => timelines[e]).map(t => ({
                                     roomCode: t.roomCode,
                                     dayOfWeek: t.dayOfWeek,
@@ -638,15 +609,15 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                             const weekOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes(`weeknumber_courseClassChild_${e?.id?.split('_')?.[1]}`))?.[1] ?? "";
                             const studentExceptOfCourseClassChildren = Object.entries(form.getFieldsValue())?.find(([key, value]) => key?.includes(`number_courseClassChild_${e?.id?.split('_')?.[1]}`))?.[1] ?? "";
                             return {
-                                courseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lab_${e.id}`,
+                                courseClassCode: `${subjectCode}_${currentParentSemester?.semesterCode}_Lab_${e.id}`,
                                 courseClassName: nameOfCourseClassChildren,
                                 courseClassType: 0,
                                 subjectCode: subjectCode!,
                                 numberStudentsExpected: +studentExceptOfCourseClassChildren,
-                                parentCourseClassCode: `${subjectCode}_${getSemester((currentStageConfig ?? 0))?.semesterCode}_Lecture_${e.parentCourseClassCode}`,
+                                parentCourseClassCode: `${subjectCode}_${currentParentSemester?.semesterCode}_Lecture_${e.parentCourseClassCode}`,
                                 stage: currentStageConfig ?? 0,
                                 weekStart: +weekOfCourseClassChildren,
-                                semesterCode: getSemester((currentStageConfig ?? 0))?.semesterCode ?? "",
+                                semesterCode: currentParentSemester?.semesterCode,
                                 slotTimelines: Object.keys(timelines).filter(key => key.includes(e.id as string))?.map(e => timelines[e]).map(t => ({
                                     roomCode: t.roomCode,
                                     dayOfWeek: t.dayOfWeek,
@@ -736,7 +707,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                     
                             >
                                 <span className={"font-bold  text-[12px]"}>GĐ1:</span>
-                                <span className={" text-[12px]"}>{DateTimeFormat(getSemester(0)?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(getSemester(0)?.endDate, "DD/MM/YYYY")}</span>
+                                <span className={" text-[12px]"}>{DateTimeFormat(currentChildSemester?.find(e => e?.semesterCode?.split('_')[3] === '1')?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(currentChildSemester?.find(e => e?.semesterCode?.split('_')[3] === '1')?.endDate, "DD/MM/YYYY")}</span>
                             </Button>
                             
                             <Button size={"small"}
@@ -745,7 +716,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                     variant={"filled"}
                             >
                                 <span className={"font-bold  text-[12px]"}>GĐ2:</span>
-                                <span className={" text-[12px]"}>{DateTimeFormat(getSemester(1)?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(getSemester(1)?.endDate, "DD/MM/YYYY")}</span>
+                                <span className={" text-[12px]"}>{DateTimeFormat(currentChildSemester?.find(e => e?.semesterCode?.split('_')[3] === '2')?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(currentChildSemester?.find(e => e?.semesterCode?.split('_')[3] === '2')?.endDate, "DD/MM/YYYY")}</span>
                             </Button>
                             <Button 
                                 size={"small"}
@@ -755,7 +726,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                                 
                             >
                                 <span className={"font-bold  text-[12px]"}>Cả 2 GĐ:</span>
-                                <span className={" text-[12px]"}>{DateTimeFormat(getSemester(0)?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(getSemester(0)?.endDate, "DD/MM/YYYY")}</span>
+                                <span className={" text-[12px]"}>{DateTimeFormat(currentParentSemester?.startDate, "DD/MM/YYYY")} - {DateTimeFormat(currentParentSemester?.endDate, "DD/MM/YYYY")}</span>
                             </Button>
                         </Box>
                         <Box  pb={2}>

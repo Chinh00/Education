@@ -13,8 +13,15 @@ import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts"
 import {useGetSubjectRegister} from "@/app/modules/education/hooks/useGetSubjectRegister.ts";
 import {Settings} from "lucide-react";
 import StudySectionCourseClasses from "@/app/modules/education/components/study_section_course_classes.tsx";
+import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
+import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 const SubjectStudySection = () => {
-    
+    const dispatch = useAppDispatch()
+
+    const {groupFuncName} = useAppSelector<CommonState>(c => c.common)
+    useEffect(() => {
+        dispatch(setGroupFuncName({...groupFuncName, itemName: "Cấu hình lớp học cho môn học"}));
+    }, []);
     
     const {data: semesters} = useGetSemesters({
         Filters: [
@@ -104,7 +111,9 @@ const SubjectStudySection = () => {
     return (
         <PredataScreen isLoading={false} isSuccess={true} >
             <Box className={"flex gap-5 flex-col"}>
-                <Input.Search loading={subjectsLoading} size={"large"} onSearch={e => {
+                <Input.Search
+                    placeholder={"Tìm kiếm theo tên môn học"}
+                    loading={subjectsLoading} size={"large"} onSearch={e => {
                     setQuery(prevState => ({
                         ...prevState,
                         Filters: [

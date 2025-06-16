@@ -14,6 +14,7 @@ public class GetSemestersSpec : ListSpecificationBase<Semester>
         ApplySorts(query.Sorts);
         ApplyInclude(c => c.SemesterCode);
         ApplyInclude(c => c.SemesterName);
+        ApplyInclude(c => c.ParentSemesterCode);
         ApplyInclude(c => c.SemesterStatus);
         ApplyInclude(c => c.StartDate);
         ApplyInclude(c => c.EndDate);

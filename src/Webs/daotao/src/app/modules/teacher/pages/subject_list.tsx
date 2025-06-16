@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from "@/app/stores/hook.ts";
 import { CommonState, setGroupFuncName } from "@/app/stores/common_slice.ts";
 import {useCallback, useEffect, useState} from "react";
-import { ColumnsType, useGetSpecialityDepartments } from "@/app/modules/common/hook.ts";
+import { ColumnsType } from "@/app/modules/common/hook.ts";
 import { useGetUserInfo } from "@/app/modules/auth/hooks/useGetUserInfo.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import { Box, IconButton } from "@mui/material";

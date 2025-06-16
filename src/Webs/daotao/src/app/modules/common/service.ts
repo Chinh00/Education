@@ -15,7 +15,6 @@ import {Notification} from "@/domain/notification.ts";
 
 const getCourses= async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Course>>>> => await http.get(`/trainingservice/api/Course?${GetQuery(query)}`)
 const getDepartments = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Department>>>> => await http.get(`/trainingservice/api/Department?${GetQuery(query)}`)
-const getSpecialities = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Speciality>>>> => await http.get(`/trainingservice/api/Department/Speciality?${GetQuery(query)}`)
 const getBuildings = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Building>>>> => await http.get(`/trainingservice/api/Building?${GetQuery(query)}`)
 const getRooms = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Room>>>> => await http.get(`/trainingservice/api/Building/Room?${GetQuery(query)}`)
 const getEventsStore = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<EventHistory>>>> => await http.get(`/trainingservice/api/EventStore?${GetQuery(query)}`)
@@ -32,4 +31,4 @@ export interface RegistrationModel {
 const createRegisterRegistrationPeriod = async (model: RegistrationModel): Promise<AxiosResponse<SuccessResponse<string>>> => await http.post(`/trainingservice/api/Register/RegistrationPeriod`, model)
 
 
-export {getCourses, getDepartments, getSpecialities, getBuildings, getRooms, getEventsStore, getConditions, getStaffs, getNotifications, createRegisterRegistrationPeriod};
+export {getCourses, getDepartments, getBuildings, getRooms, getEventsStore, getConditions, getStaffs, getNotifications, createRegisterRegistrationPeriod};

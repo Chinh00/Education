@@ -5,7 +5,7 @@ import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Subject} from "@/domain/subject.ts";
 import {useEffect, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
-import {ColumnsType} from "@/app/modules/common/hook.ts";
+import {ColumnsType, useGetDepartments} from "@/app/modules/common/hook.ts";
 import {useNavigate} from "react-router";
 import { Checkbox } from "antd";
 import {Badge} from "@/app/components/ui/badge.tsx";
@@ -61,6 +61,13 @@ const SubjectStudySection = () => {
             dataIndex: "numberOfCredits",
         },
         {
+            title: 'Bộ môn',
+            render: (_, record) => (
+                <span>
+                    {departments?.data?.data?.items?.find(e => e.departmentCode === record.departmentCode)?.departmentName} ({record?.departmentCode})</span>
+            ),
+        },
+        {
             title: 'Là môn tính điểm',
             dataIndex: "isCalculateMark",
             render: (text) =>( <Checkbox checked={text} disabled={true} />)
@@ -83,7 +90,15 @@ const SubjectStudySection = () => {
             )
         },
     ];
-
+    const {data: departments} = useGetDepartments({
+        Filters: [
+            {
+                field: "DepartmentCode",
+                operator: "In",
+                value: subjects?.data?.data?.items?.map(e => e.departmentCode)?.join(",")!
+            }
+        ]
+    }, subjects !== undefined && subjects?.data?.data?.items?.length > 0)
     const nav = useNavigate();
     
     return (

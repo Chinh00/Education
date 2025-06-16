@@ -115,7 +115,7 @@ const SubjectDetail = () => {
                                 name="departmentCode"
                                 control={form.control}
                                 render={({ field }) => (
-                                    <Form.Item label={<Typography>Mã ngành quản lý</Typography>}  className={"col-span-3"}>
+                                    <Form.Item label={<Typography>Mã bộ môn quản lý</Typography>}  className={"col-span-3"}>
                                         <Input disabled {...field}   />
                                     </Form.Item>
                                 )}
@@ -234,7 +234,7 @@ const SubjectDetail = () => {
                             control={subjectControl}
                             render={({ field }) => (
                                 <Form.Item
-                                    label={<Typography>Điều kiện phòng học lý thuyết</Typography>}
+                                    label={<Typography>Điều kiện phòng học thực hành</Typography>}
                                     className="col-span-3"
                                 >
                                     <Select

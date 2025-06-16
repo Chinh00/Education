@@ -219,7 +219,6 @@ const RegisterResultClassList = ({semesterCode, subjectCode}: RegisterResultClas
                             rowKey={(c) => c.id}
                             
                             loading={courseLoading}
-                            rowClassName={"text-[12px]"}
                             className={"absolute top-0 left-0 w-full "}
                             size={"small"}
                             bordered={true}

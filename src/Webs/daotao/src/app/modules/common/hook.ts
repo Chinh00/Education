@@ -7,8 +7,7 @@ import {
     getCourses,
     getDepartments,
     getEventsStore, getNotifications,
-    getRooms,
-    getSpecialities, getStaffs
+    getRooms, getStaffs
 } from "./service";
 import {GetProp, TableProps } from "antd";
 
@@ -28,14 +27,6 @@ const useGetDepartments = (query: Query, enable: boolean = true) => {
     })
 }
 
-const useGetSpecialityDepartments = (query: Query, enable: boolean = true) => {
-    return useQuery({
-        queryKey: ["specialityDepartments", query],
-        queryFn: () => getSpecialities(query),
-        enabled: enable,
-
-    })
-}
 
 
 
@@ -105,7 +96,6 @@ const useCreateRegisterRegistrationPeriod = () => {
 export {
     useGetCourses,
     useGetDepartments,
-    useGetSpecialityDepartments,
     useGetBuildings,
     useGetRooms,
     useGetEventsStore,

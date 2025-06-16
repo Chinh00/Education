@@ -1,4 +1,4 @@
-import {ColumnsType} from "@/app/modules/common/hook.ts";
+import {ColumnsType, useGetDepartments} from "@/app/modules/common/hook.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Box, IconButton} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
@@ -7,13 +7,14 @@ import {useEffect, useState} from "react";
 import {Semester} from "@/domain/semester.ts";
 import {DateTimeFormat} from "@/infrastructure/date.ts";
 import {Subject} from "@/domain/subject.ts";
-import {Button, Form, Table, Input, Tooltip } from "antd";
+import {Button, Form, Table, Input, Tooltip, Checkbox} from "antd";
 import {Query} from "@/infrastructure/query.ts";
 import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
 import {useForm} from "react-hook-form";
 import { RefreshCw, RotateCcw, Eye } from "lucide-react";
 import {useNavigate} from "react-router";
 import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
+import { Badge } from "@/app/components/ui/badge";
 
 const SubjectList = () => {
     const dispatch = useAppDispatch()
@@ -23,6 +24,7 @@ const SubjectList = () => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Danh sách môn học"}));
     }, []);
     const nav = useNavigate();
+    
     const columns: ColumnsType<Subject> = [
         {
             title: 'Tên môn học',
@@ -41,16 +43,20 @@ const SubjectList = () => {
             dataIndex: "numberOfCredits",
         },
         {
-            title: 'Mã khoa quản lý',
-            dataIndex: "departmentCode",
+            title: 'Bộ môn',
+            render: (_, record) => (
+                <span>
+                    {departments?.data?.data?.items?.find(e => e.departmentCode === record.departmentCode)?.departmentName} ({record?.departmentCode})</span>
+            ),
         },
         {
             title: 'Là môn tính điểm',
-            dataIndex: "isCalculateMark",
+            render: (text, record) => record?.status === 1 ?
+                <Badge className={"bg-green-600"}>Đang sử dụng</Badge> : <Badge>Không sử dụng</Badge>,
         },
         {
             title: 'Trạng thái',
-            dataIndex: "status",
+            render: (text) =>( <Checkbox checked={text} disabled={true} />)
         },
         {
             title: 'Action',
@@ -68,8 +74,18 @@ const SubjectList = () => {
     const [query, setQuery] = useState<Query>({
         Includes: ["DepartmentCode", "NumberOfCredits"]
     })
-    
     const {data, isLoading, isSuccess} = useGetSubjects(query)
+    
+    const {data: departments} = useGetDepartments({
+        Filters: [
+            {
+                field: "DepartmentCode",
+                operator: "In",
+                value: data?.data?.data?.items?.map(e => e.departmentCode)?.join(",")!
+            }
+        ]
+    }, data !== undefined && data?.data?.data?.items?.length > 0)
+    
 
     return (
         <PredataScreen isLoading={false} isSuccess={true} >
@@ -90,7 +106,6 @@ const SubjectList = () => {
                 <Table<Subject>
                     rowKey={(c) => c.id}
                     loading={isLoading}
-                    
                     size={"small"}
                     bordered={true}
                     pagination={{

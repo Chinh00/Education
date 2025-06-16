@@ -90,6 +90,7 @@ const SubjectList = () => {
         setQuery({
           ...query,
           Filters: [
+              ...query?.Filters?.filter(e => e.field !== "SubjectName") ?? [],
             {
               field: "SubjectName",
               operator: keyword !== "" ? "Contains" : "!=",
@@ -104,9 +105,6 @@ const SubjectList = () => {
   return (
     <PredataScreen isLoading={false} isSuccess={true}>
       <Box className={"flex flex-col gap-5"}>
-        <Typography.Title level={4} className={"flex justify-center items-center gap-3"}>Kì học đăng ký hiện tại:
-          <Badge className={"bg-blue-400 text-xl"} >{semester?.semesterName}</Badge>
-        </Typography.Title>
         <Input.Search value={searchKeyword} size={"large"} placeholder={"Tìm theo tên môn học"}
                       onChange={e => {
                         setSearchKeyword(e.target.value);

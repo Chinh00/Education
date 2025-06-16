@@ -43,6 +43,7 @@ const LoginPage = lazy(() => import("../modules/auth/pages/login.tsx"));
 const TeacherSubjectList = lazy(() => import("../modules/teacher/pages/subject_list.tsx"));
 const TeacherTimeline = lazy(() => import("../modules/teacher/pages/teacher_timeline.tsx"));
 const TeacherLayout = lazy(() => import("../modules/teacher/layouts/teacher_layout.tsx"));
+const DepartmentList = lazy(() => import("../modules/teacher/pages/department_list.tsx"));
 
 
 const ProtectedRoute = () => {
@@ -168,6 +169,11 @@ const router = createBrowserRouter([
                                 path: RoutePaths.TEACHER_TIMELINE,
                                 element: <Suspense fallback={<TabLoading />} key={"TeacherTimeline"} ><TeacherTimeline /></Suspense>
                             },
+                            {
+                                path: RoutePaths.DEPARTMENT_LIST,
+                                element: <Suspense fallback={<TabLoading />} key={"DepartmentList"} ><DepartmentList /></Suspense>
+                            },
+                            
                             
                         ],
                     }

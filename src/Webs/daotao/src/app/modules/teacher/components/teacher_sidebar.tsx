@@ -19,10 +19,26 @@ const EducationSidebar = () => {
         dispatch(setGroupFuncName({...groupFuncName, groupName: "Quản lý đào tạo"}));
     }, []);
     const nav = useNavigate()
+    const {roleName} = useAppSelector<CommonState>(c => c.common)
 
     return (
         <div className={" pl-3 border-t-2 h-full border-r-2"}>
             <SidebarGroup>
+                {roleName === 'admin' && (<>
+                    <SidebarGroupLabel className={""}>Bộ môn</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton onClick={() => nav(RoutePaths.DEPARTMENT_LIST)}>
+                                    <List />
+                                    Danh sách bộ môn
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+
+
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </>)}
                 <SidebarGroupLabel className={""}>Lớp học</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>

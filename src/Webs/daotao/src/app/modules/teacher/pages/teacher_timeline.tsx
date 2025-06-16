@@ -14,7 +14,7 @@ import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCours
 import {ScheduleItem} from "@/app/modules/register/pages/course_class_config.tsx";
 import {Query} from "@/infrastructure/query.ts";
 import {daysOfWeek, timeSlots} from "@/infrastructure/date.ts";
-import {ColumnsType, useGetStaffs} from "@/app/modules/common/hook.ts";
+import {ColumnsType, useGetDepartments, useGetStaffs} from "@/app/modules/common/hook.ts";
 import {Subject} from "@/domain/subject.ts";
 import {Staff} from "@/domain/staff.ts";
 import TeacherTimelineModal from "@/app/modules/teacher/components/teacher_timeline_modal.tsx";
@@ -40,7 +40,7 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
             }
         ],
     })
-
+    
     const columns: ColumnsType<Staff> = [
 
         {
@@ -48,14 +48,18 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
             dataIndex: "fullName",
         },
         {
-            title: 'Mã phòng ban',
+            title: 'Bộ môn',
             dataIndex: "departmentCode",
+            render: (text, record) => (
+                <Typography.Text>
+                    {departments?.data?.data?.items?.find(c => c.departmentCode === record.departmentCode)?.departmentName ?? "Không có bộ môn"}
+                </Typography.Text>
+            )
         },
         {
             title: 'Mã giáo viên',
             dataIndex: "code",
         },
-        
         {
             title: 'Hành động',
             render: (text, record) => (
@@ -68,7 +72,20 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
 
     const tableColumns = columns.map((item) => ({ ...item }));
 
-    const {data: staff, isLoading} = useGetStaffs(query)
+    const {data: staffs, isLoading} = useGetStaffs(query)
+
+    const {data: departments } = useGetDepartments({
+        Filters: [
+            {
+                field: "DepartmentCode",
+                operator: "In",
+                value: staffs?.data?.data?.items?.map(c => c.departmentCode).join(",") ?? ""
+            }
+        ]
+    }, staffs !== undefined)
+
+
+
     const [searchKeyword, setSearchKeyword] = useState("")
     
 
@@ -115,7 +132,7 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
                         pagination={{
                             current: query?.Page ?? 1,
                             pageSize: query?.PageSize ?? 10,
-                            total: staff?.data?.data?.totalItems ?? 0
+                            total: staffs?.data?.data?.totalItems ?? 0
                         }}
                         onChange={(e) => {
                             setQuery(prevState => ({
@@ -125,7 +142,7 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
                             }))
                         }}
                         columns={tableColumns}
-                        dataSource={staff?.data?.data?.items ?? []}
+                        dataSource={staffs?.data?.data?.items ?? []}
 
                     />
 

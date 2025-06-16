@@ -82,7 +82,7 @@ export function AppSidebar() {
 
 
                     <SidebarMenuItem  className={""}>
-                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.TEACHER_SUBJECT_LIST)} tooltip="Môn học"  className={"cursor-pointer mx-auto "} >
+                        <SidebarMenuButton size={"lg"} onClick={() => nav(RoutePaths.TEACHER_SUBJECT_LIST)} tooltip="Bộ môn"  className={"cursor-pointer mx-auto "} >
                             <AtSign  className="scale-150 mx-auto hover:text-black  transition-all" />
                         </SidebarMenuButton>
                     </SidebarMenuItem>

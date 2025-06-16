@@ -11,36 +11,24 @@ import RegisterResultClassList from "@/app/modules/register/components/register_
 import {Table, Typography} from "antd";
 import {Box} from "@mui/material";
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
+import {useAppSelector} from "@/app/stores/hook.ts";
+import {CommonState} from "@/app/stores/common_slice.ts";
 
 const Register_period_result = () => {
-    const {data: semesters} = useGetSemesters({
+    const {currentParentSemester, currentChildSemester} = useAppSelector<CommonState>(c => c.common)
+
+
+    
+    const [query, setQuery] = useState<Query>({
         Filters: [
             {
-                field: "SemesterStatus",
+                field: "SemesterCode",
                 operator: "==",
-                value: "1"
+                value: currentParentSemester?.semesterCode ?? ""
             }
         ]
     })
-    const getParentSemester = semesters?.data?.data?.items?.find(t => t.parentSemesterCode === "" || t.parentSemesterCode === null) ;
-    useEffect(() => {
-        if (semesters) {
-            setQuery(prevState => ({
-                ...prevState,
-                Filters: [
-                    {
-                        field: "SemesterCode",
-                        operator: "==",
-                        value: semesters?.data?.data?.items?.find(t => t.parentSemesterCode === "" || t.parentSemesterCode === null)!.semesterCode ?? ""
-                    }
-                ]
-            }))
-        }
-    }, [semesters]);
-    const [query, setQuery] = useState<Query>({
-        
-    })
-    const {data, isPending, isSuccess} = useGetSubjectRegister(query, getParentSemester?.semesterCode !== undefined)
+    const {data, isPending, isSuccess} = useGetSubjectRegister(query, currentParentSemester?.semesterCode !== undefined)
     const nav = useNavigate();
 
     const { data: subjects} = useGetSubjects({
@@ -61,7 +49,7 @@ const Register_period_result = () => {
             {
                 field: "SemesterCode",
                 operator: "==",
-                value: getParentSemester?.semesterCode!
+                value: currentParentSemester?.semesterCode!
             },
             {
                 field: "SubjectCode",
@@ -71,7 +59,7 @@ const Register_period_result = () => {
             { field: "ParentCourseClassCode", operator: "==", value: "" }
         ],
         Includes: ["StudentIds"]
-    }, getParentSemester?.semesterCode !== undefined && data !== undefined && data?.data?.data?.items?.length > 0)
+    }, currentParentSemester?.semesterCode !== undefined && data !== undefined && data?.data?.data?.items?.length > 0)
 
     const getCourseClass = (subjectCode: string) => {
         return courseClasses?.data?.data?.items?.filter(e => e.subjectCode === subjectCode) ?? []
@@ -136,7 +124,7 @@ const Register_period_result = () => {
             title: 'Hành động',
             key: "action",
             render: (text, record) => (
-                <RegisterResultClassList semesterCode={getParentSemester?.semesterCode} subjectCode={record?.subjectCode} />
+                <RegisterResultClassList semesterCode={currentParentSemester?.semesterCode} subjectCode={record?.subjectCode} />
             ),
             fixed: "right",
             width: 100,
@@ -147,7 +135,7 @@ const Register_period_result = () => {
     ];
     return (
         <>
-            <Typography.Title level={4} className={"text-center"}>Kết quả đăng ký học kì: {getParentSemester?.semesterCode}</Typography.Title>
+            <Typography.Title level={4} className={"text-center"}>Kết quả đăng ký học kì: {currentParentSemester?.semesterCode}</Typography.Title>
             <Table<SubjectRegister>
                 rowKey={(c) => c.id}
                 loading={false}

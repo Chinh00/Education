@@ -34,57 +34,75 @@ public class GenerateScheduleCommand : ICommand<IResult>
             // --- Ưu tiên sáng hay chiều ---
             // "sang" để ưu tiên buổi sáng, "chieu" để ưu tiên buổi chiều
             string uuTienBuoi = "chieu";
-            // string uuTienBuoi = "chieu"; // Nếu muốn ưu tiên buổi chiều thì bật dòng này
+            // string uuTienBuoi = "sang";
+
+            // --- Khoảng cách tối thiểu giữa các buổi ---
+            int minDaysBetweenTheorySessions = 2; // khoảng cách tối thiểu giữa các buổi lý thuyết
+            int minDaysBetweenLabSessions = 1;    // khoảng cách tối thiểu giữa các buổi thực hành
 
             // Mỗi phòng, mỗi ngày, mỗi tiết: 3 chiều
-            // [room][day][period] = CourseClassCode hoặc null
             var roomDayPeriod = new Dictionary<string, bool[,]>(); // [day, period] = đã bị chiếm?
             foreach (var room in allRoomCodes)
             {
-                // days 0..5, periods 0..11
                 roomDayPeriod[room] = new bool[totalDays, periodsPerDay];
             }
 
             var assignments = new List<object>();
 
-            var theoryUsedDays = new Dictionary<string, HashSet<int>>(); // key: mã lớp lý thuyết, value: ngày đã dùng
+            // key: mã lớp lý thuyết cha, value: ngày đã dùng (lý thuyết + thực hành)
+            var parentUsedDays = new Dictionary<string, HashSet<int>>();
 
             var rng = new Random();
 
             foreach (var courseClass in courseClasses)
             {
                 var sessionList = new List<object>();
-                // Xác định khóa cha, nếu là lý thuyết thì tự là cha
+                // Xác định parent code: nếu là thực hành thì lấy ParentCourseClassCode, nếu là lý thuyết thì chính nó
                 var parentCode = courseClass.CourseClassType == CourseClassType.Lab
                     ? courseClass.ParentCourseClassCode
                     : courseClass.CourseClassCode;
 
-                if (!theoryUsedDays.ContainsKey(parentCode))
-                    theoryUsedDays[parentCode] = new HashSet<int>();
+                if (!parentUsedDays.ContainsKey(parentCode))
+                    parentUsedDays[parentCode] = new HashSet<int>();
 
-                var usedDays = new HashSet<int>(); // Ngày đã xếp cho chính lớp này (sẽ merge vào theoryUsedDays nếu là lý thuyết)
+                var usedDays = new HashSet<int>(); // ngày đã xếp cho lớp hiện tại
 
                 for (int sessionIdx = 0; sessionIdx < courseClass.SessionLengths.Count; sessionIdx++)
                 {
                     int sessionLen = courseClass.SessionLengths[sessionIdx];
                     bool assigned = false;
 
-                    // Xáo trộn danh sách phòng cho mỗi session để gán phòng ngẫu nhiên
+                    // Xáo trộn phòng ngẫu nhiên
                     var shuffledRooms = allRoomCodes.OrderBy(x => rng.Next()).ToList();
 
                     foreach (var room in shuffledRooms)
                     {
                         for (int day = 0; day < totalDays; day++)
                         {
-                            // Nếu là thực hành: không trùng ngày của lý thuyết cha
-                            // Nếu là lý thuyết: không trùng ngày trong usedDays của chính mình
-                            if (usedDays.Contains(day) || theoryUsedDays[parentCode].Contains(day)) continue;
+                            // 1. Không trùng ngày trong chính lớp này
+                            if (usedDays.Contains(day)) continue;
+                            // 2. Không trùng ngày với nhóm cha (lý thuyết + thực hành)
+                            if (parentUsedDays[parentCode].Contains(day)) continue;
 
-                            // --- Ưu tiên startPeriod theo sáng/chiều ---
+                            // 3. Khoảng cách tối thiểu giữa các buổi
+                            bool violateDistance = false;
+                            if (courseClass.CourseClassType == CourseClassType.Lab)
+                            {
+                                // Thực hành: kiểm tra khoảng cách giữa các buổi thực hành cùng lớp
+                                violateDistance = usedDays.Any(d => Math.Abs(d - day) < minDaysBetweenLabSessions);
+                            }
+                            else
+                            {
+                                // Lý thuyết: kiểm tra khoảng cách giữa các buổi lý thuyết cùng lớp
+                                violateDistance = usedDays.Any(d => Math.Abs(d - day) < minDaysBetweenTheorySessions);
+                            }
+                            if (violateDistance) continue;
+
+                            // Ưu tiên startPeriod theo sáng/chiều
                             List<int> startPeriodOrder;
                             if (uuTienBuoi == "sang")
                                 startPeriodOrder = Enumerable.Range(0, periodsPerDay - sessionLen + 1).ToList();
-                            else // ưu tiên chiều
+                            else
                                 startPeriodOrder = Enumerable.Range(0, periodsPerDay - sessionLen + 1).Reverse().ToList();
 
                             foreach (var startPeriod in startPeriodOrder)
@@ -104,6 +122,7 @@ public class GenerateScheduleCommand : ICommand<IResult>
                                         roomDayPeriod[room][day, startPeriod + p] = true;
 
                                     usedDays.Add(day);
+                                    parentUsedDays[parentCode].Add(day); // tránh trùng ngày giữa lý thuyết/thực hành cùng nhóm
 
                                     sessionList.Add(new
                                     {
@@ -132,11 +151,6 @@ public class GenerateScheduleCommand : ICommand<IResult>
                         });
                     }
                 }
-
-                // Nếu là lý thuyết, merge usedDays vào theoryUsedDays để thực hành tránh các ngày này
-                if (courseClass.CourseClassType != CourseClassType.Lab)
-                    foreach (var d in usedDays)
-                        theoryUsedDays[parentCode].Add(d);
 
                 assignments.Add(new
                 {
@@ -199,7 +213,7 @@ public class GenerateScheduleCommand : ICommand<IResult>
                 new SubjectScheduleConfig
                 {
                     SubjectCode = "GEL111",
-                    TotalTheoryCourseClass = 12,
+                    TotalTheoryCourseClass = 5,
                     TotalPracticeCourseClass = 5,
                     Stage = SubjectTimelineStage.Stage1,
                     TheoryTotalPeriod = 45,
@@ -223,7 +237,7 @@ public class GenerateScheduleCommand : ICommand<IResult>
                 new SubjectScheduleConfig
                 {
                     SubjectCode = "MLP121",
-                    TotalTheoryCourseClass = 10,
+                    TotalTheoryCourseClass = 5,
                     TotalPracticeCourseClass = 0,
                     Stage = SubjectTimelineStage.Stage1,
                     TheoryTotalPeriod = 30,
@@ -235,7 +249,7 @@ public class GenerateScheduleCommand : ICommand<IResult>
                 new SubjectScheduleConfig
                 {
                     SubjectCode = "MLPE222",
-                    TotalTheoryCourseClass = 10,
+                    TotalTheoryCourseClass = 5,
                     TotalPracticeCourseClass = 0,
                     Stage = SubjectTimelineStage.Stage1,
                     TheoryTotalPeriod = 30,
@@ -247,7 +261,7 @@ public class GenerateScheduleCommand : ICommand<IResult>
                 new SubjectScheduleConfig
                 {
                     SubjectCode = "SCSO232",
-                    TotalTheoryCourseClass = 10,
+                    TotalTheoryCourseClass = 5,
                     TotalPracticeCourseClass = 0,
                     Stage = SubjectTimelineStage.Stage1,
                     TheoryTotalPeriod = 30,

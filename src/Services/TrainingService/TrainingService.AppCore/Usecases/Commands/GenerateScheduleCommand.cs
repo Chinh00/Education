@@ -31,6 +31,11 @@ public class GenerateScheduleCommand : ICommand<IResult>
             int totalDays = 6;
             int periodsPerDay = 12;
 
+            // --- Ưu tiên sáng hay chiều ---
+            // "sang" để ưu tiên buổi sáng, "chieu" để ưu tiên buổi chiều
+            string uuTienBuoi = "chieu";
+            // string uuTienBuoi = "chieu"; // Nếu muốn ưu tiên buổi chiều thì bật dòng này
+
             // Mỗi phòng, mỗi ngày, mỗi tiết: 3 chiều
             // [room][day][period] = CourseClassCode hoặc null
             var roomDayPeriod = new Dictionary<string, bool[,]>(); // [day, period] = đã bị chiếm?
@@ -44,90 +49,102 @@ public class GenerateScheduleCommand : ICommand<IResult>
 
             var theoryUsedDays = new Dictionary<string, HashSet<int>>(); // key: mã lớp lý thuyết, value: ngày đã dùng
 
-foreach (var courseClass in courseClasses)
-{
-    var sessionList = new List<object>();
-    // Xác định khóa cha, nếu là lý thuyết thì tự là cha
-    var parentCode = courseClass.CourseClassType == CourseClassType.Lab
-        ? courseClass.ParentCourseClassCode
-        : courseClass.CourseClassCode;
+            var rng = new Random();
 
-    if (!theoryUsedDays.ContainsKey(parentCode))
-        theoryUsedDays[parentCode] = new HashSet<int>();
-
-    var usedDays = new HashSet<int>(); // Ngày đã xếp cho chính lớp này (sẽ merge vào theoryUsedDays nếu là lý thuyết)
-
-    for (int sessionIdx = 0; sessionIdx < courseClass.SessionLengths.Count; sessionIdx++)
-    {
-        int sessionLen = courseClass.SessionLengths[sessionIdx];
-        bool assigned = false;
-
-        foreach (var room in allRoomCodes)
-        {
-            for (int day = 0; day < totalDays; day++)
+            foreach (var courseClass in courseClasses)
             {
-                // Nếu là thực hành: không trùng ngày của lý thuyết cha
-                // Nếu là lý thuyết: không trùng ngày trong usedDays của chính mình
-                if (usedDays.Contains(day) || theoryUsedDays[parentCode].Contains(day)) continue;
+                var sessionList = new List<object>();
+                // Xác định khóa cha, nếu là lý thuyết thì tự là cha
+                var parentCode = courseClass.CourseClassType == CourseClassType.Lab
+                    ? courseClass.ParentCourseClassCode
+                    : courseClass.CourseClassCode;
 
-                for (int startPeriod = 0; startPeriod <= periodsPerDay - sessionLen; startPeriod++)
+                if (!theoryUsedDays.ContainsKey(parentCode))
+                    theoryUsedDays[parentCode] = new HashSet<int>();
+
+                var usedDays = new HashSet<int>(); // Ngày đã xếp cho chính lớp này (sẽ merge vào theoryUsedDays nếu là lý thuyết)
+
+                for (int sessionIdx = 0; sessionIdx < courseClass.SessionLengths.Count; sessionIdx++)
                 {
-                    bool canAssign = true;
-                    for (int p = 0; p < sessionLen; p++)
+                    int sessionLen = courseClass.SessionLengths[sessionIdx];
+                    bool assigned = false;
+
+                    // Xáo trộn danh sách phòng cho mỗi session để gán phòng ngẫu nhiên
+                    var shuffledRooms = allRoomCodes.OrderBy(x => rng.Next()).ToList();
+
+                    foreach (var room in shuffledRooms)
                     {
-                        if (roomDayPeriod[room][day, startPeriod + p])
+                        for (int day = 0; day < totalDays; day++)
                         {
-                            canAssign = false;
-                            break;
+                            // Nếu là thực hành: không trùng ngày của lý thuyết cha
+                            // Nếu là lý thuyết: không trùng ngày trong usedDays của chính mình
+                            if (usedDays.Contains(day) || theoryUsedDays[parentCode].Contains(day)) continue;
+
+                            // --- Ưu tiên startPeriod theo sáng/chiều ---
+                            List<int> startPeriodOrder;
+                            if (uuTienBuoi == "sang")
+                                startPeriodOrder = Enumerable.Range(0, periodsPerDay - sessionLen + 1).ToList();
+                            else // ưu tiên chiều
+                                startPeriodOrder = Enumerable.Range(0, periodsPerDay - sessionLen + 1).Reverse().ToList();
+
+                            foreach (var startPeriod in startPeriodOrder)
+                            {
+                                bool canAssign = true;
+                                for (int p = 0; p < sessionLen; p++)
+                                {
+                                    if (roomDayPeriod[room][day, startPeriod + p])
+                                    {
+                                        canAssign = false;
+                                        break;
+                                    }
+                                }
+                                if (canAssign)
+                                {
+                                    for (int p = 0; p < sessionLen; p++)
+                                        roomDayPeriod[room][day, startPeriod + p] = true;
+
+                                    usedDays.Add(day);
+
+                                    sessionList.Add(new
+                                    {
+                                        DayOfWeek = day + 2,
+                                        StartPeriod = startPeriod + 1,
+                                        Periods = sessionLen,
+                                        RoomCode = room
+                                    });
+                                    assigned = true;
+                                    break;
+                                }
+                            }
+                            if (assigned) break;
                         }
+                        if (assigned) break;
                     }
-                    if (canAssign)
+
+                    if (!assigned)
                     {
-                        for (int p = 0; p < sessionLen; p++)
-                            roomDayPeriod[room][day, startPeriod + p] = true;
-
-                        usedDays.Add(day);
-
                         sessionList.Add(new
                         {
-                            DayOfWeek = day + 2,
-                            StartPeriod = startPeriod + 1,
+                            DayOfWeek = -1,
+                            StartPeriod = -1,
                             Periods = sessionLen,
-                            RoomCode = room
+                            RoomCode = "NO_AVAILABLE_ROOM"
                         });
-                        assigned = true;
-                        break;
                     }
                 }
-                if (assigned) break;
+
+                // Nếu là lý thuyết, merge usedDays vào theoryUsedDays để thực hành tránh các ngày này
+                if (courseClass.CourseClassType != CourseClassType.Lab)
+                    foreach (var d in usedDays)
+                        theoryUsedDays[parentCode].Add(d);
+
+                assignments.Add(new
+                {
+                    CourseClassCode = courseClass.CourseClassCode,
+                    CourseClassType = courseClass.CourseClassType.ToString(),
+                    Sessions = sessionList
+                });
             }
-            if (assigned) break;
-        }
-
-        if (!assigned)
-        {
-            sessionList.Add(new
-            {
-                DayOfWeek = -1,
-                StartPeriod = -1,
-                Periods = sessionLen,
-                RoomCode = "NO_AVAILABLE_ROOM"
-            });
-        }
-    }
-
-    // Nếu là lý thuyết, merge usedDays vào theoryUsedDays để thực hành tránh các ngày này
-    if (courseClass.CourseClassType != CourseClassType.Lab)
-        foreach (var d in usedDays)
-            theoryUsedDays[parentCode].Add(d);
-
-    assignments.Add(new
-    {
-        CourseClassCode = courseClass.CourseClassCode,
-        CourseClassType = courseClass.CourseClassType.ToString(),
-        Sessions = sessionList
-    });
-}
 
             return Results.Ok(assignments);
         }

@@ -46,8 +46,6 @@ public record CreateCourseClassCommand(
                     courseClass.CourseClassName = request.CourseClassName;
                     courseClass.CourseClassType = (CourseClassType) request.CourseClassType;
                     courseClass.SubjectCode = subject.SubjectCode;
-                    courseClass.SessionLength = subject.LecturePeriod;
-                    courseClass.Session = subject.LectureLesson;
                     courseClass.TotalSession = subject.LectureTotal;
                     courseClass.SemesterCode = request.SemesterCode;
                     courseClass.NumberStudentsExpected = request.NumberStudentsExpected;
@@ -64,8 +62,6 @@ public record CreateCourseClassCommand(
                     courseClass.CourseClassName = request.CourseClassName;
                     courseClass.CourseClassType = (CourseClassType) request.CourseClassType;
                     courseClass.SubjectCode = subject.SubjectCode;
-                    courseClass.SessionLength = subject.LabPeriod;
-                    courseClass.Session = subject.LabLesson;
                     courseClass.TotalSession = subject.LabTotal;
                     courseClass.SemesterCode = request.SemesterCode;
                     courseClass.NumberStudentsExpected = request.NumberStudentsExpected;

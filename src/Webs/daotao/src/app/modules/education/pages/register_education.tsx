@@ -13,6 +13,7 @@ import { useNavigate } from "react-router";
 import {RoutePaths} from "@/core/route_paths.ts";
 import dayjs from "dayjs";
 import {History, ChartNoAxesCombined} from "lucide-react"
+import { Badge } from "@/app/components/ui/badge";
 
 const RegisterEducation = () => {
     const dispatch = useAppDispatch()
@@ -47,26 +48,17 @@ const RegisterEducation = () => {
         {
             title: 'Trạng thái',
             dataIndex: "currentState",
+            render: (text, record) => {
+                switch (record?.currentState) {
+                    case "Submitted": return <Badge className={"bg-blue-500"}>Đăng ký nguyện vọng</Badge>
+                    case "Schedule": return <Badge className={"bg-blue-500"}>Lập thời khóa biểu</Badge>
+                    case "StudentRegister": return <Badge className={"bg-blue-500"}>Sinh viên đăng ký học</Badge>
+                    default: return <></> 
+                }
+            }
         },
 
-        {
-            title: 'Báo cáo',
-            key: 'action',
-            render: (_, record) => (
-                <IconButton size={"small"} onClick={() => {
-                    nav(`/register/${record?.semesterCode}/wish`)
-                }}><ChartNoAxesCombined /></IconButton>
-            ),
-        },
-        {
-            title: 'Lịch sử',
-            key: 'action',
-            render: (_, record) => (
-                <IconButton size={"small"} onClick={() => nav(`/history/RegisterConfig/${record?.eventStoreId}`)}><History /></IconButton>
-            ),
-        },
     ];
-    const tableColumns = columns.map((item) => ({ ...item }));
 
 
     return (
@@ -81,7 +73,7 @@ const RegisterEducation = () => {
                     size={"small"}
                     bordered={true}
                     // pagination={true}
-                    columns={tableColumns}
+                    columns={columns}
                     dataSource={data?.data?.data?.items ?? []}
 
                 />

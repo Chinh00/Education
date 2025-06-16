@@ -6,6 +6,7 @@ namespace TrainingService.Domain;
 
 public class CourseClass : BaseEntity
 {
+    public int Index { get; set; }
     public int WeekStart { get; set; } = 0;
     
     public CourseClassStatus Status { get; set; } =  CourseClassStatus.Active;
@@ -15,9 +16,8 @@ public class CourseClass : BaseEntity
     public List<string> StudentIds { get; set; } = [];
     public CourseClassType CourseClassType { get; set; }
     public string SubjectCode { get; set; }
-    public int SessionLength { get; set; }
+    public List<int> SessionLengths { get; set; } = new(); 
     public int TotalSession { get; set; }
-    public int Session { get; set; }
     public string SemesterCode { get; set; }
     public int NumberStudents { get; set; }
     public int NumberStudentsExpected { get; set; }
@@ -26,11 +26,7 @@ public class CourseClass : BaseEntity
     public string TeacherCode { get; set; }
     
     public string ParentCourseClassCode { get; set; }
-    
 
-    
-    
-    
 }
 
 public class SlotTimeline : BaseEntity

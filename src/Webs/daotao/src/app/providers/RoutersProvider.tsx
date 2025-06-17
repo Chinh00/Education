@@ -33,6 +33,7 @@ const RegisterTimeline = lazy(() => import("../modules/register/pages/register_t
 const CourseClassConfig = lazy(() => import("../modules/register/pages/course_class_config.tsx"));
 const CreateRegisterPeriod = lazy(() => import("../modules/education/pages/create_register_period.tsx"));
 const RegisterPeriodResult = lazy(() => import("../modules/education/pages/register_period_result.tsx"));
+const Course_class_section_config = lazy(() => import("../modules/education/pages/course_class_section_config.tsx"));
 
 const NOTFOUND = lazy(() => import("../modules/system/pages/notfound_page.tsx"));
 const StudentLayout = lazy(() => import("../modules/student/layouts/student_layout.tsx"));
@@ -124,6 +125,11 @@ const router = createBrowserRouter([
                                 path: RoutePaths.REGISTER_PERIOD_RESULT,
                                 element: <Suspense fallback={<TabLoading />} key={"RegisterPeriodResult"} ><RegisterPeriodResult /></Suspense>,
                             },
+                            {
+                                path: RoutePaths.COURSE_CLASS_SECTION_CONFIG,
+                                element: <Suspense fallback={<TabLoading />} key={"Course_class_section_config"} ><Course_class_section_config /></Suspense>,
+                            },
+                            
                         ],
                     },
 

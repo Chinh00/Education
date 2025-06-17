@@ -98,7 +98,8 @@ public record CreateRegistrationPeriodCommand(CreateRegistrationPeriodCommand.Cr
                 {
                     SubjectTimelineStage.Stage1 => (semesterStage1?.StartDate, semesterStage1?.EndDate),
                     SubjectTimelineStage.Stage2 => (semesterStage2?.StartDate, semesterStage2?.EndDate),
-                    SubjectTimelineStage.StageBoth => (semesterStage1?.StartDate, semesterStage2?.EndDate),
+                    // SubjectTimelineStage.StageBoth => (semesterStage1?.StartDate, semesterStage2?.EndDate),
+                    _ => throw new ArgumentOutOfRangeException()
                 };
                 
                 courseClassOpens.Add(new CourseClassEvent(

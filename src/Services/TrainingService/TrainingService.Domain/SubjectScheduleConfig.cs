@@ -6,10 +6,9 @@ namespace TrainingService.Domain;
 public class SubjectScheduleConfig : BaseEntity
 {
     public string SubjectCode { get; set; }
+    public string SemesterCode { get; set; }
     // tong so lop ly thuyet cua mon hoc
     public int TotalTheoryCourseClass { get; set; }
-    // tong so lop thuc hanh cua mon hoc
-    public int TotalPracticeCourseClass { get; set; }
     // Giai doan 1, giai doan 2,  giai doan 1 cua 2 giai doan, giai doan 2 cua 2 giai doan
     public SubjectTimelineStage Stage { get; set; }
     // Tong so tiet ly thuyet cua mon hoc

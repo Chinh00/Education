@@ -24,7 +24,6 @@ public class CourseClassController : BaseController
     /// <summary>
     /// Chạy thời khóa biểu tự động
     /// </summary>
-    /// <param name="query"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("GenerateSchedule")]
@@ -33,6 +32,31 @@ public class CourseClassController : BaseController
     {
         return Ok(await Mediator.Send(new GenerateScheduleCommand(), cancellationToken));
     }
+    /// <summary>
+    /// Chạy lệnh tạo lớp học từ cấu hình
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("GenerateCourseClasses")]
+    [AllowAnonymous]
+    public async Task<IActionResult> HandleGenerateCourseClassesAsync(GenerateCourseClassesCommand.GenerateCourseClassesModel model, CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new GenerateCourseClassesCommand(model), cancellationToken));
+    }
+    /// <summary>
+    /// Tạo cấu hình lịch học cho môn học
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("SubjectScheduleConfig")]
+    public async Task<IActionResult> HandleCreateSubjectScheduleConfigAsync(CreateSubjectScheduleConfigCommand.CreateSubjectScheduleConfigModel model, CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new CreateSubjectScheduleConfigCommand(model), cancellationToken));
+    }
+    
+    
     
     /// <summary>
     /// Tạo mới lớp học

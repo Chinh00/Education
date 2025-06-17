@@ -157,21 +157,27 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
     [
         new CourseClassCondition()
         {
-            ConditionName = "Ngoài trời",
-            ConditionCode = "Outdoor"
+            ConditionName = "Lý thuyết",
+            ConditionCode = "Lecture"
         },
 
         new CourseClassCondition()
         {
-            ConditionName = "Trong nhà",
-            ConditionCode = "Indoor"
+            ConditionName = "Phòng Lab",
+            ConditionCode = "Lab"
         },
 
         new CourseClassCondition()
         {
-            ConditionName = "Thực hành máy tính",
-            ConditionCode = "LabComputer"
+            ConditionName = "Sân ngoài trời",
+            ConditionCode = "Physical"
+        },
+        new CourseClassCondition()
+        {
+            ConditionName = "Giáo dục thể chất",
+            ConditionCode = "GCTC"
         }
+        
 
 
     ];

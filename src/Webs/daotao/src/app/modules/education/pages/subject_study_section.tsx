@@ -1,9 +1,9 @@
 ﻿import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 import {Box, IconButton} from "@mui/material";
-import {Input, Table} from "antd";
+import {Input, Select, Table} from "antd";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Subject} from "@/domain/subject.ts";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {ColumnsType, useGetDepartments} from "@/app/modules/common/hook.ts";
 import {useNavigate} from "react-router";
@@ -92,28 +92,52 @@ const SubjectStudySection = () => {
             title: 'Hành động',
             key: "action",
             render: (text, record) => (
-                <StudySectionCourseClasses subjectCode={record?.subjectCode}  />
-                
+                // <StudySectionCourseClasses subjectCode={record?.subjectCode}  />
+                <IconButton size="small" onClick={() => nav(`/course-class/${record?.subjectCode}/section-config`)}>
+                    <Settings size={15} />
+                </IconButton>
             )
         },
     ];
     const {data: departments} = useGetDepartments({
-        Filters: [
-            {
-                field: "DepartmentCode",
-                operator: "In",
-                value: subjects?.data?.data?.items?.map(e => e.departmentCode)?.join(",")!
-            }
-        ]
+        Page: 1,
+        PageSize: 100
     }, subjects !== undefined && subjects?.data?.data?.items?.length > 0)
     const nav = useNavigate();
-    
+    const [selectedDepartment, setSelectedDepartment] = useState("")
     return (
         <PredataScreen isLoading={false} isSuccess={true} >
-            <Box className={"flex gap-5 flex-col"}>
+            <Box className={"gap-5 grid grid-cols-6"}>
+                <Select
+                    showSearch
+                    className={"col-span-2"}
+                    placeholder={"Chọn bộ môn"}
+                    onChange={(e) => {
+                        setSelectedDepartment(e)
+                        setQuery(prevState => ({
+                            ...prevState,
+                            Filters: [
+                                {
+                                    field: "DepartmentCode",
+                                    operator: "==",
+                                    value: e
+                                }
+                            ],
+                            Page: 1
+                        }))
+                    }}
+                >
+                    {departments && departments?.data?.data?.items?.map((e) => (
+                        <Select.Option key={e.departmentCode} value={e.departmentCode}>
+                            {e.departmentName} ({e.departmentCode})
+                        </Select.Option>
+                    ))}
+                </Select>
                 <Input.Search
                     placeholder={"Tìm kiếm theo tên môn học"}
-                    loading={subjectsLoading} size={"large"} onSearch={e => {
+                    loading={subjectsLoading} size={"middle"}
+                    className={"col-span-1"}                    
+                    onSearch={e => {
                     setQuery(prevState => ({
                         ...prevState,
                         Filters: [
@@ -129,6 +153,7 @@ const SubjectStudySection = () => {
                 <Table<Subject>
                     rowKey={(c) => c.id}
                     loading={subjectsLoading}
+                    className={"col-span-6"}
                     size={"small"}
                     pagination={{
                         current: query?.Page ?? 1,

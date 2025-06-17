@@ -44,6 +44,49 @@ const createCourseClasses = async (model: CourseClassModel): Promise<AxiosRespon
 const getCourseClassTimeline = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.get(`/trainingservice/api/CourseClass/Schedule?${GetQuery(query)}`)
 const updateCourseClassStatus = async (model: UpdateCourseClassStatusModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.put(`/trainingservice/api/CourseClass/Status`, model)
 const removeStudentFromCourseClass = async (model: RemoveStudentFromCourseClassModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.put(`/trainingservice/api/CourseClass/Student`, model)
+export interface SubjectScheduleConfigModel {
+    subjectCode: string;
+    totalTheoryCourseClass: number;
+    stage: number; // có thể thay bằng enum nếu bạn định nghĩa
+    theoryTotalPeriod: number;
+    practiceTotalPeriod: number;
+    theorySessions: number[];
+    practiceSessions: number[];
+    weekStart: number;
+    sessionPriority: number;
+    lectureRequiredConditions: string[];
+    labRequiredConditions: string[];
+}
+
+export interface SubjectScheduleConfigBothModel {
+    subjectCode: string;
+    totalTheoryCourseClass: number;
+    stage: number; 
+    totalPeriodOfStage1: number;
+    totalPeriodOfStage2: number;
+    theoryTotalPeriod: number;
+    practiceTotalPeriod: number;
+    theoryTotalPeriodOfStage1: number;
+    practiceTotalPeriodOfStage1: number;
+    theoryTotalPeriodOfStage2: number;
+    practiceTotalPeriodOfStage2: number;
+    theorySessionsOfStage1: number[];
+    practiceSessionsOfStage1: number[];
+    weekStart: number;
+    sessionPriorityOfStage1: number;
+    sessionPriorityOfStage2: number;
+    lectureRequiredConditions: string[];
+    labRequiredConditions: string[];
+}
 
 
-export {getCourseClasses, getCourseClassTimeline, createCourseClasses, updateCourseClassStatus, removeStudentFromCourseClass}
+
+
+export interface CreateSubjectScheduleConfigModel {
+    semesterCode: string;
+    model: SubjectScheduleConfigModel;
+}
+const generateCourseClasses = async (): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.post(`/trainingservice/api/CourseClass/GenerateCourseClasses`)
+const createSubjectScheduleConfig = async (model: CreateSubjectScheduleConfigModel): Promise<AxiosResponse<SuccessResponse<SubjectScheduleConfigModel>>> => await http.post(`/trainingservice/api/CourseClass/SubjectScheduleConfig`, model)
+
+export {getCourseClasses, createSubjectScheduleConfig, getCourseClassTimeline, createCourseClasses, updateCourseClassStatus, removeStudentFromCourseClass, generateCourseClasses}

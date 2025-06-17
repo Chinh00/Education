@@ -25,6 +25,7 @@ public class GenerateScheduleCommand : ICommand<IResult>
             var subjects = (await subjectRepository.FindAsync(new TrueListSpecification<Subject>(), cancellationToken)).Slice(0, 5);
             var rooms = await roomRepository.FindAsync(new TrueSpecificationBase<Room>(), cancellationToken);
             var subjectScheduleConfigs = GetSampleData();
+            var oldSlotTimelines = await slotTimelineRepository.FindAsync(new TrueSpecificationBase<SlotTimeline>(), cancellationToken);
 
             var courseClasses = GenerateCourseClasses(subjectScheduleConfigs);
 
@@ -42,6 +43,23 @@ public class GenerateScheduleCommand : ICommand<IResult>
 
             var roomDayPeriod = new Dictionary<string, bool[,]>();
             foreach (var room in allRoomCodes) roomDayPeriod[room] = new bool[totalDays, periodsPerDay];
+
+            // Đánh dấu các slot đã có lịch cũ (không được xếp đè lên)
+            foreach (var slot in oldSlotTimelines)
+            {
+                if (!string.IsNullOrEmpty(slot.RoomCode) && roomDayPeriod.ContainsKey(slot.RoomCode))
+                {
+                    int day = slot.DayOfWeek;
+                    foreach (var s in slot.Slots)
+                    {
+                        int period;
+                        if (int.TryParse(s, out period) && period >= 0 && period < periodsPerDay)
+                        {
+                            roomDayPeriod[slot.RoomCode][day, period] = true;
+                        }
+                    }
+                }
+            }
 
             var assignments = new List<object>();
             var parentUsedDays = new Dictionary<string, HashSet<int>>();
@@ -100,7 +118,7 @@ public class GenerateScheduleCommand : ICommand<IResult>
                             // Điều kiện loại phòng
                             if (requiredConditions != null && requiredConditions.Count > 0)
                             {
-                                // Giả sử room.RoomConditions là List<string>
+                                // Giả sử room.SupportedConditions là List<string>
                                 if (room.SupportedConditions == null || !requiredConditions.All(cond => room.SupportedConditions.Contains(cond)))
                                     return false;
                             }
@@ -414,7 +432,14 @@ public class GenerateScheduleCommand : ICommand<IResult>
                     ParentCourseClassCode = courseClass.ParentCourseClassCode
                 }, cancellationToken);
             }
-
+            foreach (var roomCode in allRoomCodes)
+            {
+                int freeSlots = 0;
+                for (int d = 0; d < totalDays; d++)
+                for (int p = 0; p < periodsPerDay; p++)
+                    if (!roomDayPeriod[roomCode][d, p]) freeSlots++;
+                Console.WriteLine($"Room {roomCode} has {freeSlots} free slots");
+            }
             return Results.Ok(assignments);
         }
 
@@ -438,23 +463,26 @@ public class GenerateScheduleCommand : ICommand<IResult>
                         NumberStudentsExpected = (new Random()).Next(30, 40)
                     };
                     result.Add(theoryCourseClass);
-
-                    for (int p = 0; p < 2; p++)
+                    if (config?.PracticeTotalPeriod > 0)
                     {
-                        var labClassCode = $"{config.SubjectCode}-TH{i + 1}-{p + 1}";
-                        var labCourseClass = new CourseClass
+                        for (int p = 0; p < 2; p++)
                         {
-                            SubjectCode = config.SubjectCode,
-                            CourseClassCode = labClassCode,
-                            CourseClassName = $"TH {config.SubjectCode} {i + 1}-{p + 1}",
-                            Index = globalIndex++,
-                            CourseClassType = CourseClassType.Lab,
-                            SessionLengths = config.PracticeSessions.ToList(),
-                            ParentCourseClassCode = theoryClassCode,
-                            NumberStudentsExpected = (new Random()).Next(20, 30)
-                        };
-                        result.Add(labCourseClass);
+                            var labClassCode = $"{config.SubjectCode}-TH{i + 1}-{p + 1}";
+                            var labCourseClass = new CourseClass
+                            {
+                                SubjectCode = config.SubjectCode,
+                                CourseClassCode = labClassCode,
+                                CourseClassName = $"TH {config.SubjectCode} {i + 1}-{p + 1}",
+                                Index = globalIndex++,
+                                CourseClassType = CourseClassType.Lab,
+                                SessionLengths = config.PracticeSessions.ToList(),
+                                ParentCourseClassCode = theoryClassCode,
+                                NumberStudentsExpected = (new Random()).Next(20, 30)
+                            };
+                            result.Add(labCourseClass);
+                        }
                     }
+                    
                 }
             }
 
@@ -468,8 +496,7 @@ public class GenerateScheduleCommand : ICommand<IResult>
                 new SubjectScheduleConfig
                 {
                     SubjectCode = "GEL111",
-                    TotalTheoryCourseClass = 7,
-                    TotalPracticeCourseClass = 5,
+                    TotalTheoryCourseClass = 6,
                     Stage = SubjectTimelineStage.Stage1,
                     TheoryTotalPeriod = 45,
                     PracticeTotalPeriod = 18,
@@ -484,7 +511,6 @@ public class GenerateScheduleCommand : ICommand<IResult>
                 {
                     SubjectCode = "CSE488",
                     TotalTheoryCourseClass = 5,
-                    TotalPracticeCourseClass = 0,
                     Stage = SubjectTimelineStage.Stage1,
                     TheoryTotalPeriod = 45,
                     PracticeTotalPeriod = 0,
@@ -493,13 +519,12 @@ public class GenerateScheduleCommand : ICommand<IResult>
                     WeekStart = 1,
                     SessionPriority = 1,
                     LectureRequiredConditions = ["Lecture"],
-                    
+
                 },
                 new SubjectScheduleConfig
                 {
                     SubjectCode = "MLP121",
-                    TotalTheoryCourseClass = 5,
-                    TotalPracticeCourseClass = 0,
+                    TotalTheoryCourseClass = 7,
                     Stage = SubjectTimelineStage.Stage1,
                     TheoryTotalPeriod = 30,
                     PracticeTotalPeriod = 0,
@@ -508,13 +533,12 @@ public class GenerateScheduleCommand : ICommand<IResult>
                     WeekStart = 1,
                     SessionPriority = -1,
                     LectureRequiredConditions = ["Lecture"],
-                    
+
                 },
                 new SubjectScheduleConfig
                 {
                     SubjectCode = "MLPE222",
-                    TotalTheoryCourseClass = 3,
-                    TotalPracticeCourseClass = 0,
+                    TotalTheoryCourseClass = 7,
                     Stage = SubjectTimelineStage.Stage1,
                     TheoryTotalPeriod = 30,
                     PracticeTotalPeriod = 0,
@@ -523,13 +547,12 @@ public class GenerateScheduleCommand : ICommand<IResult>
                     WeekStart = 1,
                     SessionPriority = 0,
                     LectureRequiredConditions = ["Lecture"],
-                    
+
                 },
                 new SubjectScheduleConfig
                 {
                     SubjectCode = "SCSO232",
-                    TotalTheoryCourseClass = 3,
-                    TotalPracticeCourseClass = 0,
+                    TotalTheoryCourseClass = 7,
                     Stage = SubjectTimelineStage.Stage1,
                     TheoryTotalPeriod = 30,
                     PracticeTotalPeriod = 0,
@@ -538,7 +561,7 @@ public class GenerateScheduleCommand : ICommand<IResult>
                     WeekStart = 1,
                     SessionPriority = -1,
                     LectureRequiredConditions = ["Lecture"],
-                    
+
                 }
             ];
         }

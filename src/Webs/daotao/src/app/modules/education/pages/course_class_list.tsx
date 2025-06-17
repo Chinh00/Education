@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import React, {useEffect, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import { Box } from "@mui/material";
 import { useGetCourseClasses } from "@/app/modules/education/hooks/useGetCourseClasses.ts";
@@ -32,6 +32,7 @@ import toast from "react-hot-toast";
 // ----- Editable Column Type (fix TS error for editable prop) -----
 import type { ColumnType } from "antd/es/table";
 import {useUpdateCourseClass} from "@/app/modules/education/hooks/useUpdateCourseClass.ts";
+import {setQuery} from "@/app/modules/education/stores/education_slice.ts";
 interface EditableColumnType<T> extends ColumnType<T> {
     editable?: boolean;
 }
@@ -86,7 +87,7 @@ const Course_class_list = () => {
     const [openModal, setOpenModal] = useState(false);
     const [totalTheoryCourseClass, setTotalTheoryCourseClass] = useState(0);
 
-    const [query] = useState<Query>({
+    const [query, setQuery] = useState<Query>({
         Filters: [
             { field: "SubjectCode", operator: "==", value: subjectCode! },
             { field: "ParentCourseClassCode", operator: "==", value: "" },
@@ -94,10 +95,18 @@ const Course_class_list = () => {
         Page: 1,
         PageSize: 1000,
     });
-
+    useEffect(() => {
+        setQuery(pre => ({
+            ...pre,
+            Filters: [
+                ...pre?.Filters?.filter(e => e.field !== "Stage") ?? [],
+                { field: "Stage", operator: "==", value: `${selectedStage}` },
+            ]
+        }))
+    }, [selectedStage]);
     const { data: courseClassesParent, isLoading, refetch: refetchParent } = useGetCourseClasses(
         query,
-        subjectCode !== undefined
+        subjectCode !== undefined && query?.Filters?.find(e => e.field === "Stage") !== undefined
     );
 
     const { data: courseClassesChild, refetch: refetchChild } = useGetCourseClasses(
@@ -122,7 +131,7 @@ const Course_class_list = () => {
     const { currentParentSemester } = useAppSelector<CommonState>(
         (e) => e.common
     );
-    const { mutate } = useGenerateCourseClasses();
+    const { mutate, isPending } = useGenerateCourseClasses();
 
     const { data: subjects } = useGetSubjects(
         { Filters: [{ field: "SubjectCode", operator: "==", value: subjectCode! }] },
@@ -395,12 +404,24 @@ const Course_class_list = () => {
                     <Modal
                         open={openModal}
                         onCancel={() => setOpenModal(false)}
+                        loading={isPending}
                         onOk={() => {
                             mutate({
                                 semesterCode: currentParentSemester?.semesterCode!,
                                 subjectCode: subjectCode!,
                                 stage: selectedStage,
                                 totalTheoryCourseClass: totalTheoryCourseClass,
+                            }, {
+                                onSuccess: () => {
+                                    toast.success("Tạo lớp học phần thành công!");
+                                    setOpenModal(false);
+                                    setTotalTheoryCourseClass(0);
+                                    refetchParent();
+                                    refetchChild();
+                                },
+                                onError: (error) => {
+                                    toast.error(`Tạo lớp học phần thất bại: ${error}`);
+                                }
                             });
                         }}
                     >

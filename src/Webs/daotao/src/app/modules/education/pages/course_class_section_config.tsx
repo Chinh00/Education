@@ -1,39 +1,33 @@
 ﻿import {Box} from "@mui/material";
 import {useNavigate, useParams} from "react-router";
-import {useGenerateCourseClasses} from "@/app/modules/education/hooks/useGenerateCourseClasses";
-import {Card, Form, Input, InputNumber, Button, Select, message, Tabs, Radio} from "antd";
-import {
-    CreateSubjectScheduleConfigModel,
-    SubjectScheduleConfigBothModel
-} from "@/app/modules/education/services/courseClass.service";
+import {Card, Button, Tabs, Form} from "antd";
 import PredataScreen from "@/app/components/screens/predata_screen";
 import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
-import {Badge} from "@/app/components/ui/badge";
-import {useGetConditions, useGetDepartments} from "@/app/modules/common/hook.ts";
+import {useGetDepartments} from "@/app/modules/common/hook.ts";
 import {useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState} from "@/app/stores/common_slice.ts";
-import {FormInstance, useWatch} from "antd/es/form/Form";
-import Form_create_course_class_section_config
-    from "@/app/modules/education/components/form_create_course_class_section_config.tsx";
 import {ArrowRight} from "lucide-react"
+import {FormInstance} from "antd/es/form/Form";
+import {CreateSubjectScheduleConfigModel, SubjectScheduleConfigBothModel} from "@/app/modules/education/services/courseClass.service";
+
+// Import từng form riêng biệt
+import Form_create_course_class_section_config_stage1 from "@/app/modules/education/components/form_create_course_class_section_config_stage1";
+import Form_create_course_class_section_config_stage2 from "@/app/modules/education/components/form_create_course_class_section_config_stage2";
+import Form_create_course_class_section_config_both from "@/app/modules/education/components/form_create_course_class_section_config_both";
 
 const Course_class_section_config = () => {
     const {subjectCode} = useParams();
-    const [form] = Form.useForm<CreateSubjectScheduleConfigModel & { totalPeriods: number }>();
+    const [form1] = Form.useForm<CreateSubjectScheduleConfigModel & { totalPeriods: number }>();
+    const [form2] = Form.useForm<CreateSubjectScheduleConfigModel & { totalPeriods: number }>();
     const [formBoth] = Form.useForm<SubjectScheduleConfigBothModel & { totalPeriods: number }>();
-   
-    
+
     const {data: subjects} = useGetSubjects({
-        Filters: [
-            {field: "subjectCode", operator: "==", value: subjectCode || ""}
-        ]
+        Filters: [{field: "subjectCode", operator: "==", value: subjectCode || ""}]
     })
     const subject = subjects?.data?.data?.items?.[0];
 
     const {data: departments} = useGetDepartments({
-        Filters: [
-            {field: "departmentCode", operator: "==", value: subject?.departmentCode || ""}
-        ]
+        Filters: [{field: "departmentCode", operator: "==", value: subject?.departmentCode || ""}]
     })
     const {currentParentSemester} = useAppSelector<CommonState>(e => e.common);
     const department = departments?.data?.data?.items?.[0];
@@ -80,38 +74,37 @@ const Course_class_section_config = () => {
                         items={[
                             {
                                 label: "Cấu hình cho giai đoạn 1",
-                                children: <Form_create_course_class_section_config stage={0} form={form}
-                                                                                   subject={subject } semesterCode={currentParentSemester?.semesterCode}
-                                                                                   onSubmit={function (data: FormInstance): void {
-                                                                                       throw new Error("Function not implemented.");
-                                                                                   }}                                
-                                />,
+                                children: (
+                                    <Form_create_course_class_section_config_stage1
+                                        form={form1}
+                                        subject={subject}
+                                        semesterCode={currentParentSemester?.semesterCode}
+                                    />
+                                ),
                                 key: "stage1"
                             },
                             {
                                 label: "Cấu hình cho giai đoạn 2",
-                                children: <Form_create_course_class_section_config stage={1} form={form}
-                                                                                   subject={subject } semesterCode={currentParentSemester?.semesterCode}
-                                                                                   onSubmit={function (data: FormInstance): void {
-                                                                                       throw new Error("Function not implemented.");
-                                                                                   }}                                
-                                />,
+                                children: (
+                                    <Form_create_course_class_section_config_stage2
+                                        form={form2}
+                                        subject={subject}
+                                        semesterCode={currentParentSemester?.semesterCode}
+                                    />
+                                ),
                                 key: "stage2"
                             },
                             {
                                 label: "Cấu hình 2 giai đoạn",
-                                children: <Form_create_course_class_section_config
+                                children: (
+                                    <Form_create_course_class_section_config_both
                                         formBoth={formBoth}
-                                    stage={2} form={form}
-                                                                                   subject={subject } semesterCode={currentParentSemester?.semesterCode}
-                                                                                   onSubmit={function (data: FormInstance): void {
-                                                                                       throw new Error("Function not implemented.");
-                                                                                   }}                                
-                                />,
+                                        subject={subject}
+                                        semesterCode={currentParentSemester?.semesterCode}
+                                    />
+                                ),
                                 key: "stageBoth"
                             },
-                            
-
                         ]}
                     >
                     </Tabs>

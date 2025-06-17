@@ -25,7 +25,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
             var (semesterCode, subjectCode, stage, totalTheoryCourseClass) = request.Model;
             if (stage is 0 or 1) 
             {
-                var spec = new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode);
+                var spec = new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, (SubjectTimelineStage)stage);
                 var config = await subjectScheduleConfigRepository.FindOneAsync(spec, cancellationToken);
                 if (config == null)
                 {
@@ -38,12 +38,12 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                 }
                 
                 var subjectScheduleConfigs = await subjectScheduleConfigRepository.FindAsync(
-                    new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode), cancellationToken);
+                    new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, (SubjectTimelineStage)stage), cancellationToken);
                 
                 foreach (var subjectScheduleConfig in subjectScheduleConfigs)
                 {
                     subjectScheduleConfig.TotalTheoryCourseClass = totalTheoryCourseClass;
-                    await subjectScheduleConfigRepository.UpsertOneAsync(new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode), subjectScheduleConfig, cancellationToken);
+                    await subjectScheduleConfigRepository.UpsertOneAsync(new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, (SubjectTimelineStage)stage), subjectScheduleConfig, cancellationToken);
                 }
 
                 foreach (var courseClass in courseClasses)
@@ -54,7 +54,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                     {
                         CourseClassCode = courseClass.CourseClassCode,
                         CourseClassName = courseClass.CourseClassCode,
-                        Stage = SubjectTimelineStage.Stage1,
+                        Stage = courseClass.Stage,
                         SubjectCode = courseClass.SubjectCode,
                         ParentCourseClassCode = courseClass.ParentCourseClassCode
                     }, cancellationToken);
@@ -68,13 +68,13 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
 
             if (stage is 4) 
             {
-                var spec = new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode);
+                var spec = new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, (SubjectTimelineStage)stage);
                 var config = await subjectScheduleConfigRepository.FindAsync(spec, cancellationToken);
                 
                 foreach (var subjectScheduleConfig in config)
                 {
                     subjectScheduleConfig.TotalTheoryCourseClass = totalTheoryCourseClass;
-                    await subjectScheduleConfigRepository.UpsertOneAsync(new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode), subjectScheduleConfig, cancellationToken);
+                    await subjectScheduleConfigRepository.UpsertOneAsync(new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, (SubjectTimelineStage)stage), subjectScheduleConfig, cancellationToken);
                 }
                 
                 if (config == null || !config.Any())
@@ -94,9 +94,9 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                     {
                         CourseClassCode = courseClass.CourseClassCode,
                         CourseClassName = courseClass.CourseClassCode,
-                        Stage = SubjectTimelineStage.Stage1,
+                        Stage = courseClass.Stage,
                         SubjectCode = courseClass.SubjectCode,
-                        ParentCourseClassCode = courseClass.ParentCourseClassCode
+                        ParentCourseClassCode = courseClass.ParentCourseClassCode,
                     }, cancellationToken);
                 }
                 return Results.Ok(courseClasses);

@@ -16,11 +16,10 @@ import {useGetSubjectScheduleConfig} from "@/app/modules/education/hooks/useGetS
 
 export type Form_create_course_class_section_configProps = {
     stage: number,
-    form: FormInstance,
+    form?: FormInstance,
     formBoth?: FormInstance,
     subject?: Subject,
     semesterCode?: string,
-    onSubmit: (data: FormInstance) => void,
 }
 
 const Form_create_course_class_section_config = ({
@@ -28,18 +27,17 @@ const Form_create_course_class_section_config = ({
                                                      form,
                                                      subject,
                                                      semesterCode,
-                                                     onSubmit,
                                                      formBoth
 }: Form_create_course_class_section_configProps) => {
     const {data: conditions} = useGetConditions({})
 
 
     const handleTheoryChange = (value: number | null) => {
-        const total = form.getFieldValue("totalPeriods") || 0;
+        const total = form?.getFieldValue("totalPeriods") || 0;
         if (typeof value === "number" && value >= 0) {
-            form.setFieldsValue({
+            form?.setFieldsValue({
                 model: {
-                    ...form.getFieldValue("model"),
+                    ...form?.getFieldValue("model"),
                     theoryTotalPeriod: value,
                     practiceTotalPeriod: Math.max(0, total - value)
                 }
@@ -48,11 +46,11 @@ const Form_create_course_class_section_config = ({
     };
 
     const handlePracticeChange = (value: number | null) => {
-        const total = form.getFieldValue("totalPeriods") || 0;
+        const total = form?.getFieldValue("totalPeriods") || 0;
         if (typeof value === "number" && value >= 0) {
-            form.setFieldsValue({
+            form?.setFieldsValue({
                 model: {
-                    ...form.getFieldValue("model"),
+                    ...form?.getFieldValue("model"),
                     practiceTotalPeriod: value,
                     theoryTotalPeriod: Math.max(0, total - value)
                 }
@@ -65,15 +63,15 @@ const Form_create_course_class_section_config = ({
 
     useEffect(() => {
         if (subject) {
-            form.setFieldsValue({
-                ...form.getFieldValue("model"),
+            form?.setFieldsValue({
+                ...form?.getFieldValue("model"),
                 totalPeriods: (subject.numberOfCredits ?? 0) * 15,
                 model: {
                     theoryTotalPeriod: (subject.numberOfCredits ?? 0) * 15
                 }
             });
             formBoth?.setFieldsValue({
-                ...form.getFieldValue("model"),
+                ...form?.getFieldValue("model"),
                 totalPeriods: (subject.numberOfCredits ?? 0) * 15,
                 model: {
                     theoryTotalPeriod: (subject.numberOfCredits ?? 0) * 15
@@ -171,7 +169,9 @@ const Form_create_course_class_section_config = ({
         }
     }, [totalPeriods]);
     const {mutate, isPending} = useCreateSubjectScheduleConfig()
-    
+    useEffect(() => {
+        form?.resetFields();
+    }, [stage, subject]);
     const {data: subjectScheduleConfigs} = useGetSubjectScheduleConfig({
         Filters: [
             {
@@ -186,13 +186,14 @@ const Form_create_course_class_section_config = ({
             }
         ]
     }, subject?.subjectCode !== undefined)
-    
+
+  
     const subjectScheduleConfig = subjectScheduleConfigs?.data?.data?.items?.[0];
 
     useEffect(() => {
         if (subjectScheduleConfig) {
-            form.setFieldsValue({
-                ...form.getFieldValue("model"),
+            form?.setFieldsValue({
+                ...form?.getFieldValue("model"),
                 totalPeriods: (subject?.numberOfCredits ?? 0) * 15,
                 model: {
                     theorySessions: subjectScheduleConfig?.theorySessions ?? [],
@@ -211,12 +212,12 @@ const Form_create_course_class_section_config = ({
     if (stage === 0 || stage === 1) {
         return <Form<CreateSubjectScheduleConfigModel>
             form={form}
+            key={stage}
             layout="horizontal"
             initialValues={{
                 semesterCode: semesterCode,
                 model: {
                     subjectCode: subject?.subjectCode || "",
-                    stage: stage,
                     theoryTotalPeriod: 0,
                     practiceTotalPeriod: 0,
                     theorySessions: "",
@@ -233,7 +234,7 @@ const Form_create_course_class_section_config = ({
                     model: {
                         ...values.model,
                         subjectCode: subject?.subjectCode || "",
-                        stage: 0,
+                        stage: stage,
                         theoryTotalPeriod: values.model.theoryTotalPeriod ?? 0,
                         practiceTotalPeriod: values.model.practiceTotalPeriod ?? 0,
                         theorySessions: values.model.theorySessions,
@@ -278,9 +279,9 @@ const Form_create_course_class_section_config = ({
                         onClick={(e) => e.stopPropagation()}
                         placeholder="Tự nhập VD: 3,2,2"
                         onChange={(e) => {
-                            form.setFieldsValue({
+                            form?.setFieldsValue({
                                 model: {
-                                    ...form.getFieldValue("model"),
+                                    ...form?.getFieldValue("model"),
                                     theorySessions: [...e.target.value?.split(",")?.map(Number)],
                                 },
                             });
@@ -308,9 +309,9 @@ const Form_create_course_class_section_config = ({
                         onClick={(e) => e.stopPropagation()}
                         placeholder="Tự nhập VD: 3,2,2"
                         onChange={(e) => {
-                            form.setFieldsValue({
+                            form?.setFieldsValue({
                                 model: {
-                                    ...form.getFieldValue("model"),
+                                    ...form?.getFieldValue("model"),
                                     practiceSessions: [...e.target.value?.split(",")?.map(Number)],
                                 },
                             });
@@ -374,7 +375,6 @@ const Form_create_course_class_section_config = ({
             semesterCode: semesterCode,
             model: {
                 subjectCode: subject?.subjectCode || "",
-                stage: 0,
                 totalPeriodOfStage1: 21,
                 totalPeriodOfStage2: 24,
                 theoryTotalPeriodOfStage1: 21,
@@ -425,9 +425,9 @@ const Form_create_course_class_section_config = ({
                     onClick={(e) => e.stopPropagation()}
                     placeholder="Tự nhập VD: 3,2,2"
                     onChange={(e) => {
-                        form.setFieldsValue({
+                        form?.setFieldsValue({
                             model: {
-                                ...form.getFieldValue("model"),
+                                ...form?.getFieldValue("model"),
                                 theorySessions: [...e.target.value?.split(",")?.map(Number)],
                             },
                         });
@@ -450,9 +450,9 @@ const Form_create_course_class_section_config = ({
                     onClick={(e) => e.stopPropagation()}
                     placeholder="Tự nhập VD: 3,2,2"
                     onChange={(e) => {
-                        form.setFieldsValue({
+                        form?.setFieldsValue({
                             model: {
-                                ...form.getFieldValue("model"),
+                                ...form?.getFieldValue("model"),
                                 theorySessions: [...e.target.value?.split(",")?.map(Number)],
                             },
                         });
@@ -496,9 +496,9 @@ const Form_create_course_class_section_config = ({
                     onClick={(e) => e.stopPropagation()}
                     placeholder="Tự nhập VD: 3,2,2"
                     onChange={(e) => {
-                        form.setFieldsValue({
+                        form?.setFieldsValue({
                             model: {
-                                ...form.getFieldValue("model"),
+                                ...form?.getFieldValue("model"),
                                 theorySessions: [...e.target.value?.split(",")?.map(Number)],
                             },
                         });
@@ -520,9 +520,9 @@ const Form_create_course_class_section_config = ({
                     onClick={(e) => e.stopPropagation()}
                     placeholder="Tự nhập VD: 3,2,2"
                     onChange={(e) => {
-                        form.setFieldsValue({
+                        form?.setFieldsValue({
                             model: {
-                                ...form.getFieldValue("model"),
+                                ...form?.getFieldValue("model"),
                                 theorySessions: [...e.target.value?.split(",")?.map(Number)],
                             },
                         });
@@ -571,11 +571,6 @@ const Form_create_course_class_section_config = ({
                     Lưu cấu hình
                 </Button>
             </Form.Item>
-            <Form.Item
-
-            >
-            </Form.Item>
-            <div></div>
             
         </div>
     </Form>

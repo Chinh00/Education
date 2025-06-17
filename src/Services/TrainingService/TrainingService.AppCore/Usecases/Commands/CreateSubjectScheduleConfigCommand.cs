@@ -27,7 +27,7 @@ public record CreateSubjectScheduleConfigCommand(CreateSubjectScheduleConfigComm
     {
         public async Task<IResult> Handle(CreateSubjectScheduleConfigCommand request, CancellationToken cancellationToken)
         {
-            var spec = new GetSubjectScheduleConfigSubjectCodeSpec(request.Model.SemesterCode, request.Model.Model.SubjectCode);
+            var spec = new GetSubjectScheduleConfigSubjectCodeSpec(request.Model.SemesterCode, request.Model.Model.SubjectCode, request.Model.Model.Stage);
             var existingConfig = await subjectScheduleConfigRepository.FindOneAsync(spec, cancellationToken) ?? new SubjectScheduleConfig()
             {
                 SubjectCode = request.Model.Model.SubjectCode,

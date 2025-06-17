@@ -20,5 +20,6 @@ public interface IMongoRepository<TEntity> : IRootRepository
     ValueTask<TEntity> UpdateOneAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default);
     
     ValueTask<TEntity> UpsertOneAsync(ISpecification<TEntity> specification, TEntity entity, CancellationToken cancellationToken = default);
+    ValueTask<TEntity> RemoveOneAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default);
     
 }

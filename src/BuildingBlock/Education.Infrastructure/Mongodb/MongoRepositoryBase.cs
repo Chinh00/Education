@@ -115,4 +115,16 @@ public class MongoRepositoryBase<TEntity> : IMongoRepository<TEntity>
         }, cancellationToken);
         return entity;
     }
+
+    public async ValueTask<TEntity> RemoveOneAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
+    {
+        if (specification.Predicate == null)
+            throw new ArgumentException("Specification.Predicate must not be null for deletion.");
+        var deletedEntity = await _mongoCollection.FindOneAndDeleteAsync(
+            Builders<TEntity>.Filter.Where(specification.Predicate),
+            cancellationToken: cancellationToken
+        );
+
+        return deletedEntity;
+    }
 }

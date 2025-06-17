@@ -120,12 +120,43 @@ public class CourseClassController : BaseController
     /// <param name="model"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPut]
+    [HttpPut("Teacher")]
     public async Task<IActionResult> HandleUpdateTeacherCourseClassAsync([FromBody] UpdateCourseTeacherCommand.UpdateCourseTeacherModel model,
         CancellationToken cancellationToken)
     {
         return Ok(await Mediator.Send(new UpdateCourseTeacherCommand(model), cancellationToken));
     }
+    
+    
+    /// <summary>
+    /// Cập nhật thông tin lớp học
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPut]
+    public async Task<IActionResult> HandleUpdateCourseClassAsync([FromBody] UpdateCourseClassCommand.UpdateCourseClassCommandModel model,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new UpdateCourseClassCommand(model), cancellationToken));
+    }
+    
+    /// <summary>
+    /// Xóa lớp học theo mã lớp học
+    /// </summary>
+    /// <param name="courseClassCode"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpDelete("{courseClassCode}")]
+    public async Task<IActionResult> HandleUpdateCourseClassAsync(string courseClassCode,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new RemoveCourseClassCommand(courseClassCode), cancellationToken));
+    }
+    
+    
+    
+    
     /// <summary>
     /// Cập nhật trạng thái của lớp học
     /// </summary>

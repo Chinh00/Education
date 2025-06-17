@@ -56,6 +56,20 @@ public class CourseClassController : BaseController
         return Ok(await Mediator.Send(new CreateSubjectScheduleConfigCommand(model), cancellationToken));
     }
     
+    /// <summary>
+    /// Lấy cấu hình môn học 
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("SubjectScheduleConfig")]
+    [AllowAnonymous]
+    public async Task<IActionResult> HandleGetSubjectScheduleConfigsAsync([FromQuery] GetSubjectScheduleConfigQuery query, CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(query, cancellationToken));
+    }
+    
+    
     
     
     /// <summary>

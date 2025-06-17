@@ -26,6 +26,7 @@ const MainLayout = lazy(() => import("../components/layouts/main_layout.tsx"));
 const EducationLayout = lazy(() => import("../modules/education/layouts/education_layout.tsx"));
 const EducationDashboard = lazy(() => import("../modules/education/pages/education_dashboard.tsx"));
 const SubjectStudySection = lazy(() => import("../modules/education/pages/subject_study_section.tsx"));
+const Course_class_list = lazy(() => import("../modules/education/pages/course_class_list.tsx"));
 
 
 const RegisterLayout = lazy(() => import("../modules/register/layouts/register_layout.tsx"));
@@ -129,6 +130,11 @@ const router = createBrowserRouter([
                                 path: RoutePaths.COURSE_CLASS_SECTION_CONFIG,
                                 element: <Suspense fallback={<TabLoading />} key={"Course_class_section_config"} ><Course_class_section_config /></Suspense>,
                             },
+                            {
+                                path: RoutePaths.COURSE_CLASS_LIST,
+                                element: <Suspense fallback={<TabLoading />} key={"Course_class_list"} ><Course_class_list /></Suspense>,
+                            },
+                            
                             
                         ],
                     },

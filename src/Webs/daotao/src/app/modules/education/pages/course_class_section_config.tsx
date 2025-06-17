@@ -1,5 +1,5 @@
 ﻿import {Box} from "@mui/material";
-import {useParams} from "react-router";
+import {useNavigate, useParams} from "react-router";
 import {useGenerateCourseClasses} from "@/app/modules/education/hooks/useGenerateCourseClasses";
 import {Card, Form, Input, InputNumber, Button, Select, message, Tabs, Radio} from "antd";
 import {
@@ -15,6 +15,7 @@ import {CommonState} from "@/app/stores/common_slice.ts";
 import {FormInstance, useWatch} from "antd/es/form/Form";
 import Form_create_course_class_section_config
     from "@/app/modules/education/components/form_create_course_class_section_config.tsx";
+import {ArrowRight} from "lucide-react"
 
 const Course_class_section_config = () => {
     const {subjectCode} = useParams();
@@ -37,6 +38,12 @@ const Course_class_section_config = () => {
     const {currentParentSemester} = useAppSelector<CommonState>(e => e.common);
     const department = departments?.data?.data?.items?.[0];
 
+    const extraTab = {
+        key: "settings",
+        children: <Button type={"dashed"} onClick={() => nav(`/course-class/${subjectCode}`)} variant={"filled"} color={"volcano"}>Danh sách lớp <ArrowRight size={18}/></Button>,
+        label: <></>
+    };
+    const nav = useNavigate()
 
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
@@ -60,6 +67,16 @@ const Course_class_section_config = () => {
                 </div>}
                 >
                     <Tabs
+                        tabBarExtraContent={{
+                            right: (
+                                <Tabs
+                                    size="small"
+                                    activeKey="settings"
+                                    items={[extraTab]}
+                                    tabBarStyle={{ margin: 0 }}
+                                />
+                            ),
+                        }}
                         items={[
                             {
                                 label: "Cấu hình cho giai đoạn 1",
@@ -93,7 +110,6 @@ const Course_class_section_config = () => {
                                 />,
                                 key: "stageBoth"
                             },
-                            
                             
 
                         ]}

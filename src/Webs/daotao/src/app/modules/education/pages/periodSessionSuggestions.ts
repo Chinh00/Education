@@ -79,3 +79,30 @@ export function getPeriodSessionOptions(
 ): Array<{ sessionsPerWeek: number; periodsPerSession: number; label: string }> {
     return periodSessionSuggestions[totalPeriods]?.[weeks] || [];
 }
+
+export const getWeekOfStage = (stage: number) => {
+    switch (stage) {
+        case 0:
+            return 8;
+        case 1:
+            return 8;
+        case 2:
+            return 16;
+            
+        
+    }
+}
+
+function combinations(n: number, k: number): number {
+    if (k > n) return 0;
+    let res = 1;
+    for (let i = 1; i <= k; ++i) {
+        res *= (n - i + 1) / i;
+    }
+    return res;
+}
+
+export function countWays(theoryTotalPeriod: number, weeks: number): number {
+    if (theoryTotalPeriod < weeks) return 0;
+    return combinations(theoryTotalPeriod - 1, weeks - 1);
+}

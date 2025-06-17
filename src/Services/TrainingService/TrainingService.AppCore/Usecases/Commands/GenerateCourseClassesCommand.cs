@@ -1,5 +1,6 @@
 ﻿using Education.Core.Domain;
 using Education.Core.Repository;
+using Education.Core.Specification;
 using MediatR;
 using Microsoft.AspNetCore.Components.Server;
 using TrainingService.AppCore.Usecases.Specs;
@@ -10,14 +11,18 @@ namespace TrainingService.AppCore.Usecases.Commands;
 
 public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.GenerateCourseClassesModel Model) : ICommand<IResult>
 {
-    public record struct GenerateCourseClassesModel(string SemesterCode, string SubjectCode, int Stage);
+    public record struct GenerateCourseClassesModel(string SemesterCode, string SubjectCode, int Stage, int TotalTheoryCourseClass = 0);
     
-    internal class Handler(IMongoRepository<SubjectScheduleConfig> subjectScheduleConfigRepository)
+    internal class Handler(
+        IMongoRepository<SubjectScheduleConfig> subjectScheduleConfigRepository,
+        IMongoRepository<Room> roomRepository,
+        IMongoRepository<CourseClass> courseClassRepository,
+        IMongoRepository<SlotTimeline> slotTimelineRepository)
         : IRequestHandler<GenerateCourseClassesCommand, IResult>
     {
         public async Task<IResult> Handle(GenerateCourseClassesCommand request, CancellationToken cancellationToken)
         {
-            var (semesterCode, subjectCode, stage) = request.Model;
+            var (semesterCode, subjectCode, stage, totalTheoryCourseClass) = request.Model;
             if (stage is 0 or 1) 
             {
                 var spec = new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode);
@@ -26,37 +31,86 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                 {
                     return Results.BadRequest("Subject schedule config not found for this subject and semester.");
                 }
-                var courseClasses = GenerateCourseClasses(semesterCode, config);
+                var courseClasses = GenerateCourseClasses(semesterCode, config, totalTheoryCourseClass);
                 if (courseClasses == null || !courseClasses.Any())
                 {
                     return Results.BadRequest("No course classes generated for the provided configuration.");
                 }
+                
+                var subjectScheduleConfigs = await subjectScheduleConfigRepository.FindAsync(
+                    new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode), cancellationToken);
+                
+                foreach (var subjectScheduleConfig in subjectScheduleConfigs)
+                {
+                    subjectScheduleConfig.TotalTheoryCourseClass = totalTheoryCourseClass;
+                    await subjectScheduleConfigRepository.UpsertOneAsync(new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode), subjectScheduleConfig, cancellationToken);
+                }
+
+                foreach (var courseClass in courseClasses)
+                {
+                    
+
+                    await courseClassRepository.AddAsync(new CourseClass()
+                    {
+                        CourseClassCode = courseClass.CourseClassCode,
+                        CourseClassName = courseClass.CourseClassCode,
+                        Stage = SubjectTimelineStage.Stage1,
+                        SubjectCode = courseClass.SubjectCode,
+                        ParentCourseClassCode = courseClass.ParentCourseClassCode
+                    }, cancellationToken);
+                }
+            
+                
+                return Results.Ok(courseClasses);
+                
+                
             }
 
-            if (stage is not 2) return Results.Ok();
+            if (stage is 4) 
             {
                 var spec = new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode);
                 var config = await subjectScheduleConfigRepository.FindAsync(spec, cancellationToken);
+                
+                foreach (var subjectScheduleConfig in config)
+                {
+                    subjectScheduleConfig.TotalTheoryCourseClass = totalTheoryCourseClass;
+                    await subjectScheduleConfigRepository.UpsertOneAsync(new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode), subjectScheduleConfig, cancellationToken);
+                }
+                
                 if (config == null || !config.Any())
                 {
                     return Results.BadRequest("Subject schedule config not found for this subject and semester.");
                 }
-                var courseClasses = GenerateCourseClasses(semesterCode, config.ToList());
+                var courseClasses = GenerateCourseClasses(semesterCode, config.ToList(), totalTheoryCourseClass);
                 if (courseClasses == null || !courseClasses.Any())
                 {
                     return Results.BadRequest("No course classes generated for the provided configurations.");
                 }
+                
+                foreach (var courseClass in courseClasses)
+                {
+                
+                    await courseClassRepository.AddAsync(new CourseClass()
+                    {
+                        CourseClassCode = courseClass.CourseClassCode,
+                        CourseClassName = courseClass.CourseClassCode,
+                        Stage = SubjectTimelineStage.Stage1,
+                        SubjectCode = courseClass.SubjectCode,
+                        ParentCourseClassCode = courseClass.ParentCourseClassCode
+                    }, cancellationToken);
+                }
+                return Results.Ok(courseClasses);
             }
+            
+            
 
-
-            return Results.Ok();
+            return Results.BadRequest();
         }
         
-        public static List<CourseClass> GenerateCourseClasses(string semesterCode, List<SubjectScheduleConfig> configs)
+        public static List<CourseClass> GenerateCourseClasses(string semesterCode, List<SubjectScheduleConfig> configs, int totalTheoryCourseClass)
         {
             var result = new List<CourseClass>();
             int globalIndex = 1;
-            var totalTheoryCourseClass = configs.FirstOrDefault()?.TotalTheoryCourseClass ?? 0;
             var subjectCode = configs.FirstOrDefault()?.SubjectCode ?? "";
             var rand = new Random();
 
@@ -75,6 +129,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                     SessionLengths = new List<int>(),
                     NumberStudentsExpected = 0,
                     CourseClassType = CourseClassType.Lecture,
+                    SemesterCode = semesterCode,
                 };
                 result.Add(theoryCourseClass);
 
@@ -95,7 +150,8 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                         SessionLengths = subjectScheduleConfig.TheorySessions?.ToList() ?? new List<int>(),
                         NumberStudentsExpected = rand.Next(30, 40),
                         CourseClassType = CourseClassType.Lecture,
-                        ParentCourseClassCode = theoryClassCode
+                        ParentCourseClassCode = theoryClassCode,
+                        SemesterCode = semesterCode,
                     };
                     result.Add(childTheoryCourseClass);
 
@@ -111,6 +167,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                                 CourseClassCode = labClassCode,
                                 CourseClassName = $"TH {subjectCode} {i + 1}-{p + 1}",
                                 Index = globalIndex++,
+                                SemesterCode = semesterCode,
                                 Stage = childStage,
                                 CourseClassType = CourseClassType.Lab,
                                 SessionLengths = subjectScheduleConfig.PracticeSessions?.ToList() ?? new List<int>(),
@@ -125,12 +182,12 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
             return result;
         }
         
-        public static List<CourseClass> GenerateCourseClasses(string semesterCode, SubjectScheduleConfig config)
+        public static List<CourseClass> GenerateCourseClasses(string semesterCode, SubjectScheduleConfig config,int totalTheoryCourseClass)
         {
             var result = new List<CourseClass>();
             int globalIndex = 1;
 
-            for (int i = 0; i < config.TotalTheoryCourseClass; i++)
+            for (int i = 0; i < totalTheoryCourseClass; i++)
             {
                 string stagePart = new List<SubjectTimelineStage> { SubjectTimelineStage.Stage1Of2, SubjectTimelineStage.Stage2Of2 }
                     .Contains(config.Stage)
@@ -148,13 +205,14 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                     SessionLengths = config.TheorySessions.ToList(),
                     NumberStudentsExpected = (new Random()).Next(30, 40),
                     CourseClassType = CourseClassType.Lecture,
+                    SemesterCode = semesterCode
                 };
                 result.Add(theoryCourseClass);
                 if (config?.PracticeTotalPeriod > 0)
                 {
                     for (int p = 0; p < 2; p++)
                     {
-                        var labClassCode = $"${semesterCode}_{config.SubjectCode}-TH{i + 1}-{p + 1}";
+                        var labClassCode = $"{semesterCode}_{config.SubjectCode}-TH{i + 1}-{p + 1}";
                         var labCourseClass = new CourseClass
                         {
                             SubjectCode = config.SubjectCode,
@@ -165,7 +223,9 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                             CourseClassType = CourseClassType.Lab,
                             SessionLengths = config.PracticeSessions.ToList(),
                             ParentCourseClassCode = theoryClassCode,
-                            NumberStudentsExpected = (new Random()).Next(20, 30)
+                            NumberStudentsExpected = (new Random()).Next(20, 30),
+                            SemesterCode = semesterCode
+                            
                         };
                         result.Add(labCourseClass);
                     }

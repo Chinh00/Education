@@ -5,6 +5,7 @@ import {Education} from "@/domain/education.ts";
 import http from "@/infrastructure/http.ts";
 import {CourseClass} from "@/domain/course_class.ts";
 import {SlotTimeline} from "@/domain/slot_timeline.ts";
+import {SubjectScheduleConfig} from "@/domain/subject_schedule_config.ts";
 
 
 
@@ -46,7 +47,6 @@ const updateCourseClassStatus = async (model: UpdateCourseClassStatusModel): Pro
 const removeStudentFromCourseClass = async (model: RemoveStudentFromCourseClassModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.put(`/trainingservice/api/CourseClass/Student`, model)
 export interface SubjectScheduleConfigModel {
     subjectCode: string;
-    totalTheoryCourseClass: number;
     stage: number; // có thể thay bằng enum nếu bạn định nghĩa
     theoryTotalPeriod: number;
     practiceTotalPeriod: number;
@@ -60,19 +60,30 @@ export interface SubjectScheduleConfigModel {
 
 export interface SubjectScheduleConfigBothModel {
     subjectCode: string;
-    totalTheoryCourseClass: number;
     stage: number; 
+    // tong so tiet hoc tung gd
     totalPeriodOfStage1: number;
     totalPeriodOfStage2: number;
-    theoryTotalPeriod: number;
-    practiceTotalPeriod: number;
+   
+    // so tiet ly thuyet va thuc hanh gd1
     theoryTotalPeriodOfStage1: number;
     practiceTotalPeriodOfStage1: number;
+    
+    // so tiet ly thuyet va thuc hanh gd2
     theoryTotalPeriodOfStage2: number;
     practiceTotalPeriodOfStage2: number;
+    // buoi hoc ly thuyet va thuc hanh gd1
     theorySessionsOfStage1: number[];
     practiceSessionsOfStage1: number[];
+    // buoi hoc ly thuyet va thuc hanh gd2
+    theorySessionsOfStage2: number[];
+    practiceSessionsOfStage2: number[];
+    
+    
+    
+    
     weekStart: number;
+    
     sessionPriorityOfStage1: number;
     sessionPriorityOfStage2: number;
     lectureRequiredConditions: string[];
@@ -80,13 +91,19 @@ export interface SubjectScheduleConfigBothModel {
 }
 
 
-
+export interface GenerateCourseClassesModel {
+    semesterCode: string,
+    subjectCode: string,
+    stage: number,
+    totalTheoryCourseClass: number
+}
 
 export interface CreateSubjectScheduleConfigModel {
     semesterCode: string;
     model: SubjectScheduleConfigModel;
 }
-const generateCourseClasses = async (): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.post(`/trainingservice/api/CourseClass/GenerateCourseClasses`)
+const generateCourseClasses = async (model: GenerateCourseClassesModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.post(`/trainingservice/api/CourseClass/GenerateCourseClasses`, model)
 const createSubjectScheduleConfig = async (model: CreateSubjectScheduleConfigModel): Promise<AxiosResponse<SuccessResponse<SubjectScheduleConfigModel>>> => await http.post(`/trainingservice/api/CourseClass/SubjectScheduleConfig`, model)
+const getSubjectScheduleConfig = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SubjectScheduleConfig>>>> => await http.get(`/trainingservice/api/CourseClass/SubjectScheduleConfig?${GetQuery(query)}`)
 
-export {getCourseClasses, createSubjectScheduleConfig, getCourseClassTimeline, createCourseClasses, updateCourseClassStatus, removeStudentFromCourseClass, generateCourseClasses}
+export {getCourseClasses, getSubjectScheduleConfig, createSubjectScheduleConfig, getCourseClassTimeline, createCourseClasses, updateCourseClassStatus, removeStudentFromCourseClass, generateCourseClasses}

@@ -43,6 +43,7 @@ export const RoutePaths = {
     REGISTER_PERIOD_RESULT: '/register/period/result',
     COURSE_CLASS_CONFIG: '/register/:semester/subject/:subject/course-class/create',
     COURSE_CLASS_SECTION_CONFIG: '/course-class/:subjectCode/section-config',
+    COURSE_CLASS_LIST: '/course-class/:subjectCode',
     
 
 

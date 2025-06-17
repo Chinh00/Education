@@ -1,11 +1,18 @@
-﻿import {Button, Form, Input, InputNumber, Select, Radio} from "antd";
+﻿import {Button, Form, Input, InputNumber, Select, Radio, Checkbox} from "antd";
 import type {FormInstance} from "antd/es/form/hooks/useForm";
 import {useWatch} from "antd/es/form/Form";
 import { getPeriodSessionOptions } from "../pages/periodSessionSuggestions";
 import {Subject} from "@/domain/subject.ts";
 import {useEffect} from "react";
 import {useGetConditions} from "@/app/modules/common/hook.ts";
-import {SubjectScheduleConfigBothModel} from "@/app/modules/education/services/courseClass.service.ts";
+import {
+    CreateSubjectScheduleConfigModel,
+    SubjectScheduleConfigBothModel
+} from "@/app/modules/education/services/courseClass.service.ts";
+import UseCreateSubjectSchedule from "@/app/modules/education/hooks/useCreateSubjectScheduleConfig.ts";
+import useCreateSubjectScheduleConfig from "@/app/modules/education/hooks/useCreateSubjectScheduleConfig.ts";
+import toast from "react-hot-toast";
+import {useGetSubjectScheduleConfig} from "@/app/modules/education/hooks/useGetSubjectScheduleConfig.ts";
 
 export type Form_create_course_class_section_configProps = {
     stage: number,
@@ -163,35 +170,93 @@ const Form_create_course_class_section_config = ({
             }
         }
     }, [totalPeriods]);
+    const {mutate, isPending} = useCreateSubjectScheduleConfig()
     
+    const {data: subjectScheduleConfigs} = useGetSubjectScheduleConfig({
+        Filters: [
+            {
+                field: "SemesterCode",
+                operator: "==",
+                value: semesterCode || ""
+            },
+            {
+                field: "SubjectCode",
+                operator: "==",
+                value: subject?.subjectCode || ""
+            }
+        ]
+    }, subject?.subjectCode !== undefined)
+    
+    const subjectScheduleConfig = subjectScheduleConfigs?.data?.data?.items?.[0];
+
+    useEffect(() => {
+        if (subjectScheduleConfig) {
+            form.setFieldsValue({
+                ...form.getFieldValue("model"),
+                totalPeriods: (subject?.numberOfCredits ?? 0) * 15,
+                model: {
+                    theorySessions: subjectScheduleConfig?.theorySessions ?? [],
+                    practiceSessions: subjectScheduleConfig?.practiceSessions ?? [],
+                    theoryTotalPeriod: subjectScheduleConfig?.theoryTotalPeriod || 0,
+                    practiceTotalPeriod: subjectScheduleConfig?.practiceTotalPeriod || 0,
+                    weekStart: subjectScheduleConfig?.weekStart || 1,
+                    sessionPriority: subjectScheduleConfig?.sessionPriority || -1,
+                    lectureRequiredConditions: subjectScheduleConfig?.lectureRequiredConditions || [],
+                    labRequiredConditions: subjectScheduleConfig?.labRequiredConditions || [],
+                }
+            });
+        }
+    }, [subjectScheduleConfig]);
     
     if (stage === 0 || stage === 1) {
-        return <Form
+        return <Form<CreateSubjectScheduleConfigModel>
             form={form}
             layout="horizontal"
             initialValues={{
                 semesterCode: semesterCode,
                 model: {
                     subjectCode: subject?.subjectCode || "",
-                    totalTheoryCourseClass: 1,
-                    stage: 0,
+                    stage: stage,
                     theoryTotalPeriod: 0,
                     practiceTotalPeriod: 0,
                     theorySessions: "",
                     practiceSessions: "",
-                    weekStart: 1,
-                    sessionPriority: 0,
-                    lectureRequiredConditions: [],
+                    weekStart: 3,
+                    lectureRequiredConditions: ["Lecture"],
                     labRequiredConditions: [],
                     totalPeriods: 0,
                 }
             }}
             onFinish={(values) => {
-                console.log(values)
+                const model: CreateSubjectScheduleConfigModel = {
+                    semesterCode: semesterCode || "",
+                    model: {
+                        ...values.model,
+                        subjectCode: subject?.subjectCode || "",
+                        stage: 0,
+                        theoryTotalPeriod: values.model.theoryTotalPeriod ?? 0,
+                        practiceTotalPeriod: values.model.practiceTotalPeriod ?? 0,
+                        theorySessions: values.model.theorySessions,
+                        practiceSessions: values.model.practiceSessions,
+                        weekStart: values.model.weekStart ?? 1,
+                        sessionPriority: values.model.sessionPriority ?? -1,
+                        lectureRequiredConditions: values.model.lectureRequiredConditions || [],
+                        labRequiredConditions: values.model.labRequiredConditions || [],
+                    }
+                };
+                mutate(model, {
+                    onSuccess: () => {
+                        toast.success("Lưu cấu hình thành công");
+                    },
+                    onError: () => {
+                        toast.error("Lưu cấu hình thất bại, Có lỗi xảy ra");
+                    }
+                });
+                
             }}
             className={"grid gap-4"}
         >
-            <Form.Item name={"totalPeriods"} label="Tổng số tiết học" rules={[{required: true}]}>
+            <Form.Item name={"totalPeriods"} label="Tổng số tiết học" >
                 <InputNumber min={0} />
             </Form.Item>
 
@@ -201,37 +266,26 @@ const Form_create_course_class_section_config = ({
                     className={"col-span-1"}
                     name={["model", "theoryTotalPeriod"]}
                     label="Tổng số tiết lý thuyết"
-                    rules={[{required: true}]}
+                    
                 >
                     <InputNumber min={0} onChange={handleTheoryChange} />
                 </Form.Item>
                 <Form.Item
-                    label="Lịch học gợi ý"
-                    name={["model", "theorySessions"]} // lưu giá trị được chọn
-                    rules={[{ required: true }]}
+                    label="Quy định về lịch học lý thuyết"
+                    name={["model", "theorySessions"]}
                 >
-                    <Radio.Group>
-                        {getPeriodSessionOptions(theoryTotalPeriod ?? 0, 8)?.map((e, index) => (
-                            <Radio
-                                value={Array(e?.sessionsPerWeek).fill(e?.periodsPerSession)} key={index}>
-                                {e.label}
-                            </Radio>
-                        ))}
-                        <Radio value={"custom"}>
-                            <Input
-                                onClick={(e) => e.stopPropagation()}
-                                placeholder="Tự nhập VD: 3,2,2"
-                                onChange={(e) => {
-                                    form.setFieldsValue({
-                                        model: {
-                                            ...form.getFieldValue("model"),
-                                            theorySessions: e.target.value?.split(",")?.map(Number),
-                                        },
-                                    });
-                                }}
-                            />
-                        </Radio>
-                    </Radio.Group>
+                    <Input
+                        onClick={(e) => e.stopPropagation()}
+                        placeholder="Tự nhập VD: 3,2,2"
+                        onChange={(e) => {
+                            form.setFieldsValue({
+                                model: {
+                                    ...form.getFieldValue("model"),
+                                    theorySessions: [...e.target.value?.split(",")?.map(Number)],
+                                },
+                            });
+                        }}
+                    />
                 </Form.Item>
 
 
@@ -242,85 +296,70 @@ const Form_create_course_class_section_config = ({
                 <Form.Item
                     name={["model", "practiceTotalPeriod"]}
                     label="Tổng số tiết thực hành"
-                    rules={[{required: true}]}
+                    
                 >
                     <InputNumber min={0} onChange={handlePracticeChange} />
                 </Form.Item>
-                {!!practiceTotalPeriod && <div className={"flex flex-col gap-2"}>
-                    <Form.Item
-                        label="Lịch học gợi ý"
-                        name={["model", "practiceSessions"]}
-                        rules={[{ required: true }]}
-                    >
-                        <Radio.Group>
-                            {getPeriodSessionOptions(theoryTotalPeriod ?? 0, 8)?.map((e, index) => (
-                                <Radio
-                                    value={Array(e?.sessionsPerWeek).fill(e?.periodsPerSession)} key={index}>
-                                    {e.label}
-                                </Radio>
-                            ))}
-                            <Radio value="practiceSessionscustom">
-                                <Input
-                                    onClick={(e) => e.stopPropagation()}
-                                    placeholder="Tự nhập VD: 3,2,2"
-                                    onChange={(e) => {
-                                        form.setFieldsValue({
-                                            model: {
-                                                ...form.getFieldValue("model"),
-                                                theorySessions: e.target.value?.split(",")?.map(Number),
-                                            },
-                                        });
-                                    }}
-                                />
-                            </Radio>
-                        </Radio.Group>
-                    </Form.Item>
-                </div>}
+                <Form.Item
+                    label="Quy định lịch học thực hành"
+                    name={["model", "practiceSessions"]}
+                >
+                    <Input
+                        onClick={(e) => e.stopPropagation()}
+                        placeholder="Tự nhập VD: 3,2,2"
+                        onChange={(e) => {
+                            form.setFieldsValue({
+                                model: {
+                                    ...form.getFieldValue("model"),
+                                    practiceSessions: [...e.target.value?.split(",")?.map(Number)],
+                                },
+                            });
+                        }}
+                    />
+                </Form.Item>
 
             </div>
 
 
 
-            <Form.Item name={["model", "weekStart"]} label="Tuần bắt đầu học thực hành (nếu có)" rules={[{required: true}]}>
+            <Form.Item name={["model", "weekStart"]} label="Tuần bắt đầu học thực hành (nếu có)" >
                 <InputNumber min={0} />
             </Form.Item>
 
-            <Form.Item name={["model", "sessionPriority"]} label="Ưu tiên buổi học" rules={[{required: true}]}>
+            <Form.Item name={["model", "sessionPriority"]} label="Ưu tiên buổi học" >
                 <Select
                     options={[
                         {value: 0, label: "Sáng"},
                         {value: 1, label: "Chiều"},
-                        {value: 2, label: "Không ưu tiên"}
+                        {value: -1, label: "Không ưu tiên"}
                     ]}
                 />
             </Form.Item>
 
             <Form.Item name={["model", "lectureRequiredConditions"]} label="Điều kiện phòng lý thuyết">
-                <Select mode="tags" placeholder="Nhập điều kiện, enter để thêm" />
+                <Select options={conditions?.data?.data?.items?.map(e => ({label: e?.conditionName, value: e?.conditionCode}))} mode="tags" placeholder="Chọn điều kiện" />
             </Form.Item>
 
             <Form.Item name={["model", "labRequiredConditions"]} label="Điều kiện phòng thực hành">
-                <Select options={conditions?.data?.data?.items?.map(e => ({label: e?.conditionName, value: e?.conditionCode}))} mode="tags" placeholder="Nhập điều kiện, enter để thêm" />
+                <Select options={conditions?.data?.data?.items?.map(e => ({label: e?.conditionName, value: e?.conditionCode}))} mode="tags" placeholder="Chọn điều kiện" />
             </Form.Item>
-            <Form.Item name={["model", "totalTheoryCourseClass"]} label="Số lớp học phần cần tạo" rules={[{required: true}]}>
-                <InputNumber min={1} />
-            </Form.Item>
+            
             <div className={"flex gap-5"}>
                 <Form.Item
 
                 >
-                    <Button type="primary" htmlType="submit" 
+                    <Button type="primary" htmlType="submit"
 
                     >
-                        Tạo lớp học phần tự động
+                        Lưu cấu hình
                     </Button>
+                </Form.Item>
+                <Form.Item
+
+                >
+                    
                 </Form.Item>
                 <div></div>
-                <Form.Item>
-                    <Button type="primary" htmlType="submit" >
-                        Tạo lớp học phần thủ công
-                    </Button>
-                </Form.Item>
             </div>
         </Form>
         
@@ -335,7 +374,6 @@ const Form_create_course_class_section_config = ({
             semesterCode: semesterCode,
             model: {
                 subjectCode: subject?.subjectCode || "",
-                totalTheoryCourseClass: 1,
                 stage: 0,
                 totalPeriodOfStage1: 21,
                 totalPeriodOfStage2: 24,
@@ -347,7 +385,7 @@ const Form_create_course_class_section_config = ({
                 weekStart: 3,
                 sessionPriorityOfStage1: -1,
                 sessionPriorityOfStage2: -1,
-                lectureRequiredConditions: [],
+                lectureRequiredConditions: ["Lecture"],
                 labRequiredConditions: [],
                 totalPeriods: 0,
             }
@@ -357,7 +395,7 @@ const Form_create_course_class_section_config = ({
         }}
         className={"grid grid-cols-4 gap-4"}
     >
-        <Form.Item className={"col-span-4"} name={"totalPeriods"} label="Tổng số tiết học" rules={[{required: true}]}>
+        <Form.Item className={"col-span-4"} name={"totalPeriods"} label="Tổng số tiết học" >
             <InputNumber min={0} />
         </Form.Item>
 
@@ -368,7 +406,6 @@ const Form_create_course_class_section_config = ({
                 className={"col-span-1"}
                 name={["model", "totalPeriodOfStage1"]}
                 label="Tổng số tiết GD1"
-                rules={[{required: true}]}
                 
             >
                 <InputNumber min={0} onChange={handleTotalPeriodOfStage1Change} />
@@ -376,79 +413,53 @@ const Form_create_course_class_section_config = ({
             <Form.Item
                 className={"col-span-1"}
                 name={["model", "theoryTotalPeriodOfStage1"]}
-                label="Số tiết lý thuyết giai đoạn 1"
-                rules={[{required: true}]}
+                label="Số tiết lý thuyết GD1"
             >
                 <InputNumber min={0} onChange={handleTheoryPeriodOfStage1Change} />
             </Form.Item>
             <Form.Item
-                label="Lịch học gợi ý"
+                label="Quy định lịch học lý thuyết GD1"
                 name={["model", "theorySessionsOfStage1"]}
-                rules={[{ required: true }]}
             >
-                <Radio.Group>
-                    {getPeriodSessionOptions(theoryTotalPeriod ?? 0, 8)?.map((e, index) => (
-                        <Radio
-                            value={Array(e?.sessionsPerWeek).fill(e?.periodsPerSession)} key={index}>
-                            {e.label}
-                        </Radio>
-                    ))}
-                    <Radio value={"custom"}>
-                        <Input
-                            onClick={(e) => e.stopPropagation()}
-                            placeholder="Tự nhập VD: 3,2,2"
-                            onChange={(e) => {
-                                form.setFieldsValue({
-                                    model: {
-                                        ...form.getFieldValue("model"),
-                                        theorySessions: e.target.value?.split(",")?.map(Number),
-                                    },
-                                });
-                            }}
-                        />
-                    </Radio>
-                </Radio.Group>
+                <Input
+                    onClick={(e) => e.stopPropagation()}
+                    placeholder="Tự nhập VD: 3,2,2"
+                    onChange={(e) => {
+                        form.setFieldsValue({
+                            model: {
+                                ...form.getFieldValue("model"),
+                                theorySessions: [...e.target.value?.split(",")?.map(Number)],
+                            },
+                        });
+                    }}
+                />
             </Form.Item>
             
             
             <Form.Item
                 name={["model", "practiceTotalPeriodOfStage1"]}
                 label="Số tiết thực hành"
-                rules={[{required: true}]}
             >
                 <InputNumber min={0} onChange={handlePracticePeriodOfStage1Change} />
             </Form.Item>
-            {!!practiceTotalPeriod && <div className={"flex flex-col gap-2"}>
-                <Form.Item
-                    label="Lịch học gợi ý"
-                    name={["model", "practiceSessions"]}
-                    rules={[{ required: true }]}
-                >
-                    <Radio.Group>
-                        {getPeriodSessionOptions(theoryTotalPeriod ?? 0, 8)?.map((e, index) => (
-                            <Radio
-                                value={Array(e?.sessionsPerWeek).fill(e?.periodsPerSession)} key={index}>
-                                {e.label}
-                            </Radio>
-                        ))}
-                        <Radio value="practiceSessionscustom">
-                            <Input
-                                onClick={(e) => e.stopPropagation()}
-                                placeholder="Tự nhập VD: 3,2,2"
-                                onChange={(e) => {
-                                    form.setFieldsValue({
-                                        model: {
-                                            ...form.getFieldValue("model"),
-                                            theorySessions: e.target.value?.split(",")?.map(Number),
-                                        },
-                                    });
-                                }}
-                            />
-                        </Radio>
-                    </Radio.Group>
-                </Form.Item>
-            </div>}
-            <Form.Item name={["model", "sessionPriorityOfStage1"]} label="Ưu tiên buổi học" rules={[{required: true}]}>
+            <Form.Item
+                label="Quy định lịch học thực hành GD1"
+                name={["model", "practiceSessionsOfStage1"]}
+            >
+                <Input
+                    onClick={(e) => e.stopPropagation()}
+                    placeholder="Tự nhập VD: 3,2,2"
+                    onChange={(e) => {
+                        form.setFieldsValue({
+                            model: {
+                                ...form.getFieldValue("model"),
+                                theorySessions: [...e.target.value?.split(",")?.map(Number)],
+                            },
+                        });
+                    }}
+                />
+            </Form.Item>
+            <Form.Item name={["model", "sessionPriorityOfStage1"]} label="Ưu tiên buổi học" >
                 <Select
                     options={[
                         {value: 0, label: "Sáng"},
@@ -467,7 +478,6 @@ const Form_create_course_class_section_config = ({
                 className={"col-span-1"}
                 name={["model", "totalPeriodOfStage2"]}
                 label="Tổng số tiết GD2"
-                rules={[{required: true}]}
             >
                 <InputNumber min={0} onChange={handleTotalPeriodOfStage1Change} />
             </Form.Item>
@@ -475,76 +485,51 @@ const Form_create_course_class_section_config = ({
                 className={"col-span-1"}
                 name={["model", "theoryTotalPeriodOfStage2"]}
                 label="Số tiết lý thuyết giai đoạn 2"
-                rules={[{required: true}]}
             >
                 <InputNumber min={0} onChange={handleTheoryPeriodOfStage2Change} />
             </Form.Item>
             <Form.Item
-                label="Lịch học gợi ý"
-                name={["model", "theorySessionsOfStage2"]} // lưu giá trị được chọn
-                rules={[{ required: true }]}
+                label="Quy định lịch học lý thuyết GD2"
+                name={["model", "theorySessionsOfStage2"]} 
             >
-                <Radio.Group>
-                    {getPeriodSessionOptions(theoryTotalPeriod ?? 0, 8)?.map((e, index) => (
-                        <Radio
-                            value={Array(e?.sessionsPerWeek).fill(e?.periodsPerSession)} key={index}>
-                            {e.label}
-                        </Radio>
-                    ))}
-                    <Radio value={"custom"}>
-                        <Input
-                            onClick={(e) => e.stopPropagation()}
-                            placeholder="Tự nhập VD: 3,2,2"
-                            onChange={(e) => {
-                                form.setFieldsValue({
-                                    model: {
-                                        ...form.getFieldValue("model"),
-                                        theorySessions: e.target.value?.split(",")?.map(Number),
-                                    },
-                                });
-                            }}
-                        />
-                    </Radio>
-                </Radio.Group>
+                <Input
+                    onClick={(e) => e.stopPropagation()}
+                    placeholder="Tự nhập VD: 3,2,2"
+                    onChange={(e) => {
+                        form.setFieldsValue({
+                            model: {
+                                ...form.getFieldValue("model"),
+                                theorySessions: [...e.target.value?.split(",")?.map(Number)],
+                            },
+                        });
+                    }}
+                />
             </Form.Item>
             <Form.Item
                 name={["model", "practiceTotalPeriodOfStage2"]}
-                label="Số tiết thực hành"
-                rules={[{required: true}]}
+                label="Số tiết thực hành GD2"
+                
             >
                 <InputNumber min={0} onChange={handlePracticePeriodOfStage2Change} />
             </Form.Item>
-            {!!practiceTotalPeriod && <div className={"flex flex-col gap-2"}>
-                <Form.Item
-                    label="Lịch học gợi ý"
-                    name={["model", "practiceSessions"]}
-                    rules={[{ required: true }]}
-                >
-                    <Radio.Group>
-                        {getPeriodSessionOptions(theoryTotalPeriod ?? 0, 8)?.map((e, index) => (
-                            <Radio
-                                value={Array(e?.sessionsPerWeek).fill(e?.periodsPerSession)} key={index}>
-                                {e.label}
-                            </Radio>
-                        ))}
-                        <Radio value="practiceSessionscustom">
-                            <Input
-                                onClick={(e) => e.stopPropagation()}
-                                placeholder="Tự nhập VD: 3,2,2"
-                                onChange={(e) => {
-                                    form.setFieldsValue({
-                                        model: {
-                                            ...form.getFieldValue("model"),
-                                            theorySessions: e.target.value?.split(",")?.map(Number),
-                                        },
-                                    });
-                                }}
-                            />
-                        </Radio>
-                    </Radio.Group>
-                </Form.Item>
-            </div>}
-            <Form.Item name={["model", "sessionPriorityOfStage2"]} label="Ưu tiên buổi học" rules={[{required: true}]}>
+            <Form.Item
+                label="Quy định lịch học thực hành"
+                name={["model", "practiceSessionsOfStage2"]}
+            >
+                <Input
+                    onClick={(e) => e.stopPropagation()}
+                    placeholder="Tự nhập VD: 3,2,2"
+                    onChange={(e) => {
+                        form.setFieldsValue({
+                            model: {
+                                ...form.getFieldValue("model"),
+                                theorySessions: [...e.target.value?.split(",")?.map(Number)],
+                            },
+                        });
+                    }}
+                />
+            </Form.Item>
+            <Form.Item name={["model", "sessionPriorityOfStage2"]} label="Ưu tiên buổi học" >
                 <Select
                     options={[
                         {value: 0, label: "Sáng"},
@@ -560,7 +545,7 @@ const Form_create_course_class_section_config = ({
 
 
 
-        <Form.Item name={["model", "weekStart"]} label="Tuần bắt đầu học thực hành (nếu có)" rules={[{required: true}]}>
+        <Form.Item name={["model", "weekStart"]} label="Tuần bắt đầu học thực hành (nếu có)" >
             <InputNumber min={0} />
         </Form.Item>
         
@@ -574,9 +559,7 @@ const Form_create_course_class_section_config = ({
             <Form.Item name={["model", "labRequiredConditions"]} label="Điều kiện phòng thực hành">
                 <Select options={conditions?.data?.data?.items?.map(e => ({label: e?.conditionName, value: e?.conditionCode}))} mode="tags" placeholder="Nhập điều kiện, enter để thêm" />
             </Form.Item>
-            <Form.Item name={["model", "totalTheoryCourseClass"]} label="Số lớp học phần cần tạo" rules={[{required: true}]}>
-                <InputNumber min={1} />
-            </Form.Item>
+            
         </div>
         <div className={"flex gap-5"}>
             <Form.Item
@@ -585,15 +568,15 @@ const Form_create_course_class_section_config = ({
                 <Button type="primary" htmlType="submit"
 
                 >
-                    Tạo lớp học phần tự động
+                    Lưu cấu hình
                 </Button>
+            </Form.Item>
+            <Form.Item
+
+            >
             </Form.Item>
             <div></div>
-            <Form.Item>
-                <Button type="primary" htmlType="submit" >
-                    Tạo lớp học phần thủ công
-                </Button>
-            </Form.Item>
+            
         </div>
     </Form>
 }

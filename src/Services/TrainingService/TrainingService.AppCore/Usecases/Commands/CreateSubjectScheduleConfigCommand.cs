@@ -12,7 +12,6 @@ public record CreateSubjectScheduleConfigCommand(CreateSubjectScheduleConfigComm
     public record struct CreateSubjectScheduleConfigModel(string SemesterCode, SubjectScheduleConfigModel Model);
     public readonly record struct SubjectScheduleConfigModel(
         string SubjectCode,
-        int TotalTheoryCourseClass,
         SubjectTimelineStage Stage,
         int TheoryTotalPeriod,
         int PracticeTotalPeriod,
@@ -29,16 +28,10 @@ public record CreateSubjectScheduleConfigCommand(CreateSubjectScheduleConfigComm
         public async Task<IResult> Handle(CreateSubjectScheduleConfigCommand request, CancellationToken cancellationToken)
         {
             var spec = new GetSubjectScheduleConfigSubjectCodeSpec(request.Model.SemesterCode, request.Model.Model.SubjectCode);
-            var existingConfig = await subjectScheduleConfigRepository.FindOneAsync(spec, cancellationToken);
-            if (existingConfig != null)
-            {
-                return Results.BadRequest("Subject schedule config already exists for this subject and semester.");
-            }
-            var newConfig = new SubjectScheduleConfig
+            var existingConfig = await subjectScheduleConfigRepository.FindOneAsync(spec, cancellationToken) ?? new SubjectScheduleConfig()
             {
                 SubjectCode = request.Model.Model.SubjectCode,
                 SemesterCode = request.Model.SemesterCode,
-                TotalTheoryCourseClass = request.Model.Model.TotalTheoryCourseClass,
                 Stage = request.Model.Model.Stage,
                 TheoryTotalPeriod = request.Model.Model.TheoryTotalPeriod,
                 PracticeTotalPeriod = request.Model.Model.PracticeTotalPeriod,
@@ -47,9 +40,18 @@ public record CreateSubjectScheduleConfigCommand(CreateSubjectScheduleConfigComm
                 WeekStart = request.Model.Model.WeekStart,
                 SessionPriority = request.Model.Model.SessionPriority,
                 LectureRequiredConditions = request.Model.Model.LectureRequiredConditions.ToList(),
-                LabRequiredConditions = request.Model.Model.LabRequiredConditions.ToList()
+                LabRequiredConditions = request.Model.Model.LabRequiredConditions.ToList(),
             };
-            await subjectScheduleConfigRepository.AddAsync(newConfig, cancellationToken);
+            existingConfig.TheoryTotalPeriod = request.Model.Model.TheoryTotalPeriod;
+            existingConfig.PracticeTotalPeriod = request.Model.Model.PracticeTotalPeriod;
+            existingConfig.TheorySessions = request.Model.Model.TheorySessions;
+            existingConfig.PracticeSessions = request.Model.Model.PracticeSessions;
+            existingConfig.WeekStart = request.Model.Model.WeekStart;
+            existingConfig.SessionPriority = request.Model.Model.SessionPriority;
+            existingConfig.LectureRequiredConditions = request.Model.Model.LectureRequiredConditions.ToList();
+            existingConfig.LabRequiredConditions = request.Model.Model.LabRequiredConditions.ToList();
+            
+            await subjectScheduleConfigRepository.UpsertOneAsync(spec, existingConfig, cancellationToken);
             return Results.Ok();
         }
     }

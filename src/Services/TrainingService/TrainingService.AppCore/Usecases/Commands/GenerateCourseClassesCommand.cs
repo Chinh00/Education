@@ -25,7 +25,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
             var (semesterCode, subjectCode, stage, totalTheoryCourseClass) = request.Model;
             if (stage is 0 or 1) 
             {
-                var spec = new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, (SubjectTimelineStage)stage);
+                var spec = new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, [(SubjectTimelineStage)stage]);
                 var config = await subjectScheduleConfigRepository.FindOneAsync(spec, cancellationToken);
                 if (config == null)
                 {
@@ -38,12 +38,12 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                 }
                 
                 var subjectScheduleConfigs = await subjectScheduleConfigRepository.FindAsync(
-                    new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, (SubjectTimelineStage)stage), cancellationToken);
+                    new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, [(SubjectTimelineStage)stage]), cancellationToken);
                 
                 foreach (var subjectScheduleConfig in subjectScheduleConfigs)
                 {
                     subjectScheduleConfig.TotalTheoryCourseClass = totalTheoryCourseClass;
-                    await subjectScheduleConfigRepository.UpsertOneAsync(new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, (SubjectTimelineStage)stage), subjectScheduleConfig, cancellationToken);
+                    await subjectScheduleConfigRepository.UpsertOneAsync(new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, [(SubjectTimelineStage)stage]), subjectScheduleConfig, cancellationToken);
                 }
 
                 foreach (var courseClass in courseClasses)
@@ -68,13 +68,13 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
 
             if (stage is 4) 
             {
-                var spec = new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, (SubjectTimelineStage)stage);
+                var spec = new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, [SubjectTimelineStage.Stage1Of2, SubjectTimelineStage.Stage2Of2]);
                 var config = await subjectScheduleConfigRepository.FindAsync(spec, cancellationToken);
                 
                 foreach (var subjectScheduleConfig in config)
                 {
                     subjectScheduleConfig.TotalTheoryCourseClass = totalTheoryCourseClass;
-                    await subjectScheduleConfigRepository.UpsertOneAsync(new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, (SubjectTimelineStage)stage), subjectScheduleConfig, cancellationToken);
+                    await subjectScheduleConfigRepository.UpsertOneAsync(new GetSubjectScheduleConfigSubjectCodeSpec(semesterCode, subjectCode, [(SubjectTimelineStage)stage]), subjectScheduleConfig, cancellationToken);
                 }
                 
                 if (config == null || !config.Any())
@@ -138,7 +138,11 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                 {
                     if (subjectScheduleConfig == null) continue;
 
-                    var childStage = subjectScheduleConfig.Stage;
+                    var childStage = (int)subjectScheduleConfig.Stage switch
+                    {
+                        3 => "GD1",
+                        4 => "GD2",
+                    };
                     var childTheoryClassCode = $"{semesterCode}_{childStage}_{subjectCode}-LT{i + 1}";
                     var childTheoryCourseClass = new CourseClass
                     {
@@ -146,7 +150,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                         CourseClassCode = childTheoryClassCode,
                         CourseClassName = $"LT {subjectCode} {i + 1}",
                         Index = globalIndex++,
-                        Stage = childStage,
+                        Stage = (SubjectTimelineStage)subjectScheduleConfig?.Stage,
                         SessionLengths = subjectScheduleConfig.TheorySessions?.ToList() ?? new List<int>(),
                         NumberStudentsExpected = rand.Next(30, 40),
                         CourseClassType = CourseClassType.Lecture,
@@ -168,7 +172,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                                 CourseClassName = $"TH {subjectCode} {i + 1}-{p + 1}",
                                 Index = globalIndex++,
                                 SemesterCode = semesterCode,
-                                Stage = childStage,
+                                Stage = (SubjectTimelineStage)subjectScheduleConfig?.Stage,
                                 CourseClassType = CourseClassType.Lab,
                                 SessionLengths = subjectScheduleConfig.PracticeSessions?.ToList() ?? new List<int>(),
                                 ParentCourseClassCode = childTheoryClassCode,

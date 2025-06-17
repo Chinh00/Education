@@ -3,9 +3,13 @@ import type { FormInstance } from "antd/es/form/hooks/useForm";
 import { useEffect } from "react";
 import { useGetConditions } from "@/app/modules/common/hook.ts";
 import {
+    CreateSubjectScheduleConfigModel,
     SubjectScheduleConfigBothModel,
 } from "@/app/modules/education/services/courseClass.service.ts";
 import { Subject } from "@/domain/subject.ts";
+import useCreateSubjectScheduleConfig from "@/app/modules/education/hooks/useCreateSubjectScheduleConfig.ts";
+import toast from "react-hot-toast";
+import {useGetSubjectScheduleConfig} from "@/app/modules/education/hooks/useGetSubjectScheduleConfig.ts";
 
 export type Props = {
     formBoth: FormInstance,
@@ -71,7 +75,17 @@ const Form_create_course_class_section_config_both = ({
             }
         });
     };
-
+    useEffect(() => {
+        if (subject) {
+            formBoth.setFieldsValue({
+                totalPeriods: (subject.numberOfCredits ?? 0) * 15,
+                model: {
+                    ...formBoth.getFieldValue("model"),
+                    theoryTotalPeriod: (subject.numberOfCredits ?? 0) * 15
+                }
+            });
+        }
+    }, [subject]);
     const handlePracticePeriodOfStage2Change = (value: number | null) => {
         const total = formBoth?.getFieldValue(["model", "totalPeriodOfStage2"]) || 0;
         const practice = Math.max(0, Math.min(value ?? 0, total));
@@ -118,9 +132,64 @@ const Form_create_course_class_section_config_both = ({
             });
         }
     }, [subject]);
+    const {mutate, isPending} = useCreateSubjectScheduleConfig()
 
+    const { data: subjectScheduleConfigs } = useGetSubjectScheduleConfig({
+        Filters: [
+            {
+                field: "SemesterCode",
+                operator: "==",
+                value: semesterCode || ""
+            },
+            {
+                field: "SubjectCode",
+                operator: "==",
+                value: subject?.subjectCode || ""
+            },
+            {
+                field: "Stage",
+                operator: "In",
+                value: "3,4"
+            }
+        ]
+    }, subject?.subjectCode !== undefined);
+    useEffect(() => {
+        if (subjectScheduleConfigs) {
+            const stage1Config = subjectScheduleConfigs?.data?.data?.items?.find(e => e.stage === 3);
+            const stage2Config = subjectScheduleConfigs?.data?.data?.items?.find(e => e.stage === 4);
+            if (stage1Config) {
+                formBoth.setFieldsValue({
+                    model: {
+                        ...formBoth.getFieldValue("model"),
+                        totalPeriodOfStage1: stage1Config.theoryTotalPeriod,
+                        theoryTotalPeriodOfStage1: stage1Config.theoryTotalPeriod,
+                        practiceTotalPeriodOfStage1: stage1Config.practiceTotalPeriod,
+                        theorySessionsOfStage1: stage1Config.theorySessions,
+                        practiceSessionsOfStage1: stage1Config.practiceSessions,
+                        sessionPriorityOfStage1: stage1Config.sessionPriority,
+                        lectureRequiredConditions: stage1Config.lectureRequiredConditions || [],
+                        labRequiredConditions: stage1Config.labRequiredConditions || [],
+                    }
+                });
+            }
+            if (stage2Config) {
+                formBoth.setFieldsValue({
+                    model: {
+                        ...formBoth.getFieldValue("model"),
+                        totalPeriodOfStage2: stage2Config.theoryTotalPeriod,
+                        theoryTotalPeriodOfStage2: stage2Config.theoryTotalPeriod,
+                        practiceTotalPeriodOfStage2: stage2Config.practiceTotalPeriod,
+                        theorySessionsOfStage2: stage2Config.theorySessions,
+                        practiceSessionsOfStage2: stage2Config.practiceSessions,
+                        sessionPriorityOfStage2: stage2Config.sessionPriority,
+                    }
+                });
+            }
+        }
+    }, [subjectScheduleConfigs]);
+    
     return (
-        <Form<SubjectScheduleConfigBothModel>
+        <Form
             form={formBoth}
             key="stageBoth"
             layout="horizontal"
@@ -133,18 +202,68 @@ const Form_create_course_class_section_config_both = ({
                     theoryTotalPeriodOfStage1: 21,
                     theoryTotalPeriodOfStage2: 24,
                     practiceTotalPeriod: 0,
-                    theorySessions: "",
-                    practiceSessions: "",
+                    theorySessions: [],
+                    practiceSessions: [],
                     weekStart: 3,
-                    sessionPriorityOfStage1: -1,
-                    sessionPriorityOfStage2: -1,
                     lectureRequiredConditions: ["Lecture"],
                     labRequiredConditions: [],
-                    totalPeriods: 0,
                 }
             }}
+            
             onFinish={(values) => {
                 console.log(values);
+
+
+                const modelOfStage1: CreateSubjectScheduleConfigModel = {
+                    semesterCode: semesterCode || "",
+                    model: {
+                        subjectCode: subject?.subjectCode || "",
+                        stage: 3,
+                        theoryTotalPeriod: values?.model.theoryTotalPeriodOfStage1 ?? 0,
+                        practiceTotalPeriod: values?.model.practiceTotalPeriodOfStage1 ?? 0,
+                        theorySessions: values?.model.theorySessionsOfStage1,
+                        practiceSessions: values?.model.practiceSessionsOfStage1,
+                        weekStart: values?.model.weekStart ?? 1,
+                        sessionPriority: values?.model.sessionPriorityOfStage1 ?? -1,
+                        lectureRequiredConditions: values?.model.lectureRequiredConditions || [],
+                        labRequiredConditions: values?.model.labRequiredConditions || [],
+                    }
+                };
+                const modelOfStage2: CreateSubjectScheduleConfigModel = {
+                    semesterCode: semesterCode || "",
+                    model: {
+                        subjectCode: subject?.subjectCode || "",
+                        stage: 4,
+                        theoryTotalPeriod: values?.model.theoryTotalPeriodOfStage2 ?? 0,
+                        practiceTotalPeriod: values?.model.practiceTotalPeriodOfStage2 ?? 0,
+                        theorySessions: values?.model.theorySessionsOfStage2,
+                        practiceSessions: values?.model.practiceSessionsOfStage2,
+                        weekStart: values?.model.weekStart ?? 1,
+                        sessionPriority: values?.model.sessionPriorityOfStage2 ?? -1,
+                        lectureRequiredConditions: values?.model.lectureRequiredConditions || [],
+                        labRequiredConditions: values?.model.labRequiredConditions || [],
+                    }
+                };
+
+
+
+                mutate(modelOfStage1, {
+                    onSuccess: () => {
+                        toast.success("Lưu cấu hình thành công");
+                    },
+                    onError: () => {
+                        toast.error("Lưu cấu hình thất bại, Có lỗi xảy ra");
+                    }
+                });
+                mutate(modelOfStage2, {
+                    onSuccess: () => {
+                        toast.success("Lưu cấu hình thành công");
+                    },
+                    onError: () => {
+                        toast.error("Lưu cấu hình thất bại, Có lỗi xảy ra");
+                    }
+                });
+                
             }}
             className={"grid grid-cols-4 gap-4"}
         >
@@ -174,11 +293,19 @@ const Form_create_course_class_section_config_both = ({
                     <Input
                         onClick={(e) => e.stopPropagation()}
                         placeholder="Tự nhập VD: 3,2,2"
+                        onChange={(e) => {
+                            formBoth.setFieldsValue({
+                                model: {
+                                    ...formBoth.getFieldValue("model"),
+                                    theorySessionsOfStage1: [...e.target.value?.split(",")?.map(Number)],
+                                },
+                            });
+                        }}
                     />
                 </Form.Item>
                 <Form.Item
                     name={["model", "practiceTotalPeriodOfStage1"]}
-                    label="Số tiết thực hành"
+                    label="Số tiết thực hành GD1"
                 >
                     <InputNumber min={0} onChange={handlePracticePeriodOfStage1Change} />
                 </Form.Item>
@@ -189,6 +316,14 @@ const Form_create_course_class_section_config_both = ({
                     <Input
                         onClick={(e) => e.stopPropagation()}
                         placeholder="Tự nhập VD: 3,2,2"
+                        onChange={(e) => {
+                            formBoth.setFieldsValue({
+                                model: {
+                                    ...formBoth.getFieldValue("model"),
+                                    practiceSessionsOfStage1: [...e.target.value?.split(",")?.map(Number)],
+                                },
+                            });
+                        }}
                     />
                 </Form.Item>
                 <Form.Item name={["model", "sessionPriorityOfStage1"]} label="Ưu tiên buổi học" >
@@ -224,6 +359,14 @@ const Form_create_course_class_section_config_both = ({
                     <Input
                         onClick={(e) => e.stopPropagation()}
                         placeholder="Tự nhập VD: 3,2,2"
+                        onChange={(e) => {
+                            formBoth.setFieldsValue({
+                                model: {
+                                    ...formBoth.getFieldValue("model"),
+                                    theorySessionsOfStage2: [...e.target.value?.split(",")?.map(Number)],
+                                },
+                            });
+                        }}
                     />
                 </Form.Item>
                 <Form.Item
@@ -239,6 +382,14 @@ const Form_create_course_class_section_config_both = ({
                     <Input
                         onClick={(e) => e.stopPropagation()}
                         placeholder="Tự nhập VD: 3,2,2"
+                        onChange={(e) => {
+                            formBoth.setFieldsValue({
+                                model: {
+                                    ...formBoth.getFieldValue("model"),
+                                    practiceSessionsOfStage2: [...e.target.value?.split(",")?.map(Number)],
+                                },
+                            });
+                        }}
                     />
                 </Form.Item>
                 <Form.Item name={["model", "sessionPriorityOfStage2"]} label="Ưu tiên buổi học" >

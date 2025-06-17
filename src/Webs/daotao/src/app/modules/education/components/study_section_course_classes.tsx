@@ -133,6 +133,8 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                     ]?.join(",")!,
                 },
             ],
+            Page: 1,
+            PageSize: 100
         },
         courseClassesParent !== undefined &&
         courseClassesParent?.data?.data?.items?.map((c) => c.courseClassCode)?.length > 0 &&
@@ -404,7 +406,7 @@ const StudySectionCourseClasses = ({subjectCode}: StudySectionCourseClassesProps
                     {timeLines?.data?.data?.items?.filter(e => e?.courseClassCode === record?.courseClassCode)?.map(e => (
                         <div key={e.id} className={"flex flex-row flex-nowrap gap-1"}>
                             <span  className={"font-bold text-blue-500"}>Thứ: {e.dayOfWeek + 2}</span>
-                            <span  className={"text-green-600"}>Phòng: {e.roomCode + 2}</span>
+                            <span  className={"text-green-600"}>Phòng: {e.roomCode}</span>
                             <span className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {(+e.slots[0]) + 1}
                                 <ArrowRight size={10} />
                                 {+e.slots?.[e.slots?.length - 1] + 1}

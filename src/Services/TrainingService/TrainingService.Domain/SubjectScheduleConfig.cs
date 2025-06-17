@@ -22,4 +22,13 @@ public class SubjectScheduleConfig : BaseEntity
     public int[] PracticeSessions { get; set; } = [];
     // tuan bat dau cua mon hoc trong hoc ky
     public int WeekStart { get; set; } = 0;
+    public int SessionPriority { get; set; } = 0; // 0 la buoi sang, 1 la buoi chieu 
+    
+    // dieu kien phong de hoc ly thuyet VD: ["Lecture"]
+    public List<string> LectureRequiredConditions { get; set; } = [];
+    // dieu kien phong de hoc thuc hanh VD: ["Lab", "GCTC", "Physical"]
+    
+    public List<string> LabRequiredConditions { get; set; } = [];
+    
+    
 }

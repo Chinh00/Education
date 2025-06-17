@@ -38,7 +38,7 @@ const TableSchedule = () => {
                 // @ts-ignore
                 acc[item?.id as string] = {
                     id: item.id,
-                    dayOfWeek: dayIndex,
+                    dayOfWeek: dayIndex - 1,
                     slots,
                     roomCode: item.roomCode,
                 } as unknown as SlotTimeline

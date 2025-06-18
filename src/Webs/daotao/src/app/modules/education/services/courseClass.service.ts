@@ -79,8 +79,8 @@ const createCourseClasses = async (model: CourseClassModel): Promise<AxiosRespon
 const getCourseClassTimeline = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.get(`/trainingservice/api/CourseClass/Schedule?${GetQuery(query)}`)
 const updateCourseClassStatus = async (model: UpdateCourseClassStatusModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.put(`/trainingservice/api/CourseClass/Status`, model)
 const removeStudentFromCourseClass = async (model: RemoveStudentFromCourseClassModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.put(`/trainingservice/api/CourseClass/Student`, model)
-const removeCourseClassSlotTimeline = async ({courseClassCode, slotTimelineId}: {courseClassCode: string, slotTimelineId: string}): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.delete(`/trainingservice/api/CourseClass/Schedule/${courseClassCode}/${slotTimelineId}`)
-const addCourseClassSlotTimeline = async (model: AddCourseClassSlotTimelineModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.post(`/trainingservice/api/CourseClass/Schedule`)
+const removeCourseClassSlotTimeline = async ({courseClassCode, slotTimelineId}: {courseClassCode: string, slotTimelineId: string}): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.delete(`/trainingservice/api/CourseClass/${courseClassCode}/Schedule/${slotTimelineId}`)
+const addCourseClassSlotTimeline = async (model: AddCourseClassSlotTimelineModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.post(`/trainingservice/api/CourseClass/Schedule`, model)
 export interface SubjectScheduleConfigModel {
     subjectCode: string;
     stage: number; 

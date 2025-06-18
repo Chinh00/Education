@@ -62,7 +62,7 @@ const Edit_table_schedule = ({courseClassCode, subjectCode}: Edit_table_schedule
                         {getSubject?.subjectName} | Lớp <span className={"font-bold text-blue-500"}>{courseClassParent?.data?.data?.items?.[0]?.courseClassName}</span>
                     </div>
                     <div>
-                        dc
+                        <Button icon={<DeleteOutlined />} danger />
                     </div>
                 </div>}
                 loading={isLoading}

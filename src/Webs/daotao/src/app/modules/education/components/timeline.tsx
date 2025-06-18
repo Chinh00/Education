@@ -1,6 +1,6 @@
 ﻿import { Card, CardContent } from "@/app/components/ui/card.tsx";
 import { daysOfWeek, timeSlots } from "@/infrastructure/date.ts";
-import { CalendarRange, GripVertical, Plus, Trash2 } from "lucide-react";
+import { CalendarRange, CircleCheck, GripVertical, Plus, Trash2 } from "lucide-react";
 import {Button, Dropdown, Select, Spin, Table, Tooltip, Typography} from "antd";
 import React, {useEffect, useState} from "react";
 import { ScheduleItem } from "@/app/modules/register/pages/course_class_config.tsx";
@@ -16,6 +16,9 @@ import {CourseClass} from "@/domain/course_class.ts";
 import {getOverlappingPairs} from "@/app/modules/education/components/overlapUtils.ts";
 import {useGetRoomFreeSlots} from "@/app/modules/education/hooks/useGetRoomFreeSlots.ts";
 import {SearchRoomFreeQueryModel} from "@/app/modules/education/services/courseClass.service.ts";
+import {useRemoveCourseClassSlotTimeline} from "@/app/modules/education/hooks/useRemoveCourseClassSlotTimeline.ts";
+import toast from "react-hot-toast";
+import {useAddCourseClassSlotTimeline} from "@/app/modules/education/hooks/useAddCourseClassSlotTimeline.ts";
 
 export type TimelineProps = {
     courseClass: CourseClass | undefined
@@ -30,7 +33,6 @@ const Timeline = ({courseClass}: TimelineProps) => {
     const [dragPreview, setDragPreview] = useState<{ dayIndex: number; startSlot: number; endSlot: number } | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([]);
-    const dispatch = useAppDispatch();
 
 
     
@@ -176,9 +178,52 @@ const Timeline = ({courseClass}: TimelineProps) => {
         setIsDragging(false);
     };
 
-    // Delete block
+    const {mutate: removeMutateCourseClassSlotTimeline, reset: removeSlotTimelineReset, isPending: removeSlotTimelineLoading} = useRemoveCourseClassSlotTimeline()
+    const {mutate: addSlotTimelineMutate, reset: addSlotTimelineReset, isPending: addSlotTimelineLoading} = useAddCourseClassSlotTimeline()
+    const [selectedRoomCode, setSelectedRoomCode] = useState("");
+    const handleSaveNewSlotTimeline = (dayOfWeek: number, sessionLength: number, startPeriod: number) => {
+        if (!courseClass || !selectedRoomCode || sessionLength <= 0 || startPeriod < 0) {
+            toast.error("Vui lòng chọn đầy đủ thông tin");
+            return;
+        }
+        addSlotTimelineMutate({
+            courseClassCode: courseClass?.courseClassCode || "",
+            roomCode: selectedRoomCode,
+            dayOfWeek,
+            slots: Array.from({ length: sessionLength }, (_, i) => (startPeriod + i).toString())
+        }, {
+            onSuccess: () => {
+                toast.success("Đã lưu tiết học thành công");
+                setScheduledItems([])
+                addSlotTimelineReset();
+                timelineRefetch()
+            },
+            onError: (error) => {
+                console.error("Error adding slot timeline:", error);
+            }
+        })
+    }
     const handleDelete = (itemId: string) => {
-        setScheduledItems(prev => prev.filter(i => i.id !== itemId));
+        if (!itemId?.startsWith("schedule-")) {
+            removeMutateCourseClassSlotTimeline({
+                courseClassCode: courseClass?.courseClassCode || "",
+                slotTimelineId: itemId
+            }, {
+                onSuccess: () => {
+                    toast.success("Đã xoá tiết học thành công");
+                    setScheduledItems(prev => prev.filter(i => i.id !== itemId));
+                    removeSlotTimelineReset();
+                    setScheduledItems([])
+                    timelineRefetch()
+                },
+                onError: (error) => {
+                    console.error("Error removing slot timeline:", error);
+                }
+            })
+        } else {
+            setScheduledItems(prev => prev.filter(i => i.id !== itemId));
+        }
+        
     };
 
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
@@ -207,7 +252,7 @@ const Timeline = ({courseClass}: TimelineProps) => {
             }
         }
     }, [courseClass]);
-    const {data: timelines} = useGetTimeline({
+    const {data: timelines, refetch: timelineRefetch} = useGetTimeline({
         Filters: [
             {
                 field: "CourseClassCode",
@@ -233,7 +278,6 @@ const Timeline = ({courseClass}: TimelineProps) => {
         }
     }, [timelines]);
 
-  
     
     return (
         <div className={"px-5"}>
@@ -356,14 +400,31 @@ const Timeline = ({courseClass}: TimelineProps) => {
                                                                     loading={roomsAvailableLoading}
                                                                     placeholder={"Chọn phòng học"}
                                                                     onChange={e => {
-                                                                        // Xử lý chọn phòng
+                                                                        setSelectedRoomCode(e);
+                                                                        setScheduledItems(prev => prev.map(i => {
+                                                                            if (i.id === item.id) {
+                                                                                return {
+                                                                                    ...i,
+                                                                                    roomCode: e
+                                                                                };
+                                                                            }
+                                                                            return i;
+                                                                        }));
                                                                     }}
                                                                 />
                                                                 <Tooltip title={"Xoá tiết học"}>
-                                                                    <IconButton onClick={() => handleDelete(item.id)}>
+                                                                    <IconButton loading={removeSlotTimelineLoading} onClick={() => handleDelete(item.id)}>
                                                                         <Trash2 size={18} />
                                                                     </IconButton>
                                                                 </Tooltip>
+                                                                {item?.id?.startsWith("schedule-") && (
+                                                                    <Tooltip title={"Lưu tiết học"}>
+                                                                        <IconButton color={"primary"} loading={addSlotTimelineLoading} onClick={() => handleSaveNewSlotTimeline(item.dayIndex, item.duration, item.startSlot - 1)}>
+                                                                            <CircleCheck size={18} />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                )}
+                                                                
                                                             </Box>
                                                         )}
                                                     />

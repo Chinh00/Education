@@ -22,18 +22,13 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
         IMongoRepository<SlotTimeline> slotTimelineRepository
     ) : IRequestHandler<GenerateScheduleCommand, IResult>
     {
-        // Số lớp tối đa của cùng môn được phép dạy cùng khung giờ
         private const int MAX_CLASS_PER_SUBJECT_PER_SLOT = 3;
-        // Khoảng cách tối thiểu giữa các buổi lý thuyết của cùng 1 lớp (ngày)
         private const int MIN_DISTANCE_BETWEEN_LECTURES = 2;
 
         public async Task<IResult> Handle(GenerateScheduleCommand request, CancellationToken cancellationToken)
         {
             var rooms = await roomRepository.FindAsync(new TrueSpecificationBase<Room>(), cancellationToken);
             var courseClasses = new List<CourseClass>();
-
-            var courseClassOfTree = await courseClassRepository.FindOneAsync(
-                new GetCourseClassByListCodeAndSemesterCodeSpec(request.Model.CourseClassCodes, request.Model.SemesterCode), cancellationToken);
 
             foreach (var modelCourseClassCode in request.Model.CourseClassCodes)
             {
@@ -101,6 +96,29 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
             for (int d = 0; d < totalDays; d++)
                 for (int p = 0; p < periodsPerDay; p++)
                     slotSubjectCount[(d, p)] = 0;
+
+            // Lấy lịch đã xếp cho tất cả các phòng trong học kỳ này (để không xếp chồng lên lịch phòng cũ)
+            var oldSlotTimelines = await slotTimelineRepository.FindAsync(
+                new GetSlotTimelineBySemesterCodeAndListRoomCodeAndStageSpec(request.Model.SemesterCode,
+                    rooms.Select(e => e.Code).ToArray(), (SubjectTimelineStage)courseClasses?.FirstOrDefault()?.Stage), cancellationToken);
+
+            // CHUẨN BỊ MAP ĐỂ TRA CỨU NHANH LỊCH PHÒNG CŨ
+            var oldRoomBusy = new Dictionary<string, HashSet<(int day, int period)>>();
+            foreach (var room in rooms)
+                oldRoomBusy[room.Code] = new HashSet<(int, int)>();
+            foreach (var slot in oldSlotTimelines)
+            {
+                var day = slot.DayOfWeek;
+                var roomCode = slot.RoomCode;
+                if (!oldRoomBusy.ContainsKey(roomCode)) continue;
+                foreach (var slotStr in slot.Slots)
+                {
+                    if (int.TryParse(slotStr, out var period))
+                    {
+                        oldRoomBusy[roomCode].Add((day, period));
+                    }
+                }
+            }
 
             foreach (var courseClass in courseClasses)
             {
@@ -216,10 +234,16 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                             bool tooManyInSlot = false;
                             for (int p = 0; p < sessionLen; p++)
                             {
-                                if (slotSubjectCount[(day, startPeriod + p)] >= MAX_CLASS_PER_SUBJECT_PER_SLOT)
+                                if (day >= 0 && startPeriod + p >= 0)
                                 {
-                                    tooManyInSlot = true;
-                                    break;
+                                    if (slotSubjectCount.TryGetValue((day, startPeriod + p), out int currentCount))
+                                    {
+                                        if (currentCount >= MAX_CLASS_PER_SUBJECT_PER_SLOT)
+                                        {
+                                            tooManyInSlot = true;
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                             if (tooManyInSlot) continue;
@@ -230,6 +254,21 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                                 if (room.SupportedConditions == null ||
                                     !requiredConditions.All(cond => room.SupportedConditions.Contains(cond)))
                                     continue;
+
+                                // ==== BỔ SUNG: CHECK PHÒNG ĐÃ CÓ LỊCH CŨ KHÔNG ====
+                                bool conflictWithOld = false;
+                                for (int p = 0; p < sessionLen; p++)
+                                {
+                                    if (day >= 0 && startPeriod + p >= 0
+                                        && oldRoomBusy.TryGetValue(room.Code, out var busySet)
+                                        && busySet.Contains((day, startPeriod + p)))
+                                    {
+                                        conflictWithOld = true;
+                                        break;
+                                    }
+                                }
+                                if (conflictWithOld) continue;
+                                // ==== END CHECK PHÒNG ĐÃ CÓ LỊCH CŨ ====
 
                                 // ==== CHECK CONFLICT LAB-LAB ====
                                 if (courseClass.CourseClassType == CourseClassType.Lab)
@@ -256,15 +295,18 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                                 }
                                 // ==== END CHECK ====
 
-                                // Check slot trống
+                                // Check slot trống (tạm trong phiên xếp lịch này)
                                 bool conflict = false;
                                 for (int p = 0; p < sessionLen; p++)
-                                    if (roomUsage[room.Code][day, startPeriod + p]) conflict = true;
+                                    if (day >= 0 && startPeriod + p >= 0 && roomUsage[room.Code][day, startPeriod + p]) conflict = true;
                                 if (conflict) continue;
 
                                 // Đánh dấu slot đã sử dụng
-                                for (int p = 0; p < sessionLen; p++)
-                                    roomUsage[room.Code][day, startPeriod + p] = true;
+                                if (day >= 0 && startPeriod >= 0)
+                                {
+                                    for (int p = 0; p < sessionLen; p++)
+                                        roomUsage[room.Code][day, startPeriod + p] = true;
+                                }
 
                                 // Đánh dấu ngày đã dùng cho lý thuyết (Lecture)
                                 if (courseClass.CourseClassType == CourseClassType.Lecture)
@@ -294,10 +336,19 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                                 }, cancellationToken);
 
                                 // Cập nhật số lớp đã xếp vào ngày này
-                                daySubjectCount[day]++;
+                                if (day >= 0)
+                                    daySubjectCount[day]++;
+
                                 // Cập nhật số lớp cùng môn đã xếp vào từng khung giờ
-                                for (int p = 0; p < sessionLen; p++)
-                                    slotSubjectCount[(day, startPeriod + p)]++;
+                                if (day >= 0 && startPeriod >= 0)
+                                {
+                                    for (int p = 0; p < sessionLen; p++)
+                                    {
+                                        var key = (day, startPeriod + p);
+                                        if (slotSubjectCount.ContainsKey(key))
+                                            slotSubjectCount[key]++;
+                                    }
+                                }
 
                                 assigned = true;
                                 break;

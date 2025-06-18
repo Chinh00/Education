@@ -24,6 +24,8 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
     {
         // Số lớp tối đa của cùng môn được phép dạy cùng khung giờ
         private const int MAX_CLASS_PER_SUBJECT_PER_SLOT = 3;
+        // Khoảng cách tối thiểu giữa các buổi lý thuyết của cùng 1 lớp (ngày)
+        private const int MIN_DISTANCE_BETWEEN_LECTURES = 2;
 
         public async Task<IResult> Handle(GenerateScheduleCommand request, CancellationToken cancellationToken)
         {
@@ -121,6 +123,10 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                 if (!parentUsedTheoryDays.ContainsKey(parentCode)) parentUsedTheoryDays[parentCode] = new HashSet<int>();
                 var usedTheoryDays = parentUsedTheoryDays[parentCode]; // Ngày đã dùng cho lý thuyết (Lecture) cùng parent
 
+                // ==== Khoảng cách tối thiểu giữa các buổi lý thuyết của cùng 1 lớp ====
+                // Lưu các ngày đã xếp lý thuyết cho lớp này
+                var theoryDaysForThisClass = new List<int>();
+
                 var sessionLengths = courseClass.SessionLengths ?? new List<int> { 3 }; // mặc định 1 buổi 3 tiết
                 var sessionList = new List<object>();
 
@@ -189,6 +195,13 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                         // LECTURE hoặc LAB đều không được xếp trùng ngày với lý thuyết cùng parent
                         if (usedTheoryDays.Contains(day)) continue;
 
+                        // ==== Kiểm tra khoảng cách tối thiểu giữa các buổi lý thuyết của cùng 1 lớp ====
+                        if (courseClass.CourseClassType == CourseClassType.Lecture)
+                        {
+                            bool tooClose = theoryDaysForThisClass.Any(prevDay => Math.Abs(day - prevDay) < MIN_DISTANCE_BETWEEN_LECTURES);
+                            if (tooClose) continue;
+                        }
+
                         foreach (int startPeriod in startPeriods)
                         {
                             if (startPeriod > periodsPerDay - sessionLen) continue;
@@ -255,7 +268,10 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
 
                                 // Đánh dấu ngày đã dùng cho lý thuyết (Lecture)
                                 if (courseClass.CourseClassType == CourseClassType.Lecture)
+                                {
                                     usedTheoryDays.Add(day);
+                                    theoryDaysForThisClass.Add(day);
+                                }
 
                                 var slotList = new List<string>();
                                 for (int p = 0; p < sessionLen; p++)

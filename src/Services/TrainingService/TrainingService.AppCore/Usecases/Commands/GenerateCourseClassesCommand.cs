@@ -126,7 +126,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
             {
                 // Lớp cha lý thuyết cho cả 2 giai đoạn
                 string stagePart = "2GD";
-                var theoryClassCode = $"{semesterCode}_{stagePart}_{subjectCode}-LT{i + 1}";
+                var theoryClassCode = $"{semesterCode}_2GD_{subjectCode}-LT{i + 1}";
                 var theoryCourseClass = new CourseClass
                 {
                     SubjectCode = subjectCode,
@@ -151,7 +151,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                         2 => "GD1",
                         3 => "GD2",
                     };
-                    var childTheoryClassCode = $"{semesterCode}_{childStage}_{subjectCode}-LT{i + 1}";
+                    var childTheoryClassCode = $"{semesterCode}_2{childStage}_{subjectCode}-LT{i + 1}";
                     var childTheoryCourseClass = new CourseClass
                     {
                         SubjectCode = subjectCode,
@@ -172,7 +172,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                     {
                         for (int p = 0; p < 2; p++)
                         {
-                            var labClassCode = $"{semesterCode}_{childStage}_{subjectCode}-TH{i + 1}-{p + 1}";
+                            var labClassCode = $"{semesterCode}_2{childStage}_{subjectCode}-TH{i + 1}-{p + 1}";
                             var labCourseClass = new CourseClass
                             {
                                 SubjectCode = subjectCode,
@@ -201,12 +201,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
 
             for (int i = 0; i < totalTheoryCourseClass; i++)
             {
-                string stagePart = new List<SubjectTimelineStage> { SubjectTimelineStage.Stage1Of2, SubjectTimelineStage.Stage2Of2 }
-                    .Contains(config.Stage)
-                    ? "2GD"
-                    : "GD" + config.Stage;
-
-                var theoryClassCode = $"{semesterCode}_{stagePart}_{config.SubjectCode}-LT{i + 1}";
+                var theoryClassCode = $"{semesterCode}_GD{(int)config.Stage + 1}_{config.SubjectCode}-LT{i + 1}";
                 var theoryCourseClass = new CourseClass
                 {
                     SubjectCode = config.SubjectCode,
@@ -224,7 +219,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                 {
                     for (int p = 0; p < 2; p++)
                     {
-                        var labClassCode = $"{semesterCode}_{config.SubjectCode}-TH{i + 1}-{p + 1}";
+                        var labClassCode = $"{semesterCode}_{config.SubjectCode}_GD{(int)config.Stage + 1}_TH{i + 1}_L{p + 1}";
                         var labCourseClass = new CourseClass
                         {
                             SubjectCode = config.SubjectCode,

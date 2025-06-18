@@ -52,7 +52,7 @@ const Room_list = () => {
         {
             title: 'Hành động',
             render: (text, record) => (
-                <Room_timeline />
+                <Room_timeline room={record} />
             )
         },
         

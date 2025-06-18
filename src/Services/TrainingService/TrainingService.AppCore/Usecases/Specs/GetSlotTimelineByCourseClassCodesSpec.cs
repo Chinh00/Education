@@ -6,7 +6,8 @@ namespace TrainingService.AppCore.Usecases.Specs;
 
 public class GetSlotTimelineByCourseClassCodesSpec : ListSpecificationBase<SlotTimeline>
 {
-    public GetSlotTimelineByCourseClassCodesSpec(List<string> courseClassCodes)
+    public 
+        GetSlotTimelineByCourseClassCodesSpec(List<string> courseClassCodes)
     {
         ApplyFilter(c => courseClassCodes.Contains(c.CourseClassCode));
         ApplyInclude(e => e.CourseClassCode);

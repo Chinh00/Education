@@ -22,6 +22,9 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
         IMongoRepository<SlotTimeline> slotTimelineRepository
     ) : IRequestHandler<GenerateScheduleCommand, IResult>
     {
+        // Số lớp tối đa của cùng môn được phép dạy cùng khung giờ
+        private const int MAX_CLASS_PER_SUBJECT_PER_SLOT = 3;
+
         public async Task<IResult> Handle(GenerateScheduleCommand request, CancellationToken cancellationToken)
         {
             var rooms = await roomRepository.FindAsync(new TrueSpecificationBase<Room>(), cancellationToken);
@@ -90,6 +93,12 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
             // Đếm số lớp đã xếp vào từng ngày cho môn này
             var daySubjectCount = new Dictionary<int, int>();
             for (int d = 0; d < totalDays; d++) daySubjectCount[d] = 0;
+
+            // Đếm số lớp cùng môn đã xếp vào từng khung giờ (day, period)
+            var slotSubjectCount = new Dictionary<(int day, int period), int>();
+            for (int d = 0; d < totalDays; d++)
+                for (int p = 0; p < periodsPerDay; p++)
+                    slotSubjectCount[(d, p)] = 0;
 
             foreach (var courseClass in courseClasses)
             {
@@ -190,6 +199,18 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                             if (periodFirst <= 5 && periodLast >= 6)
                                 continue;
 
+                            // ==== KIỂM SOÁT SỐ LỚP DẠY CÙNG KHUNG GIỜ ====
+                            bool tooManyInSlot = false;
+                            for (int p = 0; p < sessionLen; p++)
+                            {
+                                if (slotSubjectCount[(day, startPeriod + p)] >= MAX_CLASS_PER_SUBJECT_PER_SLOT)
+                                {
+                                    tooManyInSlot = true;
+                                    break;
+                                }
+                            }
+                            if (tooManyInSlot) continue;
+
                             foreach (var room in rooms.OrderBy(_ => Guid.NewGuid()).ToList())
                             {
                                 if (courseClass.NumberStudentsExpected > room.Capacity) continue;
@@ -258,6 +279,10 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
 
                                 // Cập nhật số lớp đã xếp vào ngày này
                                 daySubjectCount[day]++;
+                                // Cập nhật số lớp cùng môn đã xếp vào từng khung giờ
+                                for (int p = 0; p < sessionLen; p++)
+                                    slotSubjectCount[(day, startPeriod + p)]++;
+
                                 assigned = true;
                                 break;
                             }

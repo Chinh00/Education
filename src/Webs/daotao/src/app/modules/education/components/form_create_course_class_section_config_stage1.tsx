@@ -102,6 +102,7 @@ const Form_create_course_class_section_config_stage1 = ({
                 }
             });
         }
+        console.log(subjectScheduleConfig?.sessionPriority)
     }, [subjectScheduleConfig]);
 
     return (

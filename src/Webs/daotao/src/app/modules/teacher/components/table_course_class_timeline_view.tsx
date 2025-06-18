@@ -83,7 +83,10 @@ const Table_course_class_timeline_view = () => {
         title: e,
         options: rooms?.map(e => ({ label: <span>{e?.name} ({e?.capacity})</span>, value: e?.code ?? "" })) ?? []
     }));
-    const [query, setQuery] = useState<Query>({});
+    const [query, setQuery] = useState<Query>({
+        Page: 1,
+        PageSize: 1000
+    });
 
     useEffect(() => {
         if (selectedRowKeysParents?.length > 0 || selectedRowKeysChildren?.length > 0) {

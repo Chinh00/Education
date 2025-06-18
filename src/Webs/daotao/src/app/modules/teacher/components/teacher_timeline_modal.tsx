@@ -198,7 +198,9 @@ const TeacherTimelineModal = ({staffCode}: TeacherTimelineModalProps) => {
                 value: `${selectedCourseClassStage}`
             }
             
-        ]
+        ],
+            Page: 1,
+            PageSize: 1000
     } : {
             Filters: [
                 {
@@ -206,7 +208,9 @@ const TeacherTimelineModal = ({staffCode}: TeacherTimelineModalProps) => {
                     operator: "==",
                     value: staffCode ?? ""
                 }
-            ]
+            ],
+                Page: 1,
+                PageSize: 1000
             }, staffCode !== undefined && staffCode !== "" && openModel)
 
     const {data: timeline, isLoading: timelineLoading} = useGetTimeline({
@@ -216,7 +220,9 @@ const TeacherTimelineModal = ({staffCode}: TeacherTimelineModalProps) => {
                 operator: "In",
                 value: courseClasses?.data?.data?.items?.map(c => c.courseClassCode)?.join(",")!
             }
-        ]
+        ],
+        Page: 1,
+        PageSize: 1000
     }, courseClasses !== undefined && courseClasses?.data?.data?.items?.length > 0 && openModel)
 
     useEffect(() => {

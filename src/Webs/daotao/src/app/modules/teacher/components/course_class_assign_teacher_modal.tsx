@@ -56,7 +56,9 @@ const CourseClassAssignTeacherModal = ({subjectCode}: CourseClassAssignTeacherMo
                 value: subjectCode!
             },
             { field: "ParentCourseClassCode", operator: "==", value: "" },
-        ]
+        ],
+        Page: 1,
+        PageSize: 1000
     }, openModel && subject !== undefined)
 
     useEffect(() => {
@@ -77,7 +79,9 @@ const CourseClassAssignTeacherModal = ({subjectCode}: CourseClassAssignTeacherMo
                 operator: "In",
                 value: courseClassParent?.data?.data?.items?.map(item => item.courseClassCode).join(",") || ""
             }
-        ]
+        ],
+        Page: 1,
+        PageSize: 1000
     }, openModel && subject !== undefined && courseClassParent !== undefined && courseClassParent?.data?.data?.items?.length > 0)
     
     useEffect(() => {

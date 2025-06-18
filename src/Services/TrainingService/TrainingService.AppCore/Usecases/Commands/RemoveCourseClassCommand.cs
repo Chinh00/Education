@@ -12,8 +12,8 @@ public record RemoveCourseClassCommand(string CourseClassCode) : ICommand<IResul
 {
     internal class Handler(
         IMongoRepository<CourseClass> courseClassRepository,
-        IClaimContextAccessor claimContextAccessor
-        ) : IRequestHandler<RemoveCourseClassCommand, IResult>
+        IClaimContextAccessor claimContextAccessor,
+        IMongoRepository<SlotTimeline> slotTimelineRepository) : IRequestHandler<RemoveCourseClassCommand, IResult>
     {
         public async Task<IResult> Handle(RemoveCourseClassCommand request, CancellationToken cancellationToken)
         {
@@ -22,7 +22,13 @@ public record RemoveCourseClassCommand(string CourseClassCode) : ICommand<IResul
             {
                 return Results.BadRequest($"Course class with code {request.CourseClassCode} not found.");
             }
-
+            
+            var spec = new GetSlotTimelineByCourseClassCodeSpec(courseClass.CourseClassCode);
+            var slotTimelines = await slotTimelineRepository.FindAsync(spec, cancellationToken);
+            foreach (var slotTimeline in slotTimelines)
+            {
+                await slotTimelineRepository.RemoveOneAsync(new GetSlotTimelineByCourseClassCodeSpec(slotTimeline.CourseClassCode), cancellationToken);
+            }
             await courseClassRepository.RemoveOneAsync(new GetCourseClassByCodeSpec(request.CourseClassCode), cancellationToken);
             return Results.NoContent();
         }

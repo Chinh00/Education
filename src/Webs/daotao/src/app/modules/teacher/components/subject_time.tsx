@@ -25,6 +25,8 @@ const SubjectTime = (props: SubjectTimeProps) => {
                         .join(","),
                 },
             ],
+            Page: 1,
+            PageSize: 1000
         },
         props?.courseClassCode !== undefined &&
         [...props.courseClassCode, ...(props?.teacherCourseClassCode ?? [])].filter((e) => e !== "")

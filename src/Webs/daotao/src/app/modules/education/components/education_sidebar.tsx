@@ -90,6 +90,20 @@ const EducationSidebar = () => {
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
+            <SidebarGroup>
+                <SidebarGroupLabel className={""}>Phòng học</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton onClick={() => nav(RoutePaths.ROOM_LIST)}>
+                                <List />
+                                Danh sách phòng học
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+            
 
         </div>
     )

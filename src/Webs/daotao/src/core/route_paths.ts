@@ -20,6 +20,8 @@ export const RoutePaths = {
     SUBJECT_LIST: '/educations/subjects',
     SUBJECT_DETAIL: '/subjects/:id',
     EDUCATION_SUBJECT_TIMELINE_CREATE: '/educations/subjects/timeline/create',
+    
+    ROOM_LIST: '/rooms',
 
     
 

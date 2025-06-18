@@ -89,6 +89,11 @@ export interface SubjectScheduleConfigBothModel {
     lectureRequiredConditions: string[];
     labRequiredConditions: string[];
 }
+export interface GenerateScheduleModel {
+    semesterCode: string;
+    subjectCode: string;
+    courseClassCodes: string[];
+}
 
 
 export interface GenerateCourseClassesModel {
@@ -111,9 +116,10 @@ export interface UpdateCourseClassModel {
 
 
 const generateCourseClasses = async (model: GenerateCourseClassesModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.post(`/trainingservice/api/CourseClass/GenerateCourseClasses`, model)
+const generateSchedule = async (model: GenerateScheduleModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.post(`/trainingservice/api/CourseClass/GenerateSchedule`, model)
 const createSubjectScheduleConfig = async (model: CreateSubjectScheduleConfigModel): Promise<AxiosResponse<SuccessResponse<SubjectScheduleConfigModel>>> => await http.post(`/trainingservice/api/CourseClass/SubjectScheduleConfig`, model)
 const getSubjectScheduleConfig = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SubjectScheduleConfig>>>> => await http.get(`/trainingservice/api/CourseClass/SubjectScheduleConfig?${GetQuery(query)}`)
 const updateCourseClass = async (model: UpdateCourseClassModel): Promise<AxiosResponse<SuccessResponse<string>>> => await http.put(`/trainingservice/api/CourseClass`, model)
 const removeCourseClass = async (courseClassCode: string): Promise<AxiosResponse<SuccessResponse<string>>> => await http.delete(`/trainingservice/api/CourseClass/${courseClassCode}`)
 
-export {getCourseClasses, updateCourseClass, removeCourseClass, getSubjectScheduleConfig, createSubjectScheduleConfig, getCourseClassTimeline, createCourseClasses, updateCourseClassStatus, removeStudentFromCourseClass, generateCourseClasses}
+export {getCourseClasses, generateSchedule, updateCourseClass, removeCourseClass, getSubjectScheduleConfig, createSubjectScheduleConfig, getCourseClassTimeline, createCourseClasses, updateCourseClassStatus, removeStudentFromCourseClass, generateCourseClasses}

@@ -34,6 +34,8 @@ import type { ColumnType } from "antd/es/table";
 import {useUpdateCourseClass} from "@/app/modules/education/hooks/useUpdateCourseClass.ts";
 import {setQuery} from "@/app/modules/education/stores/education_slice.ts";
 import {useGenerateSchedule} from "@/app/modules/education/hooks/useGenerateSchedule.ts";
+import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
+import {ArrowRight} from "lucide-react";
 interface EditableColumnType<T> extends ColumnType<T> {
     editable?: boolean;
 }
@@ -227,6 +229,26 @@ const Course_class_list = () => {
             });
         }
     };
+    const { data: timeLines, refetch: timelineRefetch } = useGetTimeline(
+        {
+            Filters: [
+                {
+                    field: "CourseClassCode",
+                    operator: "In",
+                    value: [
+                        ...courseClassesParent?.data?.data?.items?.map((c) => c.courseClassCode) ?? [],
+                        ...courseClassesChild?.data?.data?.items?.map((c) => c.courseClassCode) ?? [],
+                    ]?.join(",")!,
+                },
+            ],
+            Page: 1,
+            PageSize: 100
+        },
+        courseClassesParent !== undefined &&
+        courseClassesParent?.data?.data?.items?.map((c) => c.courseClassCode)?.length > 0 &&
+        subjectCode !== undefined &&
+        courseClassesChild !== undefined
+    );
 
     // Table columns (now with EditableColumnType)
     const columns: EditableColumnType<CourseClass>[] = [
@@ -242,6 +264,26 @@ const Course_class_list = () => {
             className: "text-[12px]",
             width: "5%",
             render: () => getSubject?.numberOfCredits,
+        },
+        {
+            title: "Lịch học",
+            className: "text-[12px]",
+            width: 250,
+            render: (text, record) => {
+                return  <div className={"flex flex-col gap-1 justify-start items-start"}>
+                    {timeLines?.data?.data?.items?.filter(e => e?.courseClassCode === record?.courseClassCode)?.map(e => (
+                        <div key={e.id} className={"flex flex-row flex-nowrap gap-1"}>
+                            <span  className={"font-bold text-blue-500"}>Thứ: {e?.dayOfWeek + 2}</span>
+                            <span  className={"text-green-600"}>Phòng: {e?.roomCode }</span>
+                            <span className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {(+e.slots[0]) + 1}
+                                <ArrowRight size={10} />
+                                {+e.slots?.[e.slots?.length - 1] + 1}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            }
+
         },
         {
             title: "Thời gian",
@@ -370,6 +412,7 @@ const Course_class_list = () => {
             }),
         };
     });
+    
 
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
@@ -458,6 +501,7 @@ const Course_class_list = () => {
                                 refetchParent();
                                 refetchChild();
                                 generateScheduleReset();
+                                timelineRefetch()
                             },
                             onError: (error) => {
                                 toast.error(`Xếp thời khóa biểu thất bại: ${error}`);
@@ -492,11 +536,11 @@ const Course_class_list = () => {
                                 columnWidth: "2%",
                                 selectedRowKeys: rowSelection,
                                 onChange: (selectedRowKeys, selectedRows) => {
-                                    // Chọn cha thì tự động chọn con
+                                    // Chọn cha thì tự động chọn con (dựa trên courseClassCode)
                                     const allSelectedKeys = new Set(selectedRowKeys as React.Key[]);
                                     courseClassesParent?.data?.data?.items?.forEach((parentRow) => {
-                                        const parentKey = parentRow.id;
-                                        const childKeys = getChildRows(parentRow.courseClassCode).map(c => c.id);
+                                        const parentKey = parentRow.courseClassCode;
+                                        const childKeys = getChildRows(parentRow.courseClassCode).map(c => c.courseClassCode);
                                         if (allSelectedKeys.has(parentKey)) {
                                             childKeys.forEach((k) => allSelectedKeys.add(k));
                                         } else {

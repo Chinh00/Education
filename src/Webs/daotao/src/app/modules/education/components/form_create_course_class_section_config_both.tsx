@@ -155,8 +155,8 @@ const Form_create_course_class_section_config_both = ({
     }, subject?.subjectCode !== undefined);
     useEffect(() => {
         if (subjectScheduleConfigs) {
-            const stage1Config = subjectScheduleConfigs?.data?.data?.items?.find(e => e.stage === 3);
-            const stage2Config = subjectScheduleConfigs?.data?.data?.items?.find(e => e.stage === 4);
+            const stage1Config = subjectScheduleConfigs?.data?.data?.items?.find(e => e.stage === 2);
+            const stage2Config = subjectScheduleConfigs?.data?.data?.items?.find(e => e.stage === 3);
             if (stage1Config) {
                 formBoth.setFieldsValue({
                     model: {
@@ -348,7 +348,7 @@ const Form_create_course_class_section_config_both = ({
                 <Form.Item
                     className={"col-span-1"}
                     name={["model", "theoryTotalPeriodOfStage2"]}
-                    label="Số tiết lý thuyết giai đoạn 2"
+                    label="Số tiết lý thuyết giai GD 2"
                 >
                     <InputNumber min={0} onChange={handleTheoryPeriodOfStage2Change} />
                 </Form.Item>
@@ -376,7 +376,7 @@ const Form_create_course_class_section_config_both = ({
                     <InputNumber min={0} onChange={handlePracticePeriodOfStage2Change} />
                 </Form.Item>
                 <Form.Item
-                    label="Quy định lịch học thực hành"
+                    label="Quy định lịch học thực hành GD2"
                     name={["model", "practiceSessionsOfStage2"]}
                 >
                     <Input

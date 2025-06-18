@@ -33,6 +33,7 @@ import toast from "react-hot-toast";
 import type { ColumnType } from "antd/es/table";
 import {useUpdateCourseClass} from "@/app/modules/education/hooks/useUpdateCourseClass.ts";
 import {setQuery} from "@/app/modules/education/stores/education_slice.ts";
+import {useGenerateSchedule} from "@/app/modules/education/hooks/useGenerateSchedule.ts";
 interface EditableColumnType<T> extends ColumnType<T> {
     editable?: boolean;
 }
@@ -163,7 +164,7 @@ const Course_class_list = () => {
 
     const cancel = () => setEditingId("");
     const {mutate: updateMutate, reset: updateReset} = useUpdateCourseClass()
-
+    const {mutate: generateSchedule, reset: generateScheduleReset} = useGenerateSchedule()
     const save = async (courseClassCode: string) => {
         try {
             const row = (await form.validateFields()) as CourseClass;
@@ -444,6 +445,29 @@ const Course_class_list = () => {
                     </Modal>
                     <Button>Thêm lớp học thủ công</Button>
                 </div>
+                <div className={"flex gap-3 py-2"}>
+                    <Button disabled={rowSelection?.length === 0} onClick={() => {
+                        generateSchedule({
+                            semesterCode: currentParentSemester?.semesterCode!,
+                            subjectCode: subjectCode!,
+                            courseClassCodes: rowSelection as string[],
+                        }, {
+                            onSuccess: () => {
+                                toast.success("Xếp thời khóa biểu thành công!");
+                                setRowSelection([]);
+                                refetchParent();
+                                refetchChild();
+                                generateScheduleReset();
+                            },
+                            onError: (error) => {
+                                toast.error(`Xếp thời khóa biểu thất bại: ${error}`);
+                            }
+                        })
+                    }}>
+                        Xếp thời khóa biểu tự động
+                    </Button>
+                    
+                </div>
                 <Box>
                     <Typography.Title level={3} className={"text-center"}>
                         Danh sách lớp
@@ -452,7 +476,7 @@ const Course_class_list = () => {
                         <Table<CourseClass>
                             loading={isLoading}
                             size={"small"}
-                            rowKey="id"
+                            rowKey={e => e.courseClassCode}
                             bordered
                             columns={mergedColumns as ColumnsType<CourseClass>}
                             components={{
@@ -491,7 +515,8 @@ const Course_class_list = () => {
                                     return (
                                         <Table<CourseClass>
                                             size="small"
-                                            rowKey="id"
+                                            rowKey={e => e.courseClassCode}
+
                                             bordered
                                             columns={mergedColumns as ColumnsType<CourseClass>}
                                             components={{

@@ -7,6 +7,7 @@ using MassTransit;
 using TrainingService.AppCore.Usecases.Specs;
 using TrainingService.Domain;
 using TrainingService.Domain.Enums;
+using TrainingService.Infrastructure.RoomIndexer;
 
 namespace TrainingService.Infrastructure;
 
@@ -23,6 +24,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         var staffRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Staff>>();
         var departmentRepository = scope.ServiceProvider.GetRequiredService<IMongoRepository<Department>>();
         var producer = scope.ServiceProvider.GetService<ITopicProducer<InitDepartmentAdminAccountIntegrationEvent>>();
+        var roomIndexManager = scope.ServiceProvider.GetService<IRoomIndexManager>();
         foreach (var courseClassCondition in _courseClassConditions)
         {
             var spec = new GetCourseClassConditionByCodeSpec(courseClassCondition.ConditionCode);
@@ -32,6 +34,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
                 await repository.AddAsync(courseClassCondition, cancellationToken);
             }
         }
+
         foreach (var room in _rooms)
         {
             var spec = new GetRoomByCodeSpec(room.Code);
@@ -40,7 +43,17 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
             {
                 await roomRepository.AddAsync(room, cancellationToken);
             }
+
+            await roomIndexManager.AddOrUpdateAsync(new RoomIndexModel()
+            {
+                Code = room.Code,
+                Name = room.Name,
+                Capacity = room.Capacity,
+                BuildingCode = room.BuildingCode,
+                SupportedConditions = room.SupportedConditions
+            });
         }
+
 
         if ((await educationProgramRepository.CountAsync(new TrueListSpecification<EducationProgram>(),
                 cancellationToken)) == 0)

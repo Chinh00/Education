@@ -21,16 +21,18 @@ public class CourseClassController : BaseController
     {
         return Ok(await Mediator.Send(query, cancellationToken));
     }
+
     /// <summary>
     /// Chạy thời khóa biểu tự động
     /// </summary>
+    /// <param name="model"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpGet("GenerateSchedule")]
+    [HttpPost("GenerateSchedule")]
     [AllowAnonymous]
-    public async Task<IActionResult> HandleGenerateScheduleCourseClassAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> HandleGenerateScheduleCourseClassAsync(GenerateScheduleCommand.GenerateScheduleModel model, CancellationToken cancellationToken)
     {
-        return Ok(await Mediator.Send(new GenerateScheduleCommand(), cancellationToken));
+        return Ok(await Mediator.Send(new GenerateScheduleCommand(model), cancellationToken));
     }
     /// <summary>
     /// Chạy lệnh tạo lớp học từ cấu hình

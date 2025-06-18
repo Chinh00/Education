@@ -6,6 +6,7 @@ import http from "@/infrastructure/http.ts";
 import {CourseClass} from "@/domain/course_class.ts";
 import {SlotTimeline} from "@/domain/slot_timeline.ts";
 import {SubjectScheduleConfig} from "@/domain/subject_schedule_config.ts";
+import {Room} from "@/domain/room.ts";
 
 
 
@@ -38,16 +39,51 @@ export interface RemoveStudentFromCourseClassModel {
     courseClassCode: string,
     studentCode: string
 }
+export interface SearchRoomFreeQueryModel {
+    keySearch?: string,
+    semesterCode?: string,
+    stages?: number[],
+    dayOfWeek?: number,
+    startPeriod?: number,
+    sessionLength?: number,
+    conditions?: string[]
+}
+
+export function GetQuerySearchRoomFreeQueryModel(query: SearchRoomFreeQueryModel): string {
+    const params = new URLSearchParams();
+    if (query?.keySearch) params.append("keySearch", query?.keySearch);
+    if (query?.semesterCode) params.append("semesterCode", query?.semesterCode);
+    if (query?.sessionLength) params.append("sessionLength", `${query?.sessionLength}`);
+    if (query?.dayOfWeek) params.append("dayOfWeek", `${query?.dayOfWeek}`);
+    if (query?.startPeriod) params.append("startPeriod", `${query?.startPeriod}`);
+    if (query?.stages && Array.isArray(query.stages)) {
+        query.stages.forEach(stage => params.append("stages", `${stage}`));
+    }
+    if (query?.conditions && Array.isArray(query.conditions)) {
+        query.conditions.forEach(condition => params.append("conditions", condition));
+    }
+    return params.toString();
+}
+export interface AddCourseClassSlotTimelineModel {
+    courseClassCode: string;
+    roomCode: string;
+    dayOfWeek: number;
+    slots: string[];
+}
+
 
 
 const getCourseClasses = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<CourseClass>>>> => await http.get(`/trainingservice/api/CourseClass?${GetQuery(query)}`)
+const getRoomFreeSlots = async (query: SearchRoomFreeQueryModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<Room>>>> => await http.get(`/trainingservice/api/Building/Room/Free?${GetQuerySearchRoomFreeQueryModel(query)}`)
 const createCourseClasses = async (model: CourseClassModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<CourseClass>>>> => await http.post(`/trainingservice/api/CourseClass`, model)
 const getCourseClassTimeline = async (query: Query): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.get(`/trainingservice/api/CourseClass/Schedule?${GetQuery(query)}`)
 const updateCourseClassStatus = async (model: UpdateCourseClassStatusModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.put(`/trainingservice/api/CourseClass/Status`, model)
 const removeStudentFromCourseClass = async (model: RemoveStudentFromCourseClassModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.put(`/trainingservice/api/CourseClass/Student`, model)
+const removeCourseClassSlotTimeline = async ({courseClassCode, slotTimelineId}: {courseClassCode: string, slotTimelineId: string}): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.delete(`/trainingservice/api/CourseClass/Schedule/${courseClassCode}/${slotTimelineId}`)
+const addCourseClassSlotTimeline = async (model: AddCourseClassSlotTimelineModel): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<SlotTimeline>>>> => await http.post(`/trainingservice/api/CourseClass/Schedule`)
 export interface SubjectScheduleConfigModel {
     subjectCode: string;
-    stage: number; // có thể thay bằng enum nếu bạn định nghĩa
+    stage: number; 
     theoryTotalPeriod: number;
     practiceTotalPeriod: number;
     theorySessions: number[];
@@ -122,4 +158,4 @@ const getSubjectScheduleConfig = async (query: Query): Promise<AxiosResponse<Suc
 const updateCourseClass = async (model: UpdateCourseClassModel): Promise<AxiosResponse<SuccessResponse<string>>> => await http.put(`/trainingservice/api/CourseClass`, model)
 const removeCourseClass = async (courseClassCode: string): Promise<AxiosResponse<SuccessResponse<string>>> => await http.delete(`/trainingservice/api/CourseClass/${courseClassCode}`)
 
-export {getCourseClasses, generateSchedule, updateCourseClass, removeCourseClass, getSubjectScheduleConfig, createSubjectScheduleConfig, getCourseClassTimeline, createCourseClasses, updateCourseClassStatus, removeStudentFromCourseClass, generateCourseClasses}
+export {getCourseClasses, removeCourseClassSlotTimeline, addCourseClassSlotTimeline, getRoomFreeSlots, generateSchedule, updateCourseClass, removeCourseClass, getSubjectScheduleConfig, createSubjectScheduleConfig, getCourseClassTimeline, createCourseClasses, updateCourseClassStatus, removeStudentFromCourseClass, generateCourseClasses}

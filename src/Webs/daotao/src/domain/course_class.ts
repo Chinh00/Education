@@ -1,5 +1,6 @@
 
 export interface CourseClass {
+    index: number;
     weekStart: number;
     status: number;
     courseClassCode: string;
@@ -7,16 +8,15 @@ export interface CourseClass {
     studentIds: string[];
     courseClassType: number;
     subjectCode: string;
-    sessionLength: number;
+    sessionLengths: number[];
     totalSession: number;
-    session: number;
     semesterCode: string | null;
     numberStudents: number;
     numberStudentsExpected: number;
     stage: number;
     teacherName: string | null;
     teacherCode: string | null;
-    parentCourseClassCode: string | null;
+    parentCourseClassCode: string;
     id: string;
     createdAt: string;
     updatedAt: string | null;

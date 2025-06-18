@@ -18,4 +18,17 @@ public class BuildingController : BaseController
     {
         return Ok(await Mediator.Send(query, cancellationToken));
     }
+    /// <summary>
+    /// Danh sách phòng trống theo thời gian và điều kiện
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("Room/Free")]
+    public async Task<IActionResult> HandleGetRoomsFreeBySessionLengthAsync(
+        [FromQuery] GetRoomBySlotFreeQuery query, CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(query, cancellationToken));
+    }
+    
 }

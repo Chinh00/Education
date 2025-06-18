@@ -24,7 +24,7 @@ import { ColumnsType, getStageText } from "@/app/modules/common/hook.ts";
 import { CourseClass } from "@/domain/course_class.ts";
 import { Badge } from "@/app/components/ui/badge.tsx";
 import { DateTimeFormat } from "@/infrastructure/date.ts";
-import { UserOutlined, DeleteOutlined } from "@ant-design/icons";
+import { UserOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useGetSubjects } from "@/app/modules/subject/hooks/hook.ts";
 import { useRemoveCourseClass } from "@/app/modules/education/hooks/useRemoveCourseClass.ts";
 import toast from "react-hot-toast";
@@ -36,6 +36,7 @@ import {setQuery} from "@/app/modules/education/stores/education_slice.ts";
 import {useGenerateSchedule} from "@/app/modules/education/hooks/useGenerateSchedule.ts";
 import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
 import {ArrowRight} from "lucide-react";
+import Edit_table_schedule from "@/app/modules/education/components/edit_table_schedule.tsx";
 interface EditableColumnType<T> extends ColumnType<T> {
     editable?: boolean;
 }
@@ -339,7 +340,8 @@ const Course_class_list = () => {
                 const editable = isEditing(record);
                 const isParent = !record.parentCourseClassCode; // Nếu không có parentCourseClassCode là lớp cha
                 return (
-                    <span>
+                    <div>
+                        <span>
                         {editable ? (
                             <>
                                 <Typography.Link
@@ -354,13 +356,13 @@ const Course_class_list = () => {
                             </>
                         ) : (
                             <>
-                                <Typography.Link
+                                <Button
+                                    icon={<EditOutlined />}
+                                    size="small"
+                                    style={{ marginLeft: 4 }}
                                     disabled={editingId !== ""}
                                     onClick={() => edit(record)}
-                                    style={{ marginRight: 12 }}
-                                >
-                                    Sửa
-                                </Typography.Link>
+                                />
                                 <Popconfirm
                                     title={
                                         isParent
@@ -382,13 +384,13 @@ const Course_class_list = () => {
                                         size="small"
                                         danger
                                         style={{ marginLeft: 4 }}
-                                    >
-                                        Xóa
-                                    </Button>
+                                    />
                                 </Popconfirm>
                             </>
                         )}
                     </span>
+                        <Edit_table_schedule courseClassCode={record?.courseClassCode} subjectCode={record?.subjectCode} />
+                    </div>
                 );
             },
         },

@@ -102,6 +102,35 @@ public class CourseClassController : BaseController
     {
         return Ok(await Mediator.Send(query, cancellationToken));
     }
+    /// <summary>
+    /// Thêm lịch học cho lớp học
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("Schedule")]
+    public async Task<IActionResult> HandleAddCourseClassScheduleAsync(AddCourseClassSlotTimelineCommand.UpdateCourseClassSlotTimelineModel model,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new AddCourseClassSlotTimelineCommand(model), cancellationToken));
+    }
+
+    /// <summary>
+    /// Xóa lịch học của lớp học
+    /// </summary>
+    /// <param name="slotTimelineId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="courseClassCode"></param>
+    /// <returns></returns>
+    [HttpDelete("{courseClassCode}/Schedule/{slotTimelineId}")]
+    public async Task<IActionResult> HandleRemoveScheduleAsync(string courseClassCode, string slotTimelineId,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new RemoveSlotTimelineCommand(courseClassCode, slotTimelineId), cancellationToken));
+    }
+    
+    
+    
     
     
     /// <summary>

@@ -1,26 +1,4 @@
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
-    container_name: elasticsearch
-    restart: always
-    environment:
-      xpack.security.enabled: false
-      discovery.type: single-node
-    
-    volumes:
-      - data_elasticsearch:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-  kibana:
-    container_name: kibana
-    image: docker.elastic.co/kibana/kibana:7.4.0
-    restart: always
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
   redis:
     restart: always
     image: redis/redis-stack
@@ -110,5 +88,3 @@ services:
     environment:
       POSTGRES_PASSWORD: 123123
       POSTGRES_DB: identity
-volumes:
-  data_elasticsearch:

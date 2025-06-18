@@ -1,38 +1,17 @@
 using Confluent.Kafka;
 using Education.Contract.IntegrationEvents;
-using Education.Core.Repository;
 using Education.Infrastructure;
-using Education.Infrastructure.Elk;
 using Education.Infrastructure.Mongodb;
 using MassTransit;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using Nest;
 using TrainingService.AppCore.StateMachine;
-using TrainingService.Infrastructure.RoomIndexer;
 
 namespace TrainingService.Infrastructure;
 
 public static class Extensions
 {
-    public static IServiceCollection AddElasticSearchService(this IServiceCollection services, IConfiguration configuration,
-        Action<IServiceCollection> action = null)
-    {
-        var elasticSearchOptions = new ElasticOptions();
-        configuration.GetSection(ElasticOptions.Name).Bind(elasticSearchOptions);
-
-        services.AddSingleton<IElasticClient>(new ElasticClient(new ConnectionSettings(new Uri(elasticSearchOptions.ConnectionString)).DisablePing()
-            .SniffOnStartup(false)
-            .SniffOnConnectionFault(false)));
-        services.AddScoped<IElasticManager, ElasticManager>();
-        services.AddScoped<IRoomIndexManager, RoomIndexManager>();
-        services.AddHostedService<RoomIndexInitializerHostedService>();
-        
-        
-        action?.Invoke(services);
-        return services;
-    }
     public static IServiceCollection AddMasstransitService(this IServiceCollection services, IConfiguration configuration,
         Action<IServiceCollection> action = null)
     {

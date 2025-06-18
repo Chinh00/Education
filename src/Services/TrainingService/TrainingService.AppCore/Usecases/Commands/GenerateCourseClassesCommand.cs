@@ -56,8 +56,7 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                         CourseClassName = courseClass.CourseClassCode,
                         Stage = courseClass.Stage,
                         SubjectCode = courseClass.SubjectCode,
-                        ParentCourseClassCode = courseClass.ParentCourseClassCode,
-                        SemesterCode = courseClass?.SemesterCode
+                        ParentCourseClassCode = courseClass.ParentCourseClassCode
                     }, cancellationToken);
                 }
             
@@ -100,7 +99,6 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                         Stage = courseClass.Stage,
                         SubjectCode = courseClass.SubjectCode,
                         ParentCourseClassCode = courseClass.ParentCourseClassCode,
-                        SemesterCode = courseClass?.SemesterCode,
                     }, cancellationToken);
                 }
                 return Results.Ok(courseClasses);

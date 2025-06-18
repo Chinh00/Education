@@ -26,7 +26,6 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3"/>
         <PackageReference Include="MongoDB.Bson" Version="3.4.0" />
-        <PackageReference Include="NEST" Version="7.17.5" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="OpenTelemetry" Version="1.12.0" />
         <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.12.0" />

@@ -1,7 +1,6 @@
 using Education.Infrastructure;
 using TrainingService.Infrastructure;
 using TrainingService.Infrastructure.GrpcService.Implements;
-using TrainingService.Infrastructure.RoomIndexer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuth(builder.Configuration)
@@ -12,7 +11,6 @@ builder.Services.AddAuth(builder.Configuration)
     .AddMediatorService([typeof(Anchor)])
     .AddAutoMapperService(typeof(MapperConfigs))
     .AddMongodbService(builder.Configuration, typeof(MongoRepository<>))
-    .AddElasticSearchService(builder.Configuration)
     .AddMasstransitService(builder.Configuration)
     .AddOpenTelemetryCustom(builder.Configuration, "training-service")
     .AddGrpc();

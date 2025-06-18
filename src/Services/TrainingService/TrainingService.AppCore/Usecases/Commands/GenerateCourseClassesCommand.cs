@@ -58,7 +58,8 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                         SubjectCode = courseClass.SubjectCode,
                         ParentCourseClassCode = courseClass.ParentCourseClassCode,
                         SemesterCode = courseClass?.SemesterCode,
-                        SessionLengths = courseClass.SessionLengths
+                        SessionLengths = courseClass.SessionLengths,
+                        CourseClassType = courseClass.CourseClassType
                     }, cancellationToken);
                 }
             
@@ -102,7 +103,8 @@ public record GenerateCourseClassesCommand(GenerateCourseClassesCommand.Generate
                         SubjectCode = courseClass.SubjectCode,
                         ParentCourseClassCode = courseClass.ParentCourseClassCode,
                         SemesterCode = courseClass?.SemesterCode,
-                        SessionLengths = courseClass.SessionLengths
+                        SessionLengths = courseClass.SessionLengths,
+                        CourseClassType = courseClass.CourseClassType
                     }, cancellationToken);
                 }
                 return Results.Ok(courseClasses);

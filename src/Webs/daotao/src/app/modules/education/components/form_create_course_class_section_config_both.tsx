@@ -149,7 +149,7 @@ const Form_create_course_class_section_config_both = ({
             {
                 field: "Stage",
                 operator: "In",
-                value: "3,4"
+                value: "2,3"
             }
         ]
     }, subject?.subjectCode !== undefined);
@@ -218,7 +218,7 @@ const Form_create_course_class_section_config_both = ({
                     semesterCode: semesterCode || "",
                     model: {
                         subjectCode: subject?.subjectCode || "",
-                        stage: 3,
+                        stage: 2,
                         theoryTotalPeriod: values?.model.theoryTotalPeriodOfStage1 ?? 0,
                         practiceTotalPeriod: values?.model.practiceTotalPeriodOfStage1 ?? 0,
                         theorySessions: values?.model.theorySessionsOfStage1,
@@ -233,7 +233,7 @@ const Form_create_course_class_section_config_both = ({
                     semesterCode: semesterCode || "",
                     model: {
                         subjectCode: subject?.subjectCode || "",
-                        stage: 4,
+                        stage: 3,
                         theoryTotalPeriod: values?.model.theoryTotalPeriodOfStage2 ?? 0,
                         practiceTotalPeriod: values?.model.practiceTotalPeriodOfStage2 ?? 0,
                         theorySessions: values?.model.theorySessionsOfStage2,

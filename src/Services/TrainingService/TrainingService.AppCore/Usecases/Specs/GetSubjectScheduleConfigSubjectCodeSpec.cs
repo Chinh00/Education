@@ -5,7 +5,18 @@ using TrainingService.Domain.Enums;
 
 namespace TrainingService.AppCore.Usecases.Specs;
 
-public class GetSubjectScheduleConfigSubjectCodeSpec(string semesterCode, string code, List<SubjectTimelineStage> stages) : SpecificationBase<SubjectScheduleConfig>
+public class GetSubjectScheduleConfigSubjectCodeSpec : SpecificationBase<SubjectScheduleConfig>
 {
-    public override Expression<Func<SubjectScheduleConfig, bool>> Predicate => x => x.SemesterCode == semesterCode && x.SubjectCode == code && stages.Contains(x.Stage);
+    private readonly string _semesterCode;
+    private readonly string _code;
+    private readonly List<SubjectTimelineStage> _stages;
+
+    public GetSubjectScheduleConfigSubjectCodeSpec(string semesterCode, string code, List<SubjectTimelineStage> stages)
+    {
+        _semesterCode = semesterCode;
+        _code = code;
+        _stages = stages;
+        ApplyInclude(e => e.Id);
+    }
+    public override Expression<Func<SubjectScheduleConfig, bool>> Predicate => x => x.SemesterCode == _semesterCode && x.SubjectCode == _code && _stages.Contains(x.Stage);
 }

@@ -23,7 +23,7 @@ public abstract class SpecificationBase<TEntity> : ISpecification<TEntity>
     
     public void ApplySortAsc(Expression<Func<TEntity, object>> sortBy) => Sorts.Add(sortBy);
     public void ApplySortDesc(Expression<Func<TEntity, object>> sortBy) => SortsDesc.Add(sortBy);
-
+    public void ApplyInclude(Expression<Func<TEntity, object>> includeString) => Includes.Add(includeString);
     public void ApplyPaging(int page, int pageSize)
     {
         IsPagingEnabled = true;

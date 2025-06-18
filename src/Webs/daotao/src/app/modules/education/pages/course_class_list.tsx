@@ -119,7 +119,6 @@ const Course_class_list = () => {
                         ?.map((e) => e.courseClassCode)
                         ?.join(",")!,
                 },
-                { field: "Stage", operator: "==", value: `${selectedStage}` },
             ],
             Page: 1,
             PageSize: 1000,

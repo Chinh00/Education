@@ -42,7 +42,7 @@ export interface RemoveStudentFromCourseClassModel {
 export interface SearchRoomFreeQueryModel {
     keySearch?: string,
     semesterCode?: string,
-    stages?: number[],
+    stage?: number,
     dayOfWeek?: number,
     startPeriod?: number,
     sessionLength?: number,
@@ -56,9 +56,7 @@ export function GetQuerySearchRoomFreeQueryModel(query: SearchRoomFreeQueryModel
     if (query?.sessionLength) params.append("sessionLength", `${query?.sessionLength}`);
     if (query?.dayOfWeek) params.append("dayOfWeek", `${query?.dayOfWeek}`);
     if (query?.startPeriod) params.append("startPeriod", `${query?.startPeriod}`);
-    if (query?.stages && Array.isArray(query.stages)) {
-        query.stages.forEach(stage => params.append("stages", `${stage}`));
-    }
+    if (query?.stage) params.append("stage", `${query?.stage}`);
     if (query?.conditions && Array.isArray(query.conditions)) {
         query.conditions.forEach(condition => params.append("conditions", condition));
     }
@@ -117,11 +115,22 @@ export interface SubjectScheduleConfigBothModel {
     // buoi hoc ly thuyet va thuc hanh gd2
     theorySessionsOfStage2: number[];
     practiceSessionsOfStage2: number[];
+
+
+
+
+    theoryWeekStartStage1: number;
+    theoryWeekEndStage1: number;
+    practiceWeekStartStage1: number;
+    practiceWeekEndStage1: number;
+    
+    theoryWeekStartStage2: number;
+    theoryWeekEndStage2: number;
+    practiceWeekStartStage2: number;
+    practiceWeekEndStage2: number;
     
     
     
-    
-    weekStart: number;
     
     sessionPriorityOfStage1: number;
     sessionPriorityOfStage2: number;

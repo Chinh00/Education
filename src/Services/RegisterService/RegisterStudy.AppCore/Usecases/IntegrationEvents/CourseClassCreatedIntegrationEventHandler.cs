@@ -51,7 +51,7 @@ public class CourseClassCreatedIntegrationEventHandler(IRegisterRepository<Regis
                         slotTime.BuildingCode,
                         slotTime.RoomCode,
                         slotTime.DayOfWeek,
-                        slotTime.Slot
+                        slotTime.Slots
                     )).ToList()
                 }
                 ));

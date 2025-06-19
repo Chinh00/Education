@@ -193,7 +193,7 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
     const {mutate: addSlotTimelineMutate, reset: addSlotTimelineReset, isPending: addSlotTimelineLoading} = useAddCourseClassSlotTimeline()
     const [selectedRoomCode, setSelectedRoomCode] = useState("");
     const handleSaveNewSlotTimeline = (dayOfWeek: number, sessionLength: number, startPeriod: number) => {
-        if (!courseClass || !selectedRoomCode || sessionLength <= 0 || startPeriod < 0) {
+        if (!courseClass || !selectedRoomCode  ) {
             toast.error("Vui lòng chọn đầy đủ thông tin");
             return;
         }
@@ -201,7 +201,7 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
             courseClassCode: courseClass?.courseClassCode || "",
             roomCode: selectedRoomCode,
             dayOfWeek,
-            slots: Array.from({ length: sessionLength }, (_, i) => (startPeriod + i).toString())
+            slots: Array.from({ length: sessionLength }, (_, i) => (startPeriod + i + 1).toString())
         }, {
             onSuccess: () => {
                 toast.success("Đã lưu tiết học thành công");
@@ -236,10 +236,9 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
         }
         
     };
-
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
     const [selectedRoomQuery, setSelectedRoomQuery] = useState<SearchRoomFreeQueryModel>({
-        
+        semesterCode: currentParentSemester?.semesterCode!,
     });
     const {data: roomsAvailable, isLoading: roomsAvailableLoading} = useGetRoomFreeSlots(
         selectedRoomQuery,
@@ -249,18 +248,11 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
     );
     useEffect(() => {
         if (courseClass) {
-            if (courseClass?.stage === 0 || courseClass?.stage === 2) {
-                setSelectedRoomQuery(prevState => ({
-                    ...prevState,
-                    stages: [courseClass?.stage, 2],
-                }))
-            }
-            if (courseClass?.stage === 1 || courseClass?.stage === 3) {
-                setSelectedRoomQuery(prevState => ({
-                    ...prevState,
-                    stages: [courseClass?.stage, 3],
-                }))
-            }
+            setSelectedRoomQuery(prevState => ({
+                ...prevState,
+                stages: courseClass?.stage,
+                conditions: courseClass?.courseClassType === 0 ? subjectScheduleConfig?.lectureRequiredConditions : subjectScheduleConfig?.labRequiredConditions,
+            }))
         }
     }, [courseClass]);
     const {data: timelines, refetch: timelineRefetch, isSuccess} = useGetTimeline({

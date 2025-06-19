@@ -1,4 +1,4 @@
-import { Button, Form, Input, InputNumber, Select } from "antd";
+import { Button, Form, Input, InputNumber, Select, Alert } from "antd";
 import type { FormInstance } from "antd/es/form/hooks/useForm";
 import { useWatch } from "antd/es/form/Form";
 import { Subject } from "@/domain/subject.ts";
@@ -16,6 +16,7 @@ export type Props = {
     subject?: Subject,
     semesterCode?: string,
 };
+import {WarningOutlined} from "@ant-design/icons"
 
 const THEORY_CREDITS_TO_PERIODS = 15;
 const PRACTICE_CREDITS_TO_PERIODS = 15;
@@ -28,7 +29,6 @@ const Form_create_course_class_section_config_stage1 = ({
     const { data: conditions } = useGetConditions({});
     const lastChangedRef = useRef<"theory" | "practice" | null>(null);
 
-    // Khi khởi tạo hoặc thay đổi subject, set lại các giá trị mặc định
     useEffect(() => {
         if (subject) {
             form.setFieldsValue({
@@ -46,11 +46,11 @@ const Form_create_course_class_section_config_stage1 = ({
                 practiceWeekStart: 3,
                 practiceWeekEnd: 8,
             });
-        }
+        } 
     }, [subject]);
 
-    const { mutate } = useCreateSubjectScheduleConfig();
-    const { data: subjectScheduleConfigs } = useGetSubjectScheduleConfig({
+    const { mutate, isPending, reset } = useCreateSubjectScheduleConfig();
+    const { data: subjectScheduleConfigs, refetch } = useGetSubjectScheduleConfig({
         Filters: [
             {
                 field: "SemesterCode",
@@ -184,197 +184,210 @@ const Form_create_course_class_section_config_stage1 = ({
             }
         });
     }, [avgPracticePeriodsPerWeek]);
-
     return (
-        <Form<CreateSubjectScheduleConfigModel & {
-            numberOfCredits?: number,
-            numberOfTheoryCredits?: number,
-            numberOfPracticeCredits?: number,
-            theoryWeekStart?: number,
-            theoryWeekEnd?: number,
-            practiceWeekStart?: number,
-            practiceWeekEnd?: number
-        }>
-            form={form}
-            key="stage1"
-            layout="vertical"
-            initialValues={{
-                semesterCode: semesterCode,
-                model: {
-                    subjectCode: subject?.subjectCode || "",
-                    theoryTotalPeriod: 0,
-                    practiceTotalPeriod: 0,
-                    theorySessions: "",
-                    practiceSessions: "",
-                    weekStart: 3,
-                    lectureRequiredConditions: ["Lecture"],
-                    labRequiredConditions: [],
-                    totalPeriods: 0,
-                },
-                theoryWeekStart: 1,
-                theoryWeekEnd: 8,
-                practiceWeekStart: 3,
-                practiceWeekEnd: 8,
-            }}
-            //@ts-ignore
-            onFinish={(values) => {
-                const model: CreateSubjectScheduleConfigModel = {
-                    semesterCode: semesterCode || "",
+        <>
+            <Form<CreateSubjectScheduleConfigModel & {
+                numberOfCredits?: number,
+                numberOfTheoryCredits?: number,
+                numberOfPracticeCredits?: number,
+                theoryWeekStart?: number,
+                theoryWeekEnd?: number,
+                practiceWeekStart?: number,
+                practiceWeekEnd?: number
+            }>
+                form={form}
+                key="stage1"
+                layout="vertical"
+                initialValues={{
+                    semesterCode: semesterCode,
                     model: {
-                        ...values.model,
                         subjectCode: subject?.subjectCode || "",
-                        stage: 0,
-                        theoryTotalPeriod: values.model.theoryTotalPeriod ?? 0,
-                        practiceTotalPeriod: values.model.practiceTotalPeriod ?? 0,
-                        theorySessions: values.model.theorySessions,
-                        practiceSessions: values.model.practiceSessions,
-                        weekLectureStart: values.model.theoryWeekStart ?? 1,
-                        weekLectureEnd: values.model.theoryWeekEnd ?? 8,
-                        weekLabStart: values.model.practiceWeekStart ?? 3,
-                        weekLabEnd: values.model.practiceWeekEnd ?? 8,
-                        sessionPriority: values.model.sessionPriority ?? -1,
-                        lectureRequiredConditions: values.model.lectureRequiredConditions || [],
-                        labRequiredConditions: values.model.labRequiredConditions || [],
-                    }
-                };
-                mutate(model, {
-                    onSuccess: () => {
-                        toast.success("Lưu cấu hình thành công");
+                        theoryTotalPeriod: 0,
+                        practiceTotalPeriod: 0,
+                        theorySessions: "",
+                        practiceSessions: "",
+                        weekStart: 3,
+                        lectureRequiredConditions: ["Lecture"],
+                        labRequiredConditions: [],
+                        totalPeriods: 0,
                     },
-                    onError: () => {
-                        toast.error("Lưu cấu hình thất bại, Có lỗi xảy ra");
-                    }
-                });
-            }}
-            className={"grid gap-4"}
-        >
-            <div className={"flex flex-row gap-5"}>
-                <Form.Item name={["numberOfCredits"]} label="Tổng số tín chỉ">
-                    <InputNumber min={0} disabled />
-                </Form.Item>
-                <Form.Item name={"totalPeriods"} label="Tổng số tiết học">
-                    <InputNumber min={0} />
-                </Form.Item>
-            </div>
-            {/* Lý thuyết */}
-            <div className={"w-full flex flex-row gap-5 items-end"}>
-                <Form.Item
-                    label="Số tín chỉ lý thuyết"
-                    name={["numberOfTheoryCredits"]}
-                >
-                    <InputNumber
-                        min={0}
-                        max={numberOfCredits}
-                        onChange={() => { lastChangedRef.current = "theory"; }}
+                    theoryWeekStart: 1,
+                    theoryWeekEnd: 8,
+                    practiceWeekStart: 3,
+                    practiceWeekEnd: 8,
+                }}
+                //@ts-ignore
+                onFinish={(values) => {
+                    const model: CreateSubjectScheduleConfigModel = {
+                        semesterCode: semesterCode || "",
+                        model: {
+                            ...values.model,
+                            subjectCode: subject?.subjectCode || "",
+                            stage: 0,
+                            theoryTotalPeriod: values.model.theoryTotalPeriod ?? 0,
+                            practiceTotalPeriod: values.model.practiceTotalPeriod ?? 0,
+                            theorySessions: values.model.theorySessions,
+                            practiceSessions: values.model.practiceSessions,
+                            //@ts-ignore
+                            weekLectureStart: values.model.theoryWeekStart ?? 1,
+                            //@ts-ignore
+                            weekLectureEnd: values.model.theoryWeekEnd ?? 8,
+                            //@ts-ignore
+                            weekLabStart: values.model.practiceWeekStart ?? 3,
+                            //@ts-ignore
+                            weekLabEnd: values.model.practiceWeekEnd ?? 8,
+                            sessionPriority: values.model.sessionPriority ?? -1,
+                            lectureRequiredConditions: values.model.lectureRequiredConditions || [],
+                            labRequiredConditions: values.model.labRequiredConditions || [],
+                        }
+                    };
+                    mutate(model, {
+                        onSuccess: () => {
+                            toast.success("Lưu cấu hình thành công");
+                            refetch();
+                            reset();
+                        },
+                        onError: () => {
+                            toast.error("Lưu cấu hình thất bại, Có lỗi xảy ra");
+                            refetch();
+                        }
+                    });
+                }}
+                className={"grid gap-4"}
+            >
+                <div className={"flex flex-row gap-5 w-full justify-between"}>
+                    <div className={"flex flex-row gap-5"}>
+                        <Form.Item name={["numberOfCredits"]} label="Tổng số tín chỉ">
+                            <InputNumber min={0} disabled />
+                        </Form.Item>
+                        <Form.Item name={"totalPeriods"} label="Tổng số tiết học">
+                            <InputNumber min={0} />
+                        </Form.Item>
+                    </div>
+                    {subjectScheduleConfig === undefined && <Alert type={"error"} icon={<WarningOutlined/>} className={"w-max h-min "}
+                            message={"Giai đoạn chưa được cấu hình"}/>}
+                    
+                </div>
+                {/* Lý thuyết */}
+                <div className={"w-full flex flex-row gap-5 items-end"}>
+                    <Form.Item
+                        label="Số tín chỉ lý thuyết"
+                        name={["numberOfTheoryCredits"]}
+                    >
+                        <InputNumber
+                            min={0}
+                            max={numberOfCredits}
+                            onChange={() => { lastChangedRef.current = "theory"; }}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        name={["model", "theoryTotalPeriod"]}
+                        label="Số tiết lý thuyết"
+                    >
+                        <InputNumber min={0} />
+                    </Form.Item>
+                    <Form.Item name={["theoryWeekStart"]} label="Tuần bắt đầu">
+                        <InputNumber min={1} />
+                    </Form.Item>
+                    <Form.Item name={["theoryWeekEnd"]} label="Tuần kết thúc">
+                        <InputNumber min={1} />
+                    </Form.Item>
+                    <Form.Item label="Số tiết lý thuyết TB/tuần" style={{ minWidth: 160 }}>
+                        <InputNumber value={Math.ceil(avgTheoryPeriodsPerWeek)} disabled style={{ width: "100%" }} />
+                    </Form.Item>
+                    <Form.Item
+                        label="Quy định về lịch học lý thuyết"
+                        name={["model", "theorySessions"]}
+                        help={"VD: 3,2,2 (3 tiết buổi 1, 2 tiết buổi 2, 2 tiết buổi 3)"}
+                    >
+                        <Input
+                            onClick={e => e.stopPropagation()}
+                            placeholder="Tự nhập VD: 3,2,2"
+                            onChange={e => {
+                                form.setFieldsValue({
+                                    model: {
+                                        ...form.getFieldValue("model"),
+                                        theorySessions: [...e.target.value?.split(",")?.map(Number)],
+                                    },
+                                });
+                            }}
+                        />
+                    </Form.Item>
+                </div>
+                {/* Thực hành */}
+                <div className={"w-full flex flex-row gap-5 items-end"}>
+                    <Form.Item
+                        label="Số tín chỉ thực hành"
+                        name={["numberOfPracticeCredits"]}
+                    >
+                        <InputNumber
+                            min={0}
+                            max={numberOfCredits}
+                            onChange={() => { lastChangedRef.current = "practice"; }}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        name={["model", "practiceTotalPeriod"]}
+                        label="Số tiết thực hành"
+                    >
+                        <InputNumber min={0} />
+                    </Form.Item>
+                    <Form.Item name={["practiceWeekStart"]} label="Tuần bắt đầu">
+                        <InputNumber min={1} />
+                    </Form.Item>
+                    <Form.Item name={["practiceWeekEnd"]} label="Tuần kết thúc">
+                        <InputNumber min={1} />
+                    </Form.Item>
+                    <Form.Item label="Số tiết thực hành TB/tuần" style={{ minWidth: 160 }}>
+                        <InputNumber value={avgPracticePeriodsPerWeek} disabled style={{ width: "100%" }} />
+                    </Form.Item>
+                    <Form.Item
+                        label="Quy định lịch học thực hành"
+                        name={["model", "practiceSessions"]}
+                        help={"VD: 3,2,2 (3 tiết buổi 1, 2 tiết buổi 2, 2 tiết buổi 3)"}
+                    >
+                        <Input
+                            onClick={e => e.stopPropagation()}
+                            placeholder="Tự nhập VD: 3,2,2"
+                            onChange={e => {
+                                form.setFieldsValue({
+                                    model: {
+                                        ...form.getFieldValue("model"),
+                                        practiceSessions: [...e.target.value?.split(",")?.map(Number)],
+                                    },
+                                });
+                            }}
+                        />
+                    </Form.Item>
+                </div>
+                <Form.Item name={["model", "sessionPriority"]} label="Ưu tiên buổi học">
+                    <Select
+                        options={[
+                            { value: 0, label: "Sáng" },
+                            { value: 1, label: "Chiều" },
+                            { value: -1, label: "Không ưu tiên" }
+                        ]}
                     />
                 </Form.Item>
-                <Form.Item
-                    name={["model", "theoryTotalPeriod"]}
-                    label="Số tiết lý thuyết"
-                >
-                    <InputNumber min={0} />
+                <Form.Item name={["model", "lectureRequiredConditions"]} label="Điều kiện phòng lý thuyết">
+                    <Select options={conditions?.data?.data?.items?.map(e => ({
+                        label: e?.conditionName,
+                        value: e?.conditionCode
+                    }))} mode="tags" placeholder="Chọn điều kiện" />
                 </Form.Item>
-                <Form.Item name={["theoryWeekStart"]} label="Tuần bắt đầu">
-                    <InputNumber min={1} />
+                <Form.Item name={["model", "labRequiredConditions"]} label="Điều kiện phòng thực hành">
+                    <Select options={conditions?.data?.data?.items?.map(e => ({
+                        label: e?.conditionName,
+                        value: e?.conditionCode
+                    }))} mode="tags" placeholder="Chọn điều kiện" />
                 </Form.Item>
-                <Form.Item name={["theoryWeekEnd"]} label="Tuần kết thúc">
-                    <InputNumber min={1} />
-                </Form.Item>
-                <Form.Item label="Số tiết lý thuyết TB/tuần" style={{ minWidth: 160 }}>
-                    <InputNumber value={Math.ceil(avgTheoryPeriodsPerWeek)} disabled style={{ width: "100%" }} />
-                </Form.Item>
-                <Form.Item
-                    label="Quy định về lịch học lý thuyết"
-                    name={["model", "theorySessions"]}
-                    help={"VD: 3,2,2 (3 tiết buổi 1, 2 tiết buổi 2, 2 tiết buổi 3)"}
-                >
-                    <Input
-                        onClick={e => e.stopPropagation()}
-                        placeholder="Tự nhập VD: 3,2,2"
-                        onChange={e => {
-                            form.setFieldsValue({
-                                model: {
-                                    ...form.getFieldValue("model"),
-                                    theorySessions: [...e.target.value?.split(",")?.map(Number)],
-                                },
-                            });
-                        }}
-                    />
-                </Form.Item>
-            </div>
-            {/* Thực hành */}
-            <div className={"w-full flex flex-row gap-5 items-end"}>
-                <Form.Item
-                    label="Số tín chỉ thực hành"
-                    name={["numberOfPracticeCredits"]}
-                >
-                    <InputNumber
-                        min={0}
-                        max={numberOfCredits}
-                        onChange={() => { lastChangedRef.current = "practice"; }}
-                    />
-                </Form.Item>
-                <Form.Item
-                    name={["model", "practiceTotalPeriod"]}
-                    label="Số tiết thực hành"
-                >
-                    <InputNumber min={0} />
-                </Form.Item>
-                <Form.Item name={["practiceWeekStart"]} label="Tuần bắt đầu">
-                    <InputNumber min={1} />
-                </Form.Item>
-                <Form.Item name={["practiceWeekEnd"]} label="Tuần kết thúc">
-                    <InputNumber min={1} />
-                </Form.Item>
-                <Form.Item label="Số tiết thực hành TB/tuần" style={{ minWidth: 160 }}>
-                    <InputNumber value={avgPracticePeriodsPerWeek} disabled style={{ width: "100%" }} />
-                </Form.Item>
-                <Form.Item
-                    label="Quy định lịch học thực hành"
-                    name={["model", "practiceSessions"]}
-                    help={"VD: 3,2,2 (3 tiết buổi 1, 2 tiết buổi 2, 2 tiết buổi 3)"}
-                >
-                    <Input
-                        onClick={e => e.stopPropagation()}
-                        placeholder="Tự nhập VD: 3,2,2"
-                        onChange={e => {
-                            form.setFieldsValue({
-                                model: {
-                                    ...form.getFieldValue("model"),
-                                    practiceSessions: [...e.target.value?.split(",")?.map(Number)],
-                                },
-                            });
-                        }}
-                    />
-                </Form.Item>
-            </div>
-            <Form.Item name={["model", "sessionPriority"]} label="Ưu tiên buổi học">
-                <Select
-                    options={[
-                        { value: 0, label: "Sáng" },
-                        { value: 1, label: "Chiều" },
-                        { value: -1, label: "Không ưu tiên" }
-                    ]}
-                />
-            </Form.Item>
-            <Form.Item name={["model", "lectureRequiredConditions"]} label="Điều kiện phòng lý thuyết">
-                <Select options={conditions?.data?.data?.items?.map(e => ({
-                    label: e?.conditionName,
-                    value: e?.conditionCode
-                }))} mode="tags" placeholder="Chọn điều kiện" />
-            </Form.Item>
-            <Form.Item name={["model", "labRequiredConditions"]} label="Điều kiện phòng thực hành">
-                <Select options={conditions?.data?.data?.items?.map(e => ({
-                    label: e?.conditionName,
-                    value: e?.conditionCode
-                }))} mode="tags" placeholder="Chọn điều kiện" />
-            </Form.Item>
-            <div className={"flex gap-5"}>
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">Lưu cấu hình</Button>
-                </Form.Item>
-            </div>
-        </Form>
+                <div className={"flex gap-5"}>
+                    <Form.Item>
+                        <Button loading={isPending} type="primary" htmlType="submit">Lưu cấu hình</Button>
+                    </Form.Item>
+                </div>
+            </Form>
+        </>
     );
 };
 

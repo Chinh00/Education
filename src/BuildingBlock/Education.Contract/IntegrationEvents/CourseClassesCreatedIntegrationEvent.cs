@@ -19,6 +19,7 @@ public record CourseClassEvent(
     string TeacherName,
     int NumberStudentsExpected,
     int WeekStart,
+    int WeekEnd,
     string ParentCourseClassCode,
     int Stage,
     DateTime StartDate,
@@ -29,5 +30,7 @@ public record SlotTimelineEvent(
     string BuildingCode,
     string RoomCode,
     int DayOfWeek,
-    List<string> Slot
+    List<string> Slots,
+    int WeekStart,
+    int WeekEnd
 );

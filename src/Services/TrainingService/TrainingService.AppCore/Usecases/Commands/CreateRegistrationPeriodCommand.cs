@@ -98,7 +98,10 @@ public record CreateRegistrationPeriodCommand(CreateRegistrationPeriodCommand.Cr
                 {
                     SubjectTimelineStage.Stage1 => (semesterStage1?.StartDate, semesterStage1?.EndDate),
                     SubjectTimelineStage.Stage2 => (semesterStage2?.StartDate, semesterStage2?.EndDate),
-                    // SubjectTimelineStage.StageBoth => (semesterStage1?.StartDate, semesterStage2?.EndDate),
+                    SubjectTimelineStage.Stage1Of2 => (semesterStage1?.StartDate, semesterStage1?.EndDate),
+                    SubjectTimelineStage.Stage2Of2 => (semesterStage2?.StartDate, semesterStage2?.EndDate),
+                    SubjectTimelineStage.StageBoth => (semesterStage1?.StartDate, semesterStage2?.EndDate),
+                    
                     _ => throw new ArgumentOutOfRangeException()
                 };
                 
@@ -113,10 +116,13 @@ public record CreateRegistrationPeriodCommand(CreateRegistrationPeriodCommand.Cr
                     courseClass.TeacherName,
                     courseClass.NumberStudentsExpected,
                     courseClass.WeekStart,
+                    courseClass.WeekEnd,
                     courseClass?.ParentCourseClassCode ?? "",
                     (int)courseClass.Stage, startDate ?? throw new ArgumentNullException(),
                     endDate ?? throw new ArgumentNullException(),
-                    slotTimelines.Select(e => new SlotTimelineEvent(e.BuildingCode, e.RoomCode, e.DayOfWeek, e.Slots))
+                    slotTimelines.Select(e =>
+                            new SlotTimelineEvent(e.BuildingCode, e.RoomCode, e.DayOfWeek, e.Slots, e.StartWeek,
+                                e.EndWeek))
                         .ToList()
                 ));    
                 

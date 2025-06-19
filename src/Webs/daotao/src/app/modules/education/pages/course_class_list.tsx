@@ -281,7 +281,7 @@ const Course_class_list = () => {
                 return  <div className={"flex flex-col gap-1 justify-start items-start"}>
                     {timeLines?.data?.data?.items?.filter(e => e?.courseClassCode === record?.courseClassCode)?.map(e => (
                         <div key={e.id} className={"flex flex-row flex-nowrap gap-1"}>
-                            <span  className={"font-bold text-gray-500"}>Từ tuần: {e?.startWeek } {"->"} {e?.endWeek}</span>
+                            <span  className={"font-bold text-gray-500"}>Tuần: {e?.startWeek } {"->"} {e?.endWeek}</span>
                             {e?.dayOfWeek !== -1 ? <span  className={"font-bold text-blue-500"}>Thứ: {e?.dayOfWeek + 2}</span> : "Không xếp được lịch học"}
                             <span  className={"text-green-600"}>Phòng: {e?.roomCode }</span>
                             <span className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {(+e.slots[0]) + 1}

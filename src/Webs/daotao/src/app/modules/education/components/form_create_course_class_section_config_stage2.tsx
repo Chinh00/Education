@@ -1,4 +1,4 @@
-﻿import { Button, Form, Input, InputNumber, Select } from "antd";
+﻿import {Alert, Button, Form, Input, InputNumber, Select} from "antd";
 import type { FormInstance } from "antd/es/form/hooks/useForm";
 import { useWatch } from "antd/es/form/Form";
 import { Subject } from "@/domain/subject.ts";
@@ -10,6 +10,7 @@ import {
 import useCreateSubjectScheduleConfig from "@/app/modules/education/hooks/useCreateSubjectScheduleConfig.ts";
 import toast from "react-hot-toast";
 import { useGetSubjectScheduleConfig } from "@/app/modules/education/hooks/useGetSubjectScheduleConfig.ts";
+import {WarningOutlined} from "@ant-design/icons";
 
 export type Props = {
     form: FormInstance,
@@ -299,14 +300,19 @@ const Form_create_course_class_section_config_stage2 = ({
             }}
             className={"grid gap-4"}
         >
-            <div className={"flex flex-row gap-5"}>
-                <Form.Item name={["numberOfCredits"]} label="Tổng số tín chỉ">
-                    <InputNumber min={0} disabled />
-                </Form.Item>
-                <Form.Item name={"totalPeriods"} label="Tổng số tiết học">
-                    <InputNumber min={0} />
-                </Form.Item>
+            <div className={"flex flex-row gap-5 w-full justify-between "}>
+                <div className={"flex flex-row gap-5"}>
+                    <Form.Item name={["numberOfCredits"]} label="Tổng số tín chỉ">
+                        <InputNumber min={0} disabled />
+                    </Form.Item>
+                    <Form.Item name={"totalPeriods"} label="Tổng số tiết học">
+                        <InputNumber min={0} />
+                    </Form.Item>
+                </div>
+                {subjectScheduleConfig === undefined && <Alert type={"error"} icon={<WarningOutlined/>} className={"w-max h-min "}
+                                                               message={"Giai đoạn chưa được cấu hình"}/>}
             </div>
+            
             {/* Lý thuyết */}
             <div className={"w-full flex flex-row gap-5 items-end"}>
                 <Form.Item

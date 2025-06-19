@@ -2,16 +2,17 @@ import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {useEffect} from "react";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {
-    Sidebar, SidebarContent,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
     SidebarMenu,
-    SidebarMenuButton, SidebarMenuItem
+    SidebarMenuButton,
+    SidebarMenuItem
 } from "@/app/components/ui/sidebar.tsx";
-import {List, LayoutDashboard, ChartGantt, GraduationCap} from "lucide-react"
+import {GraduationCap, List} from "lucide-react"
 import {useNavigate} from "react-router";
-import { RoutePaths } from "@/core/route_paths";
+import {RoutePaths} from "@/core/route_paths";
+
 const EducationSidebar = () => {
     const dispatch = useAppDispatch();
     const {groupFuncName} = useAppSelector<CommonState>(c => c.common)

@@ -17,8 +17,7 @@ public record CreateCourseClassCommand(
     int NumberStudentsExpected,
     string ParentCourseClassCode,
     int Stage,
-    int WeekStart,
-    List<CreateCourseClassCommand.SlotTimelineModel> SlotTimelines
+    int WeekStart
     ) : ICommand<IResult>
 {
     public record struct SlotTimelineModel(string RoomCode, int DayOfWeek, List<string> Slot);
@@ -46,7 +45,6 @@ public record CreateCourseClassCommand(
                     courseClass.CourseClassName = request.CourseClassName;
                     courseClass.CourseClassType = (CourseClassType) request.CourseClassType;
                     courseClass.SubjectCode = subject.SubjectCode;
-                    courseClass.TotalSession = subject.LectureTotal;
                     courseClass.SemesterCode = request.SemesterCode;
                     courseClass.NumberStudentsExpected = request.NumberStudentsExpected;
                     courseClass.ParentCourseClassCode = string.Empty;
@@ -62,7 +60,6 @@ public record CreateCourseClassCommand(
                     courseClass.CourseClassName = request.CourseClassName;
                     courseClass.CourseClassType = (CourseClassType) request.CourseClassType;
                     courseClass.SubjectCode = subject.SubjectCode;
-                    courseClass.TotalSession = subject.LabTotal;
                     courseClass.SemesterCode = request.SemesterCode;
                     courseClass.NumberStudentsExpected = request.NumberStudentsExpected;
                     courseClass.ParentCourseClassCode = string.Empty;
@@ -75,20 +72,20 @@ public record CreateCourseClassCommand(
             }
             await courseClassRepository.AddAsync(courseClass, cancellationToken);
             
-            
-            foreach (var requestSlotTimeline in request.SlotTimelines)
-            {
-                var slotTimeline = new SlotTimeline
-                {
-                    CourseClassCode = courseClass.CourseClassCode,
-                    BuildingCode = requestSlotTimeline.RoomCode,
-                    RoomCode = requestSlotTimeline.RoomCode,
-                    DayOfWeek = requestSlotTimeline.DayOfWeek,
-                    Slots = requestSlotTimeline.Slot
-                };
-                
-                await slotTimelineService.AddAsync(slotTimeline, cancellationToken);
-            }
+            //
+            // foreach (var requestSlotTimeline in request.SlotTimelines)
+            // {
+            //     var slotTimeline = new SlotTimeline
+            //     {
+            //         CourseClassCode = courseClass.CourseClassCode,
+            //         BuildingCode = requestSlotTimeline.RoomCode,
+            //         RoomCode = requestSlotTimeline.RoomCode,
+            //         DayOfWeek = requestSlotTimeline.DayOfWeek,
+            //         Slots = requestSlotTimeline.Slot
+            //     };
+            //     
+            //     await slotTimelineService.AddAsync(slotTimeline, cancellationToken);
+            // }
             return Results.Ok(ResultModel<CourseClass>.Create(courseClass));
         }
     }

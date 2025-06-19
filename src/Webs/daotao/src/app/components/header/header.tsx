@@ -1,11 +1,12 @@
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setCurrentSemester} from "@/app/stores/common_slice.ts";
-import { Pin, ArrowLeft } from "lucide-react";
-import {useLocation, useNavigate} from "react-router";
-import {IconButton, Typography} from "@mui/material";
+import {Pin} from "lucide-react";
+import {useNavigate} from "react-router";
+import {Typography} from "@mui/material";
 import {Select} from "antd";
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 import {useEffect} from "react";
+
 const Header = () => {
     const {groupFuncName, currentParentSemester, currentChildSemester} = useAppSelector<CommonState>(c => c.common)
     const nav = useNavigate();

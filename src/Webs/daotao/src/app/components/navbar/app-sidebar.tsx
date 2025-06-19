@@ -1,18 +1,11 @@
-
-import {Link, useLocation, useNavigate} from "react-router";
+import {useNavigate} from "react-router";
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
-    SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
-    SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
-    SidebarRail,
-    SidebarTrigger
+    SidebarMenuItem
 } from "@/app/components/ui/sidebar"
 
 import {useGetUserInfo} from "@/app/modules/auth/hooks/useGetUserInfo.ts";
@@ -21,18 +14,11 @@ import {useEffect} from "react";
 import {setAuthenticate, setRoleName, setUserInfo} from "@/app/stores/common_slice.ts";
 import TluIcon from "@/asssets/icons/tlu_icon.png"
 
-import {
-    GraduationCap,
-    Settings,
-    Users,
-    Home,
-    LogOut,
-    AtSign
-} from "lucide-react"
+import {AtSign, GraduationCap, Home, LogOut, Users} from "lucide-react"
 import {RoutePaths} from "@/core/route_paths.ts";
-import { Avatar } from "antd";
+import {Image} from "antd";
 import Auth from "@/infrastructure/utils/auth.ts";
-import {Image} from "antd"
+
 export function AppSidebar() {
     const nav = useNavigate()
     const dispatch = useAppDispatch()

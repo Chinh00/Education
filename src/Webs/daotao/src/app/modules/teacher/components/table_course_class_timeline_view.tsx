@@ -1,5 +1,5 @@
 ﻿import React, {useEffect, useState} from "react";
-import {ScheduleItem} from "@/app/modules/register/pages/course_class_config.tsx";
+import {ScheduleItem} from "@/domain/schedule_item.ts";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {daysOfWeek, timeSlots} from "@/infrastructure/date.ts";
 import {SlotTimeline} from "@/domain/slot_timeline.ts";
@@ -187,14 +187,13 @@ const Table_course_class_timeline_view = () => {
         if (validStartSlot < 0 || validEndSlot >= timeSlots.length) return;
         const selectionLength = Math.abs(end - start) + 1;
         if (selectionLength < FIXED_DURATION) return;
-        const textTitle = (count) <= (subject?.lectureLesson ?? 0) - 1 ? "LC" : "LTP";
         const newItem: ScheduleItem = {
             id: `schedule-${Date.now()}-${Math.random()}`,
-            title: `${textTitle}`,
+            title: `LC`,
             subject: courseClassType === 0 ? "Lý thuyết" : "Thực hành",
             color:
                 courseClassType === 0
-                    ? `${textTitle == "LC" ? "bg-blue-100" : "bg-green-100"}  text-blue-800 border-blue-200`
+                    ? `${"LC" == "LC" ? "bg-blue-100" : "bg-green-100"}  text-blue-800 border-blue-200`
                     : "bg-green-100 text-green-800 border-green-200",
             startSlot: validStartSlot,
             endSlot: validEndSlot,

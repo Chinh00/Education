@@ -4,14 +4,7 @@ import {useLogin} from "@/app/modules/auth/hooks/useLogin.ts";
 import {useNavigate} from "react-router";
 import {useAppDispatch} from "@/app/stores/hook.ts";
 import {useEffect, useState} from "react";
-import {
-    Form,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormControl,
-    FormMessage
-} from "@/app/components/ui/form.tsx"
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/app/components/ui/form.tsx"
 import {Input} from "@/app/components/ui/input"
 import {Button} from "@/app/components/ui/button"
 import {EyeIcon, EyeOffIcon, Loader2} from "lucide-react";
@@ -19,6 +12,7 @@ import {motion} from "framer-motion"
 import toast from "react-hot-toast";
 import {setAuthenticate} from "@/app/stores/common_slice.ts";
 import {RoutePaths} from "@/core/route_paths.ts";
+
 const LoginForm = () => {
     const form = useForm<AuthLoginModel>({
         defaultValues: {

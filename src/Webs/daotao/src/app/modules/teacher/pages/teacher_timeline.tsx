@@ -4,16 +4,7 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Box} from "@mui/material";
 import {Button as ButtonAntd, Input, Table, Typography} from "antd"
-import {Card, CardContent} from "@/app/components/ui/card.tsx";
-import {GripVertical, Plus} from "lucide-react";
-import {CourseClassModel, SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
-import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
-import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
-import {useForm} from "react-hook-form";
-import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
-import {ScheduleItem} from "@/app/modules/register/pages/course_class_config.tsx";
 import {Query} from "@/infrastructure/query.ts";
-import {daysOfWeek, timeSlots} from "@/infrastructure/date.ts";
 import {ColumnsType, useGetDepartments, useGetStaffs} from "@/app/modules/common/hook.ts";
 import {Subject} from "@/domain/subject.ts";
 import {Staff} from "@/domain/staff.ts";

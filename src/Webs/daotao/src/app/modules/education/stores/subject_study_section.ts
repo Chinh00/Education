@@ -2,7 +2,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {Subject} from "@/domain/subject.ts";
 import {CourseClass} from "@/domain/course_class.ts";
-import {ScheduleItem} from "@/app/modules/register/pages/course_class_config.tsx";
 import {SlotTimeline} from "@/domain/slot_timeline.ts";
 import {Key} from "react";
 export type SubjectStudySectionState = {

@@ -18,21 +18,4 @@ public class Subject : BaseEntity
     public bool? IsCalculateMark { get; set; }
     public SubjectStatus Status { get; set; } = SubjectStatus.Current;
     
-    [Description("Số tiết lý thuyết")]
-    public int LectureTotal { get; set; }
-    [Description("Số buổi lý thuyết trong 1 tuần")]
-    public int LectureLesson { get; set; }
-    [Description("Số tiết lý thuyết trong 1 buổi")]
-    public int LecturePeriod { get; set; }
-    
-    [Description("Số tiết thực hành")]
-    public int LabTotal { get; set; }
-    [Description("Số buổi thực hành trong 1 tuần")]
-    public int LabLesson { get; set; }
-    [Description("Số tiết thực hành trong 1 buổi")]
-    public int LabPeriod { get; set; }
-    
-    public List<string> LectureRequiredConditions { get; set; } = [];
-    public List<string> LabRequiredConditions { get; set; } = [];
-    
 }

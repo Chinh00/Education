@@ -4,14 +4,9 @@ import {Box, IconButton} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect, useState} from "react";
-import {Semester} from "@/domain/semester.ts";
-import {DateTimeFormat} from "@/infrastructure/date.ts";
 import {Subject} from "@/domain/subject.ts";
 import {Button, Form, Table, Input, Tooltip, Checkbox} from "antd";
 import {Query} from "@/infrastructure/query.ts";
-import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
-import {useForm} from "react-hook-form";
-import { RefreshCw, RotateCcw, Eye } from "lucide-react";
 import {useNavigate} from "react-router";
 import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 import { Badge } from "@/app/components/ui/badge";
@@ -50,24 +45,14 @@ const SubjectList = () => {
             ),
         },
         {
-            title: 'Là môn tính điểm',
+            title: 'Trạng thái',
             render: (text, record) => record?.status === 1 ?
                 <Badge className={"bg-green-600"}>Đang sử dụng</Badge> : <Badge>Không sử dụng</Badge>,
         },
         {
-            title: 'Trạng thái',
-            render: (text) =>( <Checkbox checked={text} disabled={true} />)
+            title: 'Là môn tính điểm',
+            render: (text, record) =>( <Checkbox checked={record?.isCalculateMark} disabled={true} />)
         },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <Tooltip title="Chi tiết">
-                    <IconButton onClick={() => nav(`/subjects/${record?.subjectCode}`)}><Eye size={15} /></IconButton>
-                </Tooltip>
-            ),
-        },
-
     ];
     const tableColumns = columns.map((item) => ({ ...item }));
 

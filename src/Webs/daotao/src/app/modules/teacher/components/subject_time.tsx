@@ -3,7 +3,8 @@ import { Card } from "@/app/components/ui/card.tsx";
 import { daysOfWeek, timeSlots } from "@/infrastructure/date.ts";
 import { GripVertical, Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { ScheduleItem } from "@/app/modules/register/pages/course_class_config.tsx";
+import {ScheduleItem} from "@/domain/schedule_item.ts";
+
 import { Space, Spin, Typography, Alert } from "antd";
 import { useGetCourseClasses } from "@/app/modules/education/hooks/useGetCourseClasses.ts";
 

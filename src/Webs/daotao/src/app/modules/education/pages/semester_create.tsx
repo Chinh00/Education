@@ -1,21 +1,15 @@
 ﻿import PredataScreen from "@/app/components/screens/predata_screen.tsx";
-import {Box, Divider} from "@mui/material";
+import {Divider} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import {useEffect} from "react";
-import {useForm} from "react-hook-form";
-import {CreateSemesterModel} from "@/app/modules/education/services/semester.service.ts";
 import dayjs from "dayjs";
-import {Button, Card, DatePicker, Form, Input, Select, Space, Typography} from "antd";
-import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
-import FormDatePickerAntd, {viLocale} from "@/app/components/inputs/FormDatePickerAntd.tsx";
-import {PlusOutlined, MinusCircleOutlined} from "@ant-design/icons";
+import {Button, Card, DatePicker, Form, Input, Typography} from "antd";
+import {viLocale} from "@/app/components/inputs/FormDatePickerAntd.tsx";
+import {MinusCircleOutlined, PlusOutlined} from "@ant-design/icons";
 import useCreateSemester from "../hooks/useCreateSemester";
-const phaseOptions = [
-    0,
-    1,
-    2
-];
+
+
 const SemesterCreate = () => {
     const dispatch = useAppDispatch()
 

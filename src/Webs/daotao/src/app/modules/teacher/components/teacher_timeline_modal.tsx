@@ -3,11 +3,8 @@ import {Button, Modal, Select, Tooltip, Typography} from "antd";
 import {Card, CardContent} from "@/app/components/ui/card.tsx";
 import {daysOfWeek, timeSlots} from "@/infrastructure/date.ts";
 import {GripVertical, Plus} from "lucide-react";
-import {ScheduleItem} from "@/app/modules/register/pages/course_class_config.tsx";
-import {SlotTimelineModel} from "@/app/modules/education/services/courseClass.service.ts";
-import {useAppSelector} from "@/app/stores/hook.ts";
-import {CommonState} from "@/app/stores/common_slice.ts";
-import {Query} from "@/infrastructure/query.ts";
+import {ScheduleItem} from "@/domain/schedule_item.ts";
+
 import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
 import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
 import {Eye} from "lucide-react"

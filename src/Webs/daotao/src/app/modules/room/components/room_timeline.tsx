@@ -5,7 +5,7 @@ import {Room} from "@/domain/room.ts";
 import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
 import {useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState} from "@/app/stores/common_slice.ts";
-import {ScheduleItem} from "@/app/modules/register/pages/course_class_config.tsx";
+import {ScheduleItem} from "@/domain/schedule_item.ts";
 import {daysOfWeek, timeSlots} from "@/infrastructure/date.ts";
 import {useRemoveCourseClassSlotTimeline} from "@/app/modules/education/hooks/useRemoveCourseClassSlotTimeline.ts";
 import {useAddCourseClassSlotTimeline} from "@/app/modules/education/hooks/useAddCourseClassSlotTimeline.ts";

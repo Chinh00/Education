@@ -2,22 +2,14 @@ import {Query} from "@/infrastructure/query.ts";
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {
     createRegisterRegistrationPeriod,
-    getBuildings,
     getConditions,
-    getCourses,
     getDepartments,
-    getEventsStore, getNotifications,
-    getRooms, getStaffs
+    getNotifications,
+    getRooms,
+    getStaffs
 } from "./service";
-import {GetProp, TableProps } from "antd";
+import {GetProp, TableProps} from "antd";
 
-const useGetCourses = (query: Query, enable: boolean = true) => {
-    return useQuery({
-        queryKey: ["course", query],
-        queryFn: () => getCourses(query),
-        enabled: enable,
-    })
-}
 
 const useGetDepartments = (query: Query, enable: boolean = true) => {
     return useQuery({
@@ -30,14 +22,7 @@ const useGetDepartments = (query: Query, enable: boolean = true) => {
 
 
 
-const useGetBuildings = (query: Query, enable: boolean = true) => {
-    return useQuery({
-        queryKey: ["buildings", query],
-        queryFn: () => getBuildings(query),
-        enabled: enable,
 
-    })
-}
 
 const useGetRooms = (query: Query, enable: boolean = true) => {
     return useQuery({
@@ -47,14 +32,7 @@ const useGetRooms = (query: Query, enable: boolean = true) => {
 
     })
 }
-const useGetEventsStore = (query: Query, enable: boolean = true) => {
-    return useQuery({
-        queryKey: ["useGetEventsStore", query],
-        queryFn: () => getEventsStore(query),
-        enabled: enable,
 
-    })
-}
 
 const useGetConditions = (query: Query, enable: boolean = true) => {
     return useQuery({
@@ -94,11 +72,8 @@ const useCreateRegisterRegistrationPeriod = () => {
 
 
 export {
-    useGetCourses,
     useGetDepartments,
-    useGetBuildings,
     useGetRooms,
-    useGetEventsStore,
     useGetConditions,
     useGetStaffs,
     useGetNotifications,

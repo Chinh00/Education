@@ -1,18 +1,17 @@
 ﻿import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
 import {Box, IconButton} from "@mui/material";
-import {Input, Select, Table} from "antd";
+import {Button, Input, Select, Space, Table} from "antd";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Subject} from "@/domain/subject.ts";
 import React, {useEffect, useState} from "react";
 import {Query} from "@/infrastructure/query.ts";
 import {ColumnsType, useGetDepartments} from "@/app/modules/common/hook.ts";
 import {useNavigate} from "react-router";
-import { Checkbox } from "antd";
+import { Checkbox, Tooltip } from "antd";
 import {Badge} from "@/app/components/ui/badge.tsx";
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
 import {useGetSubjectRegister} from "@/app/modules/education/hooks/useGetSubjectRegister.ts";
-import {Settings} from "lucide-react";
-import StudySectionCourseClasses from "@/app/modules/education/components/study_section_course_classes.tsx";
+import {Settings, GraduationCap} from "lucide-react";
 import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 const SubjectStudySection = () => {
@@ -93,9 +92,17 @@ const SubjectStudySection = () => {
             key: "action",
             render: (text, record) => (
                 // <StudySectionCourseClasses subjectCode={record?.subjectCode}  />
-                <IconButton size="small" onClick={() => nav(`/course-class/${record?.subjectCode}/section-config`)}>
-                    <Settings size={15} />
-                </IconButton>
+                <Space className={"flex justify-center items-center gap-2"}>
+                    <Tooltip title={"Cấu hình lớp học cho môn học"}>
+                        <Button style={{border: "none"}} size={"small"} icon={<Settings size={18} />} onClick={() => nav(`/course-class/${record?.subjectCode}/section-config`)} />
+                    </Tooltip>
+
+                    <Tooltip title={"Xem danh sách lớp học"}>
+                        <Button style={{border: "none"}} size={"small"} icon={<GraduationCap size={18} />} onClick={() => nav(`/course-class/${record?.subjectCode}`)}/>
+                    </Tooltip>
+                </Space>
+                
+                
             )
         },
     ];

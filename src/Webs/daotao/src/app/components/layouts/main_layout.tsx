@@ -1,10 +1,8 @@
 import {Outlet} from "react-router";
-import {SidebarInset, SidebarProvider, SidebarTrigger,} from "@/app/components/ui/sidebar"
-import {Separator} from "@/app/components/ui/separator.tsx";
+import {SidebarInset, SidebarProvider,} from "@/app/components/ui/sidebar"
 import {AppSidebar} from "@/app/components/navbar/app-sidebar.tsx";
-import {Suspense} from "react";
-import { GraduationCap } from "lucide-react";
 import AdminBackground from "@/asssets/images/admin_background.jpg"
+
 const MainLayout = () => {
     return <>
         <div

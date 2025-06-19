@@ -1,6 +1,6 @@
 ﻿import {Query} from "@/infrastructure/query.ts";
 import {useMutation, useQuery} from "@tanstack/react-query";
-import {getSubjects, updateSubjects} from "../services/subject.service";
+import {getSubjects} from "../services/subject.service";
 
 const useGetSubjects = (query: Query, enable: boolean = true) => {
     return useQuery({
@@ -10,12 +10,6 @@ const useGetSubjects = (query: Query, enable: boolean = true) => {
 
     })
 }
-const useUpdateSubject = () => {
-    return useMutation({
-        mutationKey: ["updateSubject"],
-        mutationFn: updateSubjects
-    })
-}
 
 
-export {useGetSubjects, useUpdateSubject};
+export {useGetSubjects};

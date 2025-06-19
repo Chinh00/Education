@@ -11,13 +11,11 @@ const RegisterEducation = lazy(() => import("../modules/education/pages/register
 const CreateRegister = lazy(() => import("../modules/education/pages/create_register.tsx"));
 const RegisterDetail = lazy(() => import("../modules/education/pages/register_detail.tsx"));
 
-const CourseClassDetail = lazy(() => import("../modules/education/pages/courseclass_detail.tsx"));
 
 const SemesterList = lazy(() => import("../modules/education/pages/semester_list.tsx"));
 const SemesterCreate = lazy(() => import("../modules/education/pages/semester_create.tsx"));
 
 const SubjectList = lazy(() => import("../modules/subject/pages/subject_list.tsx"));
-const SubjectDetail = lazy(() => import("../modules/subject/pages/subject_detail.tsx"));
 
 
 
@@ -32,7 +30,6 @@ const RoomList = lazy(() => import("../modules/room/pages/room_list.tsx"));
 
 const RegisterLayout = lazy(() => import("../modules/register/layouts/register_layout.tsx"));
 const RegisterTimeline = lazy(() => import("../modules/register/pages/register_timeline.tsx"));
-const CourseClassConfig = lazy(() => import("../modules/register/pages/course_class_config.tsx"));
 const CreateRegisterPeriod = lazy(() => import("../modules/education/pages/create_register_period.tsx"));
 const RegisterPeriodResult = lazy(() => import("../modules/education/pages/register_period_result.tsx"));
 const Course_class_section_config = lazy(() => import("../modules/education/pages/course_class_section_config.tsx"));
@@ -108,14 +105,6 @@ const router = createBrowserRouter([
                                 element: <Suspense fallback={<TabLoading />} key={"SubjectList"}><SubjectList /></Suspense>,
                             },
                             {
-                                path: RoutePaths.SUBJECT_DETAIL,
-                                element: <Suspense fallback={<TabLoading />} key={"SubjectDetail"}><SubjectDetail /></Suspense>,
-                            },
-                            {
-                                path: RoutePaths.EDUCATION_REGISTER_COURSE_DETAIL,
-                                element: <Suspense fallback={<TabLoading />} key={"CourseClassDetail"}><CourseClassDetail /></Suspense>,
-                            },
-                            {
                                 path: RoutePaths.SUBJECT_STUDY_SECTION,
                                 element: <Suspense fallback={<TabLoading />} key={"SubjectStudySection"} ><SubjectStudySection /></Suspense>,
                             },
@@ -164,14 +153,7 @@ const router = createBrowserRouter([
                                 path: RoutePaths.REGISTER_SUBJECT,
                                 element: <Suspense fallback={<TabLoading />} key={"RegisterTimeline"} ><RegisterTimeline /></Suspense>,
                             },
-                            {
-                                path: RoutePaths.COURSE_CLASS_CONFIG,
-                                element: <Suspense fallback={<TabLoading />} key={"CourseClassConfig"} ><CourseClassConfig /></Suspense>,
-                            },
                             
-                            
-
-
                         ],
                     },
 

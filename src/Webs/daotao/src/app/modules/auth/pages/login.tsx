@@ -1,15 +1,4 @@
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
-import {Box} from "@mui/material";
-import {useForm} from "react-hook-form";
-import {AuthLoginModel} from "@/app/modules/auth/services/auth.service.ts";
-import {useEffect} from "react";
-import {Button, Form} from "antd";
-import FormInputAntd from "@/app/components/inputs/FormInputAntd.tsx";
-import { useLogin } from "../hooks/useLogin";
-import toast from "react-hot-toast";
-import {useNavigate} from "react-router";
-import {useAppDispatch} from "@/app/stores/hook.ts";
-import {setAuthenticate} from "@/app/stores/common_slice.ts";
 import {motion} from "framer-motion"
 import Background from "@/asssets/images/image-476.jpeg"
 import LoginForm from "../components/login_form";

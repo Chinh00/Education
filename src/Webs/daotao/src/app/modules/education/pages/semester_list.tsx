@@ -1,20 +1,18 @@
 import {useGetSemesters} from "@/app/modules/education/hooks/useGetSemesters.ts";
-import {CommonState, setGroupFuncName } from "@/app/stores/common_slice";
-import { useAppDispatch, useAppSelector } from "@/app/stores/hook";
+import {CommonState, setGroupFuncName} from "@/app/stores/common_slice";
+import {useAppDispatch, useAppSelector} from "@/app/stores/hook";
 import {ReactElement, useEffect, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
-import {Box, IconButton} from "@mui/material";
+import {Box} from "@mui/material";
 import {ColumnsType} from "@/app/modules/common/hook.ts";
-import {Button, Space, Table, Tooltip} from "antd";
+import {Button, Table} from "antd";
 import {Semester} from "@/domain/semester.ts";
 import {DateTimeFormat} from "@/infrastructure/date.ts";
 import {Query} from "@/infrastructure/query.ts";
 import {Badge} from "@/app/components/ui/badge.tsx"
 import {RoutePaths} from "@/core/route_paths.ts";
-import {Eye} from "lucide-react";
-import {HistoryItem} from "@/app/components/modals/history_item.tsx";
-import { HistoryModal } from "@/app/components/modals/history_modal";
 import {useNavigate} from "react-router";
+
 const labelMap: Record<number, ReactElement> = {
     0: <Badge variant={"destructive"} >Tạo mới</Badge>,
     1: <Badge variant={"secondary"}>Đăng ký học</Badge>,

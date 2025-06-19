@@ -1,4 +1,5 @@
-﻿import { ScheduleItem } from "@/app/modules/register/pages/course_class_config.tsx";
+﻿import {ScheduleItem} from "@/domain/schedule_item.ts";
+
 
 export function getOverlappingPairs(items: ScheduleItem[]): {itemA: ScheduleItem, itemB: ScheduleItem, overlapSlots: number[]}[] {
     const result: {itemA: ScheduleItem, itemB: ScheduleItem, overlapSlots: number[]}[] = [];

@@ -21,12 +21,11 @@ const Header = () => {
     useEffect(() => {
         if (semesters && semesters?.data?.data?.items?.length > 0) {
             dispatch(setCurrentSemester({
-                parentSemester: semesters?.data?.data?.items?.find(e => e.parentSemesterCode === null && e.semesterStatus !== 3),
+                parentSemester: semesters?.data?.data?.items?.find(e => (e.parentSemesterCode === null || e.parentSemesterCode === "") && e.semesterStatus !== 3),
                 childSemesters: semesters?.data?.data?.items?.filter(e => e.parentSemesterCode === semesters?.data?.data?.items?.find(e => e.parentSemesterCode === null && e.semesterStatus !== 3)?.semesterCode)
             }))
         }
     }, [semesters]);
-    
     return (
         <div
             className={"grid grid-cols-12 bg-transparent backdrop-blur-2xl"}
@@ -40,7 +39,7 @@ const Header = () => {
                     <Select
                         value={currentParentSemester?.semesterCode}    
                         loading={isLoading} className={"min-w-[300px]"} size={"large"} style={{borderColor: "black"}} placeholder={"Danh sách kì học"}>
-                        {semesters && semesters?.data?.data?.items?.filter(e => e.parentSemesterCode === null)?.map((semester) => (
+                        {semesters && semesters?.data?.data?.items?.filter(e => e.parentSemesterCode === null || e.parentSemesterCode === "")?.map((semester) => (
                             <Select.Option
                                 disabled={semester?.semesterStatus === 3}
                                 key={semester?.semesterCode} 

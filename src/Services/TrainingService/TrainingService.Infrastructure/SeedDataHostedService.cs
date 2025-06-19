@@ -32,15 +32,6 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
                 await repository.AddAsync(courseClassCondition, cancellationToken);
             }
         }
-        foreach (var room in _rooms)
-        {
-            var spec = new GetRoomByCodeSpec(room.Code);
-            var condition = await roomRepository.FindOneAsync(spec, cancellationToken);
-            if (condition == null)
-            {
-                await roomRepository.AddAsync(room, cancellationToken);
-            }
-        }
 
         if ((await educationProgramRepository.CountAsync(new TrueListSpecification<EducationProgram>(),
                 cancellationToken)) == 0)
@@ -57,6 +48,9 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         if ((await staffRepository.CountAsync(new TrueListSpecification<Staff>(),
                 cancellationToken)) == 0)
         await PullStaffs(staffRepository, cancellationToken);
+        if ((await roomRepository.CountAsync(new TrueListSpecification<Room>(),
+                cancellationToken)) == 0)
+            await PullRooms(roomRepository, cancellationToken);
         
         if ((await departmentRepository.CountAsync(new TrueListSpecification<Department>(),
                 cancellationToken)) == 0)
@@ -65,9 +59,30 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         
         
         
+        
     }
 
-    
+    async Task PullRooms(IMongoRepository<Room> roomRepository,CancellationToken cancellation)
+    {
+        var url = $"https://api5.tlu.edu.vn/api/Building/Room?Page=1&PageSize=9999";
+        
+        var response = await httpClient.GetAsync(url, cancellation);
+        var json = await response.Content.ReadAsStringAsync(cancellation);
+        var result = JsonSerializer.Deserialize<ResultModel<ListResultModel<Room>>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        foreach (var room in result.Data.Items)
+        {
+            var spec = new GetRoomByCodeSpec(room.Code);
+            var existingRoom = await roomRepository.FindOneAsync(spec, cancellation);
+            if (existingRoom == null)
+            {
+                await roomRepository.AddAsync(room, cancellation);
+            }
+        }
+        
+    }
     async Task PullDepartments(IMongoRepository<Department> education,
         ITopicProducer<InitDepartmentAdminAccountIntegrationEvent> producer, CancellationToken cancellation)
     {

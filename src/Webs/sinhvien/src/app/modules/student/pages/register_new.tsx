@@ -16,8 +16,7 @@ import { groupCourseClassesWithLodash } from "@/domain/course_class";
 import {useCreateStudentRegisterCourseClass} from "@/app/modules/student/hooks/useCreateStudentRegisterCourseClass.ts";
 import toast from "react-hot-toast";
 import {useGetStudentRegisterCourseClass} from "@/app/modules/student/hooks/useGetStudentRegisterCourseClass.ts";
-import {Eye} from "lucide-react"
-import {IconButton} from "@mui/material"
+
 
 const RegisterNew = () => {
 

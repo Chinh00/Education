@@ -57,8 +57,8 @@ const StudentTimeline = () => {
     Filters: [
       {
         field: "ParentSemesterCode",
-        operator: "In",
-        value: ","
+        operator: "==",
+        value: ""
       }
     ],
     Sorts: ["IdDesc"]

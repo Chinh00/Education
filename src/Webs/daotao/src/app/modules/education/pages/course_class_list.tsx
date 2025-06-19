@@ -250,6 +250,13 @@ const Course_class_list = () => {
         subjectCode !== undefined &&
         courseClassesChild !== undefined
     );
+    const getSiblingRows = (parentCode: string) =>
+        courseClassesChild?.data?.data?.items
+            ?.filter(e => e.parentCourseClassCode === parentCode) ?? [];
+    const getParentRow = (parentCode: string) =>
+        courseClassesParent?.data?.data?.items?.find(e => e.courseClassCode === parentCode);
+    
+    
 
     // Table columns (now with EditableColumnType)
     const columns: EditableColumnType<CourseClass>[] = [
@@ -274,6 +281,7 @@ const Course_class_list = () => {
                 return  <div className={"flex flex-col gap-1 justify-start items-start"}>
                     {timeLines?.data?.data?.items?.filter(e => e?.courseClassCode === record?.courseClassCode)?.map(e => (
                         <div key={e.id} className={"flex flex-row flex-nowrap gap-1"}>
+                            <span  className={"font-bold text-gray-500"}>Từ tuần: {e?.startWeek } {"->"} {e?.endWeek}</span>
                             {e?.dayOfWeek !== -1 ? <span  className={"font-bold text-blue-500"}>Thứ: {e?.dayOfWeek + 2}</span> : "Không xếp được lịch học"}
                             <span  className={"text-green-600"}>Phòng: {e?.roomCode }</span>
                             <span className={"flex flex-row whitespace-nowrap justify-center items-center"}>Tiết: {(+e.slots[0]) + 1}
@@ -304,13 +312,6 @@ const Course_class_list = () => {
             ),
         },
         {
-            title: "Tuần bắt đầu",
-            className: "text-[12px]",
-            dataIndex: "weekStart",
-            width: "15%",
-            editable: true,
-        },
-        {
             title: "Số SV dự kiến",
             dataIndex: "numberStudentsExpected",
             className: "text-[12px]",
@@ -338,7 +339,22 @@ const Course_class_list = () => {
             width: 120,
             render: (_: any, record: CourseClass) => {
                 const editable = isEditing(record);
-                const isParent = !record.parentCourseClassCode; // Nếu không có parentCourseClassCode là lớp cha
+                const isParent = !record.parentCourseClassCode;
+
+                
+                let listCourseClassesRelative: string[] = [];
+                if (isParent) {
+                    listCourseClassesRelative = [
+                        record.courseClassCode,
+                        ...getChildRows(record.courseClassCode).map(c => c.courseClassCode)
+                    ];
+                } else {
+                    // row con: lấy cha + tất cả các con cùng cha
+                    listCourseClassesRelative = [
+                        record.parentCourseClassCode!,
+                        ...getChildRows(record.parentCourseClassCode!).map(c => c.courseClassCode)
+                    ];
+                }
                 return (
                     <div>
                         <span>
@@ -389,7 +405,11 @@ const Course_class_list = () => {
                             </>
                         )}
                     </span>
-                        <Edit_table_schedule courseClassCode={record?.courseClassCode} subjectCode={record?.subjectCode} />
+                        <Edit_table_schedule
+                            listCourseClassesRelative={listCourseClassesRelative}
+                            courseClass={record}
+                            subjectCode={record?.subjectCode}
+                        />
                     </div>
                 );
             },

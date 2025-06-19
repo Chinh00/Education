@@ -20,8 +20,11 @@ public class SubjectScheduleConfig : BaseEntity
     // So buoi thuc hanh trong 1 tuan VD [3, 3] => 2 buoi, moi buoi 3 tiet 
     public int[] PracticeSessions { get; set; } = [];
     // tuan bat dau cua mon hoc trong hoc ky
-    public int WeekStart { get; set; } = 0;
-    public int SessionPriority { get; set; } = 0; // 0 la buoi sang, 1 la buoi chieu 
+    public int WeekLectureStart { get; set; } = 1;
+    public int WeekLectureEnd { get; set; } = 8;
+    public int WeekLabStart { get; set; } = 3;
+    public int WeekLabEnd { get; set; } = 8;
+    public int SessionPriority { get; set; } = 0; 
     
     // dieu kien phong de hoc ly thuyet VD: ["Lecture"]
     public List<string> LectureRequiredConditions { get; set; } = [];

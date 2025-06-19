@@ -17,7 +17,10 @@ public record CreateSubjectScheduleConfigCommand(CreateSubjectScheduleConfigComm
         int PracticeTotalPeriod,
         int[] TheorySessions,
         int[] PracticeSessions,
-        int WeekStart,
+        int WeekLectureStart,
+        int WeekLectureEnd,
+        int WeekLabStart,
+        int WeekLabEnd,
         int SessionPriority,
         List<string> LectureRequiredConditions,
         List<string> LabRequiredConditions
@@ -37,7 +40,10 @@ public record CreateSubjectScheduleConfigCommand(CreateSubjectScheduleConfigComm
                 PracticeTotalPeriod = request.Model.Model.PracticeTotalPeriod,
                 TheorySessions = request.Model.Model.TheorySessions,
                 PracticeSessions = request.Model.Model.PracticeSessions,
-                WeekStart = request.Model.Model.WeekStart,
+                WeekLectureStart = request.Model.Model.WeekLectureStart,
+                WeekLectureEnd = request.Model.Model.WeekLectureEnd,
+                WeekLabStart = request.Model.Model.WeekLabStart,
+                WeekLabEnd = request.Model.Model.WeekLabEnd,
                 SessionPriority = request.Model.Model.SessionPriority,
                 LectureRequiredConditions = request.Model.Model.LectureRequiredConditions.ToList(),
                 LabRequiredConditions = request.Model.Model.LabRequiredConditions.ToList(),
@@ -46,10 +52,13 @@ public record CreateSubjectScheduleConfigCommand(CreateSubjectScheduleConfigComm
             existingConfig.PracticeTotalPeriod = request.Model.Model.PracticeTotalPeriod;
             existingConfig.TheorySessions = request.Model.Model.TheorySessions;
             existingConfig.PracticeSessions = request.Model.Model.PracticeSessions;
-            existingConfig.WeekStart = request.Model.Model.WeekStart;
+            existingConfig.WeekLectureStart = request.Model.Model.WeekLectureStart;
             existingConfig.SessionPriority = request.Model.Model.SessionPriority;
             existingConfig.LectureRequiredConditions = request.Model.Model.LectureRequiredConditions.ToList();
             existingConfig.LabRequiredConditions = request.Model.Model.LabRequiredConditions.ToList();
+            existingConfig.WeekLectureEnd = request.Model.Model.WeekLectureEnd;
+            existingConfig.WeekLabStart = request.Model.Model.WeekLabStart;
+            existingConfig.WeekLabEnd = request.Model.Model.WeekLabEnd;
             
             await subjectScheduleConfigRepository.UpsertOneAsync(spec, existingConfig, cancellationToken);
             return Results.Ok();

@@ -1,19 +1,20 @@
 ﻿import React, { useState } from 'react';
-import {Button, Descriptions, Drawer, Typography} from 'antd';
-import {DeleteOutlined, EyeOutlined} from "@ant-design/icons";
-import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
-import {useGetSubjects} from "@/app/modules/subject/hooks/hook.ts";
-import {useAppSelector} from "@/app/stores/hook.ts";
-import {CommonState} from "@/app/stores/common_slice.ts";
+import { Button, Descriptions, Drawer, Typography } from 'antd';
+import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import { useGetCourseClasses } from "@/app/modules/education/hooks/useGetCourseClasses.ts";
+import { useGetSubjects } from "@/app/modules/subject/hooks/hook.ts";
+import { useAppSelector } from "@/app/stores/hook.ts";
+import { CommonState } from "@/app/stores/common_slice.ts";
 import Timeline from "@/app/modules/education/components/timeline.tsx";
-
+import { CourseClass } from "@/domain/course_class.ts";
 
 export type Edit_table_scheduleProps = {
     subjectCode: string,
-    courseClassCode: string
+    courseClass: CourseClass,
+    listCourseClassesRelative?: string[]
 }
 
-const Edit_table_schedule = ({courseClassCode, subjectCode}: Edit_table_scheduleProps) => {
+const Edit_table_schedule = ({ courseClass, subjectCode, listCourseClassesRelative }: Edit_table_scheduleProps) => {
     const [open, setOpen] = useState(false);
 
     const showDrawer = () => {
@@ -23,7 +24,7 @@ const Edit_table_schedule = ({courseClassCode, subjectCode}: Edit_table_schedule
     const onClose = () => {
         setOpen(false);
     };
-    const {data: subjects} = useGetSubjects({
+    const { data: subjects } = useGetSubjects({
         Filters: [
             {
                 field: "SubjectCode",
@@ -33,21 +34,20 @@ const Edit_table_schedule = ({courseClassCode, subjectCode}: Edit_table_schedule
         ]
     }, open && subjectCode !== undefined && subjectCode !== null);
     const getSubject = subjects?.data?.data?.items?.[0];
-    const {data: courseClassParent, isLoading} = useGetCourseClasses({
+    const { data: courseClassParent, isLoading } = useGetCourseClasses({
         Filters: [
             {
                 field: "CourseClassCode",
                 operator: "==",
-                value: courseClassCode
+                value: courseClass?.courseClassCode
             }
         ],
         Includes: ["SessionLengths"]
-    }, open && courseClassCode !== undefined && courseClassCode !== null);
-    const courseClass = courseClassParent?.data?.data?.items?.[0];
-    const {currentParentSemester} = useAppSelector<CommonState>(e => e.common)
+    }, open && courseClass !== undefined && courseClass !== null);
+    const { currentParentSemester } = useAppSelector<CommonState>(e => e.common)
+
     return (
         <>
-            
             <Button
                 icon={<EyeOutlined />}
                 size="small"
@@ -71,16 +71,17 @@ const Edit_table_schedule = ({courseClassCode, subjectCode}: Edit_table_schedule
                 open={open}
                 width={"100%"}
             >
-                
                 <div className={"grid grid-cols-12"}>
                     <Descriptions
                         bordered
-                        size={"small"}
-                        className={"col-span-4"}
+                        size="small"
+                        className="col-span-4"
                         column={1}
                         title="Thông tin chi tiết lớp học"
-                        labelStyle={{ width: 200, fontWeight: 600 }}
-                        contentStyle={{ fontWeight: 400 }}
+                        styles={{
+                            label: { width: 200, fontWeight: 600 },
+                            content: { fontWeight: 400 }
+                        }}
                     >
                         <Descriptions.Item label="Tên lớp">{courseClass?.courseClassName}</Descriptions.Item>
                         <Descriptions.Item label="Mã lớp">{courseClass?.courseClassCode}</Descriptions.Item>
@@ -98,8 +99,8 @@ const Edit_table_schedule = ({courseClassCode, subjectCode}: Edit_table_schedule
                     <div
                         className={"col-span-8"}
                     >
-                        <Timeline courseClass={courseClass} />
-                    </div>    
+                        <Timeline courseClass={courseClass} listCourseClassesRelative={listCourseClassesRelative} />
+                    </div>
                 </div>
             </Drawer>
         </>

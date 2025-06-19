@@ -8,6 +8,7 @@ public class CourseClass : BaseEntity
 {
     public int Index { get; set; }
     public int WeekStart { get; set; } = 0;
+    public int WeekEnd { get; set; } = 0;
     
     public CourseClassStatus Status { get; set; } =  CourseClassStatus.Active;
 
@@ -33,6 +34,8 @@ public class SlotTimeline : BaseEntity
 {
     public string CourseClassCode { get; set; }
     public string BuildingCode { get; set; }
+    public int StartWeek { get; set; } = 1;
+    public int EndWeek { get; set; } = 8;
     
     public string RoomCode { get; set; }
     public int DayOfWeek { get; set; }

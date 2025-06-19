@@ -4,6 +4,8 @@ export interface SlotTimeline {
     roomCode: string,
     dayOfWeek: number,
     slots: string[],
+    startWeek: number,
+    endWeek: number,
     id: string,
     createdAt: string,
     updatedAt: string | null

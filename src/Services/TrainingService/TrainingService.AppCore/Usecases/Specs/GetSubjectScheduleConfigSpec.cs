@@ -21,7 +21,10 @@ public class GetSubjectScheduleConfigSpec : ListSpecificationBase<SubjectSchedul
         ApplyInclude(c => c.PracticeTotalPeriod);
         ApplyInclude(c => c.TheorySessions);
         ApplyInclude(c => c.PracticeSessions);
-        ApplyInclude(c => c.WeekStart);
+        ApplyInclude(c => c.WeekLectureStart);
+        ApplyInclude(c => c.WeekLectureEnd);
+        ApplyInclude(c => c.WeekLabStart);
+        ApplyInclude(c => c.WeekLabEnd);
         ApplyInclude(c => c.SessionPriority);
         ApplyInclude(c => c.LectureRequiredConditions);
         ApplyInclude(c => c.LabRequiredConditions);

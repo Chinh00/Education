@@ -88,7 +88,10 @@ export interface SubjectScheduleConfigModel {
     practiceTotalPeriod: number;
     theorySessions: number[];
     practiceSessions: number[];
-    weekStart: number;
+    weekLectureStart: number;
+    weekLectureEnd: number;
+    weekLabStart: number;
+    weekLabEnd: number;
     sessionPriority: number;
     lectureRequiredConditions: string[];
     labRequiredConditions: string[];

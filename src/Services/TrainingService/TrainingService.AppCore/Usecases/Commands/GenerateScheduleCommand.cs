@@ -332,7 +332,9 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                                     CourseClassCode = courseClass.CourseClassCode,
                                     DayOfWeek = day,
                                     RoomCode = room.Code,
-                                    Slots = slotList
+                                    Slots = slotList,
+                                    StartWeek = courseClass.WeekStart,
+                                    EndWeek = courseClass.WeekEnd
                                 }, cancellationToken);
 
                                 // Cập nhật số lớp đã xếp vào ngày này

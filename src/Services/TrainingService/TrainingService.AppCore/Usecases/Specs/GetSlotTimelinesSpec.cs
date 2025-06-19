@@ -18,5 +18,7 @@ public class GetSlotTimelinesSpec : ListSpecificationBase<SlotTimeline>
         ApplyInclude(c => c.RoomCode);
         ApplyInclude(c => c.DayOfWeek);
         ApplyInclude(c => c.Slots);
+        ApplyInclude(c => c.StartWeek);
+        ApplyInclude(c => c.EndWeek);
     }
 }

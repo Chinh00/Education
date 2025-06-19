@@ -14,12 +14,15 @@ import {SearchRoomFreeQueryModel} from "@/app/modules/education/services/courseC
 import {useRemoveCourseClassSlotTimeline} from "@/app/modules/education/hooks/useRemoveCourseClassSlotTimeline.ts";
 import toast from "react-hot-toast";
 import {useAddCourseClassSlotTimeline} from "@/app/modules/education/hooks/useAddCourseClassSlotTimeline.ts";
+import {useGetSubjectScheduleConfig} from "@/app/modules/education/hooks/useGetSubjectScheduleConfig.ts";
+import {useAppSelector} from "@/app/stores/hook.ts";
+import {CommonState} from "@/app/stores/common_slice.ts";
 
 export type TimelineProps = {
-    courseClass: CourseClass | undefined
+    courseClass: CourseClass | undefined,
+    listCourseClassesRelative?: string[]
 }
-
-const Timeline = ({courseClass}: TimelineProps) => {
+const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
     const [courseClassType, setCourseClassType] = useState(0);
     const [isSelecting, setIsSelecting] = useState(false);
     const [selectionStart, setSelectionStart] = useState<{ dayIndex: number; slotIndex: number } | null>(null);
@@ -28,10 +31,25 @@ const Timeline = ({courseClass}: TimelineProps) => {
     const [dragPreview, setDragPreview] = useState<{ dayIndex: number; startSlot: number; endSlot: number } | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([]);
-
-
-    
-    
+    const {currentParentSemester} = useAppSelector<CommonState>(e => e.common);
+    const {data: subjectScheduleConfigs} = useGetSubjectScheduleConfig({
+        Filters: [
+            {
+                field: "SemesterCode",
+                operator: "==",
+                value: currentParentSemester?.semesterCode!
+            },
+            {
+                field: "Stage",
+                operator: "==",
+                value: `${courseClass?.stage}`
+            },
+            
+        ]
+    }, courseClass?.stage !== undefined && currentParentSemester?.semesterCode !== undefined);
+    const subjectScheduleConfig = subjectScheduleConfigs?.data?.data?.items?.[0];
+    const theorySessions = subjectScheduleConfig?.theorySessions || [];
+    const practiceSessions = subjectScheduleConfig?.practiceSessions || [];
     
     
 
@@ -79,34 +97,32 @@ const Timeline = ({courseClass}: TimelineProps) => {
         setSelectionEnd(null);
     };
 
-    const FIXED_DURATION = 3;
+
     const createScheduleBlock = () => {
         if (!selectionStart || !selectionEnd) return;
         const start = selectionStart.slotIndex;
         const end = selectionEnd.slotIndex;
         const dayIndex = selectionStart.dayIndex;
-        const isForward = end >= start;
-        const startSlot = isForward ? start : start - FIXED_DURATION + 1;
-        const validStartSlot = Math.max(0, startSlot);
-        const validEndSlot = validStartSlot + FIXED_DURATION - 1;
+        const validStartSlot = Math.min(start, end);
+        const validEndSlot = Math.max(start, end);
+
         if (validStartSlot < 0 || validEndSlot >= timeSlots.length) return;
-        const selectionLength = Math.abs(end - start) + 1;
-        if (selectionLength < FIXED_DURATION) return;
+
         const newItem: ScheduleItem = {
             id: `schedule-${Date.now()}-${Math.random()}`,
             title: ``,
             subject: courseClassType === 0 ? "Lý thuyết" : "Thực hành",
             color:
                 courseClassType === 0
-                    ? `${true  ? "bg-blue-100" : "bg-green-100"}  text-blue-800 border-blue-200`
+                    ? `bg-blue-100 text-blue-800 border-blue-200`
                     : "bg-green-100 text-green-800 border-green-200",
             startSlot: validStartSlot,
             endSlot: validEndSlot,
             dayIndex,
-            duration: FIXED_DURATION,
+            duration: validEndSlot - validStartSlot + 1,
+            courseClassCode: courseClass?.courseClassCode
         };
-        setScheduledItems(prevState => [...prevState, newItem])
-        
+        setScheduledItems(prevState => [...prevState, newItem]);
         setIsDragging(false);
     };
 
@@ -247,35 +263,94 @@ const Timeline = ({courseClass}: TimelineProps) => {
             }
         }
     }, [courseClass]);
-    const {data: timelines, refetch: timelineRefetch} = useGetTimeline({
+    const {data: timelines, refetch: timelineRefetch, isSuccess} = useGetTimeline({
         Filters: [
             {
                 field: "CourseClassCode",
-                operator: "==",
-                value: courseClass?.courseClassCode || ""
+                operator: "In",
+                value: listCourseClassesRelative?.join(",")!
             }
         ]
-    }, !!courseClass?.courseClassCode);
+    }, !!courseClass?.courseClassCode && courseClass?.courseClassCode !== "" && listCourseClassesRelative != undefined && listCourseClassesRelative.length > 0);
     useEffect(() => {
         if (timelines?.data?.data?.items) {
             const items: ScheduleItem[] = timelines.data.data.items.map((item: SlotTimeline, index) => ({
                 id: item.id,
-                title: `Buổi ${index + 1}`,
+                title: item.courseClassCode?.includes("LT") ? "LC" : "LTP",
                 subject: "",
-                color: "bg-blue-100 text-blue-800 border-blue-200",
+                color: `${courseClass?.courseClassCode === item.courseClassCode ? "bg-[#42a5f5]" : "bg-red-200"} text-blue-800 border-blue-200`,
                 startSlot: +item?.slots[0],
                 endSlot: +item?.slots[item?.slots.length - 1],   
                 dayIndex: item.dayOfWeek,
                 duration: item?.slots?.length,
-                roomCode: item.roomCode
+                roomCode: item.roomCode,
+                courseClassCode: item?.courseClassCode
             }));
             setScheduledItems(prevState => [...prevState, ...items]);
         }
     }, [timelines]);
+    function countUniquePracticeClasses(data: ScheduleItem[], courseClassType: string = "-LT"): Record<string, number> {
+        const result: Record<string, number> = {}
+        listCourseClassesRelative?.map(t => {
+            result[t] = 0
+            
+        })
+        for (const item of data) {
+            if (item?.courseClassCode?.includes(courseClassType)) {
+                result[item.courseClassCode] = (result[item.courseClassCode] || 0) + 1;
+            }
+        }
+        return result;
+    }
 
+    const [alters, setAlters] = useState<Record<string, string[]>>()
+
+
+    // useEffect(() => {
+    //     if (isSuccess) {
+    //         const newAlters: Record<string, string[]> = {};
+    //
+    //         const theoryCount = countUniquePracticeClasses(scheduledItems, "-LT");
+    //         Object.entries(theoryCount).forEach(([itemCode, count]) => {
+    //             if (theoryCount[itemCode] !== theorySessions?.length) {
+    //                 if (!newAlters[itemCode]) newAlters[itemCode] = [];
+    //                 newAlters[itemCode].push(`Lớp học lý thuyết ${itemCode} chưa đủ số buổi học lý thuyết (${theorySessions?.length} buổi)`);
+    //             }
+    //         });
+    //
+    //         const practiceCount = countUniquePracticeClasses(scheduledItems, "_TH");
+    //         Object.entries(practiceCount).forEach(([itemCode, count]) => {
+    //             if (practiceCount[itemCode] !== practiceSessions?.length) {
+    //                 if (!newAlters[itemCode]) newAlters[itemCode] = [];
+    //                 newAlters[itemCode].push(`Lớp học thực hành ${itemCode} chưa đủ số buổi học thực hành (${practiceSessions?.length} buổi)`);
+    //             }
+    //         });
+    //
+    //         setAlters(newAlters);
+    //     }
+    // }, [scheduledItems, isSuccess]);
+    //
+    //
+    
+    
     
     return (
         <div className={"px-5"}>
+            <div className={"flex flex-col gap-2"}>
+                {alters && Object.keys(alters).length > 0 && (
+                    <div className={"text-red-500 text-sm"}>
+                        <ul>
+                            {Object.entries(alters).map(([itemCode, messages]) => (
+                                messages.map((message, index) => (
+                                    <li key={`${itemCode}-${index}`}>{message}</li>
+                                ))
+                            ))}
+                        </ul>
+                    </div>
+                )}
+                
+            </div>
+            
             
             <Card className={"w-full p-0"}>
                 <div
@@ -335,12 +410,12 @@ const Timeline = ({courseClass}: TimelineProps) => {
                                             const overlapOffset = 20;
                                             const width = `calc(100% - ${overlapOffset * (overlaps.length - 1)}px)`;
                                             const left = `${overlapIndex * overlapOffset}px`;
-
                                             return (
                                                 <div
                                                     key={item.id}
                                                     draggable={item?.id?.startsWith("schedule")}
                                                     onDragStart={(e) => handleDragStart(e, item)}
+                                                    className={`${item?.color}`}
                                                     onDragEnd={handleDragEnd}
                                                     onMouseDown={e => e.stopPropagation()}
                                                     style={{
@@ -353,7 +428,6 @@ const Timeline = ({courseClass}: TimelineProps) => {
                                                         position: 'absolute',
                                                         // border: '1.5px solid #1976d2',
                                                         boxShadow: '0 2px 8px rgba(0,0,0,0.13)',
-                                                        background: '#42a5f5',
                                                         color: '#222',
                                                         borderRadius: 8,
                                                         padding: 8,
@@ -367,6 +441,7 @@ const Timeline = ({courseClass}: TimelineProps) => {
                                                     <div style={{ fontSize: 12 }}>{/* Thời gian, phòng ... */}</div>
                                                     <Dropdown
                                                         placement={"bottomRight"}
+                                                        disabled={item.courseClassCode !== courseClass?.courseClassCode}
                                                         className={"z-50 absolute top-0 right-0 w-full h-full"}
                                                         trigger={["click"]}
                                                         open={openDropdownId === item.id}

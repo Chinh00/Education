@@ -1,4 +1,3 @@
-import {Speciality} from "@/domain/speciality.ts";
 
 export interface Department {
     departmentCode: string;

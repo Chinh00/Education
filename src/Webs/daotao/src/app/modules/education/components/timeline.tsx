@@ -1,7 +1,7 @@
 ﻿import {Card} from "@/app/components/ui/card.tsx";
 import {daysOfWeek, timeSlots} from "@/infrastructure/date.ts";
 import {CircleCheck, Plus, Trash2} from "lucide-react";
-import {Dropdown, Select, Tooltip} from "antd";
+import {Alert, Button, Dropdown, Select, Tooltip} from "antd";
 import React, {useEffect, useState} from "react";
 import {ScheduleItem} from "@/domain/schedule_item.ts";
 import {Box, IconButton} from "@mui/material";
@@ -10,13 +10,17 @@ import {SlotTimeline} from "@/domain/slot_timeline.ts";
 import {CourseClass} from "@/domain/course_class.ts";
 import {getOverlappingPairs} from "@/app/modules/education/components/overlapUtils.ts";
 import {useGetRoomFreeSlots} from "@/app/modules/education/hooks/useGetRoomFreeSlots.ts";
-import {SearchRoomFreeQueryModel} from "@/app/modules/education/services/courseClass.service.ts";
+import {
+    GetSlotTimelineFreeQueryModel,
+    SearchRoomFreeQueryModel
+} from "@/app/modules/education/services/courseClass.service.ts";
 import {useRemoveCourseClassSlotTimeline} from "@/app/modules/education/hooks/useRemoveCourseClassSlotTimeline.ts";
 import toast from "react-hot-toast";
 import {useAddCourseClassSlotTimeline} from "@/app/modules/education/hooks/useAddCourseClassSlotTimeline.ts";
 import {useGetSubjectScheduleConfig} from "@/app/modules/education/hooks/useGetSubjectScheduleConfig.ts";
 import {useAppSelector} from "@/app/stores/hook.ts";
 import {CommonState} from "@/app/stores/common_slice.ts";
+import {useGetSlotTimelineFree} from "@/app/modules/education/hooks/useGetSlotTimelineFree.ts";
 
 export type TimelineProps = {
     courseClass: CourseClass | undefined,
@@ -192,14 +196,14 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
     const {mutate: removeMutateCourseClassSlotTimeline, reset: removeSlotTimelineReset, isPending: removeSlotTimelineLoading} = useRemoveCourseClassSlotTimeline()
     const {mutate: addSlotTimelineMutate, reset: addSlotTimelineReset, isPending: addSlotTimelineLoading} = useAddCourseClassSlotTimeline()
     const [selectedRoomCode, setSelectedRoomCode] = useState("");
-    const handleSaveNewSlotTimeline = (dayOfWeek: number, sessionLength: number, startPeriod: number) => {
-        if (!courseClass || !selectedRoomCode  ) {
+    const handleSaveNewSlotTimeline = (dayOfWeek: number, sessionLength: number, startPeriod: number, roomCode?: string) => {
+        if (!courseClass || !roomCode  ) {
             toast.error("Vui lòng chọn đầy đủ thông tin");
             return;
         }
         addSlotTimelineMutate({
             courseClassCode: courseClass?.courseClassCode || "",
-            roomCode: selectedRoomCode,
+            roomCode: selectedRoomCode || roomCode,
             dayOfWeek,
             slots: Array.from({ length: sessionLength }, (_, i) => (startPeriod + i + 1).toString())
         }, {
@@ -240,6 +244,10 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
     const [selectedRoomQuery, setSelectedRoomQuery] = useState<SearchRoomFreeQueryModel>({
         semesterCode: currentParentSemester?.semesterCode!,
     });
+    const [filterRoomFreeQuery, setFilterRoomFreeQuery] = useState<SearchRoomFreeQueryModel>({
+        semesterCode: currentParentSemester?.semesterCode!,
+    });
+    
     const {data: roomsAvailable, isLoading: roomsAvailableLoading} = useGetRoomFreeSlots(
         selectedRoomQuery,
         selectedRoomQuery?.dayOfWeek !== undefined &&
@@ -281,68 +289,58 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
             setScheduledItems(prevState => [...prevState, ...items]);
         }
     }, [timelines]);
-    function countUniquePracticeClasses(data: ScheduleItem[], courseClassType: string = "-LT"): Record<string, number> {
-        const result: Record<string, number> = {}
-        listCourseClassesRelative?.map(t => {
-            result[t] = 0
-            
-        })
-        for (const item of data) {
-            if (item?.courseClassCode?.includes(courseClassType)) {
-                result[item.courseClassCode] = (result[item.courseClassCode] || 0) + 1;
-            }
+    
+
+    
+
+
+    
+    const totalPeriodScheduleCurrent = (scheduledItems?.filter(e => e.courseClassCode === courseClass?.courseClassCode)?.reduce((acc, item) => acc + item.duration, 0) ?? 0)
+    const totalPeriodScheduleRule = subjectScheduleConfig?.theorySessions?.reduce((current, acc) => current + acc, 0) ?? 0
+    const [slotFreeQuery, setSlotFreeQuery] = useState<GetSlotTimelineFreeQueryModel>({
+        semesterCode: currentParentSemester?.semesterCode!,
+        
+    })
+    const {data: slotFree} = useGetSlotTimelineFree(slotFreeQuery, slotFreeQuery?.sessionLength !== undefined)
+    useEffect(() => {
+        if (slotFree && slotFree?.data?.data?.items?.length > 0) { 
+            const items: ScheduleItem[] = slotFree.data.data.items?.filter(e => !scheduledItems?.map(t => t.dayIndex).includes(e.dayOfWeek)).map((item: SlotTimeline) => ({
+                id: `schedule-${Date.now()}-${Math.random()}`,
+                title: item.courseClassCode?.includes("LT") ? "LC" : "LTP",
+                subject: "",
+                color: "bg-green-100 text-green-800 border-green-200",
+                startSlot: +item?.slots[0],
+                endSlot: +item?.slots[item?.slots.length - 1],
+                dayIndex: item.dayOfWeek,
+                duration: item?.slots?.length,
+                roomCode: item.roomCode,
+                courseClassCode: courseClass?.courseClassCode
+            }));
+            setScheduledItems(prevState => [...prevState, ...items]);
         }
-        return result;
-    }
-
-    const [alters, setAlters] = useState<Record<string, string[]>>()
-
-
-    // useEffect(() => {
-    //     if (isSuccess) {
-    //         const newAlters: Record<string, string[]> = {};
-    //
-    //         const theoryCount = countUniquePracticeClasses(scheduledItems, "-LT");
-    //         Object.entries(theoryCount).forEach(([itemCode, count]) => {
-    //             if (theoryCount[itemCode] !== theorySessions?.length) {
-    //                 if (!newAlters[itemCode]) newAlters[itemCode] = [];
-    //                 newAlters[itemCode].push(`Lớp học lý thuyết ${itemCode} chưa đủ số buổi học lý thuyết (${theorySessions?.length} buổi)`);
-    //             }
-    //         });
-    //
-    //         const practiceCount = countUniquePracticeClasses(scheduledItems, "_TH");
-    //         Object.entries(practiceCount).forEach(([itemCode, count]) => {
-    //             if (practiceCount[itemCode] !== practiceSessions?.length) {
-    //                 if (!newAlters[itemCode]) newAlters[itemCode] = [];
-    //                 newAlters[itemCode].push(`Lớp học thực hành ${itemCode} chưa đủ số buổi học thực hành (${practiceSessions?.length} buổi)`);
-    //             }
-    //         });
-    //
-    //         setAlters(newAlters);
-    //     }
-    // }, [scheduledItems, isSuccess]);
-    //
-    //
-    
-    
-    
+    }, [slotFree]);
     return (
         <div className={"px-5"}>
-            <div className={"flex flex-col gap-2"}>
-                {alters && Object.keys(alters).length > 0 && (
-                    <div className={"text-red-500 text-sm"}>
-                        <ul>
-                            {Object.entries(alters).map(([itemCode, messages]) => (
-                                messages.map((message, index) => (
-                                    <li key={`${itemCode}-${index}`}>{message}</li>
-                                ))
-                            ))}
-                        </ul>
-                    </div>
-                )}
-                
-            </div>
             
+            <div className={"flex flex-col py-2"}>
+                {totalPeriodScheduleCurrent < totalPeriodScheduleRule && 
+                <div className={"flex flex-row gap-2"}>
+                    <Alert type={"error"} className={"w-max"} message={`Chưa đáp ứng đủ số tiết trên tuần, còn thiếu ${totalPeriodScheduleRule - totalPeriodScheduleCurrent} tiết lý thuyết`} />
+                    <Button className={"w-max h-full"} size={"small"} color={"cyan"}
+                        onClick={() => {
+                            setSlotFreeQuery(prevState => ({
+                                ...prevState,
+                                sessionLength: totalPeriodScheduleRule - totalPeriodScheduleCurrent,
+                                stage: courseClass?.stage!,
+                                conditions: courseClass?.courseClassType === 0 ? subjectScheduleConfig?.lectureRequiredConditions : subjectScheduleConfig?.labRequiredConditions,
+                            }))
+                        }}
+                    >Tìm phòng</Button>
+                </div>}
+                {totalPeriodScheduleCurrent > totalPeriodScheduleRule && <Alert type={"error"} className={"w-max"} message={`Đã vượt quá số tiết trên tuần, thừa ${totalPeriodScheduleCurrent - totalPeriodScheduleRule} tiết lý thuyết`} />}
+                {/*<Alert className={"w-max"} message={<>Đáp ứng đủ {subjectScheduleConfig?.theorySessions?.reduce((current, acc) => current + acc, 0)} tiết lý thuyết / tuần</>} />*/}
+                {(subjectScheduleConfig?.practiceTotalPeriod ?? 0) > 0 && <div>Đáp ứng đủ {subjectScheduleConfig?.practiceSessions?.reduce((current, acc) => current + acc, 0)} tiết lý thuyết / tuần</div>}
+            </div>
             
             <Card className={"w-full p-0"}>
                 <div
@@ -433,7 +431,6 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
                                                     <div style={{ fontSize: 12 }}>{/* Thời gian, phòng ... */}</div>
                                                     <Dropdown
                                                         placement={"bottomRight"}
-                                                        disabled={item.courseClassCode !== courseClass?.courseClassCode}
                                                         className={"z-50 absolute top-0 right-0 w-full h-full"}
                                                         trigger={["click"]}
                                                         open={openDropdownId === item.id}
@@ -460,6 +457,7 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
                                                                         value: e?.code
                                                                     })) ?? []}
                                                                     loading={roomsAvailableLoading}
+                                                                    defaultValue={item?.roomCode || ""}
                                                                     placeholder={"Chọn phòng học"}
                                                                     onChange={e => {
                                                                         setSelectedRoomCode(e);
@@ -481,7 +479,9 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
                                                                 </Tooltip>
                                                                 {item?.id?.startsWith("schedule-") && (
                                                                     <Tooltip title={"Lưu tiết học"}>
-                                                                        <IconButton color={"primary"} loading={addSlotTimelineLoading} onClick={() => handleSaveNewSlotTimeline(item.dayIndex, item.duration, item.startSlot - 1)}>
+                                                                        <IconButton color={"primary"} loading={addSlotTimelineLoading} onClick={() => {
+                                                                            handleSaveNewSlotTimeline(item.dayIndex, item.duration, item.startSlot - 1, item?.roomCode)
+                                                                        }}>
                                                                             <CircleCheck size={18} />
                                                                         </IconButton>
                                                                     </Tooltip>

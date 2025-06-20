@@ -70,7 +70,18 @@ public class CourseClassController : BaseController
     {
         return Ok(await Mediator.Send(query, cancellationToken));
     }
-    
+    /// <summary>
+    /// Lấy lịch học trống theo cấu hình môn học
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("SlotTimeline/Free")]
+    [AllowAnonymous]
+    public async Task<IActionResult> HandleGetSlotTimelineFreeAsync([FromQuery] GetSlotTimelineFreeQuery query, CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(query, cancellationToken));
+    }
     
     
     

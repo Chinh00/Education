@@ -90,6 +90,7 @@ const Course_class_list = () => {
     const [rowSelection, setRowSelection] = useState<React.Key[]>([]);
     const [openModal, setOpenModal] = useState(false);
     const [totalTheoryCourseClass, setTotalTheoryCourseClass] = useState(0);
+    const [numberStudentsExpected, setNumberStudentsExpected] = useState(0);
 
     const [query, setQuery] = useState<Query>({
         Filters: [
@@ -464,7 +465,7 @@ const Course_class_list = () => {
                 </div>
                 <div className={"flex gap-3"}>
                     <Button onClick={() => setOpenModal(true)}>
-                        Thêm lớp học phần tự động
+                        Thêm lớp học
                     </Button>
                     <Modal
                         open={openModal}
@@ -476,6 +477,7 @@ const Course_class_list = () => {
                                 subjectCode: subjectCode!,
                                 stage: selectedStage,
                                 totalTheoryCourseClass: totalTheoryCourseClass,
+                                numberStudentsExpected: numberStudentsExpected
                             }, {
                                 onSuccess: () => {
                                     toast.success("Tạo lớp học phần thành công!");
@@ -505,10 +507,20 @@ const Course_class_list = () => {
                                         className={"w-full"}
                                     />
                                 </Form.Item>
+                                <Form.Item label={"Số sinh viên dự kiến mỗi lớp"}>
+                                    <InputNumber
+                                        value={numberStudentsExpected}
+                                        onChange={(value) => setNumberStudentsExpected(value!)}
+                                        min={0}
+                                        style={{ width: "100%" }}
+                                        placeholder={"Nhập số sinh viên dự kiến mỗi lớp"}
+                                        className={"w-full"}
+                                    />
+                                </Form.Item>
+                                
                             </Form>
                         </Box>
                     </Modal>
-                    <Button>Thêm lớp học thủ công</Button>
                 </div>
                 <div className={"flex gap-3 py-2"}>
                     <Button disabled={rowSelection?.length === 0} onClick={() => {

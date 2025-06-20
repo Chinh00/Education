@@ -140,6 +140,7 @@ export interface SubjectScheduleConfigBothModel {
 export interface GenerateScheduleModel {
     semesterCode: string;
     subjectCode: string;
+    stage: number,
     courseClassCodes: string[];
 }
 

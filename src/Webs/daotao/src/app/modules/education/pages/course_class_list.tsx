@@ -515,6 +515,7 @@ const Course_class_list = () => {
                         generateSchedule({
                             semesterCode: currentParentSemester?.semesterCode!,
                             subjectCode: subjectCode!,
+                            stage: selectedStage,
                             courseClassCodes: rowSelection as string[],
                         }, {
                             onSuccess: () => {

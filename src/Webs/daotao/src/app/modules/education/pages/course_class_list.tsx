@@ -97,7 +97,7 @@ const Course_class_list = () => {
             { field: "ParentCourseClassCode", operator: "==", value: "" },
         ],
         Page: 1,
-        PageSize: 1000,
+        PageSize: 10,
     });
     useEffect(() => {
         setQuery(pre => ({
@@ -545,6 +545,18 @@ const Course_class_list = () => {
                             size={"small"}
                             rowKey={e => e.courseClassCode}
                             bordered
+                            pagination={{
+                                current: query?.Page ?? 1,
+                                pageSize: query?.PageSize ?? 10,
+                                total: courseClassesParent?.data?.data?.totalItems ?? 0
+                            }}
+                            onChange={(e) => {
+                                setQuery(prevState => ({
+                                    ...prevState,
+                                    Page: e?.current ?? 1 - 1,
+                                    PageSize: e?.pageSize
+                                }))
+                            }}
                             columns={mergedColumns as ColumnsType<CourseClass>}
                             components={{
                                 body: {
@@ -553,7 +565,6 @@ const Course_class_list = () => {
                             }}
                             dataSource={parentData}
                             rowClassName="editable-row"
-                            pagination={false}
                             rowSelection={{
                                 type: "checkbox",
                                 columnWidth: "2%",

@@ -30,7 +30,7 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
             var courseClasses = new List<CourseClass>();
             var subjectScheduleConfigs = await subjectScheduleConfigRepository.FindAsync(
                 new GetSubjectScheduleConfigSubjectCodeSpec(request.Model.SemesterCode, request.Model.SubjectCode, 
-                    request.Model.Stage == 1 || request.Model.Stage == 2
+                    request.Model.Stage == 0 || request.Model.Stage == 1
                         ? [(SubjectTimelineStage)request.Model.Stage]
                         : [SubjectTimelineStage.Stage1Of2, SubjectTimelineStage.Stage2Of2]),
                 cancellationToken);
@@ -136,12 +136,17 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
             foreach (var courseClass in courseClasses?.Where(e =>
                  request.Model.CourseClassCodes.Contains(e.CourseClassCode)))
             {
+                if (courseClass.Stage == SubjectTimelineStage.StageBoth) continue;
                 var config = subjectScheduleConfigs.FirstOrDefault(x => x.Stage == courseClass.Stage);
+                var conditions = courseClass.CourseClassType == CourseClassType.Lecture
+                    ? config.LectureRequiredConditions
+                    : config.LabRequiredConditions;
+                var numberExpected = courseClass.NumberStudentsExpected;
+
                 var sessionsPriority = config?.SessionPriority ?? -1; // 0 - sáng, 1 - chiều, -1 không ưu tiên
                 var sessionLengths = courseClass.SessionLengths;
-                var scheduledDays = new List<int>(); // ngày đã xếp của lớp này
+                var scheduledDays = new List<int>();
 
-                // Shuffle sessionIndexes to randomize session order (xáo trộn thứ tự buổi)
                 var sessionIndexes = Enumerable.Range(0, sessionLengths.Count).OrderBy(_ => _random.Next()).ToList();
 
                 for (var idx = 0; idx < sessionIndexes.Count; idx++)
@@ -211,7 +216,6 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                                     int startPeriod = sibStart + sibLen;
                                     if (IsValidSessionSlotWithPriority(startPeriod, sessionLength, sessionsPriority))
                                     {
-                                        // Lấy room ưu tiên nếu có lớp con cùng lớp cha đã xếp trong ngày này
                                         List<Room> shuffledRooms;
                                         string parentCode = courseClass.ParentCourseClassCode;
                                         string preferRoom = null;
@@ -219,7 +223,6 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                                             && childClassRoomByDay[parentCode].ContainsKey(day))
                                         {
                                             preferRoom = childClassRoomByDay[parentCode][day];
-                                            // Đưa phòng ưu tiên lên đầu danh sách phòng
                                             shuffledRooms = rooms.OrderBy(x => x.Code == preferRoom ? 0 : 1).ThenBy(x => _random.Next()).ToList();
                                         }
                                         else
@@ -230,6 +233,13 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                                         int minConflict = int.MaxValue;
                                         foreach (var room in shuffledRooms)
                                         {
+                                            // ==== Kiểm tra điều kiện phòng ====
+                                            if (room.Capacity < numberExpected)
+                                                continue;
+                                            if (conditions != null && conditions.Any() &&
+                                                (room.SupportedConditions == null || !conditions.All(cond => room.SupportedConditions.Contains(cond))))
+                                                continue;
+                                            // ==== END kiểm tra điều kiện phòng ====
                                             bool canSchedule = true;
                                             int conflict = 0;
                                             for (int i = 0; i < sessionLength; i++)
@@ -261,7 +271,6 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                                             classDaysUsed[courseClass.CourseClassCode][day] = true;
                                             scheduledDays.Add(day);
 
-                                            // Lưu lại phòng này cho các lớp con tiếp theo ưu tiên
                                             if (!string.IsNullOrEmpty(parentCode))
                                             {
                                                 if (!childClassRoomByDay.ContainsKey(parentCode))
@@ -306,6 +315,13 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                                         int minConflict = int.MaxValue;
                                         foreach (var room in shuffledRooms)
                                         {
+                                            // ==== Kiểm tra điều kiện phòng ====
+                                            if (room.Capacity < numberExpected)
+                                                continue;
+                                            if (conditions != null && conditions.Any() &&
+                                                (room.SupportedConditions == null || !conditions.All(cond => room.SupportedConditions.Contains(cond))))
+                                                continue;
+                                            // ==== END kiểm tra điều kiện phòng ====
                                             bool canSchedule = true;
                                             int conflict = 0;
                                             for (int i = 0; i < sessionLength; i++)
@@ -382,7 +398,6 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                         if (isChildClass && parentDays.Contains(day)) continue;
                         if (scheduledDays.Any(d0 => Math.Abs(d0 - day) < MIN_DAY_PER_SESSION_WEEK)) continue;
 
-                        // Ưu tiên phòng đã xếp cho lớp con khác cùng lớp cha trong ngày này
                         List<Room> shuffledRooms;
                         string parentCode = courseClass.ParentCourseClassCode;
                         string preferRoom = null;
@@ -403,6 +418,13 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
 
                             foreach (var room in shuffledRooms)
                             {
+                                // ==== Kiểm tra điều kiện phòng ====
+                                if (room.Capacity < numberExpected)
+                                    continue;
+                                if (conditions != null && conditions.Any() &&
+                                    (room.SupportedConditions == null || !conditions.All(cond => room.SupportedConditions.Contains(cond))))
+                                    continue;
+                                // ==== END kiểm tra điều kiện phòng ====
                                 bool roomFree = true;
                                 bool classFree = true;
                                 int conflict = 0;
@@ -437,7 +459,6 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                         classDaysUsed[courseClass.CourseClassCode][bestDay] = true;
                         scheduledDays.Add(bestDay);
 
-                        // Lưu lại phòng này cho các lớp con khác cùng lớp cha ưu tiên
                         string parentCode = courseClass.ParentCourseClassCode;
                         if (isChildClass && !string.IsNullOrEmpty(parentCode))
                         {
@@ -475,6 +496,7 @@ public record GenerateScheduleCommand(GenerateScheduleCommand.GenerateScheduleMo
                     }
                 }
             }
+
 
             foreach (var slotTimeline in slotTimelinesResult)
             {

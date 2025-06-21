@@ -13,14 +13,14 @@ metadata:
       chinhval/educationsinhvienwebapp,
       chinhval/educationstudentservice,
       chinhval/educationtrainingservice
-    argocd-image-updater.argoproj.io/educationdaotaowebapp.update-strategy: latest
-    argocd-image-updater.argoproj.io/educationgatewayservice.update-strategy: latest
-    argocd-image-updater.argoproj.io/educationidentityservice.update-strategy: latest
-    argocd-image-updater.argoproj.io/educationnotificationservice.update-strategy: latest
-    argocd-image-updater.argoproj.io/educationregisterservice.update-strategy: latest
-    argocd-image-updater.argoproj.io/educationsinhvienwebapp.update-strategy: latest
-    argocd-image-updater.argoproj.io/educationstudentservice.update-strategy: latest
-    argocd-image-updater.argoproj.io/educationtrainingservice.update-strategy: latest
+    argocd-image-updater.argoproj.io/educationdaotaowebapp.update-strategy: digest
+    argocd-image-updater.argoproj.io/educationgatewayservice.update-strategy: digest
+    argocd-image-updater.argoproj.io/educationidentityservice.update-strategy: digest
+    argocd-image-updater.argoproj.io/educationnotificationservice.update-strategy: digest
+    argocd-image-updater.argoproj.io/educationregisterservice.update-strategy: digest
+    argocd-image-updater.argoproj.io/educationsinhvienwebapp.update-strategy: digest
+    argocd-image-updater.argoproj.io/educationstudentservice.update-strategy: digest
+    argocd-image-updater.argoproj.io/educationtrainingservice.update-strategy: digest
 spec:
   project: default
   source:

@@ -89,11 +89,11 @@ export type ColumnsType<T extends object> = GetProp<TableProps<T>, 'columns'> & 
 export const getStageText = (stage: number) => {
     switch (stage) {
         case 0:
-            return "Giai đoạn 1";
+            return "GD1";
         case 1:
-            return "Giai đoạn 2";
+            return "GD2";
         default:
-            return "Cả 2 giai đoạn";
+            return "2GD";
     }
 }
 

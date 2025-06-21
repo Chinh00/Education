@@ -1,9 +1,10 @@
-﻿import React, {useEffect, useState} from "react";
+﻿import React, {useCallback, useEffect, useState} from "react";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import { Box } from "@mui/material";
 import { useGetCourseClasses } from "@/app/modules/education/hooks/useGetCourseClasses.ts";
 import { Query } from "@/infrastructure/query.ts";
 import { useParams } from "react-router";
+import { Link } from "react-router";
 import {
     Button,
     Modal,
@@ -37,6 +38,9 @@ import {useGenerateSchedule} from "@/app/modules/education/hooks/useGenerateSche
 import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
 import {ArrowRight} from "lucide-react";
 import Edit_table_schedule from "@/app/modules/education/components/edit_table_schedule.tsx";
+import {useCreateCourseClass} from "@/app/modules/education/hooks/useCreateCourseClass.ts";
+import {useGetSubjectScheduleConfig} from "@/app/modules/education/hooks/useGetSubjectScheduleConfig.ts";
+import {debounce} from "lodash";
 interface EditableColumnType<T> extends ColumnType<T> {
     editable?: boolean;
 }
@@ -132,7 +136,7 @@ const Course_class_list = () => {
         courseClassesParent?.data?.data?.items?.length > 0
     );
 
-    const { currentParentSemester } = useAppSelector<CommonState>(
+    const { currentParentSemester, currentChildSemester } = useAppSelector<CommonState>(
         (e) => e.common
     );
     const { mutate, isPending } = useGenerateCourseClasses();
@@ -165,6 +169,7 @@ const Course_class_list = () => {
         form.setFieldsValue({ ...record });
         setEditingId(record.id);
     };
+    const getSemesterByStage = (stage: number) => currentChildSemester?.find(e => (+e?.semesterCode?.split('_')[3]) === (stage + 1))
 
     const cancel = () => setEditingId("");
     const {mutate: updateMutate, reset: updateReset} = useUpdateCourseClass()
@@ -251,11 +256,7 @@ const Course_class_list = () => {
         subjectCode !== undefined &&
         courseClassesChild !== undefined
     );
-    const getSiblingRows = (parentCode: string) =>
-        courseClassesChild?.data?.data?.items
-            ?.filter(e => e.parentCourseClassCode === parentCode) ?? [];
-    const getParentRow = (parentCode: string) =>
-        courseClassesParent?.data?.data?.items?.find(e => e.courseClassCode === parentCode);
+    
     
     
 
@@ -299,15 +300,15 @@ const Course_class_list = () => {
             title: "Thời gian",
             className: "text-[12px]",
             width: 60,
-            render: () => (
+            render: (text, record) => (
                 <Badge
                     variant={"outline"}
                     className={"bg-blue-100 flex flex-col justify-start items-start"}
                 >
                     <span>{getStageText(selectedStage ?? 0)}</span>
                     <span>
-                        {DateTimeFormat(currentParentSemester?.startDate, "DD/MM/YYYY")} -{" "}
-                        {DateTimeFormat(currentParentSemester?.endDate, "DD/MM/YYYY")}
+                        {DateTimeFormat(getSemesterByStage(record?.stage)?.startDate, "DD/MM/YYYY")} -{" "}
+                        {DateTimeFormat(getSemesterByStage(record?.stage)?.endDate, "DD/MM/YYYY")}
                     </span>
                 </Badge>
             ),
@@ -335,7 +336,7 @@ const Course_class_list = () => {
                 ),
         },
         {
-            title: "Tác vụ",
+            title: "Hành động",
             dataIndex: "operation",
             width: 120,
             render: (_: any, record: CourseClass) => {
@@ -435,14 +436,49 @@ const Course_class_list = () => {
             }),
         };
     });
-    
+    const {mutate: createCourseClassMutate, isPending: createCourseClassLoading, reset: createCourseClassReset} = useCreateCourseClass()
+    const {data: subjectScheduleConfigs} = useGetSubjectScheduleConfig({
+        Filters: [
+            { field: "SubjectCode", operator: "==", value: subjectCode! },
+            { field: "Stage", operator: "==", value: `${selectedStage}` },
+            { field: "SemesterCode", operator: "==", value: currentParentSemester?.semesterCode! }
+        ]
+    }, subjectCode !== undefined && selectedStage !== undefined && selectedStage !== null)
+    const [searchKeyword, setSearchKeyword] = useState("")
 
+    const searchCourseClass = useCallback(
+        debounce((keyword) => {
+            if (keyword === "") { 
+                setQuery({
+                    ...query,
+                    Filters: query?.Filters?.filter(e => e.field !== "CourseClassName")
+                });
+                return;
+            } else {
+                setQuery({
+                    ...query,
+                    Filters: [
+                        ...query?.Filters?.filter(e => e.field !== "SubjectName") ?? [],
+                        {
+                            field: "CourseClassName",
+                            operator: keyword !== "" ? "Contains" : "!=",
+                            value: keyword !== "" ? keyword : "-1"
+                        },
+                    ]
+                });
+            }
+            
+        }, 1200),
+        [query]
+    );
+    
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
             <Box>
                 <div className={"flex gap-2 mb-3"}>
                     {[0, 1].map((e) => (
                         <Button
+                            
                             key={e}
                             variant={"filled"}
                             color={selectedStage === e ? "primary" : "default"}
@@ -454,6 +490,7 @@ const Course_class_list = () => {
                         </Button>
                     ))}
                     <Button
+                        
                         variant={"filled"}
                         color={selectedStage === 4 ? "primary" : "default"}
                         onClick={() => {
@@ -463,10 +500,15 @@ const Course_class_list = () => {
                         Cả 2 giai đoạn
                     </Button>
                 </div>
-                <div className={"flex gap-3"}>
-                    <Button onClick={() => setOpenModal(true)}>
-                        Thêm lớp học
-                    </Button>
+                <div className={"flex gap-3 flex-row max-w-2/5  "}>
+                    <div className={"flex flex-col"}>
+                        <Button
+                            
+                            color={"primary"}
+                            onClick={() => setOpenModal(true)}>
+                            Thêm lớp học
+                        </Button>
+                    </div>  
                     <Modal
                         open={openModal}
                         onCancel={() => setOpenModal(false)}
@@ -521,9 +563,16 @@ const Course_class_list = () => {
                             </Form>
                         </Box>
                     </Modal>
-                </div>
-                <div className={"flex gap-3 py-2"}>
-                    <Button disabled={rowSelection?.length === 0} onClick={() => {
+                    <Input.Search placeholder={"Tìm kiếm nhanh tên lớp "}
+                                  value={searchKeyword}
+                                  onChange={e => {
+                                      setSearchKeyword(e.target.value);
+                                      searchCourseClass(e.target.value);
+                                  }}
+                    />
+                    <Button
+                        
+                        disabled={rowSelection?.length === 0} onClick={() => {
                         generateSchedule({
                             semesterCode: currentParentSemester?.semesterCode!,
                             subjectCode: subjectCode!,
@@ -545,12 +594,14 @@ const Course_class_list = () => {
                     }}>
                         Xếp thời khóa biểu tự động
                     </Button>
-                    
                 </div>
-                <Box>
-                    <Typography.Title level={3} className={"text-center"}>
-                        Danh sách lớp
-                    </Typography.Title>
+                {subjectScheduleConfigs && subjectScheduleConfigs?.data?.data?.totalItems === 0 && <span className={"text-[13px] max-w-[100px] text-red-500 "}>Chưa cấu hình tham số cho thời khóa biểu, 
+                đi đến <Link to={`/course-class/${subjectCode}/section-config`} className={"underline font-bold"}>cấu hình</Link>
+                </span>}
+                
+                
+                <Box className={"mt-3"}>
+                    
                     <Form form={form} component={false}>
                         <Table<CourseClass>
                             loading={isLoading}
@@ -614,6 +665,52 @@ const Course_class_list = () => {
                                                     cell: EditableCell,
                                                 },
                                             }}
+                                            footer={() => (
+                                                <div className={"flex justify-start pl-7"}>
+                                                    <Button 
+                                                            loading={createCourseClassLoading}
+                                                    onClick={() => {
+                                                        // courseClassCode: string;
+                                                        // courseClassName: string;
+                                                        // courseClassType: number;
+                                                        // subjectCode: string;
+                                                        // semesterCode: string;
+                                                        // numberStudentsExpected: number,
+                                                        //     parentCourseClassCode: string,
+                                                        //     stage: number,
+                                                        //     weekStart: number,
+                                                        //     weekEnd: number,
+                                                        const childs = getChildRows(record.courseClassCode).map(c => (+c?.courseClassCode?.slice(-1)));
+                                                        // lay max trong childs
+                                                        const maxChild = childs.length > 0 ? Math.max(...childs) : 0;
+                                                        createCourseClassMutate({
+                                                            semesterCode: currentParentSemester?.semesterCode!,
+                                                            subjectCode: subjectCode!,
+                                                            stage: record.stage,
+                                                            parentCourseClassCode: record.courseClassCode,
+                                                            courseClassCode: `${currentParentSemester?.semesterCode}_${subjectCode}_${getStageText(record.stage)}_TH${record?.index + 1}_L${maxChild + 1}`,
+                                                            courseClassName: `${currentParentSemester?.semesterCode}_${subjectCode}_${getStageText(record.stage)}_TH${record?.index + 1}_L${maxChild + 1}`,
+                                                            weekStart: record?.weekStart ?? 3,
+                                                            weekEnd: record?.weekEnd ?? 8,
+                                                            courseClassType: 1,
+                                                            numberStudentsExpected: getChildRows(record.courseClassCode)?.[0]?.numberStudentsExpected ?? 0,
+                                                            sessionLengths: getChildRows(record.courseClassCode)?.[0]?.sessionLengths ?? [],
+                                                            
+                                                        }, {
+                                                            onSuccess: () => {
+                                                                toast.success("Tạo lớp con thành công!");
+                                                                refetchParent();
+                                                                refetchChild();
+                                                                createCourseClassReset();
+                                                            },
+                                                            onError: (error) => {
+                                                                toast.error(`Tạo lớp con thất bại: ${error}`);
+                                                            }
+                                                        })
+                                                    }}
+                                                    >Thêm lớp thành phần </Button>
+                                                </div>
+                                            )}
                                             dataSource={childData}
                                             rowClassName="editable-row"
                                             pagination={false}

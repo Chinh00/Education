@@ -27,7 +27,8 @@ export interface CourseClassModel {
     parentCourseClassCode: string,
     stage: number,
     weekStart: number,
-    slotTimelines: SlotTimelineModel[];
+    weekEnd: number,
+    sessionLengths: number[]
 }
 
 export interface UpdateCourseClassStatusModel {

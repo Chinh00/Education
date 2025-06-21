@@ -1,4 +1,5 @@
-﻿using Education.Contract.IntegrationEvents;
+﻿using System.Security.Claims;
+using Education.Contract.IntegrationEvents;
 using IdentityService.Models;
 using IdentityService.Services;
 using MediatR;
@@ -11,17 +12,20 @@ public class InitDepartmentAdminAccountIntegrationEventHandler(UserManager userM
 {
     public async Task Handle(InitDepartmentAdminAccountIntegrationEvent notification, CancellationToken cancellationToken)
     {
-        var department = await userManager.FindByNameAsync(notification.departmentCode);
+        var department = await userManager.FindByNameAsync(notification.DepartmentCode);
         if (department is not null) return;
         var result = await userManager.CreateAsync(new ApplicationUser()
         {
-            UserName = notification.departmentCode,
-            FullName = notification.departmentName,
-            Email = $"{notification.departmentCode}@e.tlu.edu.vn",
-        }, notification.departmentCode);
+            UserName = notification.DepartmentCode,
+            FullName = notification.DepartmentName,
+            Email = $"{notification.DepartmentCode}@e.tlu.edu.vn",
+        }, notification.DepartmentCode);
+        await userManager.AddClaimAsync(
+            await userManager.FindByNameAsync(notification.DepartmentCode) ?? throw new InvalidOperationException(),
+            new Claim("department-path", notification.Path));
         if (result.Succeeded)
         {
-            await userManager.AddToRoleAsync(await userManager.FindByNameAsync(notification.departmentCode) ?? throw new InvalidOperationException(), "department-admin");
+            await userManager.AddToRoleAsync(await userManager.FindByNameAsync(notification.DepartmentCode) ?? throw new InvalidOperationException(), "department-admin");
         }
     }
 }

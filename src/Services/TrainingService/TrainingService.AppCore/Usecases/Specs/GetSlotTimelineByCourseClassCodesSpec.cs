@@ -15,5 +15,7 @@ public class GetSlotTimelineByCourseClassCodesSpec : ListSpecificationBase<SlotT
         ApplyInclude(e => e.RoomCode);
         ApplyInclude(e => e.DayOfWeek);
         ApplyInclude(e => e.Slots);
+        ApplyInclude(e => e.StartWeek);
+        ApplyInclude(e => e.EndWeek);
     }
 }

@@ -169,6 +169,22 @@ public class CourseClassController : BaseController
         return Ok(await Mediator.Send(new UpdateCourseTeacherCommand(model), cancellationToken));
     }
     
+    /// <summary>
+    /// Tự động gán giáo viên cho lớp học
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("Teacher/GenerateTeacher")]
+    [AllowAnonymous]
+    public async Task<IActionResult> HandleGenerateTeacherForCourseClassAsyn([FromBody] GenerateTeacherForCourseClassCommand.GenerateTeacherForCourseClassModel model,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(new GenerateTeacherForCourseClassCommand(model), cancellationToken));
+    }
+    
+    
+    
     
     /// <summary>
     /// Cập nhật thông tin lớp học

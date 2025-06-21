@@ -16,6 +16,7 @@ import { Badge } from "@/app/components/ui/badge";
 import { useGetSubjects } from "../../subject/hooks/hook";
 import { Input } from "antd"
 import CourseClassAssignTeacherModal from "@/app/modules/teacher/components/course_class_assign_teacher_modal.tsx";
+import Assignment_teacher from "@/app/modules/teacher/components/assignment_teacher.tsx";
 const SubjectList = () => {
   const dispatch = useAppDispatch();
   const { groupFuncName } = useAppSelector<CommonState>(c => c.common)
@@ -71,10 +72,10 @@ const SubjectList = () => {
       dataIndex: "isCalculateMark",
     },
     {
-      title: 'Tình trạng',
+      title: 'Hành động',
       render: (text, record) => (
           <>
-            <CourseClassAssignTeacherModal subjectCode={record.subjectCode} />
+            <Assignment_teacher subject={record}/>
           </>
       )
     },
@@ -82,7 +83,7 @@ const SubjectList = () => {
   
   
   
-  
+   
   const tableColumns = columns.map((item) => ({ ...item }));
   const [searchKeyword, setSearchKeyword] = useState("")
   const searchTeacher = useCallback(

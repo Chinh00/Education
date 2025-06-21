@@ -2,6 +2,7 @@
 export interface CourseClass {
     index: number;
     weekStart: number;
+    weekEnd: number;
     status: number;
     courseClassCode: string;
     courseClassName: string;

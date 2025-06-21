@@ -66,7 +66,8 @@ const Room_timeline = ({room}: Room_timelineProps) => {
         }
     }, [timelines]);
 
-    // Render block giống Timeline
+    
+
     return (
         <div className={"px-5"}>
             <Tooltip title={<span>Thời gian sử dụng phòng ${room?.name}</span>}>
@@ -74,6 +75,29 @@ const Room_timeline = ({room}: Room_timelineProps) => {
             </Tooltip>
             <Drawer open={open} onClose={() => setOpen(false)} title={"Thời gian sử dụng phòng"} width={"100%"} >
                 <Card className={"w-full p-0"}>
+                    <div className={"flex gap-2 mb-3"}>
+                        {[0, 1].map((e) => (
+                            <Button
+                                key={e}
+                                variant={"filled"}
+                                color={selectedStage === e ? "primary" : "default"}
+                                onClick={() => {
+                                    setSelectedStage(e);
+                                }}
+                            >
+                                Giai đoạn {e + 1}
+                            </Button>
+                        ))}
+                        <Button
+                            variant={"filled"}
+                            color={selectedStage === 4 ? "primary" : "default"}
+                            onClick={() => {
+                                setSelectedStage(4);
+                            }}
+                        >
+                            Cả 2 giai đoạn
+                        </Button>
+                    </div>
                     <div className="grid grid-cols-8 gap-0 select-none col-span-8">
                         {/* Header */}
                         <div className="bg-gray-50 p-3 border-b border-r font-medium text-center text-[12px]">Tiết học</div>

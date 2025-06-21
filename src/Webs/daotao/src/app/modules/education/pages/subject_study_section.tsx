@@ -108,7 +108,7 @@ const SubjectStudySection = () => {
     ];
     const {data: departments} = useGetDepartments({
         Page: 1,
-        PageSize: 100
+        PageSize: 500
     }, subjects !== undefined && subjects?.data?.data?.items?.length > 0)
     const nav = useNavigate();
     const [selectedDepartment, setSelectedDepartment] = useState("")
@@ -134,7 +134,7 @@ const SubjectStudySection = () => {
                         }))
                     }}
                 >
-                    {departments && departments?.data?.data?.items?.map((e) => (
+                    {departments && departments?.data?.data?.items?.filter(e => e.departmentName?.startsWith("Bộ môn"))?.map((e) => (
                         <Select.Option key={e.departmentCode} value={e.departmentCode}>
                             {e.departmentName} ({e.departmentCode})
                         </Select.Option>

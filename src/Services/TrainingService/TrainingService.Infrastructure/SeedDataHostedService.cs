@@ -55,11 +55,64 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         if ((await departmentRepository.CountAsync(new TrueListSpecification<Department>(),
                 cancellationToken)) == 0)
         await PullDepartments(departmentRepository, producer, cancellationToken);
-        
-        
-        
-        
-        
+
+
+
+        await SeedSemestersAsync(semesterProgramRepository, cancellationToken);
+
+
+
+
+
+    }
+    private async Task SeedSemestersAsync(IMongoRepository<Semester> semesterRepository, CancellationToken cancellationToken)
+    {
+        var parentSemester = new Semester
+        {
+            SemesterCode = "1_2024_2025",
+            SemesterName = "1_2024_2025",
+            StartDate = null,
+            EndDate = null,
+            ParentSemesterCode = null,
+            SemesterStatus = SemesterStatus.New
+        };
+
+        var parentExist = await semesterRepository.FindOneAsync(
+            new GetSemesterByCodeSpec(parentSemester.SemesterCode), cancellationToken);
+        if (parentExist == null)
+            await semesterRepository.AddAsync(parentSemester, cancellationToken);
+
+        // Kỳ con 1
+        var semester1 = new Semester
+        {
+            SemesterCode = "1_2024_2025_1",
+            SemesterName = "1_2024_2025_1",
+            StartDate = new DateTime(2024, 9, 2),
+            EndDate = new DateTime(2024, 10, 27),
+            ParentSemesterCode = "1_2024_2025",
+            SemesterStatus = SemesterStatus.New
+        };
+
+        var exist1 = await semesterRepository.FindOneAsync(
+            new GetSemesterByCodeSpec(semester1.SemesterCode), cancellationToken);
+        if (exist1 == null)
+            await semesterRepository.AddAsync(semester1, cancellationToken);
+
+        // Kỳ con 2
+        var semester2 = new Semester
+        {
+            SemesterCode = "1_2024_2025_2",
+            SemesterName = "1_2024_2025_2",
+            StartDate = new DateTime(2024, 11, 11),
+            EndDate = new DateTime(2025, 1, 5),
+            ParentSemesterCode = "1_2024_2025",
+            SemesterStatus = SemesterStatus.New
+        };
+
+        var exist2 = await semesterRepository.FindOneAsync(
+            new GetSemesterByCodeSpec(semester2.SemesterCode), cancellationToken);
+        if (exist2 == null)
+            await semesterRepository.AddAsync(semester2, cancellationToken);
     }
 
     async Task PullRooms(IMongoRepository<Room> roomRepository,CancellationToken cancellation)
@@ -86,7 +139,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
     async Task PullDepartments(IMongoRepository<Department> education,
         ITopicProducer<InitDepartmentAdminAccountIntegrationEvent> producer, CancellationToken cancellation)
     {
-        var url = $"https://api5.tlu.edu.vn/api/Department?Page=1&PageSize=9999";
+        var url = $"https://api5.tlu.edu.vn/api/Department?Page=1&PageSize=9999&Includes=Path";
         
         var response = await httpClient.GetAsync(url, cancellation);
         var json = await response.Content.ReadAsStringAsync(cancellation);
@@ -97,9 +150,13 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         foreach (var educationProgram in result.Data.Items)
         {
             await education.AddAsync(educationProgram, cancellation);
-            await producer.Produce(new InitDepartmentAdminAccountIntegrationEvent(
-                educationProgram.DepartmentCode,
-                educationProgram.DepartmentName), cancellation);
+            if ((bool)educationProgram?.DepartmentName?.StartsWith("Bộ môn"))
+            {
+                await producer.Produce(new InitDepartmentAdminAccountIntegrationEvent(
+                    educationProgram.DepartmentCode,
+                    educationProgram.DepartmentName, educationProgram.Path), cancellation);    
+            }
+            
         }
     }
     

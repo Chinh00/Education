@@ -2,7 +2,7 @@
 
 namespace Education.Contract.IntegrationEvents;
 
-public record InitDepartmentAdminAccountIntegrationEvent(string departmentCode, string departmentName) : IIntegrationEvent
+public record InitDepartmentAdminAccountIntegrationEvent(string DepartmentCode, string DepartmentName, string Path) : IIntegrationEvent
 {
     
 }

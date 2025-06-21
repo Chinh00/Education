@@ -7,7 +7,7 @@ services:
       - "6379:6379"
       - "8001:8001"
   broker1:
-    image: confluentinc/cp-kafka
+    image: confluentinc/cp-kafka:3.2.1
     hostname: broker1
     container_name: broker1
     restart: always
@@ -22,7 +22,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
   broker2:
-    image: confluentinc/cp-kafka
+    image: confluentinc/cp-kafka:3.2.1
     hostname: broker2
     container_name: broker2
     restart: always
@@ -37,7 +37,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:29093,PLAINTEXT_HOST://localhost:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
   broker3:
-    image: confluentinc/cp-kafka
+    image: confluentinc/cp-kafka:3.2.1
     hostname: broker3
     container_name: broker3
     restart: always

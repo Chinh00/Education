@@ -21,8 +21,10 @@ public class GetCourseClassesSpec : ListSpecificationBase<CourseClass>
         ApplyInclude(c => c.CourseClassName);
         ApplyInclude(c => c.Stage);
         ApplyInclude(c => c.WeekStart);
+        ApplyInclude(c => c.WeekEnd);
         ApplyInclude(c => c.Status);
         ApplyInclude(c => c.NumberStudentsExpected);
         ApplyInclude(c => c.ParentCourseClassCode);
+        ApplyInclude(c => c.SessionLengths);
     }
 }

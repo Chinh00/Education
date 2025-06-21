@@ -4,4 +4,5 @@ export interface UserInfo {
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": string;
     sub: string;
     fullname: string;
+    "department-path": string
 }

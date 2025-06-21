@@ -35,7 +35,7 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
     const columns: ColumnsType<Staff> = [
 
         {
-            title: 'Mã môn học',
+            title: 'Tên giảng viên',
             dataIndex: "fullName",
         },
         {
@@ -55,7 +55,7 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
             title: 'Hành động',
             render: (text, record) => (
                 <>
-                    <TeacherTimelineModal staffCode={record?.code} />
+                    <TeacherTimelineModal staff={record} />
                 </>
             )
         },
@@ -73,7 +73,7 @@ const TeacherTimeline = () => {const dispatch = useAppDispatch();
                 value: staffs?.data?.data?.items?.map(c => c.departmentCode).join(",") ?? ""
             }
         ]
-    }, staffs !== undefined)
+    }, staffs !== undefined && staffs?.data?.data?.items?.length > 0);
 
 
 

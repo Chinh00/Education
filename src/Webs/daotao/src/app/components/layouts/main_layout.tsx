@@ -8,7 +8,7 @@ const MainLayout = () => {
         <div
             className="fixed top-0 left-0 w-screen h-screen opacity-40"
             style={{
-                backgroundImage: `url(${AdminBackground})`,
+                // backgroundImage: `url(${AdminBackground})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center", // Tuỳ chọn cho căn giữa hình
                 backgroundRepeat: "no-repeat", // Tuỳ chọn tránh lặp lại hình

@@ -7,4 +7,5 @@ public class Department : BaseEntity
 {
     public string DepartmentCode { get; set; }
     public string DepartmentName { get; set; }
+    public string Path { get; set; }
 }

@@ -189,18 +189,18 @@ const CourseClassModel = (props: CourseClassModelProps) => {
                     </div>
                     
                     <div className={"col-span-2 max-h-[800px]"}>
-                        <AssignmentTeacher
-                            courseClassStage={courseClassStage ?? 0}
-                            courseClass={courseClass?.data?.data?.items?.filter(e => e.courseClassCode === selectedCourseClass?.courseClassCode)[0]}
-                            departmentCode={subjects?.data?.data?.items[0]?.departmentCode}
-                            onClick={function (selectedTeacher: string, teacherName: string, list: string[]): void {
-                                setTeacherCourseClasses(prevState => ({
-                                    ...prevState,
-                                    teacherCode: selectedTeacher,
-                                    teacherName: teacherName,
-                                    teacherCourseClasses: list
-                                }))
-                            }}                              />                         
+                        {/*<AssignmentTeacher*/}
+                        {/*    courseClassStage={courseClassStage ?? 0}*/}
+                        {/*    courseClass={courseClass?.data?.data?.items?.filter(e => e.courseClassCode === selectedCourseClass?.courseClassCode)[0]}*/}
+                        {/*    departmentCode={subjects?.data?.data?.items[0]?.departmentCode}*/}
+                        {/*    onClick={function (selectedTeacher: string, teacherName: string, list: string[]): void {*/}
+                        {/*        setTeacherCourseClasses(prevState => ({*/}
+                        {/*            ...prevState,*/}
+                        {/*            teacherCode: selectedTeacher,*/}
+                        {/*            teacherName: teacherName,*/}
+                        {/*            teacherCourseClasses: list*/}
+                        {/*        }))*/}
+                        {/*    }}                              />                         */}
                     </div>
                     
                 </div>

@@ -47,11 +47,14 @@ public class CourseClassCreatedIntegrationEventHandler(IRegisterRepository<Regis
                     EndDate = notificationCourseClass.EndDate,
                     ParentCourseClassCode = notificationCourseClass.ParentCourseClassCode,
                     WeekStart = notificationCourseClass.WeekStart,
+                    WeekEnd = notificationCourseClass.WeekEnd,
                     SlotTimes = notificationCourseClass.SlotTimes.Select(slotTime => new SlotTime(
                         slotTime.BuildingCode,
                         slotTime.RoomCode,
                         slotTime.DayOfWeek,
-                        slotTime.Slots
+                        slotTime.Slots,
+                        slotTime.WeekStart,
+                        slotTime.WeekEnd
                     )).ToList()
                 }
                 ));

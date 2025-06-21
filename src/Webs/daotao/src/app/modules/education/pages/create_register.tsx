@@ -30,9 +30,15 @@ const CreateRegister = () => {
         Filters: [
             {
                 field: "ParentSemesterCode",
-                operator: "In",
-                value: ","
-            }
+                operator: "==",
+                value: ""
+            },
+            {
+                field: "SemesterStatus",
+                operator: "==",
+                value: "0"
+            },
+            
         ],
         Sorts: ["IdDesc"]
     })

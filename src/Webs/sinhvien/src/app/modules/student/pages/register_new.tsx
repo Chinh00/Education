@@ -25,7 +25,7 @@ const RegisterNew = () => {
     const {data: results} = useGetStudentSemesters({
         Includes: ["SubjectResults"]
     })
-    const {data: studentRegister} = useGetStudentRegisterCourseClass()
+    const {data: studentRegister, refetch} = useGetStudentRegisterCourseClass()
 
     const {data: educations, isPending: educationsLoading} = useGetEducations({
         Filters: [
@@ -55,7 +55,7 @@ const RegisterNew = () => {
     ) ?? [];
 
     const [selectedSubject, setSelectedSubject] = useState<string>()
-    const {data: courseClasses, isLoading: courseClassLoading} = useGetRegisterCourseClassBySubjectCode(selectedSubject!, selectedSubject !== undefined)
+    const {data: courseClasses, isLoading: courseClassLoading, refetch: courseClassRefectch} = useGetRegisterCourseClassBySubjectCode(selectedSubject!, selectedSubject !== undefined)
 
     const {data: registerCourseClass} = useGetRegisterCourseClass()
     const [searchValue, setSearchValue] = useState<string>("");
@@ -68,7 +68,7 @@ const RegisterNew = () => {
         ) ?? subjects?.data?.data?.items;
     
     
-    const {mutate} = useCreateStudentRegisterCourseClass()
+    const {mutate, isPending: loading} = useCreateStudentRegisterCourseClass()
     const courseClassCodeRegister = studentRegister?.data?.data?.courseClassCode
 
 
@@ -90,7 +90,7 @@ const RegisterNew = () => {
                         onChange={e => setSearchValue(e.target.value)}
                         allowClear
                     />
-                    {filteredSubjects && filteredSubjects.map(e => (
+                    {subjects && subjects?.data?.data?.items.map(e => (
                         <div  onClick={( ) => setSelectedSubject(e?.subjectCode)} key={e.subjectCode} className={"flex w-full items-center justify-between p-2 border-b cursor-pointer"}>
                             {e?.subjectName}
                         </div>
@@ -135,7 +135,7 @@ const RegisterNew = () => {
                             </div>
                         ) : (
                             groupCourseClassesWithLodash(courseClasses?.data?.data?.items.filter(e => e.stage === selectedStage) ?? []).map(e => (
-                                <CourseClassCard isLabRegister={courseClassCodeRegister?.includes(e.courseClassCode)} isLectureRegister={courseClassCodeRegister?.includes(e.courseClassCode)} onClick={(courseClassCode) => {
+                                <CourseClassCard loading={loading} isLabRegister={courseClassCodeRegister?.includes(e.courseClassCode)} isLectureRegister={courseClassCodeRegister?.includes(e.courseClassCode)} onClick={(courseClassCode) => {
                                     mutate({
                                         courseClassCode: courseClassCode,
                                         semesterCode: registerCourseClass?.data?.data?.semesterCode!,
@@ -143,6 +143,8 @@ const RegisterNew = () => {
                                     }, {
                                         onSuccess: () => {
                                             toast.success("Đăng ký lớp học thành công lớp học: " + e.courseClassCode);
+                                            courseClassRefectch();
+                                            refetch()
                                         }
                                     })
                                 }} courseClass={e} key={e.courseClassCode} />

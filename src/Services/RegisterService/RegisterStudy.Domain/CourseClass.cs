@@ -20,8 +20,9 @@ public class CourseClass
     
     public string ParentCourseClassCode { get; set; }
     public int WeekStart { get; set; } = 0;
+    public int WeekEnd { get; set; } = 0;
     
-    public List<SlotTime> SlotTimes { get; set; } = new();
+    public List<SlotTime> SlotTimes { get; set; } = [];
 
 }
 
@@ -29,5 +30,7 @@ public record SlotTime(
     string BuildingCode,
     string RoomCode,
     int DayOfWeek,
-    List<string> Slot
+    List<string> Slot,
+    int WeekStart,
+    int WeekEnd
 );

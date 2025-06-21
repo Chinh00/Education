@@ -8,7 +8,8 @@ export type CourseClassCardProps = {
     courseClass: CourseClassRegister & { children?: CourseClassRegister[] },
     onClick: (courseClassCode: string) => void,
     isLectureRegister?: boolean
-    isLabRegister?: boolean
+    isLabRegister?: boolean,
+    loading?: boolean
 }
 
 const getTypeText = (type: number) => {
@@ -41,7 +42,7 @@ const formatDate = (date: string) => {
     return d.toLocaleDateString("vi-VN");
 };
 
-const CourseClassCard = ({courseClass, onClick, isLectureRegister, isLabRegister}: CourseClassCardProps) => {
+const CourseClassCard = ({courseClass, onClick, isLectureRegister, isLabRegister, loading}: CourseClassCardProps) => {
     return (
         <div className="border border-gray-200 bg-white p-4 hover:bg-gray-50 transition-colors mb-4">
             {/* Lớp lý thuyết */}
@@ -71,7 +72,7 @@ const CourseClassCard = ({courseClass, onClick, isLectureRegister, isLabRegister
                     </div>
                 </div>
                 <div className="ml-4">
-                    <Button onClick={() => onClick(courseClass?.courseClassCode)} disabled={isLectureRegister}
+                    <Button loading={loading} onClick={() => onClick(courseClass?.courseClassCode)} disabled={isLectureRegister}
                             color="cyan"
                             variant="solid"
                     >

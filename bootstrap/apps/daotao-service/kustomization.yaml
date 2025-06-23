@@ -1,5 +1,2 @@
 ﻿resources:
   - deployment.yaml
-images:
-  - name: chinhval/educationdaotaowebapp
-    newTag: latest

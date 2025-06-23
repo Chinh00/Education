@@ -80,7 +80,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton className="text-sidebar-foreground/70" onClick={() => nav(RoutePaths.STUDENT_TIMELINE)}>
                   <Timer />
-                  Thời khóa biểu của tôi
+                  Kết quả đăng ký học
                 </SidebarMenuButton>
               </SidebarMenuItem>
 

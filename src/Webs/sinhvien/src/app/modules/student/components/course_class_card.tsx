@@ -1,9 +1,7 @@
-﻿import {CourseClassRegister} from "@/domain/course_class.ts";
-import {Button, Tooltip} from "antd";
-import {IconButton} from "@mui/material";
-import {Eye} from "lucide-react";
+﻿import { CourseClassRegister } from "@/domain/course_class.ts";
+import { Button } from "antd";
 import RegisterNewPreview from "@/app/modules/student/components/register_new_preview.tsx";
-import {ReactElement} from "react";
+import { ReactElement } from "react";
 
 export type CourseClassCardProps = {
     courseClass: CourseClassRegister & { children?: CourseClassRegister[] },
@@ -11,35 +9,24 @@ export type CourseClassCardProps = {
     isLectureRegister?: boolean
     isLabRegister?: boolean,
     loading?: boolean
-}
-
-const getTypeText = (type: number) => {
-    switch (type) {
-        case 0: return 'Lớp chính';
-        case 1: return 'Thực hành';
-        default: return type;
-    }
 };
 
 
-const getStageText: Record<number, ReactElement> =  {
-    0: <span>GD1</span>,
-    1: <span>GD2</span>,
-    2: <span>2GD1</span>,
-    3: <span>2GD2</span>,
-}
-
 const getDayOfWeekText = (day: number) => {
-    const days = ['CN', 'Hai', 'Ba', 'Tư', 'Năm', 'Sáu', 'Bảy'];
+    const days = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
     return days[day] || day;
 };
 
-const renderSlotTimes = (slotTimes?: any[]) => {
+const renderSlotTimesTable = (slotTimes?: any[]) => {
     if (!slotTimes || slotTimes.length === 0) return null;
     return slotTimes.map((slot, idx) => (
-        <div key={idx} className="text-xs text-gray-500">
-            <span>Phòng {slot.roomCode} - {getDayOfWeekText(slot.dayOfWeek)}: tiết {slot.slot.join(", ")}</span>
-        </div>
+        <tr key={idx}>
+            <td className="py-1 px-2 border border-gray-200 text-center text-xs">{slot.weeks || ""}</td>
+            <td className="py-1 px-2 border border-gray-200 text-center text-xs">{slot.weekRange || ""}</td>
+            <td className="py-1 px-2 border border-gray-200 text-center text-xs">{getDayOfWeekText(slot.dayOfWeek)} : Tiết {slot.slot.join(" ➞ Tiết ")}</td>
+            <td className="py-1 px-2 border border-gray-200 text-center text-xs">{slot.roomCode}</td>
+            <td className="py-1 px-2 border border-gray-200 text-center text-xs">{slot.teacherName}</td>
+        </tr>
     ));
 };
 
@@ -49,77 +36,114 @@ const formatDate = (date: string) => {
     return d.toLocaleDateString("vi-VN");
 };
 
-const CourseClassCard = ({courseClass, onClick, isLectureRegister, isLabRegister, loading}: CourseClassCardProps) => {
+const CourseClassCard = ({
+                             courseClass,
+                             onClick,
+                             isLectureRegister,
+                             isLabRegister,
+                             loading
+                         }: CourseClassCardProps) => {
+    const totalStudents = courseClass.students?.length ?? 0;
+    const maxStudents = courseClass.numberStudentsExpected;
+
     return (
-        <div className="border border-gray-200 bg-white p-4 hover:bg-gray-50 transition-colors mb-4">
-            {/* Lớp lý thuyết */}
-            <div className="flex items-center justify-between">
-                <div className="flex-1 grid grid-cols-6 gap-4 text-sm">
-                    <div className="col-span-3 space-y-2">
-                        <p className="font-medium text-gray-900">
-                            <RegisterNewPreview courseClassCodeSelected={courseClass?.courseClassCode} isRegistered={isLectureRegister} />
-                            {courseClass.subjectName}
-                        </p>
-                        <p className="text-xs text-blue-500">{getTypeText(courseClass.courseClassType)}</p>
-                        <p className="text-xs text-gray-800 ">Mã lớp: {courseClass.courseClassCode}</p>
-                        <p className="text-xs text-purple-600 font-bold">{getStageText[courseClass?.stage as number]}</p>
-                        <p className="text-xs text-gray-800">
-                            Thời gian: {formatDate(courseClass.startDate)} - {formatDate(courseClass.endDate)}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-gray-700">{courseClass.teacherName}</p>
-                    </div>
-                    <div>
-                        {renderSlotTimes(courseClass.slotTimes)}
-                    </div>
-                    <div>
-                        <p className="text-gray-700">{courseClass.numberOfCredits} TC</p>
-                        <p className="text-xs text-gray-500">{(courseClass.students?.length ?? 0)}/{courseClass.numberStudentsExpected}</p>
-                    </div>
+        <div className="bg-white rounded-lg border mb-6 overflow-hidden shadow">
+            {/* Header giống hình ảnh */}
+            <div className="flex items-center px-2 py-2 bg-gray-600 text-white font-semibold text-base justify-between">
+                <div className="flex items-center gap-2">
+                    <span className={`${totalStudents >= maxStudents ? "text-red-400" : "text-gray-300"} text-sm mr-2`}>
+                        {totalStudents >= maxStudents ? "(Lớp đã đầy)" : ""}
+                    </span>
+                    Lớp chính: <span className="font-bold ml-1">{courseClass.subjectName} ({courseClass.courseClassCode})</span>
                 </div>
-                <div className="ml-4">
-                    <Button loading={loading} onClick={() => onClick(courseClass?.courseClassCode)} disabled={isLectureRegister}
-                            color="cyan"
-                            variant="solid"
+                <div className="flex items-center gap-2">
+                    <span className="font-normal text-sm">{totalStudents}/{maxStudents}</span>
+                    {/* Nút đăng ký/hủy đăng ký lớp chính */}
+                    <Button
+                        loading={loading}
+                        onClick={() => onClick(courseClass?.courseClassCode)}
+                        type={isLectureRegister ? "default" : "primary"}
+                        style={{color: "white", backgroundColor: isLectureRegister ? "red" : "#1677ff"}}
+                        className={`rounded px-4 py-1 ml-2  text-white` }
                     >
-                        {isLectureRegister ? "Hủy đăng ký" : "Đăng ký" }
+                        {isLectureRegister ? "Hủy đăng ký" : "Đăng ký"}
                     </Button>
                 </div>
             </div>
 
-            {/* Các lớp thực hành (Lab) */}
+            {/* Thông tin slot học lý thuyết */}
+            <table className="w-full bg-white text-xs">
+                <thead>
+                <tr className="bg-gray-100">
+                    <th className="py-2 px-2 border border-gray-200">Tuần</th>
+                    <th className="py-2 px-2 border border-gray-200">Thời gian</th>
+                    <th className="py-2 px-2 border border-gray-200">Thời gian</th>
+                    <th className="py-2 px-2 border border-gray-200">Phòng</th>
+                    <th className="py-2 px-2 border border-gray-200">Giáo viên</th>
+                </tr>
+                </thead>
+                <tbody>
+                {renderSlotTimesTable(courseClass.slotTimes?.map(slot => ({
+                    weeks: `${slot.weekStart} -> ${slot.weekEnd}` || "36→41",
+                    weekRange: `(${formatDate(courseClass.startDate)} ➡ ${formatDate(courseClass.endDate)})`,
+                    dayOfWeek: slot.dayOfWeek,
+                    slot: slot.slot?.map(e => +e + 1),
+                    roomCode: slot.roomCode,
+                    teacherName: courseClass.teacherName,
+                })))}
+                </tbody>
+            </table>
+            {/* Các lớp thực hành */}
             {courseClass.children && courseClass.children.length > 0 && (
-                <div className="mt-4 pl-4 border-l-2 border-blue-100">
-                    <div className="mb-2 font-semibold text-blue-600 text-xs">Các lớp thực hành:</div>
-                    {courseClass.children.map((lab) => (
-                        <div key={lab.courseClassCode} className="flex items-center justify-between mb-2">
-                            <div className="flex-1 grid grid-cols-6 gap-4 text-sm">
-                                <div className="col-span-2">
-                                    <p className="font-medium text-gray-900">{lab.courseClassName}</p>
-                                    <p className="text-xs text-green-500">{getTypeText(lab.courseClassType)}</p>
-                                    <p className="text-xs text-gray-400">{lab.courseClassCode}</p>
-                                    <p className="text-xs text-purple-600">{getStageText[lab?.stage as number]}</p>
-                                    <p className="text-xs text-gray-500">
-                                        Thời gian: {formatDate(lab.startDate)} - {formatDate(lab.endDate)}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-700">{lab.teacherName}</p>
-                                </div>
-                                <div>
-                                    {renderSlotTimes(lab.slotTimes)}
-                                </div>
-                                <div>
-                                    <p className="text-gray-700">{lab.numberOfCredits} TC</p>
-                                    <p className="text-xs text-gray-500">{(lab.students?.length ?? 0)}/{lab.numberStudentsExpected}</p>
+                <div className="bg-gray-50 px-4 pb-4">
+                    <div className="italic text-sm pt-3 pb-2 text-gray-700 font-medium">Các lớp thành phần:</div>
+                    {courseClass.children.map((lab, idx) => {
+                        const labStudents = lab.students?.length ?? 0;
+                        return (
+                            <div
+                                key={lab.courseClassCode}
+                                className={`flex flex-col md:flex-row md:items-center md:justify-between mb-2 rounded bg-gray-100 border ${labStudents >= lab.numberStudentsExpected ? "opacity-80" : ""}`}
+                            >
+                                <div className="flex flex-col md:flex-row md:items-center w-full">
+                                    {/* Trạng thái lớp */}
+                                    <div className="flex items-center px-3 py-2">
+                                        <span className={`px-3 py-1 rounded text-xs font-semibold ${labStudents >= lab.numberStudentsExpected ? "bg-pink-200 text-pink-700" : "bg-gray-300 text-gray-600"}`}>
+                                            {labStudents >= lab.numberStudentsExpected ? "LỚP ĐÃ ĐẦY" : ""}
+                                        </span>
+                                    </div>
+                                    {/* Tên lớp và mã */}
+                                    <div className="flex-1 text-sm font-semibold">
+                                        {lab.subjectName || ""} ({lab.courseClassCode})
+                                        <span className="ml-2 text-xs font-normal text-gray-500">{lab.groupName ? `( ${lab.groupName} )` : ""}</span>
+                                    </div>
+                                    {/* Thời gian, phòng, giáo viên */}
+                                    <table className="w-auto mx-3 my-2 border border-gray-200 rounded">
+                                        <tbody>
+                                        {renderSlotTimesTable(lab.slotTimes?.map(slot => ({
+                                            weeks: `${slot.weekStart} -> ${slot.weekEnd}` || "36→41",
+                                            weekRange: `(${formatDate(lab.startDate)} ➡ ${formatDate(lab.endDate)})`,
+                                            dayOfWeek: slot.dayOfWeek,
+                                            slot: slot.slot?.map(e => +e + 1),
+                                            roomCode: slot.roomCode,
+                                            teacherName: lab.teacherName,
+                                        })))}
+                                        </tbody>
+                                    </table>
+                                    {/* Sĩ số và nút đăng ký lớp thành phần */}
+                                    <div className="flex items-center px-3 py-2 text-sm font-normal text-gray-500 gap-2">
+                                        <span>{labStudents}/{lab.numberStudentsExpected}</span>
+                                        <Button
+                                            disabled={isLabRegister || labStudents >= lab.numberStudentsExpected}
+                                            onClick={() => onClick(lab?.courseClassCode)}
+                                            className={`rounded px-3 py-1 ml-2 ${isLabRegister ? "bg-gray-300" : "bg-cyan-500 text-white"}`}
+                                        >
+                                            Đăng ký
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="ml-4">
-                                <Button disabled={isLabRegister} onClick={() => onClick(lab?.courseClassCode)}>Đăng ký</Button>
-                            </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             )}
         </div>

@@ -1,7 +1,7 @@
 import {useGetSemesters} from "@/app/modules/student/hooks/useGetSemester.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {Fragment, useEffect, useState} from "react";
-import { Select, Spin } from "antd";
+import {Select, Spin, Tabs} from "antd";
 import {Box} from "@mui/material";
 import {Query} from "@/infrastructure/query.ts";
 import useGetStudentSemesters from "@/app/modules/student/hooks/useGetStudentSemesters.ts";
@@ -119,76 +119,82 @@ const StudentTimeline = () => {
   }, [timeLine]);
   return (
     <PredataScreen isLoading={isLoading} isSuccess={isSuccess} >
-      <Box className={"space-y-10"}>
-        <Select
-            loading={isLoading}
-            style={{
-              minWidth: 350
-            }}
-            onChange={(value, option) => {
-                setSemesterSelect(value)
-            }}
+      <Tabs items={[
+        {
+          key: '1',
+          label: 'Thời khóa biểu chi tiết',
+          children: <Box className={"space-y-10"}>
+            <Select
+                loading={isLoading}
+                style={{
+                  minWidth: 350
+                }}
+                onChange={(value, option) => {
+                  setSemesterSelect(value)
+                }}
 
-            placeholder={"Chọn kì học"}
-        >
-          {!!data && data?.data?.data?.items?.map(c => {
-            return <Select.Option value={c?.semesterCode} key={c?.semesterCode}>{c?.semesterName}</Select.Option>
-          })}
-        </Select>
-        <div className="grid grid-cols-8 gap-0 schedule-grid relative">
-          {/* Header */}
-          <div className="bg-gray-50 p-3 border-b border-r font-medium text-center">Tiết học</div>
-          {daysOfWeek.map((day) => (
-              <div key={day} className="bg-gray-50 p-3 border-b border-r font-medium text-center">
-                {day}
-              </div>
-          ))}
+                placeholder={"Chọn kì học"}
+            >
+              {!!data && data?.data?.data?.items?.map(c => {
+                return <Select.Option value={c?.semesterCode} key={c?.semesterCode}>{c?.semesterName}</Select.Option>
+              })}
+            </Select>
+            <div className="grid grid-cols-8 gap-0 schedule-grid relative">
+              {/* Header */}
+              <div className="bg-gray-50 p-3 border-b border-r font-medium text-center">Tiết học</div>
+              {daysOfWeek.map((day) => (
+                  <div key={day} className="bg-gray-50 p-3 border-b border-r font-medium text-center">
+                    {day}
+                  </div>
+              ))}
 
-          {/* Time slots */}
-          {timeSlots.map((slot, slotIndex) => (
-              <Fragment key={slot.id}>
-                <div className="p-3 border-b border-r bg-gray-50">
-                  <div className="text-sm font-medium">{slot.period}</div>
-                  <div className="text-xs text-gray-500">{slot.time}</div>
-                </div>
+              {/* Time slots */}
+              {timeSlots.map((slot, slotIndex) => (
+                  <Fragment key={slot.id}>
+                    <div className="p-3 border-b border-r bg-gray-50">
+                      <div className="text-sm font-medium">{slot.period}</div>
+                      <div className="text-xs text-gray-500">{slot.time}</div>
+                    </div>
 
-                {daysOfWeek.map((day, dayIndex) => {
-                  const isOccupied = isSlotOccupied(dayIndex, slotIndex)
-                  const item = getItemAtSlot(dayIndex, slotIndex)
-                  const isItemStart = item && item.startSlot === slotIndex
+                    {daysOfWeek.map((day, dayIndex) => {
+                      const isOccupied = isSlotOccupied(dayIndex, slotIndex)
+                      const item = getItemAtSlot(dayIndex, slotIndex)
+                      const isItemStart = item && item.startSlot === slotIndex
 
-                  return (
-                      <div
-                          key={`${dayIndex}-${slotIndex}`}
-                          className={`p-2 border-b border-r min-h-[60px] transition-colors relative bg-gray-50"
+                      return (
+                          <div
+                              key={`${dayIndex}-${slotIndex}`}
+                              className={`p-2 border-b border-r min-h-[60px] transition-colors relative bg-gray-50"
                           }`}
-                      >
-                        {isOccupied && isItemStart && item && (
-                            <div
-                                className={`${item.color} px-2 py-1 rounded text-sm font-medium cursor-move flex flex-col gap-1 hover:shadow-md transition-shadow absolute inset-2`}
-                                style={{
-                                  height: `${(item.endSlot - item.startSlot + 1) * 58}px`,
-                                  zIndex: 10,
-                                }}
-                            >
-                              <span className={"text-[10px]"}>{item.subject}</span>
-                              <span className="text-xs opacity-75">{item.duration} tiết</span>
-                            </div>
-                        )}
+                          >
+                            {isOccupied && isItemStart && item && (
+                                <div
+                                    className={`${item.color} px-2 py-1 rounded text-sm font-medium cursor-move flex flex-col gap-1 hover:shadow-md transition-shadow absolute inset-2`}
+                                    style={{
+                                      height: `${(item.endSlot - item.startSlot + 1) * 58}px`,
+                                      zIndex: 10,
+                                    }}
+                                >
+                                  <span className={"text-[10px]"}>{item.subject}</span>
+                                  <span className="text-xs opacity-75">{item.duration} tiết</span>
+                                </div>
+                            )}
 
 
-                      </div>
-                  )
-                })}
-              </Fragment>
-          ))}
-          {
-              courseLoading || timelineLoading && <div className={"absolute top-0 left-0 w-full h-full flex justify-center items-center"}>
-                <Spin size={"large"} />
-              </div>
-          }
-        </div>
-      </Box>
+                          </div>
+                      )
+                    })}
+                  </Fragment>
+              ))}
+              {
+                  courseLoading || timelineLoading && <div className={"absolute top-0 left-0 w-full h-full flex justify-center items-center"}>
+                    <Spin size={"large"} />
+                  </div>
+              }
+            </div>
+          </Box>,
+        },
+      ]} />
     </PredataScreen>
   )
 }

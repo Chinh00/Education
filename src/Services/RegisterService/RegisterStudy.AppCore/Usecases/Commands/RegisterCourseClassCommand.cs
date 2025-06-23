@@ -40,7 +40,29 @@ public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCour
             // Kiểm tra đã đăng ký chưa
             if (courseClass.Students.Contains(studentCode))
             {
-                return Results.BadRequest("Bạn đã đăng ký lớp học phần này.");
+                
+                var student = await studentRegisterRepository.GetAsync(RedisKey.StudentRegisterCourseClass(studentCode)) 
+              ?? new StudentRegister()
+              {
+                  StudentCode = studentCode,
+                  CourseClassCode = new List<string>() // dạng ["subjectCode:courseClassCode"]
+              };
+                // Xóa đăng ký cũ của môn này (nếu có)
+                var e = student.CourseClassCode.Where(s => s.Contains($"{subjectCode}")).ToList(); 
+                foreach (var se in e)
+                {
+                    var cc = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se));
+                    cc.Students.Remove(studentCode);
+                    await repository.SaveAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se), () => Task.FromResult(cc));
+                }
+                student.CourseClassCode.RemoveAll(c => c.Contains($"{subjectCode}"));
+                await studentRegisterRepository.SaveAsync(
+                    RedisKey.StudentRegisterCourseClass(studentCode),
+                    () => Task.FromResult(student));
+
+                courseClass.Students.Remove(studentCode);
+                await repository.SaveAsync(courseClassKey, () => Task.FromResult(courseClass));
+                return Results.BadRequest("Đã hủy thành công học phần này.");
             }
 
             // Kiểm tra số lượng sinh viên đã tối đa chưa

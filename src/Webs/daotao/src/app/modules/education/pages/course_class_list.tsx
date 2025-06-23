@@ -440,7 +440,7 @@ const Course_class_list = () => {
     const {data: subjectScheduleConfigs} = useGetSubjectScheduleConfig({
         Filters: [
             { field: "SubjectCode", operator: "==", value: subjectCode! },
-            { field: "Stage", operator: "==", value: `${selectedStage}` },
+            { field: "Stage", operator: selectedStage !== 4 ? "==" : "In", value: `${selectedStage !== 4 ? selectedStage : "2,3"}` },
             { field: "SemesterCode", operator: "==", value: currentParentSemester?.semesterCode! }
         ]
     }, subjectCode !== undefined && selectedStage !== undefined && selectedStage !== null)

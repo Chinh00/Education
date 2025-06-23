@@ -27,6 +27,8 @@ export interface SlotTimeRegister {
     roomCode: string;
     dayOfWeek: number;
     slot: string[];
+    weekStart: number,
+    weekEnd: number;
 }
 
 export interface CourseClassRegister {

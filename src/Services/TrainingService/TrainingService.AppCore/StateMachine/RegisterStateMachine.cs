@@ -48,7 +48,14 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
                     context.Saga.NumberSubject = context.Message.NumberSubject;
                     context.Saga.NumberWish = context.Message.NumberWish;;
                 })
-                .TransitionTo(Schedule)
+                .TransitionTo(Schedule),
+            When(StudentRegistrationStartedIntegrationEvent).ThenAsync(async context =>
+            {
+                logger.LogInformation($"Student register {context.Message.CorrelationId} StartDate: {context.Message.StudentRegisterStartDate} EndDate: {context.Message.StudentRegisterEndDate}"); 
+                context.Saga.StudentRegisterStart = context.Message.StudentRegisterStartDate;
+                context.Saga.StudentRegisterEnd = context.Message.StudentRegisterEndDate;;
+            
+            }).TransitionTo(StudentRegister)
         );  
         During(Schedule, When(StudentRegistrationStartedIntegrationEvent).ThenAsync(async context =>
         {

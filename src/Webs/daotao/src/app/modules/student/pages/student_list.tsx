@@ -120,10 +120,7 @@ const StudentList = () => {
                         style={{
                             height: "500px",
                         }}
-                        showHeader={true}
-                        title={() => <Box className={"flex flex-row justify-end items-center p-[16px] text-white "}>
-                            <Button onClick={() => setQuery({Includes: ["InformationBySchool", "PersonalInformation"]})}><RotateCcw /></Button>
-                        </Box>}
+                       
                         size={"small"}
 
 

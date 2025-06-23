@@ -6,7 +6,7 @@ using TrainingService.AppCore.Usecases.Queries;
 namespace TrainingService.Api.Controllers;
 
 /// <inheritdoc />
-[Authorize]
+[AllowAnonymous]
 public class CourseClassController : BaseController
 {
     /// <summary>
@@ -238,6 +238,18 @@ public class CourseClassController : BaseController
         CancellationToken cancellationToken)
     {
         return Ok(await Mediator.Send(new DeleteStudentFromCourseClassCommand(model), cancellationToken));
+    }
+    /// <summary>
+    /// Lấy danh sách giáo viên có thể dạy lớp học
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("Teacher/Free")]
+    public async Task<IActionResult> HandleGetTeacherFreeTimeLineAsync([FromQuery] GetTeacherFreeTimelineQuery query,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(query, cancellationToken));
     }
     
     

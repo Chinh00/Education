@@ -3,6 +3,7 @@ import {Button, Tooltip} from "antd";
 import {IconButton} from "@mui/material";
 import {Eye} from "lucide-react";
 import RegisterNewPreview from "@/app/modules/student/components/register_new_preview.tsx";
+import {ReactElement} from "react";
 
 export type CourseClassCardProps = {
     courseClass: CourseClassRegister & { children?: CourseClassRegister[] },
@@ -14,13 +15,19 @@ export type CourseClassCardProps = {
 
 const getTypeText = (type: number) => {
     switch (type) {
-        case 0: return 'Lý thuyết';
+        case 0: return 'Lớp chính';
         case 1: return 'Thực hành';
         default: return type;
     }
 };
 
-const getStageText = (stage: number) => stage ? `Giai đoạn ${stage}` : "";
+
+const getStageText: Record<number, ReactElement> =  {
+    0: <span>GD1</span>,
+    1: <span>GD2</span>,
+    2: <span>2GD1</span>,
+    3: <span>2GD2</span>,
+}
 
 const getDayOfWeekText = (day: number) => {
     const days = ['CN', 'Hai', 'Ba', 'Tư', 'Năm', 'Sáu', 'Bảy'];
@@ -54,9 +61,9 @@ const CourseClassCard = ({courseClass, onClick, isLectureRegister, isLabRegister
                             {courseClass.subjectName}
                         </p>
                         <p className="text-xs text-blue-500">{getTypeText(courseClass.courseClassType)}</p>
-                        <p className="text-xs text-gray-400">{courseClass.courseClassCode}</p>
-                        <p className="text-xs text-purple-600">{getStageText(courseClass.stage)}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-800 ">Mã lớp: {courseClass.courseClassCode}</p>
+                        <p className="text-xs text-purple-600 font-bold">{getStageText[courseClass?.stage as number]}</p>
+                        <p className="text-xs text-gray-800">
                             Thời gian: {formatDate(courseClass.startDate)} - {formatDate(courseClass.endDate)}
                         </p>
                     </div>
@@ -92,7 +99,7 @@ const CourseClassCard = ({courseClass, onClick, isLectureRegister, isLabRegister
                                     <p className="font-medium text-gray-900">{lab.courseClassName}</p>
                                     <p className="text-xs text-green-500">{getTypeText(lab.courseClassType)}</p>
                                     <p className="text-xs text-gray-400">{lab.courseClassCode}</p>
-                                    <p className="text-xs text-purple-600">{getStageText(lab.stage)}</p>
+                                    <p className="text-xs text-purple-600">{getStageText[lab?.stage as number]}</p>
                                     <p className="text-xs text-gray-500">
                                         Thời gian: {formatDate(lab.startDate)} - {formatDate(lab.endDate)}
                                     </p>

@@ -63,7 +63,7 @@ public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCour
                     CourseClassCode = new List<string>() // dạng ["subjectCode:courseClassCode"]
                 };
             // Xóa đăng ký cũ của môn này (nếu có)
-            var enumerable = studentRegister.CourseClassCode.Where(s => s.Contains($"{subjectCode}:")); 
+            var enumerable = studentRegister.CourseClassCode.Where(s => s.Contains($"{subjectCode}")).ToList(); 
             foreach (var se in enumerable)
             {
                 var cc = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se));

@@ -58,7 +58,7 @@ public record CreateRegisterConfigCommand(
                 semester1.SemesterStatus = SemesterStatus.Register;
                 await semesterRepository.UpsertOneAsync(new GetSemesterByCodeSpec(semester1.SemesterCode), semester1, cancellationToken);
             }
-            var parentSemesterCode = semester?.FirstOrDefault(e => e.ParentSemesterCode == string.Empty);
+            var parentSemesterCode = semester?.FirstOrDefault(e => string.IsNullOrEmpty(e.ParentSemesterCode));
             
             
             await producer.Produce(new StartRegisterPipelineIntegrationEvent()

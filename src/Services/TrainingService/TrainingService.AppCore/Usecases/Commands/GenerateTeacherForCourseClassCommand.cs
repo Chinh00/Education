@@ -14,13 +14,20 @@ public record GenerateTeacherForCourseClassCommand(GenerateTeacherForCourseClass
         IClaimContextAccessor claimContextAccessor,
         IMongoRepository<SlotTimeline> slotTimelineRepository,
         IMongoRepository<CourseClass> courseClassRepository,
-        IMongoRepository<Staff> staffRepository)
+        IMongoRepository<Staff> staffRepository,
+        IMongoRepository<Subject> subjectRepository)
         : IRequestHandler<GenerateTeacherForCourseClassCommand, IResult>
     {
         public async Task<IResult> Handle(GenerateTeacherForCourseClassCommand request, CancellationToken cancellationToken)
 {
     var departmentCode = claimContextAccessor.GetUsername();
-
+    if (departmentCode == "admin")
+    {
+        var subject = await subjectRepository.FindOneAsync(
+            new GetSubjectByCodeSpec(request.Model.SubjectCode),
+            cancellationToken: cancellationToken);
+        departmentCode = subject.DepartmentCode;
+    }
     // Lấy danh sách tất cả lớp của môn này, stage này (để tìm lớp con)
     var allCourseClasses = await courseClassRepository.FindAsync(
         new GetCourseClassBySemesterCodeAndListStageAnsSubjectCodeSpec(

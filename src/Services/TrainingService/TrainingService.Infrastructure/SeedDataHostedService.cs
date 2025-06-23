@@ -71,10 +71,10 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
         {
             SemesterCode = "1_2024_2025",
             SemesterName = "1_2024_2025",
-            StartDate = null,
-            EndDate = null,
             ParentSemesterCode = null,
-            SemesterStatus = SemesterStatus.New
+            SemesterStatus = SemesterStatus.New,
+            StartDate = new DateTime(2024, 9, 2),
+            EndDate = new DateTime(2025, 1, 5)
         };
 
         var parentExist = await semesterRepository.FindOneAsync(

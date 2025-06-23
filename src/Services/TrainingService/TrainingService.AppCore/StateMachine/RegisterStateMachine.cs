@@ -52,7 +52,7 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
         );  
         During(Schedule, When(StudentRegistrationStartedIntegrationEvent).ThenAsync(async context =>
         {
-                    logger.LogInformation($"Student register {context.Message.CorrelationId}"); 
+                    logger.LogInformation($"Student register {context.Message.CorrelationId} StartDate: {context.Message.StudentRegisterStartDate} EndDate: {context.Message.StudentRegisterEndDate}"); 
                     context.Saga.StudentRegisterStart = context.Message.StudentRegisterStartDate;
                     context.Saga.StudentRegisterEnd = context.Message.StudentRegisterEndDate;;
             

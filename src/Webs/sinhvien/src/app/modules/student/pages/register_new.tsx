@@ -72,7 +72,6 @@ const RegisterNew = () => {
     const courseClassCodeRegister = studentRegister?.data?.data?.courseClassCode
 
 
-    const [selectedStage, setSelectedStage] = useState(0)    
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
             <Box className={"grid grid-cols-8 text-sm gap-5"}>
@@ -109,18 +108,7 @@ const RegisterNew = () => {
                         </Typography.Title>
                         
                     </div>
-                    <div className={"flex flex-row gap-3 space-y-3"}>
-                        <Button
-                            onClick={() => setSelectedStage(0)}
-                            size={"small"} type={selectedStage === 0 ? "primary" : "dashed"} color={"geekblue"}>Giai đoạn 1</Button>
-                        <Button
-                            onClick={() => setSelectedStage(1)}
-                            size={"small"} type={selectedStage === 1 ? "primary" : "dashed"}  color={"geekblue"}>Giai đoạn 2</Button>
-                        <Button
-                            onClick={() => setSelectedStage(2)}
-                            size={"small"} type={selectedStage === 2 ? "primary" : "dashed"}  color={"geekblue"}>Cả 2 giai đoạn</Button>
-
-                    </div>
+                    
                     
                     
                     {courseClassLoading && (
@@ -129,12 +117,12 @@ const RegisterNew = () => {
                         </Space>
                     )}
                     {!courseClassLoading && courseClasses && (
-                        groupCourseClassesWithLodash(courseClasses?.data?.data?.items?.filter(e => e.stage === selectedStage) ?? []).length === 0 ? (
+                        groupCourseClassesWithLodash(courseClasses?.data?.data?.items)?.length === 0 ? (
                             <div className={"flex flex-col items-center justify-center h-full"}>
                                 <Typography.Text className={"text-gray-500"}>Không có lớp học nào được tìm thấy</Typography.Text>
                             </div>
                         ) : (
-                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items.filter(e => e.stage === selectedStage) ?? []).map(e => (
+                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items).map(e => (
                                 <CourseClassCard loading={loading} isLabRegister={courseClassCodeRegister?.includes(e.courseClassCode)} isLectureRegister={courseClassCodeRegister?.includes(e.courseClassCode)} onClick={(courseClassCode) => {
                                     mutate({
                                         courseClassCode: courseClassCode,

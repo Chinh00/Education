@@ -97,7 +97,7 @@ const StudentTimeline = () => {
 
     ]
   }, courseClass?.data?.data?.items?.length !== undefined && courseClass?.data?.data?.items?.length > 0 )
-
+  
   useEffect(() => {
     if(timeLine !== undefined && timeLine?.data?.data?.items?.length > 0) {
       setScheduledItems(prevState => [

@@ -2,7 +2,7 @@
 import React, {useEffect, useState} from "react";
 import {ColumnsType, getStageText} from "@/app/modules/common/hook.ts";
 import {Staff} from "@/domain/staff.ts";
-import {PlusCircle, Eye, ArrowRight} from "lucide-react";
+import {PlusCircle, Eye, ArrowRight, Edit} from "lucide-react";
 import {Subject} from "@/domain/subject.ts";
 import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
 import {CourseClass} from "@/domain/course_class.ts";
@@ -17,6 +17,7 @@ import {useGetTimeline} from "@/app/modules/education/hooks/useGetTimeline.ts";
 import {Input} from "antd"
 import {useGenerateTeacherForCourseClass} from "@/app/modules/teacher/hooks/useGenerateTeacherForCourseClass.ts";
 import toast from "react-hot-toast";
+import FindTeacher, {FindTeacherProps} from "@/app/modules/teacher/components/find_teacher.tsx";
 export type AssignmentTeacherProps = {
     subject: Subject 
 }
@@ -121,14 +122,15 @@ const AssignmentTeacher = ({subject}: AssignmentTeacherProps) => {
             className: "text-[12px]",
             width: 50,
             render: (text, record) =>
-                record?.teacherName ? (
-                    <Space>
-                        <Avatar size={22} icon={<UserOutlined />} />
-                        {record.teacherName}
-                    </Space>
-                ) : (
-                    <Tag color="orange">Chưa xếp</Tag>
-                ),
+                <Space>
+                    <Avatar size={22} icon={<UserOutlined />} />
+                    {record.teacherName}
+                    {record && <FindTeacher courseClass={record} refresh={() => {
+                        refetchParent();
+                        refetchChild();
+                        timelineRefetch();
+                    }}  />}
+                </Space>
         },
     ];
 
@@ -199,7 +201,7 @@ const AssignmentTeacher = ({subject}: AssignmentTeacherProps) => {
             
             >
                 <div className={"grid grid-cols-6"}>
-                    <div className={"col-span-4"}>
+                    <div className={"col-span-6"}>
                         <div className={"flex justify-start items-center gap-4"}>
                             <h3 className={"text-lg font-bold"}>Danh sách lớp học</h3>
                             {[0, 1].map((e) => (
@@ -319,9 +321,7 @@ const AssignmentTeacher = ({subject}: AssignmentTeacherProps) => {
 
                         />
                     </div>
-                    <div className={'col-span-2'}>
-                        Danh sách giảng viên
-                    </div>
+                   
                 </div>
                 
             </Drawer>

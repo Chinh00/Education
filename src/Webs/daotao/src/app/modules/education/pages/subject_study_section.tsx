@@ -111,7 +111,6 @@ const SubjectStudySection = () => {
         PageSize: 500
     }, subjects !== undefined && subjects?.data?.data?.items?.length > 0)
     const nav = useNavigate();
-    const [selectedDepartment, setSelectedDepartment] = useState("")
     return (
         <PredataScreen isLoading={false} isSuccess={true} >
             <Box className={"gap-5 grid grid-cols-6"}>
@@ -120,7 +119,6 @@ const SubjectStudySection = () => {
                     className={"col-span-2"}
                     placeholder={"Chọn bộ môn"}
                     onChange={(e) => {
-                        setSelectedDepartment(e)
                         setQuery(prevState => ({
                             ...prevState,
                             Filters: [

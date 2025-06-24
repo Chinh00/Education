@@ -3,7 +3,13 @@ import {ReactNode, useEffect} from "react";
 import {useAppSelector} from "@/app/stores/hook.ts";
 
 const ReactQueryProvider = ({children}: {children: ReactNode}) => {
-  const client = new QueryClient()
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false, 
+      },
+    },
+  })
   const {authenticate} = useAppSelector(e => e.common)
   useEffect(() => {
     if (authenticate === false) {

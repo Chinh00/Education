@@ -148,6 +148,11 @@ const Timeline = ({courseClass, listCourseClassesRelative}: TimelineProps) => {
         setDragPreview(null);
         setIsDragging(false);
     };
+    useEffect(() => {
+        return () => {
+            setScheduledItems([])
+        }
+    }, []);
 
     const handleCellDragOver = (e: React.DragEvent, dayIndex: number, slotIndex: number) => {
         e.preventDefault();

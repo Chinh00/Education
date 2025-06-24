@@ -16,7 +16,7 @@ export type CourseClassDetailProps = {
 
 const CourseClassDetail = ({courseClass, onCourseClassCancel}: CourseClassDetailProps) => {
     const { control, reset, getValues } = useForm<CourseClass>()
-    console.log(courseClass)
+    
 
     useEffect(() => {
         if (courseClass) {

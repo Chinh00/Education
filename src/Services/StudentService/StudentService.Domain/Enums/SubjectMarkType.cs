@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace StudentService.Domain;
+namespace StudentService.Domain.Enums;
 
 public enum SubjectMarkType
 {

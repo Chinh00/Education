@@ -29,6 +29,9 @@ jobs:
       - name: Create .env
         run: |
           echo "VITE_URL=${{ secrets.VITE_URL }}" > src/Webs/daotao/.env.production
+          echo "VITE_CLIENT_ID=${{ secrets.VITE_CLIENT_ID }}" >> src/Webs/daotao/.env.production
+          echo "VITE_TENANT_ID=${{ secrets.VITE_TENANT_ID }}" >> src/Webs/daotao/.env.production
+          echo "VITE_REDIRECT_URL=${{ secrets.VITE_DAOTAO_REDIRECT_URL }}" >> src/Webs/daotao/.env.production
 
       - name: 🏗️ Build and push Docker image daotao client service
         uses: docker/build-push-action@v5

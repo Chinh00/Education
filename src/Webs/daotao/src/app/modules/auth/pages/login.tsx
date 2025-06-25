@@ -2,8 +2,38 @@ import PredataScreen from "@/app/components/screens/predata_screen.tsx";
 import {motion} from "framer-motion"
 import Background from "@/asssets/images/image-476.jpeg"
 import LoginForm from "../components/login_form";
+import {msalInstance} from "@/core/msalConfig.ts";
+import toast from "react-hot-toast";
+import {useLoginMicrosoft} from "@/app/modules/auth/hooks/useLogin.ts";
+import {useAppDispatch} from "@/app/stores/hook.ts";
+import {setAuthenticate} from "@/app/stores/common_slice.ts";
+import {useNavigate} from "react-router";
+import {Button} from "antd";
+import {Loader} from "lucide-react";
+import MicrosoftIcon from "@/asssets/icons/icons8-microsoft-48.png"
 
 const Login = () => {
+    const { mutate: loginMicrosoft, isPending: loginMicrosoftLoading } = useLoginMicrosoft()
+    const dispatch = useAppDispatch()
+    const nav = useNavigate()
+    const handleLogin = () => {
+        msalInstance.loginPopup({
+            scopes: ["openid", "profile", "email"],
+        }).catch((error) => console.error(error)).then(async (data) => {
+            console.log(data?.idToken)
+            loginMicrosoft(data?.idToken!, {
+                onSuccess: (res) => {
+                    toast.success("Login successful");
+                    dispatch(setAuthenticate(true))
+                    nav("/");
+                },
+                onError: (error) => {
+                    toast.error("Bạn đã hủy đăng nhập");
+                }
+            })
+        });
+    };
+    
 
   return <PredataScreen isSuccess={true} isLoading={false}>
       <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black">
@@ -83,28 +113,7 @@ const Login = () => {
                   </div>
 
                   <div className="mb-4 grid grid-cols-2 gap-3">
-                      {/*<motion.button*/}
-                      {/*    whileHover={{ scale: 1.05 }}*/}
-                      {/*    whileTap={{ scale: 0.95 }}*/}
-                      {/*    type="button"*/}
-                      {/*    className="group flex items-center justify-center space-x-2 rounded-xl border border-white/20 bg-white/10 px-3 py-3 text-sm font-medium text-white transition-all hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"*/}
-                      {/*>*/}
-                      {/*    <svg*/}
-                      {/*        xmlns="http://www.w3.org/2000/svg"*/}
-                      {/*        className="h-5 w-5 text-white"*/}
-                      {/*        fill="none"*/}
-                      {/*        viewBox="0 0 24 24"*/}
-                      {/*        stroke="currentColor"*/}
-                      {/*    >*/}
-                      {/*        <path*/}
-                      {/*            strokeLinecap="round"*/}
-                      {/*            strokeLinejoin="round"*/}
-                      {/*            strokeWidth={2}*/}
-                      {/*            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"*/}
-                      {/*        />*/}
-                      {/*    </svg>*/}
-                      {/*    <span>Học sinh</span>*/}
-                      {/*</motion.button>*/}
+                      
                       <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -125,7 +134,7 @@ const Login = () => {
                                   d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
                               />
                           </svg>
-                          <span>Giáo viên</span>
+                          <span>Giảng viên</span>
                       </motion.button>
                       <motion.button
                           whileHover={{ scale: 1.05 }}
@@ -151,8 +160,25 @@ const Login = () => {
                       </motion.button>
                   </div>
 
-                  <LoginForm />
-
+                  {/*<LoginForm />*/}
+                  <button
+                      onClick={handleLogin}
+                      className={`
+                        flex items-center justify-center w-full px-3 py-2
+                        border-2 border-blue-600
+                        rounded-lg
+                        bg-white
+                        text-blue-700 font-medium
+                        gap-2
+                        shadow-md
+                        hover:bg-blue-50 hover:border-blue-800 hover:text-blue-900
+                        transition-all duration-150
+                        text-base
+                      `}
+                  >
+                      <img src={MicrosoftIcon} alt="microsoft" className="w-5 h-5" />
+                      Đăng nhập Microsoft
+                  </button>
                   {/*<div className="mt-3 text-center text-sm text-white/80">*/}
                   {/*    <p>*/}
                   {/*        Bằng việc đăng nhập, bạn đồng ý với{" "}*/}
@@ -255,7 +281,7 @@ const Login = () => {
                           </svg>
                       </div>
                       <h3 className="text-center text-lg font-medium text-white">Kết nối cộng đồng</h3>
-                      <p className="text-center text-sm text-white/70">Tạo môi trường giao tiếp giữa giáo viên và học sinh</p>
+                      <p className="text-center text-sm text-white/70">Tạo môi trường giao tiếp giữa giảng viên và học sinh</p>
                   </div>
               </motion.div>
 

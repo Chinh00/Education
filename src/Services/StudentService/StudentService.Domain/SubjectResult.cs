@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using StudentService.Domain.Enums;
 
 namespace StudentService.Domain;
 

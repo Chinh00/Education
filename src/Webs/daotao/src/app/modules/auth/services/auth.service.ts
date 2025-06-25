@@ -27,5 +27,23 @@ const getUserInfo = async (): Promise<AxiosResponse<UserInfo, any>> => {
 }
 
 
+const getAccessTokenFromServer = async (idToken: string) => {
+    return await http.post("/identityservice/connect/token", {
+        client_secret: "secret",
+        grant_type: "microsoft",
+        client_id: "microsoft",
+        scopes: ["openid", "profile", "api.admin"],
+        id_token: idToken,
+        provider: "microsoft"
+    }, {
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+    })
+}
 
-export {getTestAccessTokenFromServer, getUserInfo}
+
+
+
+
+export {getTestAccessTokenFromServer, getUserInfo, getAccessTokenFromServer}

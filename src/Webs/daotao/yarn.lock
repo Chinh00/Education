@@ -70,6 +70,23 @@
   resolved "https://registry.yarnpkg.com/@ant-design/v5-patch-for-react-19/-/v5-patch-for-react-19-1.0.3.tgz#6f522be2dd3440952617590bde5a1237a848a416"
   integrity sha512-iWfZuSUl5kuhqLUw7jJXUQFMMkM7XpW7apmKzQBQHU0cpifYW4A79xIBt9YVO5IBajKpPG5UKP87Ft7Yrw1p/w==
 
+"@azure/msal-browser@^4.13.2":
+  version "4.13.2"
+  resolved "https://registry.npmjs.org/@azure/msal-browser/-/msal-browser-4.13.2.tgz#122ff03d15a50e7115a7322c91ce63818b8a0c3c"
+  integrity sha512-lS75bF6FYZRwsacKLXc8UYu/jb+gOB7dtZq5938chCvV/zKTFDnzuXxCXhsSUh0p8s/P8ztgbfdueD9lFARQlQ==
+  dependencies:
+    "@azure/msal-common" "15.7.1"
+
+"@azure/msal-common@15.7.1":
+  version "15.7.1"
+  resolved "https://registry.npmjs.org/@azure/msal-common/-/msal-common-15.7.1.tgz#6f8df5ace9c94d570b5eec1abc6ebdd4e12831f1"
+  integrity sha512-a0eowoYfRfKZEjbiCoA5bPT3IlWRAdGSvi63OU23Hv+X6EI8gbvXCoeqokUceFMoT9NfRUWTJSx5FiuzruqT8g==
+
+"@azure/msal-react@^3.0.13":
+  version "3.0.13"
+  resolved "https://registry.npmjs.org/@azure/msal-react/-/msal-react-3.0.13.tgz#64053b59d1b363921e61acd46c525b563d19f2be"
+  integrity sha512-g0jk1CXCWVyshSqdaFW0ES8qTXGHiQZlgfnkS+Oxa0eDgw3phdm8I2EChtFiK67OmoQr+HmYPRrg+s8NpvdeRQ==
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.26.2":
   version "7.26.2"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.26.2.tgz#4b5fab97d33338eff916235055f0ebc21e573a85"

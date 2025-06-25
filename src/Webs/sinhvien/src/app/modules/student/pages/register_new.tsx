@@ -123,7 +123,7 @@ const RegisterNew = () => {
                             </div>
                         ) : (
                             groupCourseClassesWithLodash(courseClasses?.data?.data?.items)?.filter(e => e.stage !== 4).map(e => (
-                                <CourseClassCard loading={loading}  courseClassRegister={courseClassCodeRegister} onClick={(courseClassCode) => {
+                                <CourseClassCard loading={loading}  courseClassRegister={courseClassCodeRegister ?? []} onClick={(courseClassCode) => {
                                     mutate({
                                         courseClassCode: courseClassCode,
                                         semesterCode: registerCourseClass?.data?.data?.semesterCode!,

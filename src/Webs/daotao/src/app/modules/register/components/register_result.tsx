@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Query } from "@/infrastructure/query";
 import {useGetCourseClasses} from "@/app/modules/education/hooks/useGetCourseClasses.ts";
 import {useNavigate} from "react-router";
-import RegisterResultClassList from "@/app/modules/register/components/register_result_class_list.tsx";
+import RegisterResultClassList from "@/app/modules/education/components/register_result_class_list.tsx";
 import { Badge } from "@/app/components/ui/badge";
 
 export type RegisterResultProps = {
@@ -115,7 +115,7 @@ const RegisterResult = ({semesterCode}: RegisterResultProps) => {
             title: 'Hành động',
             key: "action",
             render: (text, record) => (
-                <RegisterResultClassList semesterCode={semesterCode} subjectCode={record?.subjectCode} />
+                <></>
             ),
             fixed: "right",
             width: 100

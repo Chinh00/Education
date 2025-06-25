@@ -1,12 +1,15 @@
 import {useGetSemesters} from "@/app/modules/student/hooks/useGetSemester.ts";
 import PredataScreen from "@/app/components/screens/predata_screen.tsx";
-import {Fragment, useEffect, useState} from "react";
-import {Select, Spin, Tabs} from "antd";
+import {Fragment, useEffect, useState, useMemo} from "react";
+import {Select} from "antd";
 import {Box} from "@mui/material";
 import {Query} from "@/infrastructure/query.ts";
-import useGetStudentSemesters from "@/app/modules/student/hooks/useGetStudentSemesters.ts";
-import { GripVertical } from "lucide-react";
 import {useGetTimeline} from "@/app/modules/student/hooks/useGetTimeline.ts";
+import {useGetCourseClasses} from "@/app/modules/student/hooks/useGetCourseClasses.ts";
+import {weeksBetween} from "@/infrastructure/datetime_format.ts";
+import {useGetStudentRegisterCourseClass} from "@/app/modules/student/hooks/useGetStudentRegisterCourseClass.ts";
+import {useGetSubjects} from "@/app/modules/common/hook.ts";
+
 interface ScheduleItem {
   id: string
   title: string
@@ -15,7 +18,8 @@ interface ScheduleItem {
   startSlot: number
   endSlot: number
   dayIndex: number
-  duration: number
+  duration: number,
+  roomCode: string
 }
 
 export const timeSlots = [
@@ -34,169 +38,197 @@ export const timeSlots = [
   { id: "slot-13", period: "Tiết 13", time: "(18:50→19:40)" },
   { id: "slot-14", period: "Tiết 14", time: "(19:45→20:35)" },
   { id: "slot-15", period: "Tiết 15", time: "(20:40→21:30)" },
-]
-export const daysOfWeek = ["Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy", "Chủ nhật"]
-
+];
+export const daysOfWeek = ["Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy", "Chủ nhật"];
 
 const StudentTimeline = () => {
-  const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([])
+  const [scheduledItems, setScheduledItems] = useState<ScheduleItem[]>([]);
+  const [selectedWeek, setSelectedWeek] = useState(1);
 
-  const getItemAtSlot = (dayIndex: number, slotIndex: number) => {
-    return scheduledItems.find(
-        (item) => item.dayIndex === dayIndex && slotIndex >= item.startSlot && slotIndex <= item.endSlot,
-    )
-  }
-  const isSlotOccupied = (dayIndex: number, slotIndex: number) => {
-    return scheduledItems.some(
-        (item) => item.dayIndex === dayIndex && slotIndex >= item.startSlot && slotIndex <= item.endSlot,
-    )
-  }
-  
-
+  // --- Semester Data ---
   const {data, isLoading, isSuccess} = useGetSemesters({
     Filters: [
       {
-        field: "ParentSemesterCode",
-        operator: "==",
-        value: ""
+        field: "SemesterStatus",
+        operator: "In",
+        value: "0,1"
       }
     ],
     Sorts: ["IdDesc"]
-  })
-  const [semesterSelect, setSemesterSelect] = useState<string>()
-  const [query, setQuery] = useState<Query>({
-  })
+  });
+  const getParentSemester = data?.data?.data?.items?.find(e => e?.parentSemesterCode === null || e?.parentSemesterCode === "");
+  // --- Course class filter by week ---
+  const {data: studentRegisters} = useGetStudentRegisterCourseClass();
+  const courseClasses = useMemo(() => (
+      studentRegisters?.data?.data?.courseClassCode?.filter(e => selectedWeek < 8 ? e?.includes("GD1") : e.includes("GD2")) ?? []
+  ), [studentRegisters, selectedWeek]);
 
-  useEffect(() => {
-      if (semesterSelect !== undefined) {
-        setQuery(prevState => ({
-          ...prevState,
-          Filters: [
-              ...prevState?.Filters?.filter(c => c.field !== "SemesterCode") ?? [],
-            {
-              field: "SemesterCode",
-              value: semesterSelect!,
-              operator: "=="
-            }
-          ],
-          Includes: ["CourseSubjects"]
-        }))
-        setScheduledItems([])
-      }
-  }, [semesterSelect]);
-
-  const {data: courseClass, isLoading: courseLoading} = useGetStudentSemesters(query, semesterSelect !== undefined && query?.Filters?.filter(c => c.field !== "SemesterCode") !== undefined)
-
-  const {data: timeLine, isLoading: timelineLoading} = useGetTimeline({
+  // --- Course class & subject data ---
+  const {data: courseClassesOrigin} = useGetCourseClasses({
     Filters: [
       {
         field: "CourseClassCode",
         operator: "In",
-        value: courseClass?.data?.data?.items[0]?.courseSubjects?.join(",")!
+        value: courseClasses?.join(",") ?? ""
       },
-
     ]
-  }, courseClass?.data?.data?.items?.length !== undefined && courseClass?.data?.data?.items?.length > 0 )
-  
+  }, courseClasses?.length > 0);
+
+  const {data: subjects } = useGetSubjects({
+    Filters: [
+      {
+        field: "SubjectCode",
+        operator: "In",
+        value: courseClassesOrigin?.data?.data?.items?.map(e => e.subjectCode)?.join(",") ?? ""
+      }
+    ],
+  }, courseClassesOrigin !== undefined && courseClassesOrigin?.data?.data?.items?.length > 0);
+
+  // --- Timeline Query ---
+  const [timelineQuery, setTimelineQuery] = useState<Query>({});
+  // Gộp tất cả logic cập nhật Filters vào 1 useEffect
   useEffect(() => {
-    if(timeLine !== undefined && timeLine?.data?.data?.items?.length > 0) {
-      setScheduledItems(prevState => [
-        ...prevState,
-        ...timeLine?.data?.data?.items?.map(c => {
-          return {
-            id: c?.id,
-            title: "",
-            subject: "",
-            color: "bg-red-100 text-blue-800 border-blue-200",
-            startSlot: +c?.slots[0],
-            endSlot: +c?.slots[c.slots?.length - 1],
-            dayIndex: c?.dayOfWeek - 1,
-            duration: c.slots?.length
-          } as unknown as ScheduleItem
-        }) ?? []
-      ])
-    }
-  }, [timeLine]);
-  return (
-    <PredataScreen isLoading={isLoading} isSuccess={isSuccess} >
-      <Tabs items={[
+    if (courseClasses.length > 0) {
+      const filters = [
         {
-          key: '1',
-          label: 'Thời khóa biểu chi tiết',
-          children: <Box className={"space-y-10"}>
-            <Select
-                loading={isLoading}
-                style={{
-                  minWidth: 350
-                }}
-                onChange={(value, option) => {
-                  setSemesterSelect(value)
-                }}
+          field: "CourseClassCode",
+          operator: "In",
+          value: courseClasses.join(",")
+        }
+      ];
+      if (selectedWeek < 8) {
+        filters.push({
+          field: "StartWeek",
+          operator: "<=",
+          value: selectedWeek.toString()
+        });
+      }
+      setTimelineQuery(prevState => {
+        const isSame = JSON.stringify(prevState.Filters) === JSON.stringify(filters);
+        if (isSame) return prevState;
+        return { ...prevState, Filters: filters };
+      });
+    }
+  }, [courseClasses, selectedWeek]);
 
-                placeholder={"Chọn kì học"}
-            >
-              {!!data && data?.data?.data?.items?.map(c => {
-                return <Select.Option value={c?.semesterCode} key={c?.semesterCode}>{c?.semesterName}</Select.Option>
-              })}
-            </Select>
-            <div className="grid grid-cols-8 gap-0 schedule-grid relative">
-              {/* Header */}
-              <div className="bg-gray-50 p-3 border-b border-r font-medium text-center">Tiết học</div>
-              {daysOfWeek.map((day) => (
-                  <div key={day} className="bg-gray-50 p-3 border-b border-r font-medium text-center">
-                    {day}
+  // --- Timeline Data ---
+  const shouldFetch =
+      !!timelineQuery.Filters?.find(e => e.field === "CourseClassCode") &&
+      courseClasses.length > 0;
+  const {data: timeLine, isLoading: timelineLoading} = useGetTimeline(
+      timelineQuery,
+      shouldFetch
+  );
+
+  // --- Scheduled Items ---
+  useEffect(() => {
+    if (selectedWeek === 8) {
+      setScheduledItems([]);
+      return;
+    }
+    if (subjects !== undefined && timeLine !== undefined && timeLine?.data?.data?.items?.length > 0) {
+      // Không nối prevState để tránh bị lặp lại lịch cũ khi chuyển tuần
+      const newItems: ScheduleItem[] = timeLine?.data?.data?.items?.map(c => {
+        const courseClass = courseClassesOrigin?.data?.data?.items?.find(e => e.courseClassCode === c?.courseClassCode);
+        const subject = subjects?.data?.data?.items?.find(e => e.subjectCode === courseClass?.subjectCode);
+        return {
+          id: c?.id,
+          title: courseClass?.courseClassName ?? "",
+          subject: subject?.subjectName ?? "",
+          color: "bg-red-100 text-blue-800 border-blue-200",
+          startSlot: +c?.slots[0],
+          endSlot: +c?.slots[c.slots?.length - 1],
+          dayIndex: c?.dayOfWeek - 1,
+          duration: c.slots?.length,
+          roomCode: c?.roomCode ?? "",
+        };
+      }) ?? [];
+      setScheduledItems(newItems);
+    }
+  }, [timeLine, subjects, selectedWeek, courseClassesOrigin]);
+
+  // --- Helpers ---
+  const getItemAtSlot = (dayIndex: number, slotIndex: number) => {
+    return scheduledItems.find(
+        (item) => item.dayIndex === dayIndex && slotIndex >= item.startSlot && slotIndex <= item.endSlot,
+    );
+  };
+  const isSlotOccupied = (dayIndex: number, slotIndex: number) => {
+    return scheduledItems.some(
+        (item) => item.dayIndex === dayIndex && slotIndex >= item.startSlot && slotIndex <= item.endSlot,
+    );
+  };
+
+  // --- Weeks Array ---
+  const weeks = useMemo(() =>
+          Array.from(
+              {length: weeksBetween(new Date(getParentSemester?.endDate ?? ""), new Date(getParentSemester?.startDate ?? ""), "ceil") ?? 0},
+              (_, index) => index + 1
+          ),
+      [getParentSemester]
+  );
+
+  return (
+      <PredataScreen isLoading={isLoading} isSuccess={isSuccess} >
+        <Box className={"flex flex-col gap-10"}>
+          <Select className={"w-[300px]"}
+                  value={selectedWeek}
+                  onChange={setSelectedWeek}
+          >
+            {weeks && weeks.map((week) => (
+                <Select.Option key={week} value={week}>Tuần {week}</Select.Option>
+            ))}
+          </Select>
+          <div className="grid grid-cols-8 gap-0 schedule-grid relative">
+            {/* Header */}
+            <div className="bg-gray-50 p-3 border-b border-r font-medium text-center">Tiết học</div>
+            {daysOfWeek.map((day) => (
+                <div key={day} className="bg-gray-50 p-3 border-b border-r font-medium text-center">
+                  {day}
+                </div>
+            ))}
+
+            {/* Time slots */}
+            {timeSlots.map((slot, slotIndex) => (
+                <Fragment key={slot.id}>
+                  <div className="p-3 border-b border-r bg-gray-50">
+                    <div className="text-sm font-medium">{slot.period}</div>
+                    <div className="text-xs text-gray-500">{slot.time}</div>
                   </div>
-              ))}
 
-              {/* Time slots */}
-              {timeSlots.map((slot, slotIndex) => (
-                  <Fragment key={slot.id}>
-                    <div className="p-3 border-b border-r bg-gray-50">
-                      <div className="text-sm font-medium">{slot.period}</div>
-                      <div className="text-xs text-gray-500">{slot.time}</div>
-                    </div>
-
-                    {daysOfWeek.map((day, dayIndex) => {
-                      const isOccupied = isSlotOccupied(dayIndex, slotIndex)
-                      const item = getItemAtSlot(dayIndex, slotIndex)
-                      const isItemStart = item && item.startSlot === slotIndex
-
-                      return (
-                          <div
-                              key={`${dayIndex}-${slotIndex}`}
-                              className={`p-2 border-b border-r min-h-[60px] transition-colors relative bg-gray-50"
+                  {daysOfWeek.map((day, dayIndex) => {
+                    const isOccupied = isSlotOccupied(dayIndex, slotIndex);
+                    const item = getItemAtSlot(dayIndex, slotIndex);
+                    const isItemStart = item && item.startSlot === slotIndex;
+                    return (
+                        <div
+                            key={`${dayIndex}-${slotIndex}`}
+                            className={`p-2 border-b border-r min-h-[60px] transition-colors relative bg-gray-50"
                           }`}
-                          >
-                            {isOccupied && isItemStart && item && (
-                                <div
-                                    className={`${item.color} px-2 py-1 rounded text-sm font-medium cursor-move flex flex-col gap-1 hover:shadow-md transition-shadow absolute inset-2`}
-                                    style={{
-                                      height: `${(item.endSlot - item.startSlot + 1) * 58}px`,
-                                      zIndex: 10,
-                                    }}
-                                >
-                                  <span className={"text-[10px]"}>{item.subject}</span>
-                                  <span className="text-xs opacity-75">{item.duration} tiết</span>
-                                </div>
-                            )}
+                        >
+                          {isOccupied && isItemStart && item && (
+                              <div
+                                  className={`${item.color} px-2 py-1 rounded text-sm font-medium cursor-move flex flex-col gap-1 hover:shadow-md transition-shadow absolute inset-2`}
+                                  style={{
+                                    height: `${(item.endSlot - item.startSlot + 1) * 58}px`,
+                                    zIndex: 10,
+                                  }}
+                              >
+                                <span className={"text-[10px]"}>L.{item.title}</span>
+                                <span className={"text-[10px]"}>{item.subject}</span>
+                                <span className="text-xs opacity-75">P.{item.roomCode}</span>
+                              </div>
+                          )}
+                        </div>
+                    )
+                  })}
+                </Fragment>
+            ))}
 
-
-                          </div>
-                      )
-                    })}
-                  </Fragment>
-              ))}
-              {
-                  courseLoading || timelineLoading && <div className={"absolute top-0 left-0 w-full h-full flex justify-center items-center"}>
-                    <Spin size={"large"} />
-                  </div>
-              }
-            </div>
-          </Box>,
-        },
-      ]} />
-    </PredataScreen>
-  )
+          </div>
+        </Box>
+      </PredataScreen>
+  );
 }
 
-export default StudentTimeline
+export default StudentTimeline;

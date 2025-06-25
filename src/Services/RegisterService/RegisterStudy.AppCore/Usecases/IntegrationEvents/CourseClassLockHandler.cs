@@ -8,50 +8,42 @@ namespace RegisterStudy.AppCore.Usecases.IntegrationEvents;
 
 public class CourseClassLockHandler(
     IRegisterRepository<CourseClass> registerRepository,
+    IRegisterRepository<StudentRegister> studentRegisterRepository,
     ITopicProducer<CourseClassLockedIntegrationEvent> producer,
     ITopicProducer<StudentCourseClassLockedIntegrationEvent> studentProducer)
 {
     public async Task Handle(string semesterCode, CancellationToken cancellationToken)
     {
-        var key = RedisKey.SubjectCourseClass(semesterCode, "*", "*");
-        var courseClass = await registerRepository.GetKeysAsync(key);
-        var listCourseClass = new List<CourseClassLockedModel>();
-        foreach (var c in courseClass)
+        var studentRegisterKeys = (await registerRepository.GetKeysAsync(RedisKey.StudentRegisterCourseClass("*"))).ToList();
+
+        var studentRegisterDataList = new List<StudentRegister>();
+        foreach (var studentRegister in studentRegisterKeys)
         {
-            var courseClassData = await registerRepository.GetAsync(c);
-            listCourseClass.Add(new CourseClassLockedModel(
-                courseClassData.CourseClassCode,
-                courseClassData.Students.ToList()
-            ));
-        }
-        var res = await GetStudentSubjects(semesterCode);
-        await producer.Produce(new CourseClassLockedIntegrationEvent(listCourseClass), cancellationToken);
-        foreach (var keyValuePair in res)
-        {
+            var studentRegisterData = await studentRegisterRepository.GetAsync(studentRegister);
+            if (studentRegisterData == null) continue;
+            studentRegisterDataList.Add(studentRegisterData);
+
             await studentProducer.Produce(
-                new StudentCourseClassLockedIntegrationEvent(keyValuePair.Key, "1_2024_2025", keyValuePair.Value),
-                CancellationToken.None);
-        }
-    }
-    public async Task<Dictionary<string, List<string>>> GetStudentSubjects(string semesterCode)
-    {
-        var key = RedisKey.SubjectCourseClass(semesterCode, "*", "*");
-        var courseClassKeys = await registerRepository.GetKeysAsync(key);
-        var studentSubjects = new Dictionary<string, List<string>>();
-
-        foreach (var c in courseClassKeys)
-        {
-            var courseClass = await registerRepository.GetAsync(c);
-            foreach (var studentCode in courseClass.Students)
-            {
-                if (!studentSubjects.ContainsKey(studentCode))
-                    studentSubjects[studentCode] = new List<string>();
-
-                if (!studentSubjects[studentCode].Contains(courseClass.SubjectCode))
-                    studentSubjects[studentCode].Add(courseClass.SubjectCode);
-            }
+                new StudentCourseClassLockedIntegrationEvent(
+                    studentRegisterData.StudentCode, 
+                    "1_2024_2025", 
+                    studentRegisterData.CourseClassCode
+                ),
+                cancellationToken);
         }
 
-        return studentSubjects;
+        var grouped = studentRegisterDataList
+            .SelectMany(sr => sr.CourseClassCode.Select(ccc => new { CourseClassCode = ccc, sr.StudentCode }))
+            .GroupBy(x => x.CourseClassCode)
+            .Select(g => new CourseClassLockedModel(
+                g.Key,
+                g.Select(x => x.StudentCode).Distinct().ToList()
+            ))
+            .ToList();
+
+        await producer.Produce(
+            new CourseClassLockedIntegrationEvent(grouped),
+            cancellationToken
+        );
     }
 }

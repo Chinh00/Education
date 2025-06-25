@@ -7,6 +7,7 @@ const useGetCourseClasses = (query: Query, enable: boolean = true) => {
         queryKey: ["useGetCourseClasses", query],
         queryFn: () => getCourseClasses(query),
         enabled: enable,
+        staleTime: 0
     })
 }
 

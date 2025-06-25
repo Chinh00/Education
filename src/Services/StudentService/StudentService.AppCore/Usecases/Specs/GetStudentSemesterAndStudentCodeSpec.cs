@@ -8,5 +8,6 @@ public class GetStudentSemesterAndStudentCodeSpec(string studentCode, string sem
     : SpecificationBase<StudentSemester>
 {
 
-    public override Expression<Func<StudentSemester, bool>> Predicate => semester => semester.StudentCode == studentCode && semester.SemesterCode == semesterCode;
+    public override Expression<Func<StudentSemester, bool>> Predicate => semester =>
+        semester.StudentCode == studentCode && semester.SemesterCode == semesterCode;
 }

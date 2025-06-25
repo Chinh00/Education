@@ -21,6 +21,32 @@ public class CourseClassController : BaseController
     {
         return Ok(await Mediator.Send(query, cancellationToken));
     }
+    /// <summary>
+    /// Lấy danh sách lớp học có thể thay thế của cùng môn theo sinh viên
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("CanBeReplace")]
+    public async Task<IActionResult> HandleGetCanBeReplaceAsync([FromQuery]GetCourseClassCanBeReplaceQuery query,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(query, cancellationToken));
+    }
+
+    /// <summary>
+    /// Thay đổi lớp học của sinh viên trong cùng môn học
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPatch("Student/Change")]
+
+    public async Task<IActionResult> HandleChangeStudentOfCourseClass([FromBody] StudentChangeCourseClassCommand command,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await Mediator.Send(command, cancellationToken));
+    }
 
     /// <summary>
     /// Chạy thời khóa biểu tự động
@@ -29,7 +55,6 @@ public class CourseClassController : BaseController
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("GenerateSchedule")]
-    [AllowAnonymous]
     public async Task<IActionResult> HandleGenerateScheduleCourseClassAsync(GenerateScheduleCommand.GenerateScheduleModel model, CancellationToken cancellationToken)
     {
         return Ok(await Mediator.Send(new GenerateScheduleCommand(model), cancellationToken));
@@ -41,7 +66,6 @@ public class CourseClassController : BaseController
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("GenerateCourseClasses")]
-    [AllowAnonymous]
     public async Task<IActionResult> HandleGenerateCourseClassesAsync(GenerateCourseClassesCommand.GenerateCourseClassesModel model, CancellationToken cancellationToken)
     {
         return Ok(await Mediator.Send(new GenerateCourseClassesCommand(model), cancellationToken));
@@ -65,7 +89,6 @@ public class CourseClassController : BaseController
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("SubjectScheduleConfig")]
-    [AllowAnonymous]
     public async Task<IActionResult> HandleGetSubjectScheduleConfigsAsync([FromQuery] GetSubjectScheduleConfigQuery query, CancellationToken cancellationToken)
     {
         return Ok(await Mediator.Send(query, cancellationToken));
@@ -77,7 +100,6 @@ public class CourseClassController : BaseController
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("SlotTimeline/Free")]
-    [AllowAnonymous]
     public async Task<IActionResult> HandleGetSlotTimelineFreeAsync([FromQuery] GetSlotTimelineFreeQuery query, CancellationToken cancellationToken)
     {
         return Ok(await Mediator.Send(query, cancellationToken));
@@ -92,7 +114,6 @@ public class CourseClassController : BaseController
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> HandleCreateCourseClassAsync(CreateCourseClassCommand command,
         CancellationToken cancellationToken)
     {

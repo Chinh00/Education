@@ -29,7 +29,8 @@ const Register_period_result = () => {
     useEffect(() => {
         dispatch(setGroupFuncName({...groupFuncName, itemName: "Kết quả đăng ký học"}));
     }, []);
-
+    const [selectedDepartment, setSelectedDepartment] = useState("")
+    const [selectedSubject, setSelectedSubject] = useState("")
     
     const [query, setQuery] = useState<Query>({
         Filters: [
@@ -48,30 +49,80 @@ const Register_period_result = () => {
         PageSize: 500
     })
     const getSemesterByStage = (stage: number) => currentChildSemester?.find(e => (+e?.semesterCode?.split('_')[3]) === (stage + 1))
-
-    const { data: subjects} = useGetSubjects({
+    const [subjectQuery, setSubjectQuery] = useState<Query>({
+        
     })
+    useEffect(() => {
+        if (selectedDepartment !== "") {
+            setSubjectQuery(prevState => ({
+                ...prevState,
+                Filters: [
+                    ...prevState?.Filters?.filter(e => e.field !== "DepartmentCode") ?? [],
+                    {
+                        field: "DepartmentCode",
+                        operator: "==",
+                        value: selectedDepartment
+                    }
+                ]
+            }))
+        }
+    }, [selectedDepartment]);
+    const { data: subjects} = useGetSubjects(subjectQuery)
     
     const getSubject = (subjectCode: string) => {
         return subjects?.data?.data?.items?.filter(e => e.subjectCode === subjectCode)[0] ?? undefined
     }
-
-    const {data: courseClassesParent, isLoading, refetch: refetchParent} = useGetCourseClasses({
+    const [queryCourseClassParent, setQueryCourseClassParent] = useState<Query>({
         Filters: [
             {
                 field: "SemesterCode",
                 operator: "==",
                 value: currentParentSemester?.semesterCode!
             },
-            {
-                field: "SubjectCode",
-                operator: "In",
-                value: [...(data?.data?.data?.items?.map(c => c.subjectCode) ?? []), ...(subjects?.data?.data?.items?.map(e => e.subjectCode) ?? [])].join(",") ?? ""
-            },
+
             { field: "ParentCourseClassCode", operator: "==", value: "" },
         ],
         Includes: ["StudentIds"]
-    }, currentParentSemester?.semesterCode !== undefined && data !== undefined && data?.data?.data?.items?.length > 0 && subjects !== undefined);
+    })
+    const {data: courseClassesParent, isLoading, refetch: refetchParent} = useGetCourseClasses(queryCourseClassParent, currentParentSemester?.semesterCode !== undefined && queryCourseClassParent?.Filters?.filter(e => e.field === "SemesterCode") !== undefined && queryCourseClassParent?.Filters?.filter(e => e.field === "Stage") !== undefined && queryCourseClassParent?.Filters?.filter(e => e.field === "SubjectCode") !== undefined);
+    useEffect(() => {
+        setQueryCourseClassParent(prevState => {
+            const prevStageFilter = prevState?.Filters?.find(e => e.field === "Stage");
+            const newValue = selectedStage === 4 ? [2, 3].join(",") : selectedStage.toString();
+            if (prevStageFilter?.value === newValue) return prevState;
+            return {
+                ...prevState,
+                Filters: [
+                    ...prevState?.Filters?.filter(e => e.field !== "Stage") ?? [],
+                    {
+                        field: "Stage",
+                        operator: "In",
+                        value: newValue
+                    }
+                ]
+            }
+        })
+    }, [selectedStage]);
+
+    useEffect(() => {
+        if (selectedSubject !== "") {
+            setQueryCourseClassParent(prevState => {
+                const prevSubjectFilter = prevState?.Filters?.find(e => e.field === "SubjectCode");
+                if (prevSubjectFilter?.value === selectedSubject) return prevState;
+                return {
+                    ...prevState,
+                    Filters: [
+                        ...prevState?.Filters?.filter(e => e.field !== "SubjectCode") ?? [],
+                        {
+                            field: "SubjectCode",
+                            operator: selectedSubject !== "" ? "==" : "!=",
+                            value: selectedSubject
+                        }
+                    ]
+                }
+            })
+        }
+    }, [selectedSubject]);
     const { data: courseClassesChild, refetch: refetchChild } = useGetCourseClasses(
         {
             Filters: [
@@ -169,6 +220,12 @@ const Register_period_result = () => {
             width: 40,
         },
         {
+            title: "Số SV đăng ký học",
+            width: 50,
+            render: (text, record) => record?.studentIds?.length ?? 0,
+            
+        },
+        {
             title: "Giảng viên",
             dataIndex: "teacherName",
             className: "text-[12px]",
@@ -187,14 +244,10 @@ const Register_period_result = () => {
             title: "Hành động",
             dataIndex: "action",
             width: 120,
-            render: (text, record) => <RegisterResultClassList semesterCode={currentParentSemester?.semesterCode} subjectCode={record?.subjectCode} />
+            render: (text, record) => <RegisterResultClassList courseClass={record}/>
         },
     ];
-    const parentData: CourseClass[] =
-        courseClassesParent?.data?.data?.items?.map((item: CourseClass) => ({
-            ...item,
-            key: item.id,
-        })) ?? [];
+    
     const getChildRows = (parentCode: string) => {
         return (
             courseClassesChild?.data?.data?.items
@@ -209,17 +262,7 @@ const Register_period_result = () => {
                     className={"min-w-[400px]"}
                     placeholder={"Chọn bộ môn"}
                     onChange={(e) => {
-                        setQuery(prevState => ({
-                            ...prevState,
-                            Filters: [
-                                {
-                                    field: "DepartmentCode",
-                                    operator: "==",
-                                    value: e
-                                }
-                            ],
-                            Page: 1
-                        }))
+                        setSelectedDepartment(e)
                     }}
                 >
                     {departments && departments?.data?.data?.items?.filter(e => e.departmentName?.startsWith("Bộ môn"))?.map((e) => (
@@ -228,6 +271,21 @@ const Register_period_result = () => {
                         </Select.Option>
                     ))}
                 </Select>
+                <Select
+                    showSearch
+                    className={"min-w-[400px]"}
+                    placeholder={"Chọn môn học"}
+                    onChange={(e) => {
+                        setSelectedSubject(e)
+                    }}
+                >
+                    {subjects && subjects?.data?.data?.items?.map((e) => (
+                        <Select.Option key={e.subjectCode} value={e.subjectCode}>
+                            {e.subjectCode} ({e.subjectName})
+                        </Select.Option>
+                    ))}
+                </Select>
+                
                 <div className={"flex gap-2 mb-3"}>
                     {[0, 1].map((e) => (
                         <Button
@@ -260,12 +318,12 @@ const Register_period_result = () => {
                 rowKey={e => e.courseClassCode}
                 bordered
                 pagination={{
-                    current: query?.Page ?? 1,
-                    pageSize: query?.PageSize ?? 10,
+                    current: queryCourseClassParent?.Page ?? 1,
+                    pageSize: queryCourseClassParent?.PageSize ?? 10,
                     total: courseClassesParent?.data?.data?.totalItems ?? 0
                 }}
                 onChange={(e) => {
-                    setQuery(prevState => ({
+                    setQueryCourseClassParent(prevState => ({
                         ...prevState,
                         Page: e?.current ?? 1 - 1,
                         PageSize: e?.pageSize
@@ -273,7 +331,7 @@ const Register_period_result = () => {
                 }}
                 columns={columns}
                 
-                dataSource={parentData}
+                dataSource={courseClassesParent?.data?.data?.items ?? []}
                 rowClassName="editable-row"
                 expandable={{
                     defaultExpandAllRows: true,

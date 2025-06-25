@@ -34,6 +34,8 @@ public static class Extensions
                 e.AddProducer<CourseClassesCreatedIntegrationEvent>(nameof(CourseClassesCreatedIntegrationEvent));
                 e.AddProducer<SemesterCreatedNotificationIntegrationEvent>(nameof(SemesterCreatedNotificationIntegrationEvent));
                 e.AddProducer<InitDepartmentAdminAccountIntegrationEvent>(nameof(InitDepartmentAdminAccountIntegrationEvent));
+                e.AddProducer<StudentEvictedIntegrationEvent>(nameof(StudentEvictedIntegrationEvent));
+                e.AddProducer<CourseClassAddedStudentIntegrationEvent>(nameof(CourseClassAddedStudentIntegrationEvent));
                 
                 
                

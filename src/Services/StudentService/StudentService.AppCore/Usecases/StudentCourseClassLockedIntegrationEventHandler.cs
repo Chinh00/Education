@@ -3,6 +3,7 @@ using Education.Core.Repository;
 using MediatR;
 using StudentService.AppCore.Usecases.Specs;
 using StudentService.Domain;
+using StudentService.Domain.Enums;
 
 namespace StudentService.AppCore.Usecases;
 

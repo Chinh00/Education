@@ -33,6 +33,7 @@ public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCour
             {
                 return Results.BadRequest($"Không tìm thấy lớp học phần {courseClassCode}.");
             }
+            var courseClassType = courseClass.CourseClassType;
 
             // Đảm bảo danh sách sinh viên không null
             courseClass.Students ??= new List<string>();
@@ -40,29 +41,52 @@ public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCour
             // Kiểm tra đã đăng ký chưa
             if (courseClass.Students.Contains(studentCode))
             {
-                
-                var student = await studentRegisterRepository.GetAsync(RedisKey.StudentRegisterCourseClass(studentCode)) 
-              ?? new StudentRegister()
-              {
-                  StudentCode = studentCode,
-                  CourseClassCode = new List<string>() // dạng ["subjectCode:courseClassCode"]
-              };
-                // Xóa đăng ký cũ của môn này (nếu có)
-                var e = student.CourseClassCode.Where(s => s.Contains($"{subjectCode}")).ToList(); 
-                foreach (var se in e)
+                // lop chinh thi huy nhu binh thuong
+                if (courseClassType == 0)
                 {
-                    var cc = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se));
-                    cc.Students.Remove(studentCode);
-                    await repository.SaveAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se), () => Task.FromResult(cc));
-                }
-                student.CourseClassCode.RemoveAll(c => c.Contains($"{subjectCode}"));
-                await studentRegisterRepository.SaveAsync(
-                    RedisKey.StudentRegisterCourseClass(studentCode),
-                    () => Task.FromResult(student));
+                    var student = await studentRegisterRepository.GetAsync(RedisKey.StudentRegisterCourseClass(studentCode)) 
+                                  ?? new StudentRegister()
+                                  {
+                                      StudentCode = studentCode,
+                                      CourseClassCode = new List<string>() 
+                                  };
+                    //  da dang ky Xóa đăng ký cũ của môn này (nếu có)
+                    var e = student.CourseClassCode.Where(s => s.Contains($"{subjectCode}")).ToList(); 
+                    foreach (var se in e)
+                    {
+                        var cc = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se));
+                        cc.Students.Remove(studentCode);
+                        await repository.SaveAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se), () => Task.FromResult(cc));
+                    }
+                    student.CourseClassCode.RemoveAll(c => c.Contains($"{subjectCode}"));
+                    await studentRegisterRepository.SaveAsync(
+                        RedisKey.StudentRegisterCourseClass(studentCode),
+                        () => Task.FromResult(student));
 
-                courseClass.Students.Remove(studentCode);
-                await repository.SaveAsync(courseClassKey, () => Task.FromResult(courseClass));
-                return Results.BadRequest("Đã hủy thành công học phần này.");
+                    
+                    return Results.BadRequest("Đã hủy thành công học phần này."); 
+                }
+                // neu ma khong phai lop chinh => huy
+                else
+                {
+                    var student = await studentRegisterRepository.GetAsync(RedisKey.StudentRegisterCourseClass(studentCode)) 
+                                  ?? new StudentRegister()
+                                  {
+                                      StudentCode = studentCode,
+                                      CourseClassCode = new List<string>() 
+                                  };
+                    var firstOrDefault = student.CourseClassCode.FirstOrDefault(e => e == courseClassCode);
+                    var cc = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, firstOrDefault));
+                    if (cc is not null)
+                    {
+                        cc.Students.Remove(studentCode);
+                    }
+                    await repository.SaveAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, firstOrDefault), () => Task.FromResult(cc));
+                    await studentRegisterRepository.SaveAsync(
+                        RedisKey.StudentRegisterCourseClass(studentCode),
+                        () => Task.FromResult(student));
+                }
+                
             }
 
             // Kiểm tra số lượng sinh viên đã tối đa chưa
@@ -70,40 +94,76 @@ public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCour
             {
                 return Results.BadRequest("Lớp học phần đã đủ số lượng sinh viên.");
             }
-
-            // Thêm sinh viên vào danh sách lớp học phần
-            courseClass.Students.Add(studentCode);
-
-            // Lưu lại CourseClass (cập nhật danh sách sinh viên)
-            await repository.SaveAsync(courseClassKey, () => Task.FromResult(courseClass));
-
-            // Lấy thông tin đăng ký hiện tại hoặc tạo mới
+            // thon tin dang ky hien tai
             var studentRegister = await studentRegisterRepository.GetAsync(RedisKey.StudentRegisterCourseClass(studentCode)) 
-                ?? new StudentRegister()
-                {
-                    StudentCode = studentCode,
-                    CourseClassCode = new List<string>() // dạng ["subjectCode:courseClassCode"]
-                };
-            // Xóa đăng ký cũ của môn này (nếu có)
-            var enumerable = studentRegister.CourseClassCode.Where(s => s.Contains($"{subjectCode}")).ToList(); 
-            foreach (var se in enumerable)
+            ?? new StudentRegister()
+              {
+                  StudentCode = studentCode,
+                  CourseClassCode = new List<string>()
+              };
+            if (courseClassType == 0)
             {
-                var cc = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se));
-                cc.Students.Remove(studentCode);
-                await repository.SaveAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, se), () => Task.FromResult(cc));
+                // lay danh sach cac lop da dang ky cua mon hoc nay
+                var existingCourseClasses = studentRegister.CourseClassCode
+                    .Where(c => c.Contains($"{subjectCode}"))
+                    .ToList();
+                // neu lop dang ky la lop chinh thi xoa cac lop chinh cu va lop con
+                foreach (var existingCourseClass in existingCourseClasses)
+                {
+                    var existingClass = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, existingCourseClass));
+                    if (existingClass != null)
+                    {
+                        existingClass.Students.Remove(studentCode);
+                        await repository.SaveAsync(
+                            RedisKey.SubjectCourseClass(semesterCode, subjectCode, existingCourseClass),
+                            () => Task.FromResult(existingClass));
+                    }
+                }
+                // xoa cac lop con lien quan den lop chinh va lop chinh
+                studentRegister.CourseClassCode.RemoveAll(c => c.Contains($"{subjectCode}"));
+                // luu lai lop dang ky moi
+                studentRegister.CourseClassCode.Add(courseClassCode);
+                await studentRegisterRepository.SaveAsync(
+                    RedisKey.StudentRegisterCourseClass(studentCode),
+                    () => Task.FromResult(studentRegister));
+                // cap nhat danh sach sinh vien cua lop chinh
+                courseClass.Students.Add(studentCode);
+                await repository.SaveAsync(
+                    courseClassKey,
+                    () => Task.FromResult(courseClass));
             }
-            studentRegister.CourseClassCode.RemoveAll(c => c.Contains($"{subjectCode}"));
-
-
-            // Thêm đăng ký mới cho môn này
-            studentRegister.CourseClassCode.Add(courseClassCode);
-
-            // Lưu lại thông tin đăng ký mới nhất
-            await studentRegisterRepository.SaveAsync(
-                RedisKey.StudentRegisterCourseClass(studentCode),
-                () => Task.FromResult(studentRegister)
-            );
-
+            // neu dang ky ko phai lop chinh ma la lop thanh phan
+            else
+            {
+                // lay ra cac lop thanh phan da dang ky cua mon nay
+                var existingCourseClass = studentRegister.CourseClassCode
+                    .FirstOrDefault(c => c.Contains($"{subjectCode}") && c.Contains("TH"));
+                if (existingCourseClass is not null)
+                {
+                    var existingClass = await repository.GetAsync(RedisKey.SubjectCourseClass(semesterCode, subjectCode, existingCourseClass));
+                    if (existingClass != null)
+                    {
+                        existingClass.Students.Remove(studentCode);
+                        await repository.SaveAsync(
+                            RedisKey.SubjectCourseClass(semesterCode, subjectCode, existingCourseClass),
+                            () => Task.FromResult(existingClass));
+                    }
+                }
+                // xoa lop thanh phan cu neu co
+                studentRegister.CourseClassCode.RemoveAll(c => c.Contains($"{subjectCode}") && c.Contains("TH"));
+                // luu lai lop dang ky moi
+                studentRegister.CourseClassCode.Add(courseClassCode);
+                await studentRegisterRepository.SaveAsync(
+                    RedisKey.StudentRegisterCourseClass(studentCode),
+                    () => Task.FromResult(studentRegister));
+                // cap nhat danh sach sinh vien cua lop thanh phan
+                courseClass.Students.Add(studentCode);
+                await repository.SaveAsync(
+                    courseClassKey,
+                    () => Task.FromResult(courseClass));
+            }
+            
+            
             // Thông báo thành công
             await topicProducer.Produce(
                 new RegisterCourseClassSucceedNotificationIntegrationEvent(

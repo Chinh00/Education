@@ -92,8 +92,14 @@ export const getStageText = (stage: number) => {
             return "GD1";
         case 1:
             return "GD2";
-        default:
+        case 2:
+            return "GD1";
+        case 3:
+            return "GD2";
+        case 4:
             return "2GD";
+         
+            
     }
 }
 

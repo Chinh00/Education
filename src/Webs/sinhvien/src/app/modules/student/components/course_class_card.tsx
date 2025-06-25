@@ -6,9 +6,8 @@ import { ReactElement } from "react";
 export type CourseClassCardProps = {
     courseClass: CourseClassRegister & { children?: CourseClassRegister[] },
     onClick: (courseClassCode: string) => void,
-    isLectureRegister?: boolean
-    isLabRegister?: boolean,
-    loading?: boolean
+    loading?: boolean,
+    courseClassRegister: string[]
 };
 
 
@@ -39,9 +38,8 @@ const formatDate = (date: string) => {
 const CourseClassCard = ({
                              courseClass,
                              onClick,
-                             isLectureRegister,
-                             isLabRegister,
-                             loading
+                             loading,
+                             courseClassRegister
                          }: CourseClassCardProps) => {
     const totalStudents = courseClass.students?.length ?? 0;
     const maxStudents = courseClass.numberStudentsExpected;
@@ -62,11 +60,11 @@ const CourseClassCard = ({
                     <Button
                         loading={loading}
                         onClick={() => onClick(courseClass?.courseClassCode)}
-                        type={isLectureRegister ? "default" : "primary"}
-                        style={{color: "white", backgroundColor: isLectureRegister ? "red" : "#1677ff"}}
+                        type={courseClassRegister?.includes(courseClass?.courseClassCode) ? "default" : "primary"}
+                        style={{color: "white", backgroundColor: courseClassRegister?.includes(courseClass?.courseClassCode) ? "red" : "#1677ff"}}
                         className={`rounded px-4 py-1 ml-2  text-white` }
                     >
-                        {isLectureRegister ? "Hủy đăng ký" : "Đăng ký"}
+                        {courseClassRegister?.includes(courseClass?.courseClassCode) ? "Hủy đăng ký" : "Đăng ký"}
                     </Button>
                 </div>
             </div>
@@ -114,7 +112,6 @@ const CourseClassCard = ({
                                     {/* Tên lớp và mã */}
                                     <div className="flex-1 text-sm font-semibold">
                                         {lab.subjectName || ""} ({lab.courseClassCode})
-                                        <span className="ml-2 text-xs font-normal text-gray-500">{lab.groupName ? `( ${lab.groupName} )` : ""}</span>
                                     </div>
                                     {/* Thời gian, phòng, giáo viên */}
                                     <table className="w-auto mx-3 my-2 border border-gray-200 rounded">
@@ -133,9 +130,9 @@ const CourseClassCard = ({
                                     <div className="flex items-center px-3 py-2 text-sm font-normal text-gray-500 gap-2">
                                         <span>{labStudents}/{lab.numberStudentsExpected}</span>
                                         <Button
-                                            disabled={isLabRegister || labStudents >= lab.numberStudentsExpected}
+                                            disabled={courseClassRegister?.includes(lab?.courseClassCode)}
                                             onClick={() => onClick(lab?.courseClassCode)}
-                                            className={`rounded px-3 py-1 ml-2 ${isLabRegister ? "bg-gray-300" : "bg-cyan-500 text-white"}`}
+                                            className={`rounded px-3 py-1 ml-2 ${courseClassRegister?.includes(lab?.courseClassCode) ? "bg-gray-300" : "bg-cyan-500 text-white"}`}
                                         >
                                             Đăng ký
                                         </Button>

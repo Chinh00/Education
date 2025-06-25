@@ -122,8 +122,8 @@ const RegisterNew = () => {
                                 <Typography.Text className={"text-gray-500"}>Không có lớp học nào được tìm thấy</Typography.Text>
                             </div>
                         ) : (
-                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items).map(e => (
-                                <CourseClassCard loading={loading} isLabRegister={courseClassCodeRegister?.includes(e.courseClassCode)} isLectureRegister={courseClassCodeRegister?.includes(e.courseClassCode)} onClick={(courseClassCode) => {
+                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items)?.filter(e => e.stage !== 4).map(e => (
+                                <CourseClassCard loading={loading}  courseClassRegister={courseClassCodeRegister} onClick={(courseClassCode) => {
                                     mutate({
                                         courseClassCode: courseClassCode,
                                         semesterCode: registerCourseClass?.data?.data?.semesterCode!,

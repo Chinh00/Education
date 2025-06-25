@@ -48,7 +48,17 @@ const Register_period_result = () => {
         Page: 1,
         PageSize: 500
     })
-    const getSemesterByStage = (stage: number) => currentChildSemester?.find(e => (+e?.semesterCode?.split('_')[3]) === (stage + 1))
+    const getSemesterByStage = (stage: number) => {
+        currentChildSemester?.find(e => (+e?.semesterCode?.split('_')[3]) === (stage + 1))
+        if (stage === 0 || stage === 2) {
+            return currentChildSemester?.find(e => (+e?.semesterCode?.split('_')[3]) === 1)
+        }
+        if (stage === 1 || stage === 3) {
+            return currentChildSemester?.find(e => (+e?.semesterCode?.split('_')[3]) === 2)
+        }
+        return currentParentSemester
+        
+    }
     const [subjectQuery, setSubjectQuery] = useState<Query>({
         
     })
@@ -88,7 +98,7 @@ const Register_period_result = () => {
     useEffect(() => {
         setQueryCourseClassParent(prevState => {
             const prevStageFilter = prevState?.Filters?.find(e => e.field === "Stage");
-            const newValue = selectedStage === 4 ? [2, 3].join(",") : selectedStage.toString();
+            const newValue = selectedStage?.toString()
             if (prevStageFilter?.value === newValue) return prevState;
             return {
                 ...prevState,
@@ -205,7 +215,7 @@ const Register_period_result = () => {
                     variant={"outline"}
                     className={"bg-blue-100 flex flex-col justify-start items-start"}
                 >
-                    <span>{getStageText(selectedStage ?? 0)}</span>
+                    <span>{getStageText(record?.stage ?? 0)}</span>
                     <span>
                         {DateTimeFormat(getSemesterByStage(record?.stage)?.startDate, "DD/MM/YYYY")} -{" "}
                         {DateTimeFormat(getSemesterByStage(record?.stage)?.endDate, "DD/MM/YYYY")}

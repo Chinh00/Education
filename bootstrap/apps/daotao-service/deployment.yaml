@@ -7,7 +7,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: daotao
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
@@ -19,6 +19,11 @@ spec:
           name: daotao
           ports:
             - containerPort: 80
+          resources:
+            requests:
+              cpu: 100m
+            limits:
+              cpu: 300m
 ---
 apiVersion: v1
 kind: Service
@@ -33,3 +38,23 @@ spec:
   type: ClusterIP
   selector:
     app.kubernetes.io/name: daotao
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: daotao
+  namespace: education
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: daotao
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50

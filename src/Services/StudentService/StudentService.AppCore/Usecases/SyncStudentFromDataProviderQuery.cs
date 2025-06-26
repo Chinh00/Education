@@ -31,9 +31,9 @@ public record SyncStudentFromDataProviderQuery() : IQuery<bool>
 
         async Task SyncStudent(string studentCode, CancellationToken cancellationToken)
         {
-            var url = $"https://api5.tlu.edu.vn/api/Student/{studentCode}/detail";
+            var url = $"https://dataprovider.tlu.my/api/Student/{studentCode}/detail";
             var semesterUrl =
-                $"https://api5.tlu.edu.vn/api/Student/Semester?Filters[0].field=StudentCode&Filters[0].operator===&Includes=SubjectResults&Includes=CourseSubjects&Filters[0].value={studentCode}";
+                $"https://dataprovider.tlu.my/api/Student/Semester?Filters[0].field=StudentCode&Filters[0].operator===&Includes=SubjectResults&Includes=CourseSubjects&Filters[0].value={studentCode}";
             var response = await httpClient.GetAsync(url, cancellationToken);
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
 

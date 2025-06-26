@@ -117,7 +117,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
 
     async Task PullRooms(IMongoRepository<Room> roomRepository,CancellationToken cancellation)
     {
-        var url = $"https://api5.tlu.edu.vn/api/Building/Room?Page=1&PageSize=9999&Includes=Code&Includes=Name&Includes=Capacity&Includes=BuildingCode&Includes=SupportedConditions";
+        var url = $"https://dataprovider.tlu.my/api/Building/Room?Page=1&PageSize=9999&Includes=Code&Includes=Name&Includes=Capacity&Includes=BuildingCode&Includes=SupportedConditions";
         
         var response = await httpClient.GetAsync(url, cancellation);
         var json = await response.Content.ReadAsStringAsync(cancellation);
@@ -139,7 +139,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
     async Task PullDepartments(IMongoRepository<Department> education,
         ITopicProducer<InitDepartmentAdminAccountIntegrationEvent> producer, CancellationToken cancellation)
     {
-        var url = $"https://api5.tlu.edu.vn/api/Department?Page=1&PageSize=9999&Includes=Path";
+        var url = $"https://dataprovider.tlu.my/api/Department?Page=1&PageSize=9999&Includes=Path";
         
         var response = await httpClient.GetAsync(url, cancellation);
         var json = await response.Content.ReadAsStringAsync(cancellation);
@@ -162,7 +162,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
     
     async Task PullEducationPrograms(IMongoRepository<EducationProgram> education, CancellationToken cancellation)
     {
-        var url = $"https://api5.tlu.edu.vn/api/EducationProgram?Includes=Code&Includes=Name&Sorts=IdDesc&Includes=TrainingTime&Includes=CourseCode&Includes=SpecialityCode&Includes=EducationSubjects&Page=1&PageSize=9999";
+        var url = $"https://dataprovider.tlu.my/api/EducationProgram?Includes=Code&Includes=Name&Sorts=IdDesc&Includes=TrainingTime&Includes=CourseCode&Includes=SpecialityCode&Includes=EducationSubjects&Page=1&PageSize=9999";
         
         var response = await httpClient.GetAsync(url, cancellation);
         var json = await response.Content.ReadAsStringAsync(cancellation);
@@ -177,7 +177,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
     }
     async Task PullSubjects(IMongoRepository<Subject> education, CancellationToken cancellation)
     {
-        var url = $"https://api5.tlu.edu.vn/api/EducationProgram/subject?Includes=SubjectName&Includes=SubjectNameEng&Includes=SubjectCode&Includes=SubjectDescription&Includes=DepartmentCode&Includes=IsCalculateMark&Includes=NumberOfCredits&Includes=Status&&Page=1&PageSize=9999";
+        var url = $"https://dataprovider.tlu.my/api/EducationProgram/subject?Includes=SubjectName&Includes=SubjectNameEng&Includes=SubjectCode&Includes=SubjectDescription&Includes=DepartmentCode&Includes=IsCalculateMark&Includes=NumberOfCredits&Includes=Status&&Page=1&PageSize=9999";
         
         var response = await httpClient.GetAsync(url, cancellation);
         var json = await response.Content.ReadAsStringAsync(cancellation);
@@ -192,7 +192,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
     }
     async Task PullSemesters(IMongoRepository<Semester> education, CancellationToken cancellation)
     {
-        var url = $"https://api5.tlu.edu.vn/api/EducationProgram/semester?Includes=SemesterCode&Includes=SemesterName&Page=1&PageSize=99";
+        var url = $"https://dataprovider.tlu.my/api/EducationProgram/semester?Includes=SemesterCode&Includes=SemesterName&Page=1&PageSize=99";
         
         var response = await httpClient.GetAsync(url, cancellation);
         var json = await response.Content.ReadAsStringAsync(cancellation);
@@ -208,7 +208,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
     }
     async Task PullStaffs(IMongoRepository<Staff> education, CancellationToken cancellation)
     {
-        var url = $"https://api5.tlu.edu.vn/api/Staff?Page=1&PageSize=2000";
+        var url = $"https://dataprovider.tlu.my/api/Staff?Page=1&PageSize=2000";
         
         var response = await httpClient.GetAsync(url, cancellation);
         var json = await response.Content.ReadAsStringAsync(cancellation);

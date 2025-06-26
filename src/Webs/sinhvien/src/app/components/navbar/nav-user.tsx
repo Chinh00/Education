@@ -65,7 +65,7 @@ export function NavUser() {
               <AvatarFallback className="rounded-lg">CN</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">{data?.data?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]}</span>
+              <span className="truncate font-semibold">{data?.data?.["f"]}</span>
               <span className="truncate text-xs">{data?.data?.isConfirm && <Badge>Đang hoạt động</Badge>}</span>
             </div>
           </div>

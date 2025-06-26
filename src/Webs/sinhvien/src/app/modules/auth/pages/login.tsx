@@ -13,6 +13,7 @@ import Background from "@/assets/images/image-476.jpeg"
 import TluIcon from "@/assets/icons/tlu_icon.png"
 import { msalInstance } from "@/cores/msalConfig.ts";
 import MicrosoftIcon from "@/assets/icons/icons8-microsoft.svg"
+import {motion} from "framer-motion";
 const Login = () => {
   const navigate = useNavigate();
   const { mutate, isPending } = useLogin();
@@ -60,10 +61,10 @@ const Login = () => {
 
   return <>
     <LayoutFadeIn>
-      <div className={` bg-cover bg-center w-full h-screen z-10`} style={{ backgroundImage: `url(${Background})` }}
+      <div className={`fixed bg-cover bg-center w-full h-screen z-10`} style={{ backgroundImage: `url(${Background})`, backgroundPosition: "center" }}
       >
 
-        <div className={"z-50 absolute md:top-1/5 md:left-3/5 top-1/2 left-1/2 w-11/12 -translate-1/2 md:-translate-0  md:w-[400px] md:h-[450px] bg-white/60 backdrop-blur-sm rounded-xl p-10 "}>
+        <div className={"z-50 absolute md:top-1/5 md:left-3/5 top-1/2 left-1/2 w-11/12 -translate-1/2 md:-translate-0 shadow-xl  md:w-[400px] md:h-[450px] bg-white/65 backdrop-blur-sm rounded-xl p-10 "}>
           <div className={"w-full h-full flex justify-start content-center flex-col gap-10"}>
             <div className={"flex flex-col justify-center content-center"}>
               <img src={TluIcon} alt={"icon-tlu"} />
@@ -73,19 +74,32 @@ const Login = () => {
 
             <div className={"flex flex-col gap-2"}>
               <div className={"text-center"}>Đăng nhập để sử dụng</div>
-              {loginType === 0 ? <Button disabled={isPending} size="small" className={"w-full bg-blue-600 py-6 cursor-pointer font-bold"} onClick={() => {
-                handleLogin()
-              }}>
-                {isPending ? <Loader className={"animate-spin"} size={30} /> : <img src={MicrosoftIcon} alt={"microsoft-icon"} className={"scale-65"} />}
-                Đăng nhập với microsoft
-              </Button> : <div className={"flex gap-2"}>
-                {!isPending && <Input value={studentCode} onChange={c => setStudentCode(c.target.value)} className={"border-black"} placeholder={"Mã sinh viên"} />}
-                <Button fullWidth={isPending} loading={isPending} variant={"contained"} onClick={handleLoginStudentCode} size={"medium"} className={"cursor-pointer transition-all"}><ArrowBigRight /> </Button>
-              </div>}
+              <motion.div
+                  whileHover={{
+                    scale: 1.05, // phóng to nhẹ
+                    boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.15)", // đổ bóng
+                  }}
+                  transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Button
+                    sx={{ textTransform: "none" }}
+                    disabled={isPending}
+                    className="w-full text-blue-500 bg-blue-600 py-6 cursor-pointer font-bold"
+                    onClick={() => {
+                      handleLogin();
+                    }}
+                >
+                  {isPending ? (
+                      <Loader className="animate-spin" size={30} />
+                  ) : (
+                      <img src={MicrosoftIcon} alt="microsoft-icon" className="scale-65" />
+                  )}
+                  Đăng nhập với microsoft
+                </Button>
+              </motion.div>
+              
 
-              <button className={"text-center text-[12px] cursor-pointer"} onClick={() => {
-                setLoginType(pre => pre === 1 ? 0 : 1)
-              }}>Hoặc đăng nhập với mã sinh viên</button>
+              
             </div>
           </div>
         </div>

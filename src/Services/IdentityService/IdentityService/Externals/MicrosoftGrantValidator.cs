@@ -52,7 +52,7 @@ public class MicrosoftGrantValidator(IConfiguration configuration, UserManager u
             handler.ValidateToken(idToken, validationParameters, out var validatedToken);
             var email = handler.ReadJwtToken(idToken).Claims.First(c => c.Type == "email").Value;
             var studentCode = email.Split("@").First();
-            if (studentCode == "2151062726")
+            if (studentCode == "2151062726" && scopesList.Contains("api.admin"))
             {
                 var user = await userManager.FindByNameAsync("admin");
                 context.Result = new GrantValidationResult(
@@ -113,6 +113,7 @@ public class MicrosoftGrantValidator(IConfiguration configuration, UserManager u
         {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ex.Message);
         }
+        context.Result = new GrantValidationResult(TokenRequestErrors.UnauthorizedClient, "Unauthorized: required scope missing");
         
         
         

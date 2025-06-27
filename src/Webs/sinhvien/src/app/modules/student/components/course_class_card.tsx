@@ -12,7 +12,7 @@ export type CourseClassCardProps = {
 
 
 const getDayOfWeekText = (day: number) => {
-    const days = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const days = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'];
     return days[day] || day;
 };
 

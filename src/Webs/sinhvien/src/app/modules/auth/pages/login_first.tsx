@@ -32,7 +32,11 @@ const LoginFirst = () => {
   const {refetch} = useGetUserInfo(false)
   useEffect(() => {
     if (reLoginSuccess) {
-      refetch()
+      const timer = setTimeout(() => {
+        refetch();
+      }, 1500);
+
+      return () => clearTimeout(timer);
     }
   }, [reLoginSuccess]);
 
@@ -88,24 +92,8 @@ const LoginFirst = () => {
                   <p className="text-muted-foreground">Điểm số, kết quả học tập, thành tích</p>
                 </div>
               </li>
-              <li className="flex items-start gap-2">
-                <div className="rounded-full h-5 w-5 bg-blue-100 flex items-center justify-center mt-0.5">
-                  <span className="text-blue-700 text-xs">3</span>
-                </div>
-                <div>
-                  <span className="font-medium">Hoạt động ngoại khóa</span>
-                  <p className="text-muted-foreground">Các hoạt động, câu lạc bộ, sự kiện đã tham gia</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <div className="rounded-full h-5 w-5 bg-blue-100 flex items-center justify-center mt-0.5">
-                  <span className="text-blue-700 text-xs">4</span>
-                </div>
-                <div>
-                  <span className="font-medium">Tài liệu và bài tập</span>
-                  <p className="text-muted-foreground">Tài liệu học tập, bài tập đã nộp</p>
-                </div>
-              </li>
+              
+              
             </ul>
           </div>
 

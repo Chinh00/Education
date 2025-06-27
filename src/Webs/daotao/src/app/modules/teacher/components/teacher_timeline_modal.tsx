@@ -250,7 +250,7 @@ const TeacherTimelineModal = ({staff}: TeacherTimelineModalProps) => {
                 ...timeline?.data?.data?.items?.filter(e => getCourseClassBySubjectCode([...selectedSubjectCode])?.includes(e?.courseClassCode))?.map(c => {
                     return {
                         id: c?.id,
-                        title: `${c?.courseClassCode} (${getStage[courseClasses?.data?.data?.items?.find(cc => cc.courseClassCode === c?.courseClassCode)?.stage ?? 0]})`,
+                        title: `${c?.courseClassCode} (${getStage[courseClasses?.data?.data?.items?.find(cc => cc.courseClassCode === c?.courseClassCode)?.stage ?? 0]}) (P. ${c?.roomCode})`,
                         subject: "Đã có tiết",
                         color: "bg-red-100 text-blue-800 border-blue-200",
                         startSlot: +c?.slots[0],
@@ -365,7 +365,6 @@ const TeacherTimelineModal = ({staff}: TeacherTimelineModalProps) => {
                                             <div key={slot.id} className="contents">
                                                 <div className="p-3 border-b border-r bg-gray-50">
                                                     <div className="text-sm font-medium">{slot.period}</div>
-                                                    <div className="text-xs text-gray-500">{slot.time}</div>
                                                 </div>
 
                                                 {daysOfWeek.map((day, dayIndex) => {

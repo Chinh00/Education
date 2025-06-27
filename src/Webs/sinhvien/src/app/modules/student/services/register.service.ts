@@ -1,6 +1,6 @@
 import {AxiosResponse} from "axios";
 import {ListSuccessResponse, SuccessResponse} from "@/infrastructure/utils/success_response.ts";
-import {RegisterCourseClass, RegisterState} from "@/domain/register_state.ts";
+import {RegisterCourseClassState, RegisterState} from "@/domain/register_state.ts";
 import http from "@/infrastructure/http.ts";
 import {RegisterSubject} from "@/domain/register_subject.ts";
 import { CourseClassRegister} from "@/domain/course_class.ts";
@@ -19,7 +19,7 @@ const getRegisterSubjectWish = async (educationCode: string): Promise<AxiosRespo
 const createRegisterWish = async (model: EducationSubjectModel): Promise<AxiosResponse<SuccessResponse<string>>> =>  await http.post("/registerservice/api/Register/RegisterWish", model)
 
 // api lấy thông tin đăng ký lớp học phần
-const getRegisterCourseClass = async (): Promise<AxiosResponse<SuccessResponse<RegisterCourseClass>>> => await http.get(`/registerservice/api/Register/RegisterCourseClass/State`)
+const getRegisterCourseClass = async (): Promise<AxiosResponse<SuccessResponse<RegisterCourseClassState>>> => await http.get(`/registerservice/api/Register/RegisterCourseClass/State`)
 // api lấy thông tin danh sách lớp học phần theo mã môn học
 const getRegisterCourseClassBySubjectCode = async (subjectCode: string): Promise<AxiosResponse<SuccessResponse<ListSuccessResponse<CourseClassRegister>>>> => await http.get(`/registerservice/api/Register/RegisterCourseClass/${subjectCode}`)
 

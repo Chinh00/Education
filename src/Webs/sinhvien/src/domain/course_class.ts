@@ -33,6 +33,7 @@ export interface SlotTimeRegister {
 
 export interface CourseClassRegister {
     courseClassCode: string;
+    isConflict: boolean
     courseClassName: string;
     courseClassType: number;
     subjectCode: string;
@@ -54,10 +55,55 @@ export interface CourseClassRegister {
 
 
 
-export function groupCourseClassesWithLodash(items: CourseClassRegister[]) {
-    // Tách các lớp lý thuyết và các lớp lab
-    const lectures = items.filter(c => c.courseClassType === 0);
-    const labs = items.filter(c => c.courseClassType === 1);
+function isSlotTimeConflict(a: SlotTimeRegister, b: SlotTimeRegister): boolean {
+    if (
+        a.buildingCode !== b.buildingCode ||
+        a.roomCode !== b.roomCode ||
+        a.dayOfWeek !== b.dayOfWeek
+    ) return false;
+
+    // Kiểm tra giao ca học
+    const slotOverlap = a.slot.some(slotA => b.slot.includes(slotA));
+    if (!slotOverlap) return false;
+
+    // Kiểm tra giao tuần học
+    const weekOverlap = !(a.weekEnd < b.weekStart || a.weekStart > b.weekEnd);
+    return weekOverlap;
+}
+
+/**
+ * Đánh dấu các lớp bị trùng lịch với lớp đã đăng ký (theo slotTimes).
+ */
+function markConflictCourseClasses(
+    items: CourseClassRegister[],
+    exitCourseClasses: CourseClassRegister[]
+): CourseClassRegister[] {
+    return items.map(item => {
+        const isConflict = item.slotTimes.some(itemSlot =>
+            exitCourseClasses.some(exitClass =>
+                exitClass.slotTimes.some(exitSlot =>
+                    isSlotTimeConflict(itemSlot, exitSlot)
+                )
+            )
+        );
+        return { ...item, isConflict };
+    });
+}
+
+/**
+ * Gộp các lớp lý thuyết và lab, đồng thời đánh dấu lớp trùng lịch.
+ */
+export function groupCourseClassesWithLodash(
+    items: CourseClassRegister[],
+    exitCourseClasses: CourseClassRegister[] = []
+) {
+    // Đánh dấu trùng lịch
+    const itemsWithFlag = markConflictCourseClasses(items, exitCourseClasses);
+
+    // Tách các lớp lý thuyết và lab
+    const lectures = itemsWithFlag.filter(c => c.courseClassType === 0);
+    const labs = itemsWithFlag.filter(c => c.courseClassType === 1);
+
     // Nhóm các lab theo parentCourseClassCode
     const labsGrouped = _.groupBy(labs, "parentCourseClassCode");
 

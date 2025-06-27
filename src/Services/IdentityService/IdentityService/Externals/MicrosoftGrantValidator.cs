@@ -15,6 +15,7 @@ public class MicrosoftGrantValidator(IConfiguration configuration, UserManager u
     private static readonly Dictionary<string, string> departmentAdminCodes = new Dictionary<string, string>
     {
         { "2251162060", "A14.DT0301" },
+        { "2151062726", "admin" },
         
         // Thêm các cặp mã khác theo nhu cầu
     };
@@ -52,15 +53,8 @@ public class MicrosoftGrantValidator(IConfiguration configuration, UserManager u
             handler.ValidateToken(idToken, validationParameters, out var validatedToken);
             var email = handler.ReadJwtToken(idToken).Claims.First(c => c.Type == "email").Value;
             var studentCode = email.Split("@").First();
-            if (studentCode == "2151062726" && scopesList.Contains("api.admin"))
-            {
-                var user = await userManager.FindByNameAsync("admin");
-                context.Result = new GrantValidationResult(
-                    subject: user?.Id,
-                    authenticationMethod: GrantType,
-                    claims: []);
-                return;
-            }
+            
+            
             if (departmentAdminCodes.TryGetValue(studentCode, out var code))
             {
                 var user = await userManager.FindByNameAsync(code);
@@ -113,7 +107,6 @@ public class MicrosoftGrantValidator(IConfiguration configuration, UserManager u
         {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ex.Message);
         }
-        context.Result = new GrantValidationResult(TokenRequestErrors.UnauthorizedClient, "Unauthorized: required scope missing");
         
         
         

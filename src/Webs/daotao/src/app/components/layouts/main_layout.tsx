@@ -2,6 +2,7 @@ import {Outlet} from "react-router";
 import {SidebarInset, SidebarProvider,} from "@/app/components/ui/sidebar"
 import {AppSidebar} from "@/app/components/navbar/app-sidebar.tsx";
 import AdminBackground from "@/asssets/images/admin_background.jpg"
+import Footer from "@/app/components/footer/footer.tsx";
 
 const MainLayout = () => {
     return <>
@@ -19,6 +20,7 @@ const MainLayout = () => {
             <div className={"w-full"}>
                 <SidebarInset >
                     <Outlet />
+                    <Footer />
                 </SidebarInset>
             </div>
 

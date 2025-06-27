@@ -75,12 +75,12 @@ const Login = () => {
                 />
 
                 {/* Overlay gradient */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1.5, delay: 0.3 }}
-                    className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-indigo-900/60 to-purple-900/70"
-                />
+                {/*<motion.div*/}
+                {/*    initial={{ opacity: 0 }}*/}
+                {/*    animate={{ opacity: 1 }}*/}
+                {/*    transition={{ duration: 1.5, delay: 0.3 }}*/}
+                {/*    className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-indigo-900/60 to-purple-900/70"*/}
+                {/*/>*/}
 
                 {/* Hiệu ứng particle */}
                 <motion.div
@@ -213,40 +213,25 @@ const Login = () => {
                             </motion.button>
                         </motion.div>
 
-                        {/* Login Microsoft Button với hiệu ứng và UX hợp lý hơn */}
                         <motion.button
                             whileHover={{
                                 scale: 1.06,
                                 boxShadow: "0 0 32px 0 rgba(37,99,235,0.16)",
                                 background: "linear-gradient(90deg, #2563eb 0%, #60a5fa 100%)",
-                                color: "#fff",
+                                color: "#000000",
                             }}
+                            className={"rounded-xs"}
                             whileTap={{ scale: 0.97 }}
                             transition={{ type: "spring", stiffness: 340, damping: 18 }}
                             disabled={loginMicrosoftLoading}
                             onClick={handleLogin}
-                            className={`
-                                flex items-center justify-center w-full px-4 py-2
-                                rounded-xl
-                                border-2 border-blue-600
-                                bg-white
-                                text-blue-700 font-semibold
-                                gap-2
-                                shadow-md
-                                focus:outline-none focus:ring-2 focus:ring-blue-500/50
-                                transition-all duration-200
-                                text-base
-                                relative
-                                overflow-hidden
-                                ${loginMicrosoftLoading ? "opacity-80 pointer-events-none" : ""}
-                            `}
                             style={{
-                                minHeight: 48,
-                                fontSize: 17,
-                                letterSpacing: 0.1,
+                                letterSpacing: 0.4,
+                                padding: 10,
+                                width: "100%",
                             }}
                         >
-                            <span className="flex items-center">
+                            <span className="flex items-center justify-center">
                                 <motion.img
                                     src={MicrosoftIcon}
                                     alt="Microsoft"
@@ -266,124 +251,11 @@ const Login = () => {
                                 )}
                             </span>
                         </motion.button>
-                        {/* <LoginForm /> */}
                     </motion.div>
 
-                    {/* Tính năng */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7, delay: 1.1 }}
-                        className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4"
-                    >
-                        <motion.div
-                            whileHover={{ y: -8, scale: 1.04, boxShadow: "0 8px 36px 0 rgba(37,99,235,0.18)" }}
-                            className="group flex flex-col items-center space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-lg transition-all hover:bg-white/10"
-                        >
-                            <div className="rounded-xl bg-gradient-to-br from-blue-500/30 to-indigo-500/30 p-3 shadow-lg transition-all group-hover:shadow-blue-500/20">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6 text-white"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                                    />
-                                </svg>
-                            </div>
-                            <h3 className="text-center text-lg font-medium text-white">Học tập an toàn</h3>
-                            <p className="text-center text-sm text-white/70">Bảo vệ dữ liệu và quyền riêng tư của học sinh</p>
-                        </motion.div>
+                    
 
-                        <motion.div
-                            whileHover={{ y: -8, scale: 1.04, boxShadow: "0 8px 36px 0 rgba(139,92,246,0.18)" }}
-                            className="group flex flex-col items-center space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-lg transition-all hover:bg-white/10"
-                        >
-                            <div className="rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 p-3 shadow-lg transition-all group-hover:shadow-purple-500/20">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6 text-white"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"
-                                    />
-                                </svg>
-                            </div>
-                            <h3 className="text-center text-lg font-medium text-white">Học tập cá nhân hóa</h3>
-                            <p className="text-center text-sm text-white/70">Trải nghiệm học tập phù hợp với từng học sinh</p>
-                        </motion.div>
-
-                        <motion.div
-                            whileHover={{ y: -8, scale: 1.04, boxShadow: "0 8px 36px 0 rgba(6,182,212,0.18)" }}
-                            className="group flex flex-col items-center space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-lg transition-all hover:bg-white/10"
-                        >
-                            <div className="rounded-xl bg-gradient-to-br from-cyan-500/30 to-blue-500/30 p-3 shadow-lg transition-all group-hover:shadow-cyan-500/20">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6 text-white"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                                    />
-                                </svg>
-                            </div>
-                            <h3 className="text-center text-lg font-medium text-white">Quản lý hiệu quả</h3>
-                            <p className="text-center text-sm text-white/70">Theo dõi và đánh giá tiến độ học tập dễ dàng</p>
-                        </motion.div>
-
-                        <motion.div
-                            whileHover={{ y: -8, scale: 1.04, boxShadow: "0 8px 36px 0 rgba(251,191,36,0.18)" }}
-                            className="group flex flex-col items-center space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-lg transition-all hover:bg-white/10"
-                        >
-                            <div className="rounded-xl bg-gradient-to-br from-amber-500/30 to-orange-500/30 p-3 shadow-lg transition-all group-hover:shadow-amber-500/20">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6 text-white"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
-                                    />
-                                </svg>
-                            </div>
-                            <h3 className="text-center text-lg font-medium text-white">Kết nối cộng đồng</h3>
-                            <p className="text-center text-sm text-white/70">Tạo môi trường giao tiếp giữa giảng viên và học sinh</p>
-                        </motion.div>
-                    </motion.div>
-
-                    {/* Footer */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.7, delay: 1.4 }}
-                        className="mt-16 text-center text-sm text-white/60"
-                    >
-                        <p>
-                            &copy; {new Date().getFullYear()} Học Vấn Tương Lai. Tất cả các quyền được bảo lưu.
-                        </p>
-                    </motion.div>
+                    
                 </div>
             </div>
         </PredataScreen>

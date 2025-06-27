@@ -227,25 +227,22 @@ const AssignmentTeacher = ({subject}: AssignmentTeacherProps) => {
                             </Button>
                         </div>
                         <div className={"w-full flex justify-start items-center gap-4 py-2"}>
-                            <Button disabled={rowSelection?.length === 0} loading={isPending}
-                                onClick={() => {
-                                    mutate({
-                                        semesterCode: currentParentSemester?.semesterCode!, 
-                                        courseClassCodes: rowSelection as string[],
-                                        stage: selectedStage,
-                                        subjectCode: subject?.subjectCode!
-                                    }, {
-                                        onSuccess: () => {
-                                            refetchParent();
-                                            refetchChild();
-                                            timelineRefetch();
-                                            setRowSelection([]);
-                                            toast.success("Xếp giảng viên thành công");
-                                        }
-                                    })
+                            <Input.Search
+                                placeholder={"Tìm kiếm theo tên lớp học"}
+                                onChange={(e) => {
+                                    setQuery(prevState => ({
+                                        ...prevState,
+                                        Filters: [
+                                            ...prevState.Filters?.filter(f => f.field !== "CourseClassName") ?? [],
+                                            {
+                                                field: "CourseClassName",
+                                                operator: e.target.value !== "" ? "Contains" : "!=",
+                                                value: e.target.value !== "" ? e.target.value : "-1"
+                                            }
+                                        ]
+                                    }))
                                 }}
-                            >Xếp tự động </Button>
-                            <Input.Search />
+                            />
                             
                             
                         </div>

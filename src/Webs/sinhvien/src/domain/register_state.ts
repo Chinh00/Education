@@ -7,7 +7,7 @@ export interface RegisterState {
     minCredit: number;
     maxCredit: number;
 }
-export interface RegisterCourseClass {
+export interface RegisterCourseClassState {
     semesterCode: string,
     studentRegisterStart: string,
     studentRegisterEnd: string

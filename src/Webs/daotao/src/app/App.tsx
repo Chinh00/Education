@@ -24,7 +24,7 @@ function App() {
                         <RoutersProvider />
                     </LocalizationMuiProvider>
                     <Toaster />
-                    <ReactQueryDevtools initialIsOpen={false} />
+                    {/*<ReactQueryDevtools initialIsOpen={false} />*/}
                 </ReactQueryProvider>
             </ReduxProvider>
         </MicrosoftAuthProvider>

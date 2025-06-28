@@ -19,8 +19,8 @@ import {
     Popconfirm,
 } from "antd";
 import { useGenerateCourseClasses } from "@/app/modules/education/hooks/useGenerateCourseClasses.ts";
-import { useAppSelector } from "@/app/stores/hook.ts";
-import { CommonState } from "@/app/stores/common_slice.ts";
+import {useAppDispatch, useAppSelector} from "@/app/stores/hook.ts";
+import {CommonState, setGroupFuncName} from "@/app/stores/common_slice.ts";
 import { ColumnsType, getStageText } from "@/app/modules/common/hook.ts";
 import { CourseClass } from "@/domain/course_class.ts";
 import { Badge } from "@/app/components/ui/badge.tsx";
@@ -87,6 +87,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const Course_class_list = () => {
+    const dispatch = useAppDispatch()
+
+    const {groupFuncName} = useAppSelector<CommonState>(c => c.common)
+    useEffect(() => {
+        dispatch(setGroupFuncName({...groupFuncName, itemName: "Danh sách lớp học phần"}));
+    }, []);
     const { subjectCode } = useParams();
     const [selectedStage, setSelectedStage] = useState(0);
     const [form] = Form.useForm();

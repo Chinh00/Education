@@ -81,9 +81,7 @@ const FindTeacher = ({courseClass, refresh}: FindTeacherProps) => {
         <Dropdown
             open={open}
             dropdownRender={() => <div className={" bg-blue-400 space-y-5 p-5 rounded-md min-w-[500px] shadow-xl"}>
-                <div className={"flex flex-row gap-2"}>
-                    <Button size={"small"} color={"primary"}>Cùng bộ môn</Button>
-                </div>
+                
                 <div>
                     <Table<Staff>
                         rowKey={(c) => c.id}

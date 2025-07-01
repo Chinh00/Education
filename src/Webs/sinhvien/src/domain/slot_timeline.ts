@@ -5,11 +5,12 @@ export interface SlotTimeline {
     buildingCode: string;
     roomCode: string;
     dayOfWeek: number;
-    slots: string[]; 
+    slots: string[];
     id: string;
-    createdAt: string; 
+    createdAt: string;
     updatedAt: string | null;
 }
+
 function hasIntersection<T>(a: T[], b: T[]): boolean {
     return a.some(item => b.includes(item));
 }
@@ -31,4 +32,18 @@ export function checkTrungLichWithAll(
     return slotRegisters.some(slotRegister =>
         timelines.some(slotTimeline => isTrungLich(slotRegister, slotTimeline))
     );
+}
+
+export function getFirstTrungLichTimeline(
+    slotRegisters: SlotTimeRegister[],
+    timelines: SlotTimeline[]
+): SlotTimeline | null {
+    for (const slotTimeline of timelines) {
+        for (const slotRegister of slotRegisters) {
+            if (isTrungLich(slotRegister, slotTimeline)) {
+                return slotTimeline;
+            }
+        }
+    }
+    return null;
 }

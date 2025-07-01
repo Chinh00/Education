@@ -20,7 +20,8 @@ import {useGetSemesters} from "@/app/modules/student/hooks/useGetSemester.ts";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/app/components/ui/select.tsx";
 import {DateTimeFormat} from "@/infrastructure/datetime_format.ts";
 import {useGetTimeline} from "@/app/modules/student/hooks/useGetTimeline.ts";
-import {checkTrungLichWithAll, SlotTimeline} from "@/domain/slot_timeline.ts";
+import {checkTrungLichWithAll, getFirstTrungLichTimeline, SlotTimeline} from "@/domain/slot_timeline.ts";
+import {ArrowRight} from "lucide-react";
 
 
 const RegisterNew = () => {
@@ -94,7 +95,7 @@ const RegisterNew = () => {
                 value: "0,1"
             }
         ],
-    }, registerCourseClassState?.data?.data?.semesterCode !== undefined)
+    })
     
     
     return (
@@ -120,10 +121,10 @@ const RegisterNew = () => {
                 </Typography.Title>
                 <Badge className={"bg-blue-500 text-md col-span-5"}>
                     
-                    {semesters?.data?.data?.items?.find(e => e.parentSemesterCode === null!)?.semesterCode}
+                    {semesters?.data?.data?.items?.find(e => e?.parentSemesterCode === null! || e?.parentSemesterCode === "")?.semesterCode}
                 </Badge>
-                <div className={"col-span-5 flex justify-end"}>
-                    Thời gian đăng ký: {DateTimeFormat(registerCourseClassState?.data?.data?.studentRegisterStart) } {"->"} {DateTimeFormat(registerCourseClassState?.data?.data?.studentRegisterEnd)}
+                <div className={"col-span-5 flex justify-end items-center"}>
+                    Thời gian đăng ký: {DateTimeFormat(registerCourseClassState?.data?.data?.studentRegisterStart) } <ArrowRight size={18} /> {DateTimeFormat(registerCourseClassState?.data?.data?.studentRegisterEnd)}
                 </div>
                 
             </div>
@@ -173,6 +174,7 @@ const RegisterNew = () => {
                         ) : (
                             groupCourseClassesWithLodash(courseClasses?.data?.data?.items, [])?.filter(e => e.stage !== 4).map(e => (
                                 <CourseClassCard loading={loading}
+                                                 courseClassCodeTrungLich={getFirstTrungLichTimeline(e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])?.courseClassCode}
                                                  trungLich={checkTrungLichWithAll(e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])}
                                                  courseClassRegister={courseClassCodeRegister ?? []} onClick={(courseClassCode) => {
                                     mutate({

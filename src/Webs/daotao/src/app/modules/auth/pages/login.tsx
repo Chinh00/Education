@@ -241,7 +241,7 @@ const Login = () => {
                                     transition={{ type: "spring", stiffness: 300, damping: 16 }}
                                     style={{ filter: loginMicrosoftLoading ? "grayscale(0.7)" : "" }}
                                 />
-                                <span>
+                                <span className={"text-white"}>
                                     Đăng nhập với Microsoft
                                 </span>
                                 {loginMicrosoftLoading && (

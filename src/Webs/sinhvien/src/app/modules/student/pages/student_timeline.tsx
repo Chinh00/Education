@@ -132,7 +132,7 @@ const StudentTimeline = () => {
         const subject = subjects?.data?.data?.items?.find(e => e.subjectCode === courseClass?.subjectCode);
         return {
           id: c?.id,
-          title: courseClass?.courseClassName ?? "",
+          title: courseClass?.teacherName ?? "",
           subject: subject?.subjectName ?? "",
           color: "bg-red-100 text-blue-800 border-blue-200",
           startSlot: +c?.slots[0],
@@ -213,8 +213,8 @@ const StudentTimeline = () => {
                                     zIndex: 10,
                                   }}
                               >
-                                {/*<span className={"text-[10px]"}>L.{item.title}</span>*/}
                                 <span className={"text-[10px]"}>{item.subject}</span>
+                                <span className={"text-[10px]"}>GV: {item.title}</span>
                                 <span className="text-xs opacity-75">P.{item.roomCode}</span>
                               </div>
                           )}

@@ -9,6 +9,7 @@ export type CourseClassCardProps = {
     loading?: boolean,
     trungLich?: boolean,
     courseClassRegister: string[],
+    courseClassCodeTrungLich?: string
 };
 
 
@@ -40,38 +41,37 @@ const CourseClassCard = ({
                              courseClass,
                              onClick,
                              loading,
-                             courseClassRegister, trungLich
+                             courseClassRegister, trungLich,
+                             courseClassCodeTrungLich
                          }: CourseClassCardProps) => {
     const totalStudents = courseClass.students?.length ?? 0;
     const maxStudents = courseClass.numberStudentsExpected;
 
     return (
         <div className="bg-white rounded-lg border mb-6 overflow-hidden shadow">
-            {/* Header giống hình ảnh */}
-            <div className="flex items-center px-2 py-2 bg-gray-600 text-white font-semibold text-base justify-between">
-                <div className="flex items-center gap-2">
+            <div className={`flex items-center px-2 py-2 ${!trungLich ? "bg-gray-500" : "bg-red-500"}  text-white font-semibold text-base justify-between`}>
+                <div className="flex items-center gap-2 flex-col">
                     <span className={`${totalStudents >= maxStudents ? "text-red-400" : "text-gray-300"} text-sm mr-2`}>
                         {totalStudents >= maxStudents ? "(Lớp đã đầy)" : ""}
                     </span>
-                    Lớp chính: <span className="font-bold ml-1">{courseClass.subjectName} ({courseClass.courseClassCode})</span>
+                    <span>Lớp chính: <span className="font-bold ml-1">{courseClass.subjectName} ({courseClass.courseClassCode})</span></span>
+                    <span className={"font-bold text-sm"}>{trungLich && !courseClassRegister?.includes(courseClass?.courseClassCode) ? `Trùng lịch với lớp: ${courseClassCodeTrungLich}` : ""}</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="font-normal text-sm">{totalStudents}/{maxStudents}</span>
-                    {/* Nút đăng ký/hủy đăng ký lớp chính */}
                     <Button
                         loading={loading}
                         onClick={() => onClick(courseClass?.courseClassCode)}
-                        disabled={trungLich}
+                        // disabled={trungLich}
                         type={courseClassRegister?.includes(courseClass?.courseClassCode) ? "default" : "primary"}
                         style={{color: "white", backgroundColor: courseClassRegister?.includes(courseClass?.courseClassCode) ? "red" : "#1677ff"}}
                         className={`rounded px-4 py-1 ml-2  text-white` }
                     >
-                        {courseClassRegister?.includes(courseClass?.courseClassCode) ? "Hủy đăng ký" : trungLich ? "Đã trùng lịch" : "Đăng ký"}
+                        {courseClassRegister?.includes(courseClass?.courseClassCode) ? "Hủy đăng ký" : "Đăng ký"}
                     </Button>
                 </div>
             </div>
 
-            {/* Thông tin slot học lý thuyết */}
             <table className="w-full bg-white text-xs">
                 <thead>
                 <tr className="bg-gray-100">
@@ -93,7 +93,6 @@ const CourseClassCard = ({
                 })))}
                 </tbody>
             </table>
-            {/* Các lớp thực hành */}
             {courseClass.children && courseClass.children.length > 0 && (
                 <div className="bg-gray-50 px-4 pb-4">
                     <div className="italic text-sm pt-3 pb-2 text-gray-700 font-medium">Các lớp thành phần:</div>

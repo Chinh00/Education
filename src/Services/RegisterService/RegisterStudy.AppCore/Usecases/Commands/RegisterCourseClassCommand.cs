@@ -1,6 +1,7 @@
 ﻿using Education.Contract.IntegrationEvents;
 using Education.Core.Domain;
 using Education.Infrastructure.Authentication;
+using GrpcServices;
 using MassTransit;
 using MediatR;
 using RegisterStudy.AppCore.Usecases.Common;
@@ -11,10 +12,11 @@ namespace RegisterStudy.AppCore.Usecases.Commands;
 
 public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCourseClassModel Model) : ICommand<IResult>
 {
-    public record struct RegisterCourseClassModel(string SemesterCode, string SubjectCode, string CourseClassCode);
+    public record struct RegisterCourseClassModel(string SemesterCode, string EducationCode, string SubjectCode, string CourseClassCode);
 
     internal class Handler(
         IRegisterRepository<CourseClass> repository,
+        Training.TrainingClient trainingClient,
         IRegisterRepository<StudentRegister> studentRegisterRepository,
         IClaimContextAccessor claimContextAccessor,
         ITopicProducer<RegisterCourseClassSucceedNotificationIntegrationEvent> topicProducer)
@@ -22,8 +24,21 @@ public record RegisterCourseClassCommand(RegisterCourseClassCommand.RegisterCour
     {
         public async Task<IResult> Handle(RegisterCourseClassCommand request, CancellationToken cancellationToken)
         {
-            var (semesterCode, subjectCode, courseClassCode) = request.Model;
+            var (semesterCode, educationCode, subjectCode, courseClassCode) = request.Model;
             var studentCode = claimContextAccessor.GetUsername();
+            
+            // validate input
+            var response = await trainingClient.getSubjectByCodeAsync(
+                new GetSubjectByCodeRequest()
+                {
+                    EducationCode = educationCode,
+                    SubjectCode = subjectCode
+                },
+                cancellationToken: cancellationToken);
+            if (response == null)
+            {
+                return Results.BadRequest($"Không tìm thấy môn học {subjectCode} trong chương trình đào tạo {educationCode}.");
+            }
 
             // Lấy thông tin course class
             var courseClassKey = RedisKey.SubjectCourseClass(semesterCode, subjectCode, courseClassCode);

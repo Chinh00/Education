@@ -16,23 +16,34 @@ public record GetTeacherFreeTimelineQuery(string SemesterCode, int Stage, string
         IMongoRepository<SlotTimeline> slotTimelineRepository,
         IClaimContextAccessor claimContextAccessor,
         IMongoRepository<Subject> subjectRepository,
-        IMongoRepository<CourseClass> courseClassRepository)
+        IMongoRepository<CourseClass> courseClassRepository, 
+        IMongoRepository<Department> departmentRepository)
         : IRequestHandler<GetTeacherFreeTimelineQuery, ResultModel<ListResultModel<Staff>>>
     {
         public async Task<ResultModel<ListResultModel<Staff>>> Handle(GetTeacherFreeTimelineQuery request, CancellationToken cancellationToken)
         {
-            var departmentCode = claimContextAccessor.GetUsername();
-            if (departmentCode == "admin")
-            {
-                var subject = await subjectRepository.FindOneAsync(
-                    new GetSubjectByCodeSpec(request.SubjectCode),
-                    cancellationToken: cancellationToken);
-                departmentCode = subject.DepartmentCode;
-            }
+            var subject = await subjectRepository.FindOneAsync(
+                new GetSubjectByCodeSpec(request.SubjectCode),
+                cancellationToken: cancellationToken);
+            var departmentCode = subject.DepartmentCode;
+            
+            var department = await departmentRepository.FindOneAsync(
+                new GetDepartmentByCodeSpec(departmentCode),
+                cancellationToken: cancellationToken);
+            var specCode = department?.Path?.Split("/")[1];
+            // danh sach cac bo mon cung khoa
+            var departmentOfSpecificalStaff =
+                await departmentRepository.FindAsync(new GetDepartmentByPathCodeSpec(specCode), cancellationToken);
+            var departmentOfSchool = department?.Path?.Split("/")[0];
+            
             // lay danh sach giao vien trong bo mon
             var staffs = await staffRepository.FindAsync(
                 new GetStaffByDepartmentCodeSpec(departmentCode),
                 cancellationToken: cancellationToken);
+            var staffOfSpec = await staffRepository.FindAsync(
+                new GetStaffByDepartmentCodesSpec(departmentOfSpecificalStaff.Where(t => t.DepartmentCode != departmentCode).Select(e => e.DepartmentCode).ToList()),
+                cancellationToken: cancellationToken);
+            staffs.AddRange(staffOfSpec);
             
             // thoi khoa bieu cua mon can tim giao vien
             var courseClassSlotTimelines = await slotTimelineRepository.FindAsync(

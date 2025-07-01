@@ -27,10 +27,12 @@ builder.Services.AddAuth(builder.Configuration)
     .AddTrainingGrpcClient(builder.Configuration)
     .AddHangfire(config =>
     {
-        config.UseRedisStorage($"{builder.Configuration.GetValue<string>("Redis:Server")}:{builder.Configuration.GetValue<string>("Redis:Port")},abortConnect=false");
+        config.UseRedisStorage(
+            $"{builder.Configuration.GetValue<string>("Redis:Server")}:{builder.Configuration.GetValue<string>("Redis:Port")},abortConnect=false");
     })
     .AddMongodbService(builder.Configuration, typeof(Program))
     .AddOpenTelemetryCustom(builder.Configuration, "register-service")
+    .AddTrainingGrpcClient(builder.Configuration);
     ; 
 builder.Services.AddHangfireServer();
 var app = builder.Build();

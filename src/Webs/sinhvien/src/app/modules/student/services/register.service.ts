@@ -25,6 +25,7 @@ const getRegisterCourseClassBySubjectCode = async (subjectCode: string): Promise
 
 export interface StudentRegisterCourseClassModel {
     semesterCode: string,
+    educationCode: string,
     subjectCode: string,
     courseClassCode: string
 }

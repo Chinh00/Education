@@ -117,7 +117,7 @@ public class SeedDataHostedService(IServiceScopeFactory serviceScopeFactory, Htt
 
     async Task PullRooms(IMongoRepository<Room> roomRepository,CancellationToken cancellation)
     {
-        var url = $"https://dataprovider.tlu.my/api/Building/Room?Page=1&PageSize=9999&Includes=Code&Includes=Name&Includes=Capacity&Includes=BuildingCode&Includes=SupportedConditions";
+        var url = $"https://dataprovider.tlu.my/api/Building/Room?Page=1&PageSize=50&Includes=Code&Includes=Name&Includes=Capacity&Includes=BuildingCode&Includes=SupportedConditions";
         
         var response = await httpClient.GetAsync(url, cancellation);
         var json = await response.Content.ReadAsStringAsync(cancellation);

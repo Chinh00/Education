@@ -84,7 +84,7 @@ const StudentTimeline = () => {
     ],
   }, courseClassesOrigin !== undefined && courseClassesOrigin?.data?.data?.items?.length > 0);
 
-  // --- Timeline Query ---
+
   const [timelineQuery, setTimelineQuery] = useState<Query>({});
   // Gộp tất cả logic cập nhật Filters vào 1 useEffect
   useEffect(() => {
@@ -127,7 +127,6 @@ const StudentTimeline = () => {
       return;
     }
     if (subjects !== undefined && timeLine !== undefined && timeLine?.data?.data?.items?.length > 0) {
-      // Không nối prevState để tránh bị lặp lại lịch cũ khi chuyển tuần
       const newItems: ScheduleItem[] = timeLine?.data?.data?.items?.map(c => {
         const courseClass = courseClassesOrigin?.data?.data?.items?.find(e => e.courseClassCode === c?.courseClassCode);
         const subject = subjects?.data?.data?.items?.find(e => e.subjectCode === courseClass?.subjectCode);
@@ -138,7 +137,7 @@ const StudentTimeline = () => {
           color: "bg-red-100 text-blue-800 border-blue-200",
           startSlot: +c?.slots[0],
           endSlot: +c?.slots[c.slots?.length - 1],
-          dayIndex: c?.dayOfWeek - 1,
+          dayIndex: c?.dayOfWeek,
           duration: c.slots?.length,
           roomCode: c?.roomCode ?? "",
         };
@@ -214,7 +213,7 @@ const StudentTimeline = () => {
                                     zIndex: 10,
                                   }}
                               >
-                                <span className={"text-[10px]"}>L.{item.title}</span>
+                                {/*<span className={"text-[10px]"}>L.{item.title}</span>*/}
                                 <span className={"text-[10px]"}>{item.subject}</span>
                                 <span className="text-xs opacity-75">P.{item.roomCode}</span>
                               </div>

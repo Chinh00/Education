@@ -7,7 +7,8 @@ export type CourseClassCardProps = {
     courseClass: CourseClassRegister & { children?: CourseClassRegister[] },
     onClick: (courseClassCode: string) => void,
     loading?: boolean,
-    courseClassRegister: string[]
+    trungLich?: boolean,
+    courseClassRegister: string[],
 };
 
 
@@ -39,7 +40,7 @@ const CourseClassCard = ({
                              courseClass,
                              onClick,
                              loading,
-                             courseClassRegister
+                             courseClassRegister, trungLich
                          }: CourseClassCardProps) => {
     const totalStudents = courseClass.students?.length ?? 0;
     const maxStudents = courseClass.numberStudentsExpected;
@@ -60,11 +61,12 @@ const CourseClassCard = ({
                     <Button
                         loading={loading}
                         onClick={() => onClick(courseClass?.courseClassCode)}
+                        disabled={trungLich}
                         type={courseClassRegister?.includes(courseClass?.courseClassCode) ? "default" : "primary"}
                         style={{color: "white", backgroundColor: courseClassRegister?.includes(courseClass?.courseClassCode) ? "red" : "#1677ff"}}
                         className={`rounded px-4 py-1 ml-2  text-white` }
                     >
-                        {courseClassRegister?.includes(courseClass?.courseClassCode) ? "Hủy đăng ký" : "Đăng ký"}
+                        {courseClassRegister?.includes(courseClass?.courseClassCode) ? "Hủy đăng ký" : trungLich ? "Đã trùng lịch" : "Đăng ký"}
                     </Button>
                 </div>
             </div>

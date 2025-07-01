@@ -12,12 +12,15 @@ import {
 import React, {useEffect, useState} from "react";
 import CourseClassCard from "@/app/modules/student/components/course_class_card.tsx";
 import {Input} from "antd"
-import { groupCourseClassesWithLodash } from "@/domain/course_class";
+import {groupCourseClassesWithLodash, SlotTimeRegister} from "@/domain/course_class";
 import {useCreateStudentRegisterCourseClass} from "@/app/modules/student/hooks/useCreateStudentRegisterCourseClass.ts";
 import toast from "react-hot-toast";
 import {useGetStudentRegisterCourseClass} from "@/app/modules/student/hooks/useGetStudentRegisterCourseClass.ts";
 import {useGetSemesters} from "@/app/modules/student/hooks/useGetSemester.ts";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/app/components/ui/select.tsx";
+import {DateTimeFormat} from "@/infrastructure/datetime_format.ts";
+import {useGetTimeline} from "@/app/modules/student/hooks/useGetTimeline.ts";
+import {checkTrungLichWithAll, SlotTimeline} from "@/domain/slot_timeline.ts";
 
 
 const RegisterNew = () => {
@@ -60,9 +63,16 @@ const RegisterNew = () => {
         Page: 1,
         PageSize: 1000
     }, educations?.data?.data?.items?.[0] !== undefined)
-    const subjectCodes = results?.data?.data?.items?.flatMap(c =>
-        c.subjectResults?.map(e => e.subjectCode) ?? []
-    ) ?? [];
+    const {data: timelines} = useGetTimeline({
+        Filters: [
+            {
+                field: "CourseClassCode",
+                operator: "In",
+                value: studentRegister?.data?.data?.courseClassCode?.join(",") ?? ""
+            },
+            
+        ]
+    }, studentRegister !== undefined && studentRegister?.data?.data?.courseClassCode?.length > 0)
 
     const [selectedSubject, setSelectedSubject] = useState<string>()
     const {data: courseClasses, isLoading: courseClassLoading, refetch: courseClassRefectch} = useGetRegisterCourseClassBySubjectCode(selectedSubject!, selectedSubject !== undefined)
@@ -86,7 +96,7 @@ const RegisterNew = () => {
         ],
     }, registerCourseClassState?.data?.data?.semesterCode !== undefined)
     
-    const courseClassRegisterd = courseClasses?.data?.data?.items?.filter(e => courseClassCodeRegister?.includes(e.courseClassCode!)) ?? [];
+    
     return (
         <PredataScreen isLoading={false} isSuccess={true}>
             <div className={"grid grid-cols-12 gap-4 py-5"}>
@@ -108,10 +118,13 @@ const RegisterNew = () => {
                 </div>
                 <Typography.Title level={4} className={"text-center col-span-2"}>Học kì
                 </Typography.Title>
-                <Badge className={"bg-blue-500 text-md col-span-10"}>
+                <Badge className={"bg-blue-500 text-md col-span-5"}>
                     
                     {semesters?.data?.data?.items?.find(e => e.parentSemesterCode === null!)?.semesterCode}
                 </Badge>
+                <div className={"col-span-5 flex justify-end"}>
+                    Thời gian đăng ký: {DateTimeFormat(registerCourseClassState?.data?.data?.studentRegisterStart) } {"->"} {DateTimeFormat(registerCourseClassState?.data?.data?.studentRegisterEnd)}
+                </div>
                 
             </div>
             <Box className={"grid grid-cols-8 text-sm gap-5"}>
@@ -158,10 +171,13 @@ const RegisterNew = () => {
                                 <Typography.Text className={"text-gray-500"}>Không có lớp học nào được tìm thấy</Typography.Text>
                             </div>
                         ) : (
-                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items, courseClassRegisterd)?.filter(e => e.stage !== 4).map(e => (
-                                <CourseClassCard loading={loading}  courseClassRegister={courseClassCodeRegister ?? []} onClick={(courseClassCode) => {
+                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items, [])?.filter(e => e.stage !== 4).map(e => (
+                                <CourseClassCard loading={loading}
+                                                 trungLich={checkTrungLichWithAll(e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])}
+                                                 courseClassRegister={courseClassCodeRegister ?? []} onClick={(courseClassCode) => {
                                     mutate({
                                         courseClassCode: courseClassCode ,
+                                        educationCode: selectedEducation!,
                                         semesterCode: registerCourseClassState?.data?.data?.semesterCode!,
                                         subjectCode: selectedSubject!
                                     }, {

@@ -12,12 +12,12 @@ public class IdentityContext(DbContextOptions options) : IdentityDbContext<Appli
         base.OnModelCreating(builder);
         builder.Entity<ApplicationUser>().ToTable("Users");
         builder.Entity<IdentityRole>().ToTable("Roles");
-        builder.Entity<IdentityUserClaim<string>>().ToTable("UserClaims");
         builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
         
         
         builder.Ignore<IdentityUserToken<string>>();
         builder.Ignore<IdentityUserLogin<string>>();
         builder.Ignore<IdentityRoleClaim<string>>();
+        builder.Ignore<IdentityUserClaim<string>>();
     }
 }

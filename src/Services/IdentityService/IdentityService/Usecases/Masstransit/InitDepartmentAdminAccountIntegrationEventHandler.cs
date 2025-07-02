@@ -20,9 +20,7 @@ public class InitDepartmentAdminAccountIntegrationEventHandler(UserManager userM
             FullName = notification.DepartmentName,
             Email = $"{notification.DepartmentCode}@e.tlu.edu.vn",
         }, notification.DepartmentCode);
-        await userManager.AddClaimAsync(
-            await userManager.FindByNameAsync(notification.DepartmentCode) ?? throw new InvalidOperationException(),
-            new Claim("department-path", notification.Path));
+        
         if (result.Succeeded)
         {
             await userManager.AddToRoleAsync(await userManager.FindByNameAsync(notification.DepartmentCode) ?? throw new InvalidOperationException(), "department-admin");

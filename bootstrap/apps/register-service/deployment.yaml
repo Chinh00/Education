@@ -82,6 +82,12 @@ spec:
                 secretKeyRef:
                   key: connect_server
                   name: postgres-secret
+                
+            - name: TrainingGrpc__Url
+              valueFrom:
+                  secretKeyRef:
+                    key: training_grpc_url
+                    name: training-secret
       
       
       

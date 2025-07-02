@@ -2,11 +2,12 @@
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 443
+EXPOSE 8443
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 ENV ASPNETCORE_HTTP_PORTS=8080
+ENV ASPNETCORE_HTTPS_PORTS=8443
 WORKDIR /src
 COPY ["src/Services/TrainingService/TrainingService.Api/TrainingService.Api.csproj", "src/Services/TrainingService/TrainingService.Api/"]
 COPY ["src/Services/TrainingService/TrainingService.Infrastructure/TrainingService.Infrastructure.csproj", "src/Services/TrainingService/TrainingService.Infrastructure/"]
@@ -26,5 +27,6 @@ RUN dotnet publish "./TrainingService.Api.csproj" -c $BUILD_CONFIGURATION -o /ap
 FROM base AS final
 WORKDIR /app
 ENV ASPNETCORE_HTTP_PORTS=8080
+ENV ASPNETCORE_HTTPS_PORTS=8443
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TrainingService.Api.dll"]

@@ -19,6 +19,7 @@ spec:
           name: training
           ports:
             - containerPort: 8080
+            - containerPort: 8443
           env:
             - name: IdentityServer__Url
               valueFrom:
@@ -89,6 +90,10 @@ spec:
     - port: 80
       targetPort: 8080
       protocol: TCP
+    - port: 8443
+      targetPort: 8443
+      protocol: TCP
+    
   type: ClusterIP
   selector:
     app.kubernetes.io/name: training

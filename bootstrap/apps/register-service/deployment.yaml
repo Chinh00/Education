@@ -19,7 +19,18 @@ spec:
           name: register
           ports:
             - containerPort: 8080
+          volumeMounts:
+            - name: https-cert-volume
+              mountPath: /https
+              readOnly: true
+
           env:
+
+            - name: Cert__Path
+              value: "/https/cert.pfx"
+            - name: Cert__Password
+              value: "Pass12345"
+
             - name: Redis__Server
               valueFrom:
                 secretKeyRef:
@@ -90,6 +101,10 @@ spec:
                     name: training-secret
       
       
+      volumes:
+        - name: https-cert-volume
+          secret:
+            secretName: https-certificate-secret
       
       
       

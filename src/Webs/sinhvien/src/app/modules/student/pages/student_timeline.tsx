@@ -9,6 +9,10 @@ import {useGetCourseClasses} from "@/app/modules/student/hooks/useGetCourseClass
 import {weeksBetween} from "@/infrastructure/datetime_format.ts";
 import {useGetStudentRegisterCourseClass} from "@/app/modules/student/hooks/useGetStudentRegisterCourseClass.ts";
 import {useGetSubjects} from "@/app/modules/common/hook.ts";
+function getCodeBeforeDash(classCode: string) {
+  const match = classCode.match(/_([^_]+)-/);
+  return match?.[1] ?? null;
+}
 
 interface ScheduleItem {
   id: string
@@ -20,6 +24,15 @@ interface ScheduleItem {
   dayIndex: number
   duration: number,
   roomCode: string
+}
+function expandGDSlot(courseClassCode: string) {
+  const match = courseClassCode.match(/(\d)GD/);
+  if (!match) return [courseClassCode]; 
+
+  const expanded1 = courseClassCode.replace(/(\d)GD/, `${match[1]}GD1`);
+  const expanded2 = courseClassCode.replace(/(\d)GD/, `${match[1]}GD2`);
+
+  return [expanded1, expanded2];
 }
 
 export const timeSlots = [
@@ -63,13 +76,15 @@ const StudentTimeline = () => {
       studentRegisters?.data?.data?.courseClassCode?.filter(e => selectedWeek < 8 ? e?.includes("GD1") : e.includes("GD2")) ?? []
   ), [studentRegisters, selectedWeek]);
 
-  // --- Course class & subject data ---
+  const filterTwoStage = studentRegisters?.data?.data?.courseClassCode?.filter(t => t.includes("2GD")) ?? []
+  const query2Filter = filterTwoStage?.length > 0 ? filterTwoStage.map(e => expandGDSlot(e)).flat() : []
+
   const {data: courseClassesOrigin} = useGetCourseClasses({
     Filters: [
       {
         field: "CourseClassCode",
         operator: "In",
-        value: courseClasses?.join(",") ?? ""
+        value: [...courseClasses, ...(selectedWeek > 8 ? query2Filter?.filter(t => t.includes("2GD2")) : query2Filter?.filter(t => t.includes("2GD1")))]?.join(",") ?? ""
       },
     ]
   }, courseClasses?.length > 0);
@@ -79,13 +94,16 @@ const StudentTimeline = () => {
       {
         field: "SubjectCode",
         operator: "In",
-        value: courseClassesOrigin?.data?.data?.items?.map(e => e.subjectCode)?.join(",") ?? ""
+        value: [...courseClassesOrigin?.data?.data?.items?.map(e => e.subjectCode) ?? [], ...(selectedWeek > 8 ? query2Filter?.filter(t => t.includes("2GD2")) : query2Filter?.filter(t => t.includes("2GD1")))?.map(t => getCodeBeforeDash(t))]?.join(",") ?? ""
       }
     ],
   }, courseClassesOrigin !== undefined && courseClassesOrigin?.data?.data?.items?.length > 0);
 
 
-  const [timelineQuery, setTimelineQuery] = useState<Query>({});
+  const [timelineQuery, setTimelineQuery] = useState<Query>({
+    Page: 1,
+    PageSize: 100
+  });
   // Gộp tất cả logic cập nhật Filters vào 1 useEffect
   useEffect(() => {
     if (courseClasses.length > 0) {
@@ -93,7 +111,7 @@ const StudentTimeline = () => {
         {
           field: "CourseClassCode",
           operator: "In",
-          value: courseClasses.join(",")
+          value: [...courseClasses, ...(selectedWeek > 8 ? query2Filter?.filter(t => t.includes("2GD2")) : query2Filter?.filter(t => t.includes("2GD1")))].join(",")
         }
       ];
       if (selectedWeek < 8) {

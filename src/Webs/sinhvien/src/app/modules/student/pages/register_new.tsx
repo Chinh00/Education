@@ -12,7 +12,7 @@ import {
 import React, {useEffect, useState} from "react";
 import CourseClassCard from "@/app/modules/student/components/course_class_card.tsx";
 import {Input} from "antd"
-import {groupCourseClassesWithLodash, SlotTimeRegister} from "@/domain/course_class";
+import {group2StageCourseClasses, groupCourseClassesWithLodash, SlotTimeRegister} from "@/domain/course_class";
 import {useCreateStudentRegisterCourseClass} from "@/app/modules/student/hooks/useCreateStudentRegisterCourseClass.ts";
 import toast from "react-hot-toast";
 import {useGetStudentRegisterCourseClass} from "@/app/modules/student/hooks/useGetStudentRegisterCourseClass.ts";
@@ -172,7 +172,7 @@ const RegisterNew = () => {
                                 <Typography.Text className={"text-gray-500"}>Không có lớp học nào được tìm thấy</Typography.Text>
                             </div>
                         ) : (
-                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items, [])?.filter(e => e.stage !== 4).map(e => (
+                            groupCourseClassesWithLodash(courseClasses?.data?.data?.items, [])?.filter(e => ![2, 3, 4].includes(e.stage) ).map(e => (
                                 <CourseClassCard loading={loading}
                                                  courseClassCodeTrungLich={getFirstTrungLichTimeline(e?.courseClassCode, e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])?.courseClassCode}
                                                  trungLich={checkTrungLichWithAll(e?.courseClassCode, e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])}
@@ -191,8 +191,32 @@ const RegisterNew = () => {
                                     })
                                 }} courseClass={e} key={e.courseClassCode} />
                             ))
+                            
+                            
                         )
                     )}
+                    {
+                        group2StageCourseClasses(courseClasses?.data?.data?.items ?? [])?.map(e => (
+                            <CourseClassCard loading={loading}
+                                             courseClassCodeTrungLich={getFirstTrungLichTimeline(e?.courseClassCode, e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])?.courseClassCode}
+                                             trungLich={checkTrungLichWithAll(e?.courseClassCode, e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])}
+                                             courseClassRegister={courseClassCodeRegister ?? []} onClick={(courseClassCode) => {
+                                mutate({
+                                    courseClassCode: courseClassCode ,
+                                    educationCode: selectedEducation!,
+                                    semesterCode: registerCourseClassState?.data?.data?.semesterCode!,
+                                    subjectCode: selectedSubject!
+                                }, {
+                                    onSuccess: () => {
+                                        toast.success("Đăng ký lớp học thành công lớp học: " + e.courseClassCode);
+                                        courseClassRefectch();
+                                        refetch()
+                                    }
+                                })
+                            }} courseClass={e} key={e.courseClassCode} />
+                        ))
+                    }
+                    
                 </Card>
             </Box>
         </PredataScreen>

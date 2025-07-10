@@ -113,3 +113,16 @@ export function groupCourseClassesWithLodash(
         children: labsGrouped[lecture.courseClassCode] || [],
     }));
 }
+
+export function group2StageCourseClasses(items: CourseClassRegister[]) {
+    const stage4 = items.filter(c => c.stage === 4);
+
+    const others = items.filter(c => c.stage === 2 || c.stage === 3);
+
+    const grouped = stage4.map(parent => ({
+        ...parent,
+        children: others.filter(child => child.parentCourseClassCode === parent.courseClassCode)
+    }));
+
+    return grouped;
+}

@@ -132,16 +132,17 @@ const CourseClassCard = ({
                                         </tbody>
                                     </table>
                                     {/* Sĩ số và nút đăng ký lớp thành phần */}
-                                    <div className="flex items-center px-3 py-2 text-sm font-normal text-gray-500 gap-2">
+                                    {![2, 3, 4]?.includes(lab?.stage) && <div className="flex items-center px-3 py-2 text-sm font-normal text-gray-500 gap-2">
                                         <span>{labStudents}/{lab.numberStudentsExpected}</span>
                                         <Button
                                             disabled={courseClassRegister?.includes(lab?.courseClassCode)}
                                             onClick={() => onClick(lab?.courseClassCode)}
                                             className={`rounded px-3 py-1 ml-2 ${courseClassRegister?.includes(lab?.courseClassCode) ? "bg-gray-300" : "bg-cyan-500 text-white"}`}
                                         >
-                                            {checkTrungLichWithAll(lab?.slotTimes ?? [], timelines ?? []) ? "Đã trùng lịch" : "Đăng ký"}
+                                            {checkTrungLichWithAll(lab?.courseClassCode, lab?.slotTimes ?? [], timelines ?? []) ? "Đã trùng lịch" : "Đăng ký"}
                                         </Button>
-                                    </div>
+                                    </div>}
+                                    
                                 </div>
                             </div>
                         )

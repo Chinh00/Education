@@ -26,11 +26,7 @@ public class ProfileService(UserManager userManager, RoleManager<IdentityRole> r
                 new("isConfirm", user.IsConfirm.ToString()),
             };
 
-            if ((bool)roles?.Contains("department-admin"))
-            {
-                var claim = userManager.GetClaimsAsync(user).Result.FirstOrDefault(c => c.Type == "department-path");
-                claims.Add(claim);
-            }
+            
             
             context.IssuedClaims.AddRange(claims);
         } 

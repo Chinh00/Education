@@ -92,6 +92,8 @@ builder.Services.AddMassTransit(c =>
                     config.CreateIfMissing(n => n.NumPartitions = 1);
                     config.AutoOffsetReset = AutoOffsetReset.Earliest;
                     config.ConfigureConsumer<EventDispatcher>(context);
+                    config.SessionTimeout = TimeSpan.FromSeconds(60);  
+                    config.HeartbeatInterval = TimeSpan.FromSeconds(15);
                 });
             configurator.TopicEndpoint<InitDepartmentAdminAccountIntegrationEvent>(nameof(InitDepartmentAdminAccountIntegrationEvent), "identity-student",
                 config =>
@@ -99,6 +101,8 @@ builder.Services.AddMassTransit(c =>
                     config.CreateIfMissing(n => n.NumPartitions = 1);
                     config.AutoOffsetReset = AutoOffsetReset.Earliest;
                     config.ConfigureConsumer<EventDispatcher>(context);
+                    config.SessionTimeout = TimeSpan.FromSeconds(60);  
+                    config.HeartbeatInterval = TimeSpan.FromSeconds(15);
                 });
 
         });

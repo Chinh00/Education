@@ -71,6 +71,8 @@ public static class Extensions
                             endpointConfigurator.AutoOffsetReset = AutoOffsetReset.Earliest;
                             endpointConfigurator.CreateIfMissing(t => t.NumPartitions = 1);
                             endpointConfigurator.ConfigureSaga<RegisterState>(context);
+                            endpointConfigurator.SessionTimeout = TimeSpan.FromSeconds(60);  
+                            endpointConfigurator.HeartbeatInterval = TimeSpan.FromSeconds(15);
                         });
                     configurator.TopicEndpoint<WishListLockedIntegrationEvent>(nameof(WishListLockedIntegrationEvent), "training-register",
                         endpointConfigurator =>

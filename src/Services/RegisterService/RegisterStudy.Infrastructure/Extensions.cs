@@ -20,7 +20,7 @@ public static class Extensions
             }).ConfigurePrimaryHttpMessageHandler(() =>
         {
             var handler = new HttpClientHandler();
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
             {
                 var certificate = new X509Certificate2(configuration.GetValue<string>("Cert:Path"), configuration.GetValue<string>("Cert:Password"));
 

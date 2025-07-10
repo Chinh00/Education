@@ -69,7 +69,14 @@ public class RegisterStateMachine : MassTransitStateMachine<RegisterState>
             logger.LogInformation($"Student register {context.Message.CorrelationId} StartDate: {context.Message.StudentRegisterStartDate} EndDate: {context.Message.StudentRegisterEndDate}"); 
             context.Saga.StudentRegisterStart = context.Message.StudentRegisterStartDate;
             context.Saga.StudentRegisterEnd = context.Message.StudentRegisterEndDate;;
-        }));
+        }),
+        When(WishListLockedIntegrationEvent)
+            .ThenAsync(async (context) =>
+            {
+                logger.LogWarning($"[StudentRegister] Received WishListLockedIntegrationEvent {context.Message.CorrelationId}");
+            })
+        
+        );
         
         
     }

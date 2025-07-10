@@ -174,8 +174,8 @@ const RegisterNew = () => {
                         ) : (
                             groupCourseClassesWithLodash(courseClasses?.data?.data?.items, [])?.filter(e => e.stage !== 4).map(e => (
                                 <CourseClassCard loading={loading}
-                                                 courseClassCodeTrungLich={getFirstTrungLichTimeline(e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])?.courseClassCode}
-                                                 trungLich={checkTrungLichWithAll(e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])}
+                                                 courseClassCodeTrungLich={getFirstTrungLichTimeline(e?.courseClassCode, e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])?.courseClassCode}
+                                                 trungLich={checkTrungLichWithAll(e?.courseClassCode, e?.slotTimes ?? [], timelines?.data?.data?.items ?? [])}
                                                  courseClassRegister={courseClassCodeRegister ?? []} onClick={(courseClassCode) => {
                                     mutate({
                                         courseClassCode: courseClassCode ,

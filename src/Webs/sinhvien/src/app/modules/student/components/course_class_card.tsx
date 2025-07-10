@@ -2,6 +2,7 @@
 import { Button } from "antd";
 import RegisterNewPreview from "@/app/modules/student/components/register_new_preview.tsx";
 import { ReactElement } from "react";
+import {checkTrungLichWithAll, SlotTimeline} from "@/domain/slot_timeline.ts";
 
 export type CourseClassCardProps = {
     courseClass: CourseClassRegister & { children?: CourseClassRegister[] },
@@ -9,7 +10,8 @@ export type CourseClassCardProps = {
     loading?: boolean,
     trungLich?: boolean,
     courseClassRegister: string[],
-    courseClassCodeTrungLich?: string
+    courseClassCodeTrungLich?: string,
+    timelines?: SlotTimeline[]
 };
 
 
@@ -42,11 +44,13 @@ const CourseClassCard = ({
                              onClick,
                              loading,
                              courseClassRegister, trungLich,
-                             courseClassCodeTrungLich
+                             courseClassCodeTrungLich,
+                                timelines
                          }: CourseClassCardProps) => {
     const totalStudents = courseClass.students?.length ?? 0;
     const maxStudents = courseClass.numberStudentsExpected;
-
+    
+    
     return (
         <div className="bg-white rounded-lg border mb-6 overflow-hidden shadow">
             <div className={`flex items-center px-2 py-2 ${!trungLich ? "bg-gray-500" : "bg-red-500"}  text-white font-semibold text-base justify-between`}>
@@ -135,7 +139,7 @@ const CourseClassCard = ({
                                             onClick={() => onClick(lab?.courseClassCode)}
                                             className={`rounded px-3 py-1 ml-2 ${courseClassRegister?.includes(lab?.courseClassCode) ? "bg-gray-300" : "bg-cyan-500 text-white"}`}
                                         >
-                                            Đăng ký
+                                            {checkTrungLichWithAll(lab?.slotTimes ?? [], timelines ?? []) ? "Đã trùng lịch" : "Đăng ký"}
                                         </Button>
                                     </div>
                                 </div>
